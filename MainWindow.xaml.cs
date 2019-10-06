@@ -51,7 +51,11 @@ namespace SierraHOTAS
             {
                 if (map.ButtonId == e.ButtonId)
                 {
-                    Dispatcher?.Invoke(() => gridMap.SelectedItem = map);
+                    Dispatcher?.Invoke(() =>
+                    {
+                        gridMap.SelectedItem = map;
+                        gridMap.ScrollIntoView(map);
+                    });
                     break;
                 }
             }
@@ -76,6 +80,5 @@ namespace SierraHOTAS
                 HotasCollectionViewModel.SelectionChangedCommand.Execute(e.AddedItems);
             }
         }
-
     }
 }

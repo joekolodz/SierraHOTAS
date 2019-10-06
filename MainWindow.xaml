@@ -116,7 +116,7 @@
             </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding ButtonName}">
+                    <GridViewColumn Width="75" DisplayMemberBinding="{Binding ButtonName}">
                         <GridViewColumnHeader Content="Button" Background="Azure"/>
                     </GridViewColumn>
                     <GridViewColumn  Width="Auto">
@@ -125,7 +125,7 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
 
-                                    <Button 
+                                    <Button
                                         Style="{StaticResource MacroButton}"
                                         Command="{Binding (viewModel:MapViewModel.RecordMacroStartCommandWithParameter), IsAsync=True}">
                                         <Image>
@@ -174,7 +174,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Width="Auto">
+                    <GridViewColumn Width="400">
                         <!--DisplayMemberBinding="{Binding Action}"-->
                         <GridViewColumnHeader Background="Azure" Content="Action"/>
                         <GridViewColumn.CellTemplate>
@@ -220,7 +220,7 @@
                         <GridViewColumnHeader Background="Azure" Content="Name"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <ComboBox>
+                                <ComboBox Width="190">
                                     <ComboBoxItem>Nosewheel Steering</ComboBoxItem>
                                     <ComboBoxItem>Weapons Release</ComboBoxItem>
                                     <ComboBoxItem>Speed Break Fwd</ComboBoxItem>

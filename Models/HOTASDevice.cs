@@ -96,9 +96,9 @@ namespace SierraHOTAS.Models
                 })
                 .Where(state =>
                 {
+                    if (state.Offset < JoystickOffset.Buttons0 || state.Offset > JoystickOffset.Buttons127) return false;
                     Debug.WriteLine($"Offset:{state.Offset}, RawOffset:{state.RawOffset}");
                     if (state.Value == 128) return false;
-                    if (state.Offset < JoystickOffset.Buttons0 || state.Offset > JoystickOffset.Buttons127) return false;
                     Debug.WriteLine($"State:{state.ToString()}");
                     return true;
                 })
