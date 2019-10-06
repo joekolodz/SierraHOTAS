@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SierraHOTAS", "SierraHOTAS.csproj", "{5F2E2862-7836-4512-AA06-5F5EAE943AEE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5F2E2862-7836-4512-AA06-5F5EAE943AEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F2E2862-7836-4512-AA06-5F5EAE943AEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F2E2862-7836-4512-AA06-5F5EAE943AEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F2E2862-7836-4512-AA06-5F5EAE943AEE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3B66C027-41FA-4600-91A7-3974CCCD2A8D}
+	EndGlobalSection
+EndGlobal

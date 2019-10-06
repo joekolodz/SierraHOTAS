@@ -1,0 +1,239 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModel="clr-namespace:SierraHOTAS.ViewModel"
+        xmlns:hotasTest="clr-namespace:SierraHOTAS"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:viewModel1="clr-namespace:SierraHOTAS.ViewModel"
+        x:Class="SierraHOTAS.MainWindow"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="900" Width="1200">
+
+    <Window.DataContext>
+        <viewModel1:HOTASCollectionViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        </Style>
+        <Style TargetType="Button" x:Key="MenuButton">
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style TargetType="Button" x:Key="MacroButton">
+            <!--<Setter Property="Background" Value="WhiteSmoke"/>-->
+            <Setter Property="Background" Value="WhiteSmoke"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#2a7aa1"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <!--<Setter Property="Margin" Value="2,0"/>-->
+        </Style>
+        <Style TargetType="Image" x:Key="MacroButtonImage">
+            <Setter Property="Height" Value="21"/>
+            <Setter Property="Width" Value="21"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.1" />
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="Height" Value="24"/>
+                    <Setter Property="Width" Value="24"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <!--
+                                                <Image.Style>
+                                                <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
+                                                    <Setter Property="Source" Value="Images/record_red_32x32.png"/>
+    -->
+
+    <DockPanel Width="Auto" Height="Auto" LastChildFill="True" Background="#323232">
+
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="32" Background="#323232">
+            <Button Style="{StaticResource MenuButton}" Command="{Binding (viewModel:HOTASCollectionViewModel.OpenFileCommand), IsAsync=True}">
+                <Image Source="Images/open_32x32.png"/>
+            </Button>
+            <Button  Style="{StaticResource MenuButton}" Command="{Binding (viewModel:HOTASCollectionViewModel.SaveFileCommand), IsAsync=True}">
+                <Image Source="Images/save_blue_32x32.png"/>
+            </Button>
+            <Button  Style="{StaticResource MenuButton}" Command="{Binding (viewModel:HOTASCollectionViewModel.ExitApplicationCommand), IsAsync=True}">
+                <Image Source="Images/cancel_blue_32x32.png"/>
+            </Button>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="10,10,5,10" Width="300" VerticalAlignment="Top">
+            <TextBlock Text="Select a device" FontSize="15" Foreground="#7ac1ff"/>
+            <ListBox x:Name="lstDevices" DisplayMemberPath="Name" Height="250" FontSize="13" Background="Transparent" Foreground="Azure" BorderBrush="SlateGray"
+            SelectionChanged="LstDevices_OnSelectionChanged"/>
+            <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="#7ac1ff"/>
+            <TextBox Height="250" Foreground="Azure" Background="Transparent" FontSize="12">[LMENU+B]</TextBox>
+        </StackPanel>
+
+        <ListView Margin="5,30,10,10" Name="gridMap" Background="#323232" Foreground="Azure">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="BorderBrush" Value="#2a7aa1"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Background" Value="#313f47"/>
+                            <Setter Property="Foreground" Value="Azure"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="BorderBrush" Value="#26a0da"/>
+                            <Setter Property="Background" Value="#2f4c5a"/>
+                            <Setter Property="Foreground" Value="Azure"/>
+                        </Trigger>
+                    </Style.Triggers>
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                <Border Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                                    <GridViewRowPresenter Content="{TemplateBinding Content}" Margin="{TemplateBinding Padding}" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding ButtonName}">
+                        <GridViewColumnHeader Content="Button" Background="Azure"/>
+                    </GridViewColumn>
+                    <GridViewColumn  Width="Auto">
+                        <GridViewColumnHeader Background="Azure" Content=""/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+
+                                    <Button 
+                                        Style="{StaticResource MacroButton}"
+                                        Command="{Binding (viewModel:MapViewModel.RecordMacroStartCommandWithParameter), IsAsync=True}">
+                                        <Image>
+                                            <Image.Style>
+                                                <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
+                                                    <Setter Property="Source" Value="Images/record_red_32x32.png"/>
+                                                    <Style.Triggers>
+                                                        <!-- data triggers don't work yet because can't get INPC to work with MapVM class's RelayCommand object -->
+                                                        <DataTrigger Binding="{Binding (viewModel:MapViewModel.IsRecording)}" Value="True">
+                                                            <Setter Property="Source" Value="Images/cancel_black_32x32.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding (viewModel:MapViewModel.IsRecording)}" Value="False">
+                                                            <Setter Property="Source" Value="Images/record_red_32x32.png"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </Button>
+
+                                    <Button
+                                        Style="{StaticResource MacroButton}"
+                                        Command="{Binding (viewModel:MapViewModel.RecordMacroStopCommandWithParameter), IsAsync=True}">
+                                        <Image>
+                                            <Image.Style>
+                                                <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
+                                                    <Setter Property="Source" Value="Images/stop_black_32x32.png"/>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </Button>
+
+                                    <Button
+                                        Style="{StaticResource MacroButton}"
+                                        Command="{Binding (viewModel:MapViewModel.RecordMacroCancelCommandWithParameter), IsAsync=True}">
+                                        <Image>
+                                            <Image.Style>
+                                                <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
+                                                    <Setter Property="Source" Value="Images/cancel_black_32x32.png"/>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </Button>
+
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="Auto">
+                        <!--DisplayMemberBinding="{Binding Action}"-->
+                        <GridViewColumnHeader Background="Azure" Content="Action"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    
+                                    
+                                    <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="Transparent" BorderBrush="Transparent">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel IsItemsHost="True" Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBoxItem>
+                                            <StackPanel Orientation="Vertical" Margin="2">
+                                                <Button Height="32" HorizontalAlignment="Center" Content="{Binding Action}"/>
+                                                <!-- time is minutes : seconds : milliseconds -->
+                                                <TextBox Width="Auto" HorizontalAlignment="Center">00:00:00</TextBox>
+                                            </StackPanel>
+                                        </ListBoxItem>
+                                        <ListBoxItem>
+                                            <StackPanel Orientation="Vertical" Margin="2">
+                                                <Button Height="32" HorizontalAlignment="Center">RCTRL DN</Button>
+                                                <!-- time is minutes : seconds : milliseconds -->
+                                                <TextBox Width="Auto" HorizontalAlignment="Center">00:00:00</TextBox>
+                                            </StackPanel>
+                                        </ListBoxItem>
+                                        <ListBoxItem>
+                                            <StackPanel Orientation="Vertical" Margin="2">
+                                                <Button Height="32" HorizontalAlignment="Center">RCTRL DN</Button>
+                                                <!-- time is minutes : seconds : milliseconds -->
+                                                <TextBox Width="Auto" HorizontalAlignment="Center">00:00:00</TextBox>
+                                            </StackPanel>
+                                        </ListBoxItem>
+                                    </ListBox>
+
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Width="200">
+                        <GridViewColumnHeader Background="Azure" Content="Name"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox>
+                                    <ComboBoxItem>Nosewheel Steering</ComboBoxItem>
+                                    <ComboBoxItem>Weapons Release</ComboBoxItem>
+                                    <ComboBoxItem>Speed Break Fwd</ComboBoxItem>
+                                    <ComboBoxItem>Speed Break Aft</ComboBoxItem>
+
+                                </ComboBox>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DockPanel>
+
+</Window>
