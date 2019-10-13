@@ -2,22 +2,47 @@
 using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using SierraHOTAS.Annotations;
 
 namespace SierraHOTAS.Models
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class HOTASCollection
+    public class HOTASCollection : INotifyPropertyChanged
     {
-        public const bool IsDebug = false;
-
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
 
         [JsonProperty]
-        public List<HOTASDevice> Devices { get; set; }
+        public ObservableCollection<HOTASDevice> Devices { get; set; }
 
         private HOTASDevice _selectedDevice;
+
+        public void RemoveDevice(Guid instanceId)
+        {
+            HOTASDevice remove = null;
+            foreach (var d in Devices)
+            {
+                if (d.InstanceId == instanceId)
+                {
+                    remove = d;
+                }
+            }
+
+            if (remove != null)
+            {
+                Devices.Remove(remove);
+            }
+        }
+
+        public HOTASCollection()
+        {
+            Devices = new ObservableCollection<HOTASDevice>();
+        }
 
         public void Start()
         {
@@ -29,7 +54,7 @@ namespace SierraHOTAS.Models
         {
             foreach (var device in Devices)
             {
-                device.ButtonPressed += Device_ButtonPressed;
+                device.ButtonPressed -= Device_ButtonPressed;
                 device.Stop();
             }
         }
@@ -39,31 +64,15 @@ namespace SierraHOTAS.Models
         /// </summary>
         private void LoadAllDevices()
         {
-            Devices = PopulateDevices();
-            HandleDeviceEvents();
-
-            Debug.WriteLine("\n\nLoading...");
-            foreach (var entry in Devices)
-            {
-                Debug.WriteLine($"ProductName:{entry}");
-                LoadDevice(entry);
-            }
+            Devices = QueryOperatingSystemForDevices();
         }
 
         public void ListenToAllDevices()
         {
-            if (HOTASCollection.IsDebug) return;
-            foreach (var device in Devices)
-            {
-                device.Listen();
-            }
-        }
-
-        private void HandleDeviceEvents()
-        {
             foreach (var device in Devices)
             {
                 device.ButtonPressed += Device_ButtonPressed;
+                device.Listen();
             }
         }
 
@@ -78,45 +87,22 @@ namespace SierraHOTAS.Models
             ButtonPressed?.Invoke(sender, e);
         }
 
-        private void LoadDevice(HOTASDevice hotasDevice)
+        private ObservableCollection<HOTASDevice> QueryOperatingSystemForDevices()
         {
-            //TODO: this would be iterating each device and loading the button map from JSON file
-            //TODO: merge the default template with what was actually saved
+            var deviceList = new ObservableCollection<HOTASDevice>();
 
-            if (hotasDevice == null)
-                throw new NullReferenceException("No devices found with GUID: b7e383f0-bac7-11e9-8002-444553540000");
-
-            if (hotasDevice.InstanceId == Guid.Parse("f0bac120-bac7-11e9-8004-444553540000"))
-                BuildTestData_Stick(hotasDevice.ButtonMap);
-
-            if (hotasDevice.InstanceId == Guid.Parse("b7e383f0-bac7-11e9-8002-444553540000"))
-                BuildTestData_Throttle(hotasDevice.ButtonMap);
-        }
-
-        private List<HOTASDevice> PopulateDevices()
-        {
-            var i = new DirectInput();
-            var deviceList = new List<HOTASDevice>();
-
-            if (IsDebug)
-            {
-                deviceList.Add(new HOTASDevice(Guid.NewGuid(), "Throttle"));
-                return deviceList;
-            }
-
-            if (!IsDebug)
+            using (var i = new DirectInput())
             {
                 foreach (var device in i.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AttachedOnly))
                 {
                     deviceList.Add(new HOTASDevice(device.InstanceGuid, device.ProductName));
                 }
-            }
 
-            foreach (var device in i.GetDevices(DeviceType.FirstPerson, DeviceEnumerationFlags.AttachedOnly))
-            {
-                deviceList.Add(new HOTASDevice(device.InstanceGuid, device.ProductName));
+                //foreach (var device in i.GetDevices(DeviceType.FirstPerson, DeviceEnumerationFlags.AttachedOnly))
+                //{
+                //    deviceList.Add(new HOTASDevice(device.InstanceGuid, device.ProductName));
+                //}
             }
-
             return deviceList;
         }
 
@@ -125,76 +111,12 @@ namespace SierraHOTAS.Models
             return Devices.FirstOrDefault(d => d.InstanceId == instanceId);
         }
 
-        private void BuildTestData_Throttle(List<HOTASMap> map)
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            var button15 = map.First(x => x.ButtonName == "Buttons15"); //Id=63
-            button15.Actions = new List<ButtonAction>()
-            {
-                new ButtonAction()
-                {
-                    ScanCode = (int) Win32Structures.ScanCodeShort.SPACE,
-                    Flags = 0,
-                    TimeInMilliseconds = 0
-                },
-                new ButtonAction()
-                {
-                    ScanCode = (int) Win32Structures.ScanCodeShort.SPACE,
-                    Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP,
-                    TimeInMilliseconds = 0
-                }
-                };
-
-            var button17 = map.First(x => x.ButtonName == "Buttons17");//65
-            var x2 = new HOTASMap();
-            button17.Actions = new List<ButtonAction>()
-            {
-                new ButtonAction()
-                {
-                    ScanCode = (int) Win32Structures.ScanCodeShort.LMENU,
-                    Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED,
-                    TimeInMilliseconds = 0
-                },
-                new ButtonAction()
-                {
-                    ScanCode = (int) Win32Structures.ScanCodeShort.KEY_G,
-                    Flags = 0,
-                    TimeInMilliseconds = 0
-                },
-                new ButtonAction()
-                {
-                    ScanCode = (int) Win32Structures.ScanCodeShort.KEY_G,
-                    Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP,
-                    TimeInMilliseconds = 0
-                },
-                new ButtonAction()
-                {
-                    ScanCode = (int) Win32Structures.ScanCodeShort.LMENU,
-                    Flags = (int) (Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP |
-                                   Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED),
-                    TimeInMilliseconds = 0
-                }
-            };
-        }
-
-        private void BuildTestData_Stick(List<HOTASMap> map)
-        {
-            var button0 = map.First(x => x.ButtonName == "Buttons0"); //45
-
-            button0.Actions = new List<ButtonAction>()
-            {
-                new ButtonAction()
-                {
-                    ScanCode = (int)Win32Structures.ScanCodeShort.SPACE,
-                    Flags = 0,
-                    TimeInMilliseconds = 0
-                },
-                new ButtonAction()
-                {
-                    ScanCode = (int)Win32Structures.ScanCodeShort.SPACE,
-                    Flags = (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP,
-                    TimeInMilliseconds = 0
-                },
-            };
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

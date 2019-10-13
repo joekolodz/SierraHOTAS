@@ -1,0 +1,235 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Controls;
+using Newtonsoft.Json;
+using SharpDX.DirectInput;
+
+namespace SierraHOTAS.Models
+{
+    [JsonObject(MemberSerialization.OptIn)]
+    public class HOTASDevice
+    {
+        public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
+
+        [JsonProperty]
+        public Guid InstanceId { get; set; }
+
+        [JsonProperty]
+        public string Name { get; set; }
+
+        public Capabilities Capabilities { get; set; }
+
+        [JsonProperty]
+        public ObservableCollection<HOTASMap> ButtonMap { get; set; }
+
+        private Joystick Joystick { get; set; }
+        private IDisposable _disposableSubscription = null;
+        private bool _isStopRequested = false;
+
+        public HOTASDevice(Guid instanceId, string name)
+        {
+            if (instanceId == Guid.Empty || instanceId == null || string.IsNullOrWhiteSpace(name))
+            {
+                throw new NullReferenceException("Information about Joystick is unavailable");
+            }
+
+            InstanceId = instanceId;
+            Name = name;
+
+            if (MainWindow.IsDebug) return;
+
+            var i = new DirectInput();
+            Joystick = new Joystick(i, InstanceId);
+            Joystick.Properties.BufferSize = 128;
+            Joystick.Acquire();
+
+            Capabilities = Joystick.Capabilities;
+
+            LoadCapabilitiesMapping();
+
+            Console.WriteLine("AxeCount {0}", Capabilities.AxeCount);
+            Console.WriteLine("ButtonCount {0}", Capabilities.ButtonCount);
+            Console.WriteLine("PovCount {0}", Capabilities.PovCount);
+            Console.WriteLine("Flags {0}", Capabilities.Flags);
+        }
+
+
+        private void TEST_LoadCapabilitiesMapping()
+        {
+            ButtonMap = new ObservableCollection<HOTASMap>();
+
+            for (var i = 1; i <= 37; i++)
+            {
+                ButtonMap.Add(new HOTASMap() { Offset = JoystickOffsetValues.Offsets[i], ButtonId = i, Action = "<EMPTY>", ButtonName = $"Button{i}" });
+            }
+        }
+
+        private Task _deviceTask;
+        private CancellationTokenSource _tokenSourceListenLoop;
+        private CancellationToken _tokenListenLoop;
+        public void Listen()
+        {
+            _tokenSourceListenLoop = new CancellationTokenSource();
+            _tokenListenLoop = _tokenSourceListenLoop.Token;
+            _deviceTask = Task.Run(ListenLoop, _tokenListenLoop);
+        }
+
+        private void ListenLoop()
+        {
+            Debug.WriteLine("\n\nReading Joystick...!");
+
+            var p = Joystick.Properties;
+
+            while (!_tokenListenLoop.IsCancellationRequested)
+            {
+                Joystick.Poll();
+                var data = Joystick.GetBufferedData();
+
+                foreach (var state in data)
+                {
+                    if (state.Offset < JoystickOffset.Buttons0 || state.Offset > JoystickOffset.Buttons127)
+                        break;
+
+                    Debug.WriteLine($"State:{state.ToString()}");
+
+
+                    //multiple buttons can be down at once
+                    if (state.Value == 128)
+                    {
+                        //start button down with repeat
+                        //add button id to list
+                    }
+
+                    if (state.Value == 128)
+                    {
+                        //stop button down
+                        //use button id to stop
+                    }
+
+                    OnButtonPress((int)state.Offset);
+                    var map = GetMap(state.Offset);
+                    if (map != null)
+                    {
+                        ProcessButton(map); //event for action trigger
+                    }
+                }
+
+            }
+
+
+
+            //_disposableSubscription = Observable.Interval(TimeSpan.FromMilliseconds(1))
+            //    .SelectMany(x =>
+            //    {
+            //        Joystick.Poll();
+            //        return Joystick.GetBufferedData();
+            //    })
+            //    .Where(state =>
+            //    {
+            //        if (state.Offset < JoystickOffset.Buttons0 || state.Offset > JoystickOffset.Buttons127) return false;
+            //        Debug.WriteLine($"Value:{state.Value}, Offset:{state.Offset}, RawOffset:{state.RawOffset}");
+            //        //if (state.Value == 128) return false;
+            //        Debug.WriteLine($"State:{state.ToString()}");
+            //        return true;
+            //    })
+            //    .Subscribe(async state =>
+            //        {
+            //            OnButtonPress((int)state.Offset);
+            //            var map = GetMap(state.Offset);
+            //            if (map != null)
+            //            {
+            //                await ProcessButton(map); //event for action trigger
+            //            }
+            //        }
+            //    );
+        }
+
+        public void Stop()
+        {
+            _isStopRequested = true;
+
+            if (MainWindow.IsDebug) return;
+
+            _disposableSubscription?.Dispose();
+            _tokenSourceListenLoop.Cancel();
+            if (!_tokenSourceListenLoop.IsCancellationRequested) return;
+            if (_deviceTask.IsCanceled)
+            {
+                _deviceTask.Dispose();
+            }
+        }
+
+        private void LoadCapabilitiesMapping()
+        {
+            ButtonMap = new ObservableCollection<HOTASMap>();
+
+            SeedButtonMap(JoystickOffset.X, Capabilities.AxeCount, HOTASMap.ButtonType.Axis);
+            SeedButtonMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASMap.ButtonType.POV);
+            SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASMap.ButtonType.Button);
+        }
+
+        private void SeedButtonMap(JoystickOffset startFrom, int length, HOTASMap.ButtonType type)
+        {
+            var indexStart = JoystickOffsetValues.GetIndex(startFrom.ToString());
+            for (var i = indexStart; i < indexStart + length; i++)
+            {
+                var x = JoystickOffsetValues.GetOffset(i);
+                ButtonMap.Add(new HOTASMap()
+                {
+                    Offset = x,
+                    ButtonId = (int)x,
+                    Type = type,
+                    Action = $"<{type.ToString().ToUpper()}>",
+                    ButtonName = $"{JoystickOffsetValues.GetName(x)}"
+                });
+            }
+        }
+
+        public HOTASMap GetMap(JoystickOffset buttonId)
+        {
+            var offset = (int)buttonId;
+            return ButtonMap.FirstOrDefault(m => m.ButtonId == offset);
+        }
+
+        private void OnButtonPress(int buttonId)
+        {
+            ButtonPressed?.Invoke(this, new ButtonPressedEventArgs() { ButtonId = buttonId, Device = this });
+        }
+
+        private void ProcessButton(HOTASMap map)
+        {
+            if (map.Actions == null) return;
+            //TODO: temp
+            Debug.WriteLine($"Processing map: {map.ButtonName} for {Name}. Sending Keypresses: {map.Action}");
+
+            foreach (var action in map.Actions)
+            {
+                Keyboard.SendKeyPress((Win32Structures.ScanCodeShort)action.ScanCode, action.Flags);
+                System.Threading.Thread.Sleep(action.TimeInMilliseconds + 1);
+            }
+        }
+
+        private async Task ProcessButtonAsync(HOTASMap map)
+        {
+            if (map.Actions == null) return;
+            //TODO: temp
+            Debug.WriteLine($"Processing map: {map.ButtonName} for {Name}. Sending Keypresses: {map.Action}");
+
+            foreach (var action in map.Actions)
+            {
+                Keyboard.SendKeyPress((Win32Structures.ScanCodeShort)action.ScanCode, action.Flags);
+                await Task.Delay(action.TimeInMilliseconds + 1);
+            }
+
+            await Task.CompletedTask;
+        }
+
+    }
+}

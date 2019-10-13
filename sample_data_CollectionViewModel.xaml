@@ -1,0 +1,5 @@
+﻿<viewModel:HOTASCollectionViewModel xmlns:viewModel="clr-namespace:SierraHOTAS.ViewModel">
+    <viewModel:HOTASCollectionViewModel.Devices>
+        <viewModel:DeviceViewModel Name="Stick"></viewModel:DeviceViewModel>
+    </viewModel:HOTASCollectionViewModel.Devices>
+</viewModel:HOTASCollectionViewModel>

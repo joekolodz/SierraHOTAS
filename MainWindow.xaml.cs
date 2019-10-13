@@ -1,14 +1,17 @@
-﻿using System;
+﻿using SierraHOTAS.ViewModel;
+using SierraHOTAS.Win32;
+using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using SierraHOTAS;
-using SierraHOTAS.ViewModel;
 
 //https://www.pinvoke.net/default.aspx/user32/SendInput.html
 //https://cboard.cprogramming.com/windows-programming/170043-how-use-sendmessage-wm_keyup.html
+//free icon: https://www.axialis.com/free/icons/
 
+//TODO:
+//check todos!
+// when in TEST mode, suppress keyboard handling and force output to the TEST window
 
 namespace SierraHOTAS
 {
@@ -17,24 +20,48 @@ namespace SierraHOTAS
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static bool IsDebug { get; set; }
+
         public HOTASCollectionViewModel HotasCollectionViewModel { get; }
 
         public MainWindow()
         {
+            //IsDebug = true;
+
             InitializeComponent();
 
             HotasCollectionViewModel = new HOTASCollectionViewModel();
-            DataContext = HotasCollectionViewModel;
             HotasCollectionViewModel.ButtonPressed += CollectionViewModelButtonPressed;
+            HotasCollectionViewModel.FileOpened += HotasCollectionViewModel_FileOpened;
 
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
         }
 
+        private void HotasCollectionViewModel_FileOpened(object sender, EventArgs e)
+        {
+            txtLastFile.Content = FileSystem.LastSavedFileName;
+            Debug.WriteLine($"Loaded a device set...");
+            DataContext = HotasCollectionViewModel;
+            lstDevices.ItemsSource = HotasCollectionViewModel.Devices;
+            lstDevices.SelectedIndex = 0;
+            foreach (var d in HotasCollectionViewModel.Devices)
+            {
+                Debug.WriteLine($"{d.InstanceId}, {d.Name}");
+            }
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            WindowsProcedure.Initialize(this);
+        }
+
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             HotasCollectionViewModel.Initialize();
-            lstDevices.ItemsSource = HotasCollectionViewModel.Devices;
+            DataContext = HotasCollectionViewModel;
+            Keyboard.Start();
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
@@ -56,28 +83,22 @@ namespace SierraHOTAS
                         gridMap.SelectedItem = map;
                         gridMap.ScrollIntoView(map);
                     });
+
                     break;
                 }
             }
         }
 
-        private async Task TestKeyCombination()
-        {
-            var flags1 = Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_ALTDOWN;
-            var flags2 = Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED;
-            var flags3 = flags1 | flags2;
-
-            Keyboard.SendKeyPress(Win32Structures.ScanCodeShort.LMENU, (int)flags3);
-        }
-
         private void LstDevices_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (e.AddedItems.Count <= 0) return;
             if (!(e.AddedItems[0] is DeviceViewModel device)) return;
+
             gridMap.ItemsSource = device.ButtonMap;
 
             if (HotasCollectionViewModel.SelectionChangedCommand.CanExecute(null))
             {
-                HotasCollectionViewModel.SelectionChangedCommand.Execute(e.AddedItems);
+                HotasCollectionViewModel.SelectionChangedCommand.Execute(device);
             }
         }
     }

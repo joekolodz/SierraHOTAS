@@ -78,6 +78,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DataProvider.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="FileSystem.cs" />
     <Compile Include="MainWindow.xaml.cs" />
     <Compile Include="Models\ButtonAction.cs" />
     <Compile Include="Models\ButtonPressedEventArgs.cs" />
@@ -93,12 +96,13 @@
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\HOTASCollectionViewModel.cs" />
     <Compile Include="ViewModels\MapViewModel.cs" />
-    <Compile Include="Win32Structures.cs" />
+    <Compile Include="Win32\Win32Structures.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Keyboard.cs" />
+    <Compile Include="Win32\Keyboard.cs" />
+    <Compile Include="Win32\WindowsProcedure.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -144,6 +148,16 @@
     <Resource Include="Images\save_blue_32x32.png" />
     <Resource Include="Images\stop_black_32x32.png" />
     <Resource Include="Images\stop_blue_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\down_azure_32x32.png" />
+    <Resource Include="Images\up_azure_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\repeat_orange_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\saveas_blue_32x32.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

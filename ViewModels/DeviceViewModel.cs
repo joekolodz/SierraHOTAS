@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Permissions;
+using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
 
 namespace SierraHOTAS.ViewModel
 {
-    public class DeviceViewModel
+    public class DeviceViewModel : INotifyPropertyChanged
     {
         private HOTASDevice _hotasDevice = null;
 
@@ -16,7 +19,11 @@ namespace SierraHOTAS.ViewModel
 
         public string Name { get; set; }
 
-        public List<MapViewModel> ButtonMap { get; set; }
+        public ObservableCollection<MapViewModel> ButtonMap { get; set; }
+
+        public DeviceViewModel()
+        {
+        }
 
         public DeviceViewModel(HOTASDevice device)
         {
@@ -26,9 +33,8 @@ namespace SierraHOTAS.ViewModel
             BuildMap();
         }
 
-        private void BuildMap()
+        public void RebuildMap()
         {
-            ButtonMap = new List<MapViewModel>();
             foreach (var m in _hotasDevice.ButtonMap)
             {
                 var mapViewModel = new MapViewModel(m);
@@ -39,6 +45,12 @@ namespace SierraHOTAS.ViewModel
             }
         }
 
+        private void BuildMap()
+        {
+            ButtonMap = new ObservableCollection<MapViewModel>();
+        }
+
+        
         private void ForceDisableAllOtherMaps(object sender, bool isDisabled)
         {
 
@@ -62,6 +74,14 @@ namespace SierraHOTAS.ViewModel
         private void MapViewModel_RecordingCancelled(object sender, EventArgs e)
         {
             ForceDisableAllOtherMaps(sender, false);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

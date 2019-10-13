@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -11,7 +12,7 @@ using SharpDX.DirectInput;
 
 namespace SierraHOTAS.ViewModel
 {
-    public class MapViewModel //: INotifyPropertyChanged
+    public class MapViewModel : INotifyPropertyChanged
     {
         private readonly HOTASMap _hotasMap;
 
@@ -21,7 +22,7 @@ namespace SierraHOTAS.ViewModel
         public event EventHandler RecordingStopped;
         public event EventHandler RecordingCancelled;
 
-        public JoystickOffset Offset
+        public uint Offset
         {
             get => _hotasMap.Offset;
             set => _hotasMap.Offset = value;
@@ -36,20 +37,16 @@ namespace SierraHOTAS.ViewModel
         public string ButtonName
         {
             get => _hotasMap.ButtonName;
-            set => _hotasMap.ButtonName = value;
+            set
+            {
+                if (_hotasMap.ButtonName == value) return;
+                _hotasMap.ButtonName = value;
+                OnPropertyChanged(nameof(ButtonName));
+            }
         }
 
-        public string Action
-        {
-            get => _hotasMap.Action;
-            set => _hotasMap.Action = value;
-        }
 
-        public List<ButtonAction> Actions
-        {
-            get => _hotasMap.Actions;
-            set => _hotasMap.Actions = value;
-        }
+        public ObservableCollection<ButtonActionViewModel> Actions { get; set; }
 
         public RelayCommandWithParameter RecordMacroStartCommandWithParameter { get; set; }
 
@@ -61,19 +58,45 @@ namespace SierraHOTAS.ViewModel
 
         public bool IsRecording { get; set; }
 
+        public MapViewModel()
+        {
+            _hotasMap = new HOTASMap();
+            Actions = new ObservableCollection<ButtonActionViewModel>();
+        }
+
+        private void Actions_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            BuildButtonActionViewModel(_hotasMap);
+        }
 
         public MapViewModel(HOTASMap map)
         {
             _hotasMap = map;
+            _hotasMap.Actions.CollectionChanged += Actions_CollectionChanged;
+
             RecordMacroStartCommandWithParameter = new RelayCommandWithParameter(RecordMacroStart, RecordMacroStartCanExecute);
             RecordMacroStopCommandWithParameter = new RelayCommandWithParameter(RecordMacroStop, RecordMacroStopCanExecute);
             RecordMacroCancelCommandWithParameter = new RelayCommandWithParameter(RecordMacroCancel, RecordMacroCancelCanExecute);
             IsRecording = false;
             IsDisabledForced = false;
+            Actions = new ObservableCollection<ButtonActionViewModel>();
+            BuildButtonActionViewModel(map);
         }
+
+        private void BuildButtonActionViewModel(HOTASMap map)
+        {
+            Actions.Clear();
+            foreach (var a in map.Actions)
+            {
+                Actions.Add(new ButtonActionViewModel(a));
+            }
+        }
+
         private void RecordMacroStart(object parameter)
         {
             if (IsDisabledForced) return;
+
+            Actions.Clear();
 
             _hotasMap.Record();
 
@@ -93,11 +116,13 @@ namespace SierraHOTAS.ViewModel
             if (IsDisabledForced) return;
 
             _hotasMap.Stop();
+
             //save changes
-            Action = _hotasMap.Action;
+            BuildButtonActionViewModel(_hotasMap);
+
 
             IsRecording = false;
-            Debug.WriteLine($"STOPPED - Recorded==>{Action}");
+            Debug.WriteLine($"STOPPED - Recorded==>{_hotasMap}");
             RecordingStopped?.Invoke(this, EventArgs.Empty);
         }
 
@@ -111,8 +136,8 @@ namespace SierraHOTAS.ViewModel
             if (IsDisabledForced) return;
 
             _hotasMap.Cancel();
-            //clear changes
 
+            BuildButtonActionViewModel(_hotasMap);
 
             IsRecording = false;
             Debug.WriteLine("CANCELLED");

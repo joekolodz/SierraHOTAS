@@ -3,28 +3,41 @@ using SierraHOTAS.ViewModel.Commands;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using SierraHOTAS.Annotations;
 
 namespace SierraHOTAS.ViewModel
 {
-    public class HOTASCollectionViewModel : IDisposable
+    public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {
-        public List<DeviceViewModel> Devices { get; set; }
+        public ObservableCollection<DeviceViewModel> Devices { get; set; }
+
+        public string LastFileSaved => FileSystem.LastSavedFileName;
 
         public event EventHandler<ButtonPressedViewModelEventArgs> ButtonPressed;
 
+        public event EventHandler<EventArgs> FileOpened;
+
         private HOTASCollection _deviceList;
 
-        private DeviceViewModel _selectedDevice;
+        public DeviceViewModel SelectedDevice { get; set; }
 
         private ICommand _fileSaveCommand;
 
         public ICommand SaveFileCommand => _fileSaveCommand ?? (_fileSaveCommand = new CommandHandler(FileSave, () => CanExecute));
+
+        private ICommand _fileSaveAsCommand;
+
+        public ICommand SaveFileAsCommand => _fileSaveAsCommand ?? (_fileSaveAsCommand = new CommandHandler(FileSaveAs, () => CanExecute));
 
         private ICommand _fileOpenCommand;
 
@@ -32,7 +45,7 @@ namespace SierraHOTAS.ViewModel
 
         private ICommand _selectionChangedCommand;
 
-        public ICommand SelectionChangedCommand => _selectionChangedCommand ?? (_selectionChangedCommand = new RelayCommandWithParameter(SelectionChangedCommandEvent));
+        public ICommand SelectionChangedCommand => _selectionChangedCommand ?? (_selectionChangedCommand = new RelayCommandWithParameter(lstActionList_OnSelectionChanged));
 
         private ICommand _exitApplicationCommand;
 
@@ -47,8 +60,15 @@ namespace SierraHOTAS.ViewModel
 
         public void Initialize()
         {
-            _deviceList.ButtonPressed += DeviceList_ButtonPressed;
-            _deviceList.Start();
+            if (MainWindow.IsDebug)
+            {
+                _deviceList.Devices = DataProvider.GetDeviceList();
+            }
+            else
+            {
+                _deviceList.ButtonPressed += DeviceList_ButtonPressed;
+                _deviceList.Start();
+            }
 
             BuildDevicesViewModel();
         }
@@ -58,9 +78,44 @@ namespace SierraHOTAS.ViewModel
             _deviceList.Stop();
         }
 
+        private void BuildDevicesViewModelFromLoadedDevices(HOTASCollection loadedDevices)
+        {
+
+            foreach (var ld in loadedDevices.Devices)
+            {
+                DeviceViewModel deviceVm = null;
+                foreach (var vm in Devices)
+                {
+                    if (vm.InstanceId != ld.InstanceId) continue;
+                    deviceVm = vm;
+                    break;
+                }
+
+                if (deviceVm == null)
+                {
+                    Debug.WriteLine($"Loaded mappings for {ld.Name}, but could not find the device attached!");
+                    Debug.WriteLine($"Mappings will be displayed, but they will not function");
+                    Devices.Add(new DeviceViewModel(ld));
+                    continue;
+                }
+                else
+                {
+                    Devices.Remove(deviceVm);
+                }
+                //deviceVm = new DeviceViewModel(ld);
+
+                //Devices.Add(deviceVm);
+
+                var d = _deviceList.GetDevice(ld.InstanceId);
+                if (d == null) continue;
+                d.ButtonMap = ld.ButtonMap.ToObservableCollection();
+                deviceVm.RebuildMap();
+            }
+        }
+
         private void BuildDevicesViewModel()
         {
-            Devices = _deviceList.Devices.Select(device => new DeviceViewModel(device)).ToList();
+            Devices = _deviceList.Devices.Select(device => new DeviceViewModel(device)).ToObservableCollection();
         }
 
         private void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -76,57 +131,35 @@ namespace SierraHOTAS.ViewModel
 
         private void FileSave()
         {
-            var dlg = new Microsoft.Win32.SaveFileDialog
-            {
-                FileName = "Document",
-                DefaultExt = ".sh",
-                Filter = "Sierra Hotel (.shotas)|*.shotas"
-            };
-
-            var result = dlg.ShowDialog();
-
-            if (result == true)
-            {
-                var filename = dlg.FileName;
-                Debug.WriteLine($"Saving profile to :{filename}");
-
-                using (var file = File.CreateText(filename))
-                {
-                    var serializer = new JsonSerializer { Formatting = Formatting.Indented };
-                    serializer.Serialize(file, _deviceList);
-                }
-            }
+            FileSystem.FileSave(_deviceList);
         }
+
+        private void FileSaveAs()
+        {
+            FileSystem.FileSaveAs(_deviceList);
+        }
+
         private void FileOpen()
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                FileName = "Document",
-                DefaultExt = ".sh",
-                Filter = "Sierra Hotel (.shotas)|*.shotas"
-            };
-
-            var result = dlg.ShowDialog();
-            if (result != true) return;
-
-            var filename = dlg.FileName;
-
-            using (var file = File.OpenText(filename))
-            {
-                Debug.WriteLine($"Reading profile from :{filename}");
-                var serializer = new JsonSerializer();
-
-                _deviceList = (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
-                BuildDevicesViewModel();
-            }
+            _deviceList.Stop();
+            var loadedDeviceList = FileSystem.FileOpen();
+            BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
+            FileOpened?.Invoke(this, new EventArgs());
+            _deviceList.ListenToAllDevices();
         }
 
-        public void SelectionChangedCommandEvent(object device)
+        public void lstActionList_OnSelectionChanged(object device)
         {
-            var x = device as object[];
-            _selectedDevice = x[0] as DeviceViewModel;
-            if (_selectedDevice != null) Debug.WriteLine($"Device Selected:{_selectedDevice.Name}");
+            SelectedDevice = device as DeviceViewModel;
+            if (SelectedDevice != null) Debug.WriteLine($"Device Selected:{SelectedDevice.Name}");
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

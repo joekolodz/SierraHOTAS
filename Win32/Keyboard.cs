@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -52,6 +53,10 @@ namespace SierraHOTAS
         internal static LowLevelKeyboardProc _proc = HookCallback;
         internal static IntPtr _hookID = IntPtr.Zero;
 
+        public static bool IsKeySuppressionActive { get; set; }
+        internal const int KeyDownInitialDelay = 350;
+        internal const int KeyDownRepeatDelay = 35;
+
         internal class KeystrokeEventArgs : EventArgs
         {
             public int Code { get; set; }
@@ -66,64 +71,24 @@ namespace SierraHOTAS
 
         public static void Start()
         {
+            _lstKeyDownBuffer = new List<uint>();
             _hookID = SetHook(_proc);
         }
 
         public static void Stop()
         {
             UnhookWindowsHookEx(_hookID);
+            _lstKeyDownBuffer.Clear();
         }
 
-        //public static void SendKeyDown(Win32Structures.VirtualKeyShort vKey)
-        //{
-        //    SendKeyDown((Win32Structures.ScanCodeShort)MapVirtualKeyEx((uint)vKey, Keyboard.MAPVK_VK_TO_VSC, (IntPtr)0));
-        //}
-
-        //public static void SendKeyUp(Win32Structures.VirtualKeyShort vKey)
-        //{
-        //    SendKeyUp((Win32Structures.ScanCodeShort)MapVirtualKeyEx((uint)vKey, Keyboard.MAPVK_VK_TO_VSC, (IntPtr)0));
-        //}
-
-        //public static void SendKeyPressed(Win32Structures.VirtualKeyShort vKey)
-        //{
-        //    SendKeyDown((Win32Structures.ScanCodeShort)MapVirtualKeyEx((uint)vKey, Keyboard.MAPVK_VK_TO_VSC, (IntPtr)0));
-        //    SendKeyUp((Win32Structures.ScanCodeShort)MapVirtualKeyEx((uint)vKey, Keyboard.MAPVK_VK_TO_VSC, (IntPtr)0));
-        //}
-
-
-        //public static void SendKeyUp(Win32Structures.ScanCodeShort scanCode)
-        //{
-        //    var pInputs = new Win32Structures.INPUT[1]
-        //    {
-        //        BuildKeyboardInput(scanCode, true)
-        //    };
-        //    SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
-        //}
-
-        //public static void SendKeyDown(Win32Structures.ScanCodeShort scanCode)
-        //{
-        //    var pInputs = new Win32Structures.INPUT[1]
-        //    {
-        //        BuildKeyboardInput(scanCode)
-        //    };
-        //    SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
-        //}
-
-        //public static void SendKeyPressed(Win32Structures.ScanCodeShort scanCode)
-        //{
-        //    var pInputs = new Win32Structures.INPUT[]
-        //    {
-        //        BuildKeyboardInput(scanCode),
-        //        BuildKeyboardInput(scanCode, true)
-        //    };
-        //    SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
-        //}
-
-        //private static Win32Structures.INPUT BuildKeyboardInput(Win32Structures.ScanCodeShort scanCode)
-        //{
-        //    return BuildKeyboardInput(scanCode, false);
-        //}
-
+        public static void SendKeyPress(int scanCode, int flags)
+        {
+            var pInputs = new[]
+            {
+                BuildKeyboardInput((Win32Structures.ScanCodeShort)scanCode, flags),
+            };
+            SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
+        }
 
         public static void SendKeyPress(Win32Structures.ScanCodeShort scanCode, int flags)
         {
@@ -134,12 +99,9 @@ namespace SierraHOTAS
             SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
         }
 
-
         private static Win32Structures.INPUT BuildKeyboardInput(Win32Structures.ScanCodeShort scanCode, int flags)
         {
-            Win32Structures.KEYEVENTF keyEventFlags = 0;
-            int x = (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED;
-            var y = flags & x;
+            Win32Structures.KEYEVENTF keyEventFlags = Win32Structures.KEYEVENTF.SCANCODE;
 
             if ((flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)
                 keyEventFlags |= Win32Structures.KEYEVENTF.EXTENDEDKEY;
@@ -175,25 +137,40 @@ namespace SierraHOTAS
             return (IntPtr)0;
         }
 
+        private static List<uint> _lstKeyDownBuffer;
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode < 0) return CallNextHookEx(_hookID, nCode, wParam, lParam);
 
+            Debug.WriteLine("key captured");
+
             var key = Marshal.PtrToStructure<Win32Structures.KBDLLHOOKSTRUCT>(lParam);
 
-            //Debug.WriteLine($"scanCode:{key.scanCode}, vkCode:{key.vkCode}, flags:{key.flags} (flagsBin:{Convert.ToString((int)key.flags, 2):0}, flagsHex:{key.flags:x})");
+            var bufKey = key.scanCode << 8;
+            var ext = (uint)(key.flags & Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED);
+            bufKey |= ext;
 
             if (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN)
             {
-                KeyDownEvent?.Invoke(null, new KeystrokeEventArgs(key.scanCode, key.flags));
+                if (!_lstKeyDownBuffer.Contains(bufKey))
+                {
+                    _lstKeyDownBuffer.Add(bufKey);
+                    KeyDownEvent?.Invoke(null, new KeystrokeEventArgs(key.scanCode, key.flags));
+                }
             }
 
             if (wParam == (IntPtr)WM_KEYUP || wParam == (IntPtr)WM_SYSKEYUP)
             {
-                KeyUpEvent?.Invoke(null, new KeystrokeEventArgs(key.scanCode, key.flags));
+                if (_lstKeyDownBuffer.Contains(bufKey))
+                {
+                    var result = _lstKeyDownBuffer.Remove(bufKey);
+                    KeyUpEvent?.Invoke(null, new KeystrokeEventArgs(key.scanCode, key.flags));
+                }
             }
 
-            return (IntPtr)1;//don't continue handling this keystroke. prevents ALT from opening menue, alt-tab from switching screens, etc
+            var callbackValue = 0;//process this keypress as normal
+            if (IsKeySuppressionActive) callbackValue = 1;//don't continue handling this keystroke. prevents ALT from opening menue, alt-tab from switching screens, etc. Only do this when recording keypresses.
+            return (IntPtr)callbackValue;
         }
     }
 }
