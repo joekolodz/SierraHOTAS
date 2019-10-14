@@ -84,6 +84,7 @@
     <Compile Include="MainWindow.xaml.cs" />
     <Compile Include="Models\ButtonAction.cs" />
     <Compile Include="Models\ButtonPressedEventArgs.cs" />
+    <Compile Include="Models\HOTAS.cs" />
     <Compile Include="Models\HOTASCollection.cs" />
     <Compile Include="Models\HOTASDevice.cs" />
     <Compile Include="Models\HOTASMap.cs" />

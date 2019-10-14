@@ -34,8 +34,7 @@ namespace SierraHOTAS.ViewModel
 
         private string GetScanCodeDisplay()
         {
-            var s = Enum.GetName(typeof(Win32Structures.ScanCodeShort), _action.ScanCode);
-            return s;
+            return Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)_action.ScanCode);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

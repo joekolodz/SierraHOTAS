@@ -72,7 +72,7 @@ namespace SierraHOTAS.Models
             foreach (var device in Devices)
             {
                 device.ButtonPressed += Device_ButtonPressed;
-                device.Listen();
+                device.ListenAsync();
             }
         }
 
@@ -98,10 +98,10 @@ namespace SierraHOTAS.Models
                     deviceList.Add(new HOTASDevice(device.InstanceGuid, device.ProductName));
                 }
 
-                //foreach (var device in i.GetDevices(DeviceType.FirstPerson, DeviceEnumerationFlags.AttachedOnly))
-                //{
-                //    deviceList.Add(new HOTASDevice(device.InstanceGuid, device.ProductName));
-                //}
+                foreach (var device in i.GetDevices(DeviceType.FirstPerson, DeviceEnumerationFlags.AttachedOnly))
+                {
+                    deviceList.Add(new HOTASDevice(device.InstanceGuid, device.ProductName));
+                }
             }
             return deviceList;
         }

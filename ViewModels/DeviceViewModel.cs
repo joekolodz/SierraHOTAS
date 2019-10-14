@@ -48,6 +48,7 @@ namespace SierraHOTAS.ViewModel
         private void BuildMap()
         {
             ButtonMap = new ObservableCollection<MapViewModel>();
+            RebuildMap();
         }
 
         

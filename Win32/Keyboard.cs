@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace SierraHOTAS
 {
     //https://blogs.msdn.microsoft.com/toub/2006/05/03/low-level-keyboard-hook-in-c/
-    public class Keyboard
+    public static class Keyboard
     {
         [DllImport("user32.dll")]
         internal static extern uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray), In] Win32Structures.INPUT[] pInputs, int cbSize);
@@ -67,6 +67,61 @@ namespace SierraHOTAS
                 Code = (int)code;
                 Flags = (int)flags;
             }
+        }
+
+        private static Dictionary<Win32Structures.ScanCodeShort, string> _displayKeyNames;
+        static Keyboard()
+        {
+            var displayName = "";
+            _displayKeyNames = new Dictionary<Win32Structures.ScanCodeShort, string>();
+            foreach (short code in Enum.GetValues(typeof(Win32Structures.ScanCodeShort)))
+            {
+                
+                var scanCode = (Win32Structures.ScanCodeShort)code;
+                displayName = Enum.GetName(typeof(Win32Structures.ScanCodeShort), code);
+                displayName = displayName.Replace("KEY_", "");
+                displayName = displayName.Replace("CONTROL", "CTRL");
+                switch (displayName)
+                {
+                    case "LMENU":
+                        displayName = "LALT";
+                        break;
+                    case "OEM1":
+                        displayName = ";";
+                        break;
+                    case "OEM2":
+                        displayName = "/";
+                        break;
+                    case "OEMPERIOD":
+                        displayName = ".";
+                        break;
+                    case "OEMCOMMA":
+                        displayName = ",";
+                        break;
+                    case "PRIOR":
+                        displayName = "PG UP";
+                        break;
+                    case "NEXT":
+                        displayName = "PG DN";
+                        break;
+                    case "OEMPLUS":
+                        displayName = "+";
+                        break;
+                    case "OEMMINUS":
+                        displayName = "-";
+                        break;
+                }
+                if (_displayKeyNames.ContainsKey(scanCode))
+                {
+                    Debug.WriteLine("Wait");
+                }
+                _displayKeyNames.Add(scanCode, displayName);
+            }
+        }
+        public static string GetKeyDisplayName(Win32Structures.ScanCodeShort scanCode)
+        {
+            _displayKeyNames.TryGetValue(scanCode, out var name);
+            return name;
         }
 
         public static void Start()
@@ -141,8 +196,6 @@ namespace SierraHOTAS
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode < 0) return CallNextHookEx(_hookID, nCode, wParam, lParam);
-
-            Debug.WriteLine("key captured");
 
             var key = Marshal.PtrToStructure<Win32Structures.KBDLLHOOKSTRUCT>(lParam);
 

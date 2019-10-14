@@ -17,10 +17,10 @@ namespace SierraHOTAS.Win32
         }
         private static IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if (msg == 0x020a || msg == 0x0100 || msg == 0x0101 || msg == 0x0201)
-            {
-                //Debug.WriteLine("Clos it down!");
-            }
+            //if (msg == 0x020a || msg == 0x0100 || msg == 0x0101 || msg == 0x0201)
+            //{
+            //    Debug.WriteLine("Clos it down!");
+            //}
             // Handle messages...
             //Debug.WriteLine($"WndProc: {DateTime.Now}");
             return IntPtr.Zero;
