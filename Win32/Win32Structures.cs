@@ -961,10 +961,7 @@ namespace SierraHOTAS
         {
             internal uint type;
             internal InputUnion U;
-            internal static int Size
-            {
-                get { return Marshal.SizeOf(typeof(INPUT)); }
-            }
+            internal static int Size => Marshal.SizeOf(typeof(INPUT));
         }
 
         [StructLayout(LayoutKind.Explicit)]

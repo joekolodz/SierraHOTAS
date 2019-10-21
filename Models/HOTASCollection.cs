@@ -1,21 +1,16 @@
 ﻿using Newtonsoft.Json;
 using SharpDX.DirectInput;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using SierraHOTAS.Annotations;
 
 namespace SierraHOTAS.Models
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class HOTASCollection : INotifyPropertyChanged
+    public class HOTASCollection
     {
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
+        public event EventHandler<AxisChangedEventArgs> AxisChanged;
 
         [JsonProperty]
         public ObservableCollection<HOTASDevice> Devices { get; set; }
@@ -72,8 +67,15 @@ namespace SierraHOTAS.Models
             foreach (var device in Devices)
             {
                 device.ButtonPressed += Device_ButtonPressed;
+                device.AxisChanged += Device_AxisChanged;
                 device.ListenAsync();
             }
+        }
+
+        private void Device_AxisChanged(object sender, AxisChangedEventArgs e)
+        {
+            _selectedDevice = e.Device;
+            AxisChanged?.Invoke(sender, e);
         }
 
         private void Device_ButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -109,14 +111,6 @@ namespace SierraHOTAS.Models
         public HOTASDevice GetDevice(Guid instanceId)
         {
             return Devices.FirstOrDefault(d => d.InstanceId == instanceId);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

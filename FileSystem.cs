@@ -35,7 +35,7 @@ namespace SierraHOTAS
             if (result == true)
             {
                 LastSavedFileName = dlg.FileName;
-                Debug.WriteLine($"Saving profile as :{LastSavedFileName}");
+                Logging.Log.Info($"Saving profile as :{LastSavedFileName}");
 
                 BaseSave(LastSavedFileName, deviceList);
             }
@@ -67,7 +67,7 @@ namespace SierraHOTAS
 
             using (var file = File.OpenText(LastSavedFileName))
             {
-                Debug.WriteLine($"Reading profile from :{LastSavedFileName}");
+                Logging.Log.Info($"Reading profile from :{LastSavedFileName}");
                 var serializer = new JsonSerializer();
 
                 return (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));

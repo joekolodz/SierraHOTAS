@@ -70,58 +70,137 @@ namespace SierraHOTAS
         }
 
         private static Dictionary<Win32Structures.ScanCodeShort, string> _displayKeyNames;
+        private static Dictionary<Win32Structures.ScanCodeShort, string> _displayKeyNamesExtended;
         static Keyboard()
         {
-            var displayName = "";
+            PopulateKeyDisplayNamesDictionary();
+            PopulateKeyDisplayNamesExtendedDictionary();
+        }
+
+        private static void PopulateKeyDisplayNamesExtendedDictionary()
+        {
+            _displayKeyNamesExtended = new Dictionary<Win32Structures.ScanCodeShort, string>
+            {
+                {Win32Structures.ScanCodeShort.NUMLOCK, "NUM LCK"},
+                {Win32Structures.ScanCodeShort.MULTIPLY, "PRINT"},
+                {Win32Structures.ScanCodeShort.APPS, "APPS"},
+                {Win32Structures.ScanCodeShort.LWIN, "LWIN"},
+                {Win32Structures.ScanCodeShort.RWIN, "RWIN"},
+                {Win32Structures.ScanCodeShort.LMENU, "RALT"},
+                {Win32Structures.ScanCodeShort.LCONTROL, "RCTRL"},
+                {Win32Structures.ScanCodeShort.OEM_2, "NUM /"},
+                {Win32Structures.ScanCodeShort.RSHIFT, "RSHIFT"},
+                {Win32Structures.ScanCodeShort.HOME, "HOME"},
+                {Win32Structures.ScanCodeShort.END, "END"},
+                {Win32Structures.ScanCodeShort.INSERT, "INSERT"},
+                {Win32Structures.ScanCodeShort.DELETE, "DEL"},
+                {Win32Structures.ScanCodeShort.PRIOR, "PG UP"},
+                {Win32Structures.ScanCodeShort.NEXT, "PG DN"},
+                {Win32Structures.ScanCodeShort.UP, "UP"},
+                {Win32Structures.ScanCodeShort.RIGHT, "RIGHT"},
+                {Win32Structures.ScanCodeShort.DOWN, "DN"},
+                {Win32Structures.ScanCodeShort.LEFT, "LEFT"},
+                {Win32Structures.ScanCodeShort.RETURN, "NUM ENTR"}
+            };
+        }
+
+        private static void PopulateKeyDisplayNamesDictionary()
+        {
             _displayKeyNames = new Dictionary<Win32Structures.ScanCodeShort, string>();
             foreach (short code in Enum.GetValues(typeof(Win32Structures.ScanCodeShort)))
             {
-                
-                var scanCode = (Win32Structures.ScanCodeShort)code;
-                displayName = Enum.GetName(typeof(Win32Structures.ScanCodeShort), code);
+                var scanCode = (Win32Structures.ScanCodeShort) code;
+                var displayName = Enum.GetName(typeof(Win32Structures.ScanCodeShort), code);
                 displayName = displayName.Replace("KEY_", "");
-                displayName = displayName.Replace("CONTROL", "CTRL");
+                displayName = displayName.Replace("LCONTROL", "LCTRL");
                 switch (displayName)
                 {
                     case "LMENU":
                         displayName = "LALT";
                         break;
-                    case "OEM1":
+                    case "OEM_1":
                         displayName = ";";
                         break;
-                    case "OEM2":
+                    case "OEM_2":
                         displayName = "/";
                         break;
-                    case "OEMPERIOD":
+                    case "OEM_3":
+                        displayName = "`";
+                        break;
+                    case "OEM_4":
+                        displayName = "[";
+                        break;
+                    case "OEM_5":
+                        displayName = "\\";
+                        break;
+                    case "OEM_6":
+                        displayName = "]";
+                        break;
+                    case "OEM_7":
+                        displayName = "/";
+                        break;
+                    case "OEM_PERIOD":
                         displayName = ".";
                         break;
-                    case "OEMCOMMA":
+                    case "OEM_COMMA":
                         displayName = ",";
                         break;
-                    case "PRIOR":
-                        displayName = "PG UP";
+                    case "OEM_PLUS":
+                        displayName = "=";
                         break;
-                    case "NEXT":
-                        displayName = "PG DN";
-                        break;
-                    case "OEMPLUS":
-                        displayName = "+";
-                        break;
-                    case "OEMMINUS":
+                    case "OEM_MINUS":
                         displayName = "-";
                         break;
+                    //case "PRIOR":
+                    //    displayName = "PG UP";
+                    //    break;
+                    case "RETURN":
+                        displayName = "ENTER";
+                        break;
+                    //case "NEXT":
+                    //    displayName = "PG DN";
+                    //    break;
+                    case "CAPITAL":
+                        displayName = "CAPS";
+                        break;
+                    case "MULTIPLY":
+                        displayName = "NUM *";
+                        break;
+                    case "ADD":
+                        displayName = "NUM +";
+                        break;
+                    case "SUBTRACT":
+                        displayName = "NUM -";
+                        break;
+                    case "MULTIPLE":
+                        displayName = "PRINT";
+                        break;
+                    case "NUMLOCK":
+                        displayName = "BREAK";
+                        break;
                 }
+
                 if (_displayKeyNames.ContainsKey(scanCode))
                 {
                     Debug.WriteLine("Wait");
                 }
+
                 _displayKeyNames.Add(scanCode, displayName);
             }
         }
-        public static string GetKeyDisplayName(Win32Structures.ScanCodeShort scanCode)
+
+        public static string GetKeyDisplayName(Win32Structures.ScanCodeShort scanCode, int flags)
         {
-            _displayKeyNames.TryGetValue(scanCode, out var name);
-            return name;
+            if((flags & (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED) == (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)
+            {
+                _displayKeyNamesExtended.TryGetValue(scanCode, out var name);
+                return name;
+            }
+            else
+            {
+                _displayKeyNames.TryGetValue(scanCode, out var name);
+                return name;
+            }
         }
 
         public static void Start()
@@ -142,6 +221,7 @@ namespace SierraHOTAS
             {
                 BuildKeyboardInput((Win32Structures.ScanCodeShort)scanCode, flags),
             };
+            //Debug.WriteLine($"SendInput:{scanCode} - {flags}");
             SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
         }
 
@@ -199,12 +279,16 @@ namespace SierraHOTAS
 
             var key = Marshal.PtrToStructure<Win32Structures.KBDLLHOOKSTRUCT>(lParam);
 
+            //Debug.WriteLine($"HookCallback:{key.scanCode} - {key.flags}");
+
+            //bufKey will hold both the scan code and the extended keyboard flag
             var bufKey = key.scanCode << 8;
             var ext = (uint)(key.flags & Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED);
             bufKey |= ext;
 
             if (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN)
             {
+                //suppress key repeating events from firing the event
                 if (!_lstKeyDownBuffer.Contains(bufKey))
                 {
                     _lstKeyDownBuffer.Add(bufKey);
@@ -216,7 +300,7 @@ namespace SierraHOTAS
             {
                 if (_lstKeyDownBuffer.Contains(bufKey))
                 {
-                    var result = _lstKeyDownBuffer.Remove(bufKey);
+                    _lstKeyDownBuffer.Remove(bufKey);
                     KeyUpEvent?.Invoke(null, new KeystrokeEventArgs(key.scanCode, key.flags));
                 }
             }

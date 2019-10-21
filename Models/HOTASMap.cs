@@ -20,9 +20,11 @@ namespace SierraHOTAS.Models
         public uint Offset { get; set; }
         public int ButtonId { get; set; }
         public string ButtonName { get; set; }
+        public string ActionName { get; set; }
         public ObservableCollection<ButtonAction> Actions { get; set; }
         public ButtonType Type { get; set; }
 
+        [JsonIgnore]
         public bool IsMacro => Actions.Any(a => a.TimeInMilliseconds > 0);
 
         private bool _isRecording;
@@ -84,9 +86,9 @@ namespace SierraHOTAS.Models
 
         private void Keyboard_KeyDownEvent(object sender, Keyboard.KeystrokeEventArgs e)
         {
-            var name = RecordKeypress(e);
+            RecordKeypress(e);
 
-            Debug.WriteLine($"v KeyDown Event - Name:{name}, Code:{e.Code}, Flags:{e.Flags}");
+            Debug.WriteLine($" - v KeyDown Event - Code:{e.Code}, Flags:{e.Flags}]");
             Debug.WriteLine("");
         }
 
@@ -94,39 +96,19 @@ namespace SierraHOTAS.Models
         {
             if (!_isRecording) return;
 
-            var name = RecordKeypress(e);
+            RecordKeypress(e);
 
-            Debug.WriteLine($"^ KeyUp Event - Name:{name}, Code:{e.Code}, Flags:{e.Flags}");
+            Debug.WriteLine($" - ^ KeyUp Event - Code:{e.Code}, Flags:{e.Flags}]");
             Debug.WriteLine("");
         }
 
-        private string RecordKeypress(Keyboard.KeystrokeEventArgs e)
+        private void RecordKeypress(Keyboard.KeystrokeEventArgs e)
         {
-            if (!_isRecording) return string.Empty;
-
-            Debug.WriteLine("[Recording]");
+            if (!_isRecording) return;
 
             Actions.Add(new ButtonAction() { Flags = e.Flags, ScanCode = e.Code, TimeInMilliseconds = 0 });
-            
-            //TODO: raise property changed event? or record event?
 
-            //TODO:all this belongs in the view model
-            var name = Enum.GetName(typeof(Win32Structures.ScanCodeShort), e.Code);
-
-            //replace Enum.GetName(typeof(Win32Structures.ScanCodeShort), e.Code) with a dictionary for custom names
-            if ((e.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)
-            {
-                if ((e.Code & (int)Win32Structures.ScanCodeShort.LMENU) == (int)Win32Structures.ScanCodeShort.LMENU)
-                {
-                    name = "RALT";
-                }
-
-                if ((e.Code & (int)Win32Structures.ScanCodeShort.LCONTROL) == (int)Win32Structures.ScanCodeShort.LCONTROL)
-                {
-                    name = "RCONTROL";
-                }
-            }
-            return name;
+            Debug.Write($"[Recording: {Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)e.Code, e.Flags)}");
         }
 
         public override string ToString()
@@ -135,8 +117,8 @@ namespace SierraHOTAS.Models
             foreach (var a in Actions)
             {
                 var upDown = "v";
-                if ((a.Flags & (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) ==
-                    (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
+                if ((a.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) ==
+                    (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
                 {
                     upDown = "^";
                 }

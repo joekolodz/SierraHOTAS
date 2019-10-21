@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SierraHOTAS.Annotations;
+using SierraHOTAS.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Security.Permissions;
-using SierraHOTAS.Annotations;
-using SierraHOTAS.Models;
 
 namespace SierraHOTAS.ViewModel
 {
     public class DeviceViewModel : INotifyPropertyChanged
     {
         private HOTASDevice _hotasDevice = null;
+
+        public event EventHandler RecordingStopped;
 
         public Guid InstanceId { get; set; }
 
@@ -35,13 +33,30 @@ namespace SierraHOTAS.ViewModel
 
         public void RebuildMap()
         {
+            RemoveAllHandlers();
+            ButtonMap.Clear();
             foreach (var m in _hotasDevice.ButtonMap)
             {
                 var mapViewModel = new MapViewModel(m);
-                mapViewModel.RecordingStarted += MapViewModel_RecordingStarted;
-                mapViewModel.RecordingStopped += MapViewModel_RecordingStopped;
-                mapViewModel.RecordingCancelled += MapViewModel_RecordingCancelled;
+                AddHandlers(mapViewModel);
                 ButtonMap.Add(mapViewModel);
+            }
+        }
+
+        private void AddHandlers(MapViewModel mapViewModel)
+        {
+            mapViewModel.RecordingStarted += MapViewModel_RecordingStarted;
+            mapViewModel.RecordingStopped += MapViewModel_RecordingStopped;
+            mapViewModel.RecordingCancelled += MapViewModel_RecordingCancelled;
+        }
+
+        private void RemoveAllHandlers()
+        {
+            foreach (var mapViewModel in ButtonMap)
+            {
+                mapViewModel.RecordingStarted -= MapViewModel_RecordingStarted;
+                mapViewModel.RecordingStopped -= MapViewModel_RecordingStopped;
+                mapViewModel.RecordingCancelled -= MapViewModel_RecordingCancelled;
             }
         }
 
@@ -71,6 +86,7 @@ namespace SierraHOTAS.ViewModel
         private void MapViewModel_RecordingStopped(object sender, EventArgs e)
         {
             ForceDisableAllOtherMaps(sender, false);
+            RecordingStopped?.Invoke(sender, e);
         }
         private void MapViewModel_RecordingCancelled(object sender, EventArgs e)
         {

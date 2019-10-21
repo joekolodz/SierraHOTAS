@@ -17,6 +17,7 @@ namespace SierraHOTAS.Models
     public class HOTASDevice
     {
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
+        public event EventHandler<AxisChangedEventArgs> AxisChanged;
 
         [JsonProperty]
         public Guid InstanceId { get; set; }
@@ -31,6 +32,7 @@ namespace SierraHOTAS.Models
 
         private Joystick Joystick { get; set; }
         private HOTAS _hotas;
+        private HOTASAsync _hotasAsync;
 
 
         public HOTASDevice()
@@ -66,9 +68,17 @@ namespace SierraHOTAS.Models
 
         public void ListenAsync()
         {
-            _hotas = new HOTAS();
-            _hotas.ButtonPressed += OnButtonPress;
-            _hotas.ListenAsync(Joystick, ButtonMap);
+            //_hotas = new HOTAS();
+            _hotasAsync = new HOTASAsync();
+
+            //_hotas.ButtonPressed += OnButtonPress;
+            _hotasAsync.ButtonPressed += OnButtonPress;
+            _hotasAsync.AxisChanged += OnAxisChanged;
+
+
+            //_hotas.ListenAsync(Joystick, ButtonMap);
+            _hotasAsync.ListenAsync(Joystick, ButtonMap);
+
             Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
         }
 
@@ -98,8 +108,8 @@ namespace SierraHOTAS.Models
                 var offset = JoystickOffsetValues.GetOffset(count);
 
                 //each of the eight POV positions needs a unique offset number so that we don't have to have a compound index to do lookups with later.
-                //so POV1 Offset is 0x00000020 and EAST = 0x2328, then assign translated offset of 0x23280020
-                //so POV2 Offset is 0x00000024 and SOUTH EAST = 0x34BC then assign translated offset of 0x34BC0024
+                //so POV1 Offset is 0x00000020 and the value of the EAST position = 0x2328, then assign translated offset of 0x23280020
+                //so POV2 Offset is 0x00000024 and the value of the SOUTH EAST position = 0x34BC then assign translated offset of 0x34BC0024
                 uint translatedOffset;
                 for (uint position = 0; position < 8; position++)
                 {
@@ -137,9 +147,16 @@ namespace SierraHOTAS.Models
             ButtonPressed?.Invoke(this, new ButtonPressedEventArgs() { ButtonId = e.ButtonId, Device = this });
         }
 
+        private void OnAxisChanged(object sender, AxisChangedEventArgs e)
+        {
+            e.Device = this;
+            AxisChanged?.Invoke(this, e);
+        }
+
         public void Stop()
         {
-            _hotas.Stop();
+            //_hotas.Stop();
+            _hotasAsync?.Stop();
         }
 
  

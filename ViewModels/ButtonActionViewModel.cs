@@ -29,12 +29,12 @@ namespace SierraHOTAS.ViewModel
         public ButtonActionViewModel(ButtonAction action)
         {
             _action = action;
-            Debug.WriteLine($"BAVM Flags:{_action.Flags}, Up:{IsKeyUp}");
+            //Debug.WriteLine($"BAVM Flags:{_action.Flags}, Up:{IsKeyUp}");
         }
 
         private string GetScanCodeDisplay()
         {
-            return Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)_action.ScanCode);
+            return Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)_action.ScanCode, _action.Flags);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

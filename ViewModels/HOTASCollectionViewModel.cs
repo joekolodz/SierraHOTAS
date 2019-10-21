@@ -1,29 +1,27 @@
-﻿using SierraHOTAS.Models;
+﻿using SierraHOTAS.Annotations;
+using SierraHOTAS.Models;
 using SierraHOTAS.ViewModel.Commands;
-using Newtonsoft.Json;
+using SierraHOTAS.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using SierraHOTAS.Annotations;
 
 namespace SierraHOTAS.ViewModel
 {
     public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
+        public ActionCatalogViewModel ActionCatalog { get; set; }
 
         public string LastFileSaved => FileSystem.LastSavedFileName;
 
         public event EventHandler<ButtonPressedViewModelEventArgs> ButtonPressed;
+        public event EventHandler<AxisChangedViewModelEventArgs> AxisChanged;
 
         public event EventHandler<EventArgs> FileOpened;
 
@@ -45,7 +43,7 @@ namespace SierraHOTAS.ViewModel
 
         private ICommand _selectionChangedCommand;
 
-        public ICommand SelectionChangedCommand => _selectionChangedCommand ?? (_selectionChangedCommand = new RelayCommandWithParameter(lstActionList_OnSelectionChanged));
+        public ICommand SelectionChangedCommand => _selectionChangedCommand ?? (_selectionChangedCommand = new RelayCommandWithParameter(lstDevices_OnSelectionChanged));
 
         private ICommand _exitApplicationCommand;
 
@@ -56,6 +54,7 @@ namespace SierraHOTAS.ViewModel
         public HOTASCollectionViewModel()
         {
             _deviceList = new HOTASCollection();
+            ActionCatalog = new ActionCatalogViewModel();
         }
 
         public void Initialize()
@@ -67,10 +66,12 @@ namespace SierraHOTAS.ViewModel
             else
             {
                 _deviceList.ButtonPressed += DeviceList_ButtonPressed;
+                _deviceList.AxisChanged += DeviceList_AxisChanged;
                 _deviceList.Start();
             }
 
             BuildDevicesViewModel();
+            AddHandlers();
         }
 
         public void Dispose()
@@ -80,7 +81,6 @@ namespace SierraHOTAS.ViewModel
 
         private void BuildDevicesViewModelFromLoadedDevices(HOTASCollection loadedDevices)
         {
-
             foreach (var ld in loadedDevices.Devices)
             {
                 DeviceViewModel deviceVm = null;
@@ -93,18 +93,11 @@ namespace SierraHOTAS.ViewModel
 
                 if (deviceVm == null)
                 {
-                    Debug.WriteLine($"Loaded mappings for {ld.Name}, but could not find the device attached!");
-                    Debug.WriteLine($"Mappings will be displayed, but they will not function");
+                    Logging.Log.Warn($"Loaded mappings for {ld.Name}, but could not find the device attached!");
+                    Logging.Log.Warn($"Mappings will be displayed, but they will not function");
                     Devices.Add(new DeviceViewModel(ld));
                     continue;
                 }
-                else
-                {
-                    Devices.Remove(deviceVm);
-                }
-                //deviceVm = new DeviceViewModel(ld);
-
-                //Devices.Add(deviceVm);
 
                 var d = _deviceList.GetDevice(ld.InstanceId);
                 if (d == null) continue;
@@ -115,6 +108,7 @@ namespace SierraHOTAS.ViewModel
 
         private void BuildDevicesViewModel()
         {
+            RemoveAllHandlers();
             Devices = _deviceList.Devices.Select(device => new DeviceViewModel(device)).ToObservableCollection();
         }
 
@@ -122,6 +116,13 @@ namespace SierraHOTAS.ViewModel
         {
             var device = Devices.First(d => d.InstanceId == e.Device.InstanceId);
             ButtonPressed?.Invoke(sender, new ButtonPressedViewModelEventArgs() { ButtonId = e.ButtonId, Device = device });
+        }
+
+        private void DeviceList_AxisChanged(object sender, AxisChangedEventArgs e)
+        {
+            if (Devices == null) return;
+            var device = Devices.First(d => d.InstanceId == e.Device.InstanceId);
+            AxisChanged?.Invoke(sender, new AxisChangedViewModelEventArgs() { AxisId = e.AxisId, Value = e.Value, Device = device });
         }
 
         private static void ExitApplication()
@@ -144,14 +145,65 @@ namespace SierraHOTAS.ViewModel
             _deviceList.Stop();
             var loadedDeviceList = FileSystem.FileOpen();
             BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
+            AddHandlers();
+            BuildActionCatalogFromLoadedDevices();
+
             FileOpened?.Invoke(this, new EventArgs());
             _deviceList.ListenToAllDevices();
         }
 
-        public void lstActionList_OnSelectionChanged(object device)
+        private void BuildActionCatalogFromLoadedDevices()
+        {
+            ActionCatalog.Clear();
+            foreach (var device in Devices)
+            {
+                foreach (var map in device.ButtonMap)
+                {
+                    if (string.IsNullOrWhiteSpace(map.ActionName)) continue;
+                    if (ActionCatalog.Contains(map.ActionName)) continue;
+
+                    var item = new ActionCatalogItem()
+                    {
+                        ActionName = map.ActionName,
+                        Actions = map.GetHotasActions()
+                    };
+                    ActionCatalog.Add(item);
+                }
+            }
+        }
+
+        public void lstDevices_OnSelectionChanged(object device)
         {
             SelectedDevice = device as DeviceViewModel;
             if (SelectedDevice != null) Debug.WriteLine($"Device Selected:{SelectedDevice.Name}");
+        }
+
+        private void AddHandlers()
+        {
+            foreach (var deviceVm in Devices)
+            {
+                deviceVm.RecordingStopped += Device_RecordingStopped;
+            }
+        }
+
+        private void Device_RecordingStopped(object sender, EventArgs e)
+        {
+            if (!(sender is MapViewModel mapVm)) return;
+            ActionCatalog.Add(mapVm);
+        }
+
+        public void ActionComboBoxSelectionChangeCommand(MapViewModel mapContext, ActionCatalogItem selectedAction)
+        {
+            mapContext.AssignActions(selectedAction);
+        }
+
+        private void RemoveAllHandlers()
+        {
+            if (Devices == null) return;
+            foreach (var deviceVm in Devices)
+            {
+                deviceVm.RecordingStopped -= Device_RecordingStopped;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

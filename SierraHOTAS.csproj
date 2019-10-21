@@ -34,9 +34,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon32x32.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>packages\NLog.4.6.7\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
@@ -45,16 +51,21 @@
       <HintPath>packages\SharpDX.DirectInput.4.2.0\lib\net45\SharpDX.DirectInput.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>packages\System.Reactive.4.1.6\lib\net46\System.Reactive.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Transactions" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -81,15 +92,21 @@
     <Compile Include="DataProvider.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FileSystem.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="MainWindow.xaml.cs" />
+    <Compile Include="ViewModels\ActionCatalogItem.cs" />
+    <Compile Include="Models\AxisChangedEventArgs.cs" />
     <Compile Include="Models\ButtonAction.cs" />
     <Compile Include="Models\ButtonPressedEventArgs.cs" />
     <Compile Include="Models\HOTAS.cs" />
+    <Compile Include="Models\HOTASAsync.cs" />
     <Compile Include="Models\HOTASCollection.cs" />
     <Compile Include="Models\HOTASDevice.cs" />
     <Compile Include="Models\HOTASMap.cs" />
     <Compile Include="Models\JoystickOffsetValues.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="ViewModels\ActionCatalogViewModel.cs" />
+    <Compile Include="ViewModels\AxisChangedViewModelEventArgs.cs" />
     <Compile Include="ViewModels\ButtonActionViewModel.cs" />
     <Compile Include="ViewModels\ButtonPressedViewModelEventArgs.cs" />
     <Compile Include="ViewModels\Commands\CommandHandler.cs" />
@@ -123,6 +140,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -159,6 +179,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\saveas_blue_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icon32x32.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

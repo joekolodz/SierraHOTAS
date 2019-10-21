@@ -90,6 +90,47 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- ListView color control for rows, highlight, and selected -->
+        <Style TargetType="{x:Type ListViewItem}" x:Key="CustomListViewItem">
+            <Style.Triggers>
+                <!-- alternate row color -->
+                <Trigger Property="ItemsControl.AlternationIndex"  Value="0">
+                    <Setter Property="Background" Value="Transparent" />
+                </Trigger>
+                <Trigger Property="ItemsControl.AlternationIndex"  Value="1">
+                    <Setter Property="Background" Value="#393939" />
+                </Trigger>
+
+                <!-- highlight color (need ControlTemplate also) -->
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#2a7aa1"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="#313f47"/>
+                    <Setter Property="Foreground" Value="Azure"/>
+                </Trigger>
+
+                <!-- highlighting the selected row. used for jumping to the button that is pressed on the joystick -->
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderBrush" Value="#26a0da"/>
+                    <Setter Property="Background" Value="#2f4c5a"/>
+                    <Setter Property="Foreground" Value="Azure"/>
+                </Trigger>
+            </Style.Triggers>
+
+            <!-- highlight color (needs mouseover trigger)-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                            <GridViewRowPresenter Content="{TemplateBinding Content}" Margin="{TemplateBinding Padding}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
     </Window.Resources>
 
     <DockPanel Width="Auto" Height="Auto" LastChildFill="True" Background="#323232">
@@ -116,53 +157,42 @@
             SelectionChanged="LstDevices_OnSelectionChanged"/>
             <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="#7ac1ff"/>
             <TextBox Height="250" TextWrapping="Wrap" Foreground="Azure" CaretBrush="Azure" Background="Transparent" FontSize="12"></TextBox>
+
+            <Canvas Name="canvas_x_axis_bar" Height="60" Width="200"/>
+            <Canvas Name="canvas_x_axis_circle" Height="40" Width="40" Background="Transparent"/>
+
         </StackPanel>
 
 
-        <ListView AlternationCount="2" Margin="5,30,10,10" Name="gridMap" Background="#323232" Foreground="Azure">
+        <!-- joystick X axis -->
+        <ListBox ItemContainerStyle="{StaticResource ListBoxItemStyleNoHighlighting}" Margin="5,30,10,10" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderBrush="Transparent">
+            <ItemsControl ItemsSource="{Binding Actions}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
 
-            <ListView.ItemContainerStyle>
-                <Style TargetType="{x:Type ListViewItem}">
-                    <Style.Triggers>
-                        <!-- alternate row color -->
-                        <Trigger Property="ItemsControl.AlternationIndex"  Value="0">
-                            <Setter Property="Background" Value="Transparent" />
-                        </Trigger>
-                        <Trigger Property="ItemsControl.AlternationIndex"  Value="1">
-                            <Setter Property="Background" Value="#393939" />
-                        </Trigger>
+                        <Grid>
+                            <!-- This grid allows the scrollbar on the ListBox to appear. otherwise, the stackpanel will expand to fit all children (so no scrollbar) and they will all clip off the edge-->
+                            <StackPanel>
+                                <Grid>
+                                    <Label Style="{StaticResource RoundLabelStyle}" Content="X AXIS" Width="68" Height="52" Margin="2,0,2,0" FontSize="11"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" BorderBrush="#2a7aa1" BorderThickness="3" Foreground="Azure"/>
+                                    <Canvas Name="canvas_x_axis" Height="60" Width="100"/>
+                                </Grid>
+                                <TextBox Text="{Binding TimeInMilliseconds}" Width="66" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="#2a7aa1"/>
+                            </StackPanel>
+                        </Grid>
 
-                        <!-- highlight color (need ControlTemplate also) -->
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="BorderBrush" Value="#2a7aa1"/>
-                            <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="Background" Value="#313f47"/>
-                            <Setter Property="Foreground" Value="Azure"/>
-                        </Trigger>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ListBox>
 
-                        <!-- highlighting the selected row. used for jumping to the button that is pressed on the joystick -->
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="BorderBrush" Value="#26a0da"/>
-                            <Setter Property="Background" Value="#2f4c5a"/>
-                            <Setter Property="Foreground" Value="Azure"/>
-                        </Trigger>
-                    </Style.Triggers>
 
-                    <!-- highlight color (needs mouseover trigger)-->
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                <Border Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-                                    <GridViewRowPresenter Content="{TemplateBinding Content}" Margin="{TemplateBinding Padding}" />
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-
-                </Style>
-            </ListView.ItemContainerStyle>
-
+        <ListView ItemContainerStyle="{StaticResource CustomListViewItem}" AlternationCount="2" Margin="5,30,10,10" Name="gridMap" Background="#323232" Foreground="Azure">
             <ListView.View>
                 <GridView>
 
@@ -219,12 +249,8 @@
                                     </StackPanel>
 
                                     <!-- Macro Name Selection -->
-                                    <ComboBox Name="cmbMacroName" HorizontalAlignment="Stretch" Margin="0,2,0,20" VerticalAlignment="Center">
-                                        <ComboBoxItem>Nosewheel Steering</ComboBoxItem>
-                                        <ComboBoxItem>Weapons Release</ComboBoxItem>
-                                        <ComboBoxItem>Speed Break Fwd</ComboBoxItem>
-                                        <ComboBoxItem>Speed Break Aft</ComboBoxItem>
-                                    </ComboBox>
+                                    <!--<ComboBox Name="cmbMacroName" SelectionChanged="ActionList_OnSelectionChanged" Text="{Binding ActionName, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding DataContext.ActionList.MapCatalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" SelectedValuePath="Value" DisplayMemberPath="Key" IsEditable="True" HorizontalAlignment="Stretch" Margin="0,2,0,20" VerticalAlignment="Center"/>-->
+                                    <ComboBox Name="cmbMacroName2" SelectionChanged="ActionList_OnSelectionChanged" Text="{Binding ActionName, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding DataContext.ActionCatalog.Catalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" DisplayMemberPath="ActionName" IsEditable="True" IsTextSearchEnabled="False" HorizontalAlignment="Stretch" Margin="0,2,0,20" VerticalAlignment="Center"/>
 
                                 </StackPanel>
                             </DataTemplate>
@@ -254,7 +280,8 @@
                                                         <!-- This grid allows the scrollbar on the ListBox to appear. otherwise, the stackpanel will expand to fit all children (so no scrollbar) and they will all clip off the edge-->
                                                         <StackPanel>
                                                             <Grid>
-                                                                <Label Content="{Binding ScanCode}" Style="{StaticResource RoundLabelStyle}" Width="62" Height="52" Margin="2,0,2,0"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" BorderBrush="#2a7aa1" BorderThickness="3" Foreground="Azure"/>
+                                                                <Label Style="{StaticResource RoundLabelStyle}" Width="68" Height="52" Margin="2,0,2,0" FontSize="11"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" BorderBrush="#2a7aa1" BorderThickness="3" Foreground="Azure"/>
+                                                                <Label Content="{Binding ScanCode}" Width="Auto" FontSize="12"  HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" Foreground="Azure"/>
 
                                                                 <Image Height="24" Width="24" VerticalAlignment="Center" Margin="0,18,0,0">
                                                                     <Image.Style>
@@ -271,21 +298,7 @@
                                                                     </Image.Style>
                                                                 </Image>
                                                             </Grid>
-                                                            <TextBox Text="{Binding TimeInMilliseconds}" Width="62" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="#2a7aa1">
-                                                                <TextBox.Style>
-                                                                    <Style TargetType="{x:Type TextBox}">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsKeyUp}" Value="False">
-                                                                                <Setter Property="Visibility" Value="Visible"/>
-                                                                            </DataTrigger>
-                                                                            <DataTrigger Binding="{Binding IsKeyUp}" Value="True">
-                                                                                <Setter Property="Visibility" Value="Hidden"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBox.Style>
-                                                            </TextBox>
-                                                            <TextBox Text="{Binding TimeInMilliseconds}" Width="62" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="#2a7aa1"/>
+                                                            <TextBox Text="{Binding TimeInMilliseconds}" Width="66" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="#2a7aa1"/>
                                                         </StackPanel>
                                                     </Grid>
 
