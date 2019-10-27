@@ -303,6 +303,7 @@ namespace SierraHOTAS.Models
         private void HandleAxis(JoystickUpdate state)
         {
             var offset = (int)state.Offset;
+            //lookup the segment by offset 
 
             //map each axis segment to a virtual Offset value (greater than 128 to avoid collisions)
 
