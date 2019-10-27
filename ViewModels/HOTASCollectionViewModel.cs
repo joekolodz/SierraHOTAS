@@ -133,17 +133,7 @@ namespace SierraHOTAS.ViewModel
 
         private void FileSave()
         {
-            foreach (var d in _deviceList.Devices)
-            {
-                foreach (var m in d.ButtonMap)
-                {
-                    if (m.ActionName == "<No Action>")
-                    {
-                        m.ActionName = string.Empty;
-                        m.Actions.Clear();
-                    }
-                }
-            }
+            _deviceList.ClearUnassignedActions();
             FileSystem.FileSave(_deviceList);
         }
 

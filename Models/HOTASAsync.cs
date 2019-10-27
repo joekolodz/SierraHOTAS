@@ -102,7 +102,6 @@ namespace SierraHOTAS.Models
                         offset == JoystickOffset.RotationY ||
                         offset == JoystickOffset.RotationZ)
                     {
-                        //Logging.Log.Info($"{Joystick.Information.InstanceName} {state}");
                         HandleAxis(state);
                         OnAxisChanged(state);
                         continue;
