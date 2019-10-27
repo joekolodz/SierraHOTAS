@@ -3,7 +3,10 @@ using SierraHOTAS.Win32;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Media;
+using SharpDX.DirectInput;
+using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels;
 using Math = System.Math;
 
@@ -37,88 +40,18 @@ namespace SierraHOTAS
 
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
+            
         }
 
-        private void CollectionViewModelAxisChanged(object sender, ViewModels.AxisChangedViewModelEventArgs e)
+        private void CollectionViewModelAxisChanged(object sender, AxisChangedViewModelEventArgs e)
         {
-            //0 TO 65535
-            //32767 HALF WAY
+            if (e.AxisId == (int)JoystickOffset.RotationX) Dispatcher?.Invoke(() => RadialAxisMapRX.SetAxis(e.Value));
+            if (e.AxisId == (int)JoystickOffset.RotationY) Dispatcher?.Invoke(() => RadialAxisMapRY.SetAxis(e.Value));
+            if (e.AxisId == (int)JoystickOffset.RotationZ) Dispatcher?.Invoke(() => RadialAxisMapRZ.SetAxis(e.Value));
 
-            Dispatcher.Invoke(() => DrawRectangle(e.Value));
-            Dispatcher.Invoke(() => DrawCircle(e.Value));
-        }
-
-        private System.Windows.Shapes.Rectangle _rect;
-        private void DrawRectangle(int width)
-        {
-            float w = width;
-            w = w / 327.68f;
-            var final = Math.Round(w);
-
-            if (_rect == null)
-            {
-                _rect = new System.Windows.Shapes.Rectangle()
-                {
-                    Stroke = new SolidColorBrush(Colors.AliceBlue),
-                    Fill = new SolidColorBrush(Colors.DarkRed),
-                    Width = 1,
-                    Height = 60
-                };
-                Canvas.SetLeft(_rect, 0);
-                Canvas.SetBottom(_rect, 0);
-                canvas_x_axis_bar.Children.Add(_rect);
-            }
-
-            _rect.Width = final;
-        }
-
-        private System.Windows.Shapes.Line _arc;
-        private void DrawCircle(int angle)
-        {
-            const double canvasLeft = 0;
-            const double canvasTop = 0;
-            const double angleRatio = ushort.MaxValue / 360.0f; //(joystick axis values range from 0 to 65535)
-
-            var radius = canvas_x_axis_circle.Height / 2;
-            var ellipseWidth = radius * 2;
-            var ellipseHeight = radius * 2;
-            var h = canvasLeft + radius;
-            var k = canvasTop + radius;
-
-            var theta = angle / angleRatio; //compress joystick value into degrees to get the angle on the circle
-
-            if (_arc == null)
-            {
-                _arc = new System.Windows.Shapes.Line()
-                {
-                    StrokeThickness = 4,
-                    Stroke = Brushes.Red,
-                    X1 = h,
-                    Y1 = k
-                };
-
-                var circle = new System.Windows.Shapes.Ellipse()
-                {
-                    Width = ellipseWidth,
-                    Height = ellipseHeight,
-                    Fill = new SolidColorBrush(Colors.Transparent),
-                    Stroke = Brushes.AliceBlue
-                };
-                Canvas.SetLeft(circle, 0);
-                Canvas.SetTop(circle, 0);
-
-                canvas_x_axis_circle.Children.Add(_arc);
-                canvas_x_axis_circle.Children.Add(circle);
-            }
-
-            var radians = (Math.PI / 180) * theta; //turn joystick angle into radians
-            var x = h + radius * Math.Sin(radians);
-            var y = k - radius * Math.Cos(radians);
-
-            _arc.X2 = x;
-            _arc.Y2 = y;
-
-            //Logging.Log.Info($"{canvasLeft}, {canvasTop} / {theta} - {radians} - {x},{y}");
+            if (e.AxisId == (int)JoystickOffset.X) Dispatcher?.Invoke(() => LinearAxisMapX.SetAxis(e.Value));
+            if (e.AxisId == (int)JoystickOffset.Y) Dispatcher?.Invoke(() => LinearAxisMapY.SetAxis(e.Value));
+            if (e.AxisId == (int)JoystickOffset.Z) Dispatcher?.Invoke(() => LinearAxisMapZ.SetAxis(e.Value));
         }
 
         private void HotasCollectionViewModel_FileOpened(object sender, EventArgs e)
@@ -153,9 +86,47 @@ namespace SierraHOTAS
             Keyboard.Stop();
         }
 
+
+
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+
+        private static bool IsActive(Window wnd)
+        {
+            // workaround for minimization bug
+            // Managed .IsActive may return wrong value
+            if (wnd == null) return false;
+            return GetForegroundWindow() == new WindowInteropHelper(wnd).Handle;
+        }
+
+        public static bool IsApplicationActive()
+        {
+            var wnd = Application.Current.MainWindow;
+            if (IsActive(wnd)) return true;
+            return false;
+        }
+
+
+
+
         private void CollectionViewModelButtonPressed(object sender, ButtonPressedViewModelEventArgs e)
         {
-            Dispatcher?.Invoke(() => lstDevices.SelectedItem = e.Device);
+            if (e.Device == null) return;
+
+            Dispatcher?.Invoke(() =>
+            {
+                if (!txtTestBox.IsFocused)
+                {
+                    var isActive = IsApplicationActive();
+                    if (isActive)
+                    {
+                        txtTestBox.Clear();
+                        txtTestBox.Focus();
+                    }
+                }
+                lstDevices.SelectedItem = e.Device;
+            });
 
             foreach (var map in e.Device.ButtonMap)
             {

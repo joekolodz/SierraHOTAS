@@ -112,5 +112,13 @@ namespace SierraHOTAS.Models
         {
             return Devices.FirstOrDefault(d => d.InstanceId == instanceId);
         }
+
+        public void ClearUnassignedActions()
+        {
+            foreach (var d in Devices)
+            {
+                d.ClearUnassignedActions();
+            }
+        }
     }
 }

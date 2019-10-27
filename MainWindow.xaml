@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:axisControls="clr-namespace:SierraHOTAS.Controls"
         xmlns:viewModel="clr-namespace:SierraHOTAS.ViewModel"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         x:Class="SierraHOTAS.MainWindow"
@@ -14,6 +15,26 @@
     </Window.DataContext>
 
     <Window.Resources>
+
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#323232" />
+
+        <SolidColorBrush x:Key="TextHeaderBrush" Color="#7ac1ff" />
+        <SolidColorBrush x:Key="TextBrush" Color="Azure" />
+
+        <SolidColorBrush x:Key="HoverBrush" Color="#313f47" />
+        <SolidColorBrush x:Key="HoverBorderBrush" Color="#2a7aa1" />
+        <SolidColorBrush x:Key="SelectedBrush" Color="#2f4c5a" />
+        <SolidColorBrush x:Key="SelectedBorderBrush" Color="#26a0da" />
+
+        <SolidColorBrush x:Key="NormalBorderBrush" Color="Azure" />
+        <SolidColorBrush x:Key="RowBrush" Color="Transparent" />
+        <SolidColorBrush x:Key="RowAlternateBrush" Color="#393939" />
+
+        <SolidColorBrush x:Key="DisabledForegroundBrush" Color="#888888" />
+        <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="#313f47" />
+        <SolidColorBrush x:Key="DisabledBorderBrush" Color="#313f47" />
+
+
         <Style TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Left" />
         </Style>
@@ -34,7 +55,7 @@
             <Setter Property="Width" Value="32"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="BorderBrush" Value="#2a7aa1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource HoverBorderBrush}"/>
             <Setter Property="Foreground" Value="Black"/>
             <!--<Setter Property="Margin" Value="2,0"/>-->
         </Style>
@@ -96,26 +117,26 @@
             <Style.Triggers>
                 <!-- alternate row color -->
                 <Trigger Property="ItemsControl.AlternationIndex"  Value="0">
-                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Background" Value="{StaticResource RowBrush}" />
                 </Trigger>
                 <Trigger Property="ItemsControl.AlternationIndex"  Value="1">
-                    <Setter Property="Background" Value="#393939" />
+                    <Setter Property="Background" Value="{StaticResource RowAlternateBrush}" />
                 </Trigger>
 
                 <!-- highlight color (need ControlTemplate also) -->
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#2a7aa1"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource HoverBorderBrush}"/>
                     <Setter Property="BorderThickness" Value="1"/>
-                    <Setter Property="Background" Value="#313f47"/>
-                    <Setter Property="Foreground" Value="Azure"/>
+                    <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
                 </Trigger>
 
                 <!-- highlighting the selected row. used for jumping to the button that is pressed on the joystick -->
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="BorderThickness" Value="1"/>
-                    <Setter Property="BorderBrush" Value="#26a0da"/>
-                    <Setter Property="Background" Value="#2f4c5a"/>
-                    <Setter Property="Foreground" Value="Azure"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource SelectedBorderBrush}"/>
+                    <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
                 </Trigger>
             </Style.Triggers>
 
@@ -131,10 +152,145 @@
             </Setter>
 
         </Style>
+
+        <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="22" />
+                </Grid.ColumnDefinitions>
+                <Border x:Name="Border" Grid.ColumnSpan="2"
+                          Background="{StaticResource WindowBackgroundBrush}"
+                          BorderBrush="{StaticResource NormalBorderBrush}"
+                          BorderThickness="1" />
+                <Border 
+                              Grid.Column="0"
+                              Margin="1" 
+                              BorderBrush="{StaticResource NormalBorderBrush}"
+                              BorderThickness="0,0,1,0" />
+                <Path 
+                              x:Name="Arrow"
+                              Grid.Column="1"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Fill="{StaticResource SelectedBorderBrush}"
+                              Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 z"/>
+                <!-- solud triangle: Data="M 0 0 L 4 4 L 8 0 Z"-->
+
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="ToggleButton.IsMouseOver" Value="true">
+                    <Setter TargetName="Border" Property="Background" Value="{StaticResource SelectedBrush}" />
+                    <Setter TargetName="Arrow" Property="Fill" Value="{StaticResource SelectedBorderBrush}" />
+                </Trigger>
+                <Trigger Property="ToggleButton.IsChecked" Value="true">
+                    <Setter TargetName="Border" Property="Background" Value="{StaticResource SelectedBrush}" />
+                    <Setter TargetName="Arrow" Property="Fill" Value="Azure" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Border" Property="Background" Value="{StaticResource DisabledBackgroundBrush}" />
+                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource DisabledBorderBrush}" />
+                    <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}"/>
+                    <Setter TargetName="Arrow" Property="Fill" Value="{StaticResource DisabledForegroundBrush}" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="ComboBoxTextBox" TargetType="TextBox">
+            <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}" />
+        </ControlTemplate>
+
+
+        <Style x:Key="{x:Type ComboBox}" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton 
+                                 Name="ToggleButton" 
+                                 Template="{StaticResource ComboBoxToggleButton}" 
+                                 Grid.Column="2" 
+                                 Focusable="false"
+                                 IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+                                 ClickMode="Press">
+                            </ToggleButton>
+                            <ContentPresenter
+                                Name="ContentSite"
+                                Content="{TemplateBinding ComboBox.SelectionBoxItem}" 
+                                ContentTemplate="{TemplateBinding ComboBox.SelectionBoxItemTemplate}" 
+                                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                IsHitTestVisible="False" 
+                                Margin="3,3,23,3"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left" />
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Style="{x:Null}" 
+                                     Template="{StaticResource ComboBoxTextBox}" 
+                                     HorizontalAlignment="Left" 
+                                     VerticalAlignment="Center" 
+                                     SelectionBrush="{StaticResource SelectedBorderBrush}"
+                                     CaretBrush="{StaticResource TextBrush}"
+                                     Margin="3,3,23,3"
+                                     Focusable="True" 
+                                     Background="Transparent"
+                                     Foreground="{TemplateBinding Foreground}"
+                                     FontSize="14"
+                                     Visibility="Hidden"
+                                     IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                            <Popup 
+                                Name="Popup"
+                                Placement="Bottom"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                AllowsTransparency="True" 
+                                Focusable="False"
+                                PopupAnimation="Slide">
+                                <Grid 
+                                  Name="DropDown"
+                                  Background="Azure"
+                                  SnapsToDevicePixels="True"                
+                                  MinWidth="{TemplateBinding ActualWidth}"
+                                  MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border 
+                                    x:Name="DropDownBorder"
+                                    Background="{StaticResource SelectedBrush}"
+                                    BorderThickness="1"/>
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="false">
+                                <Setter TargetName="DropDownBorder" Property="MinHeight" Value="24"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsGrouping" Value="true">
+                                <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                            </Trigger>
+                            <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="true">
+                                <Setter TargetName="DropDownBorder" Property="CornerRadius" Value="0"/>
+                                <Setter TargetName="DropDownBorder" Property="Margin" Value="0,2,0,0"/>
+                            </Trigger>
+                            <Trigger Property="IsEditable" Value="true">
+                                <Setter Property="IsTabStop" Value="false"/>
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
-    <DockPanel Width="Auto" Height="Auto" LastChildFill="True" Background="#323232">
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="32" Background="#323232">
+    <DockPanel Width="Auto" Height="Auto" LastChildFill="True" Background="{StaticResource WindowBackgroundBrush}">
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="32" Background="{StaticResource WindowBackgroundBrush}">
             <Button Style="{StaticResource MenuButton}" Command="{Binding OpenFileCommand, IsAsync=True}">
                 <Image Source="Images/open_32x32.png"/>
             </Button>
@@ -147,25 +303,30 @@
             <Button  Style="{StaticResource MenuButton}" Command="{Binding ExitApplicationCommand, IsAsync=True}">
                 <Image Source="Images/cancel_blue_32x32.png"/>
             </Button>
-            <Label Name="txtLastFile" VerticalAlignment="Center" Foreground="#7ac1ff" VerticalContentAlignment="Center" />
+            <Label Name="txtLastFile" VerticalAlignment="Center" Foreground="{StaticResource TextHeaderBrush}" VerticalContentAlignment="Center" />
         </StackPanel>
 
         <!--d:DataContext="{d:DesignData Source=sample_data_CollectionViewModel.xaml}"-->
         <StackPanel  Orientation="Vertical" Margin="10,10,5,10" Width="300" VerticalAlignment="Top">
-            <TextBlock Text="Select a device" FontSize="15" Foreground="#7ac1ff"/>
-            <ListBox x:Name="lstDevices" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" Height="250" FontSize="13" Background="Transparent" Foreground="Azure" BorderBrush="SlateGray"
+            <TextBlock Text="Select a device" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
+            <ListBox x:Name="lstDevices" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" Height="250" FontSize="13" Background="Transparent" Foreground="{StaticResource TextBrush}" BorderBrush="SlateGray"
             SelectionChanged="LstDevices_OnSelectionChanged"/>
-            <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="#7ac1ff"/>
-            <TextBox Height="250" TextWrapping="Wrap" Foreground="Azure" CaretBrush="Azure" Background="Transparent" FontSize="12"></TextBox>
+            <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
+            <TextBox x:Name="txtTestBox" Height="250" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" FontSize="14"></TextBox>
 
-            <Canvas Name="canvas_x_axis_bar" Height="60" Width="200"/>
-            <Canvas Name="canvas_x_axis_circle" Height="40" Width="40" Background="Transparent"/>
-
+            <!--<Canvas Name="canvas_x_axis_bar" Height="60" Width="200"/>-->
+            <!--<Canvas Name="canvas_x_axis_circle" Height="40" Width="40" Background="Transparent"/>-->
+            <axisControls:RadialAxisMap x:Name="RadialAxisMapRX" Margin="1"/>
+            <axisControls:RadialAxisMap x:Name="RadialAxisMapRY" Margin="1"/>
+            <axisControls:RadialAxisMap x:Name="RadialAxisMapRZ" Margin="1"/>
+            <axisControls:LinearAxisMap x:Name="LinearAxisMapX" Margin="1"/>
+            <axisControls:LinearAxisMap x:Name="LinearAxisMapY" Margin="1"/>
+            <axisControls:LinearAxisMap x:Name="LinearAxisMapZ" Margin="1"/>
         </StackPanel>
 
 
         <!-- joystick X axis -->
-        <ListBox ItemContainerStyle="{StaticResource ListBoxItemStyleNoHighlighting}" Margin="5,30,10,10" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderBrush="Transparent">
+        <!--<ListBox ItemContainerStyle="{StaticResource ListBoxItemStyleNoHighlighting}" Margin="5,30,10,10" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderBrush="Transparent">
             <ItemsControl ItemsSource="{Binding Actions}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -176,23 +337,25 @@
                     <DataTemplate>
 
                         <Grid>
-                            <!-- This grid allows the scrollbar on the ListBox to appear. otherwise, the stackpanel will expand to fit all children (so no scrollbar) and they will all clip off the edge-->
+                            -->
+        <!-- This grid allows the scrollbar on the ListBox to appear. otherwise, the stackpanel will expand to fit all children (so no scrollbar) and they will all clip off the edge-->
+        <!--
                             <StackPanel>
                                 <Grid>
-                                    <Label Style="{StaticResource RoundLabelStyle}" Content="X AXIS" Width="68" Height="52" Margin="2,0,2,0" FontSize="11"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" BorderBrush="#2a7aa1" BorderThickness="3" Foreground="Azure"/>
+                                    <Label Style="{StaticResource RoundLabelStyle}" Content="X AXIS" Width="68" Height="52" Margin="2,0,2,0" FontSize="11"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" BorderBrush="{StaticResource HoverBorderBrush}" BorderThickness="3" Foreground="{StaticResource TextBrush}"/>
                                     <Canvas Name="canvas_x_axis" Height="60" Width="100"/>
                                 </Grid>
-                                <TextBox Text="{Binding TimeInMilliseconds}" Width="66" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="#2a7aa1"/>
+                                <TextBox Text="{Binding TimeInMilliseconds}" Width="66" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="{StaticResource HoverBorderBrush}"/>
                             </StackPanel>
                         </Grid>
 
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </ListBox>
+        </ListBox>-->
 
 
-        <ListView ItemContainerStyle="{StaticResource CustomListViewItem}" AlternationCount="2" Margin="5,30,10,10" Name="gridMap" Background="#323232" Foreground="Azure">
+        <ListView ItemContainerStyle="{StaticResource CustomListViewItem}" AlternationCount="2" Margin="5,30,10,10" Name="gridMap" Background="{StaticResource WindowBackgroundBrush}" Foreground="{StaticResource TextBrush}">
             <ListView.View>
                 <GridView>
 
@@ -208,7 +371,7 @@
                                     <!-- Macro Buttons-->
                                     <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0,20,0,0">
 
-                                        <TextBox Text="{Binding ButtonName}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Foreground="Azure" CaretBrush="Azure" Margin="1,0,2,0" Width="200" Height="30" FontSize="14" Background="Transparent" BorderBrush="Azure"/>
+                                        <TextBox Text="{Binding ButtonName}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Margin="1,0,2,0" Width="200" Height="30" FontSize="14" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
 
                                         <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStartCommandWithParameter, IsAsync=True}">
                                             <Image>
@@ -248,10 +411,19 @@
                                         </Button>
                                     </StackPanel>
 
-                                    <!-- Macro Name Selection -->
-                                    <!--<ComboBox Name="cmbMacroName" SelectionChanged="ActionList_OnSelectionChanged" Text="{Binding ActionName, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding DataContext.ActionList.MapCatalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" SelectedValuePath="Value" DisplayMemberPath="Key" IsEditable="True" HorizontalAlignment="Stretch" Margin="0,2,0,20" VerticalAlignment="Center"/>-->
-                                    <ComboBox Name="cmbMacroName2" SelectionChanged="ActionList_OnSelectionChanged" Text="{Binding ActionName, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding DataContext.ActionCatalog.Catalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" DisplayMemberPath="ActionName" IsEditable="True" IsTextSearchEnabled="False" HorizontalAlignment="Stretch" Margin="0,2,0,20" VerticalAlignment="Center"/>
-
+                                    <!-- Action Catalog Selection -->
+                                    <ComboBox Name="cmbMacroName2" 
+                                              SelectionChanged="ActionList_OnSelectionChanged" 
+                                              Text="{Binding ActionName, UpdateSourceTrigger=LostFocus}" 
+                                              ItemsSource="{Binding DataContext.ActionCatalog.Catalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" 
+                                              DisplayMemberPath="ActionName" 
+                                              IsEditable="True" 
+                                              IsTextSearchEnabled="False" 
+                                              FontSize="14" 
+                                              Height="28" 
+                                              Margin="0,2,0,20" 
+                                              HorizontalAlignment="Stretch" 
+                                              VerticalAlignment="Center"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
@@ -280,8 +452,8 @@
                                                         <!-- This grid allows the scrollbar on the ListBox to appear. otherwise, the stackpanel will expand to fit all children (so no scrollbar) and they will all clip off the edge-->
                                                         <StackPanel>
                                                             <Grid>
-                                                                <Label Style="{StaticResource RoundLabelStyle}" Width="68" Height="52" Margin="2,0,2,0" FontSize="11"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" BorderBrush="#2a7aa1" BorderThickness="3" Foreground="Azure"/>
-                                                                <Label Content="{Binding ScanCode}" Width="Auto" FontSize="12"  HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" Foreground="Azure"/>
+                                                                <Label Style="{StaticResource RoundLabelStyle}" Width="68" Height="52" Margin="2,0,2,0" FontSize="11"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" BorderBrush="{StaticResource HoverBorderBrush}" BorderThickness="3" Foreground="{StaticResource TextBrush}"/>
+                                                                <Label Content="{Binding ScanCode}" Width="Auto" FontSize="12"  HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" Foreground="{StaticResource TextBrush}"/>
 
                                                                 <Image Height="24" Width="24" VerticalAlignment="Center" Margin="0,18,0,0">
                                                                     <Image.Style>
@@ -298,7 +470,7 @@
                                                                     </Image.Style>
                                                                 </Image>
                                                             </Grid>
-                                                            <TextBox Text="{Binding TimeInMilliseconds}" Width="66" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="#2a7aa1"/>
+                                                            <TextBox Text="{Binding TimeInMilliseconds}" Width="66" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="{StaticResource HoverBorderBrush}"/>
                                                         </StackPanel>
                                                     </Grid>
 
@@ -314,7 +486,6 @@
                 </GridView>
             </ListView.View>
         </ListView>
-
 
     </DockPanel>
 

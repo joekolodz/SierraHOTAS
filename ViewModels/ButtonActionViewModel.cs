@@ -1,9 +1,7 @@
-﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using SierraHOTAS.Annotations;
+﻿using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace SierraHOTAS.ViewModel
 {
@@ -29,7 +27,6 @@ namespace SierraHOTAS.ViewModel
         public ButtonActionViewModel(ButtonAction action)
         {
             _action = action;
-            //Debug.WriteLine($"BAVM Flags:{_action.Flags}, Up:{IsKeyUp}");
         }
 
         private string GetScanCodeDisplay()

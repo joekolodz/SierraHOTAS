@@ -15,6 +15,7 @@ namespace SierraHOTAS.ViewModel
 {
     public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {
+        public bool IsDirectional { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ActionCatalogViewModel ActionCatalog { get; set; }
 
@@ -114,7 +115,7 @@ namespace SierraHOTAS.ViewModel
 
         private void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
         {
-            var device = Devices.First(d => d.InstanceId == e.Device.InstanceId);
+            var device = Devices?.First(d => d.InstanceId == e.Device.InstanceId);
             ButtonPressed?.Invoke(sender, new ButtonPressedViewModelEventArgs() { ButtonId = e.ButtonId, Device = device });
         }
 
@@ -132,6 +133,17 @@ namespace SierraHOTAS.ViewModel
 
         private void FileSave()
         {
+            foreach (var d in _deviceList.Devices)
+            {
+                foreach (var m in d.ButtonMap)
+                {
+                    if (m.ActionName == "<No Action>")
+                    {
+                        m.ActionName = string.Empty;
+                        m.Actions.Clear();
+                    }
+                }
+            }
             FileSystem.FileSave(_deviceList);
         }
 
@@ -144,6 +156,8 @@ namespace SierraHOTAS.ViewModel
         {
             _deviceList.Stop();
             var loadedDeviceList = FileSystem.FileOpen();
+            if (loadedDeviceList == null) return;
+
             BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
             AddHandlers();
             BuildActionCatalogFromLoadedDevices();
@@ -155,6 +169,7 @@ namespace SierraHOTAS.ViewModel
         private void BuildActionCatalogFromLoadedDevices()
         {
             ActionCatalog.Clear();
+
             foreach (var device in Devices)
             {
                 foreach (var map in device.ButtonMap)

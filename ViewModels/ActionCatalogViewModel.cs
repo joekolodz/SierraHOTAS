@@ -1,6 +1,7 @@
 ﻿using SierraHOTAS.ViewModel;
 using System.Collections.ObjectModel;
 using System.Linq;
+using SierraHOTAS.Models;
 
 namespace SierraHOTAS.ViewModels
 {
@@ -11,11 +12,13 @@ namespace SierraHOTAS.ViewModels
         public ActionCatalogViewModel()
         {
             Catalog = new ObservableCollection<ActionCatalogItem>();
+            AddEmptyItem();
         }
 
         public void Clear()
         {
             Catalog.Clear();
+            AddEmptyItem();
         }
 
         public bool Contains(string actionName)
@@ -47,6 +50,11 @@ namespace SierraHOTAS.ViewModels
             Catalog.Add(item);
             Logging.Log.Info($"{item.ActionName} - {map.ButtonName} added to actions catalog");
             return item;
+        }
+
+        private void AddEmptyItem()
+        {
+            Add(new ActionCatalogItem() { ActionName = "<No Action>", Actions = new ObservableCollection<ButtonAction>() });
         }
     }
 }

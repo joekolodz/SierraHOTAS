@@ -1,15 +1,8 @@
 ﻿using Newtonsoft.Json;
 using SharpDX.DirectInput;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SierraHOTAS.Models
 {
@@ -94,7 +87,8 @@ namespace SierraHOTAS.Models
             Debug.WriteLine("Flags {0}", Capabilities.Flags);
 
             Debug.WriteLine("\nBuilding button maps...");
-            //SeedButtonMap(JoystickOffset.X, Capabilities.AxeCount, HOTASMap.ButtonType.Axis);
+            
+            if(Capabilities.AxeCount > 0) SeedButtonMap(JoystickOffset.X, Capabilities.AxeCount, HOTASMap.ButtonType.Axis);
             if (Capabilities.ButtonCount > 0) SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASMap.ButtonType.Button);
             if (Capabilities.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASMap.ButtonType.POV);
 
@@ -159,6 +153,12 @@ namespace SierraHOTAS.Models
             _hotasAsync?.Stop();
         }
 
- 
+        public void ClearUnassignedActions()
+        {
+            foreach (var m in ButtonMap)
+            {
+                m.ClearUnassignedActions();
+            }
+        }
     }
 }

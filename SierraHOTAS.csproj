@@ -89,11 +89,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\JitterDetection.cs" />
+    <Compile Include="Controls\LinearAxisMap.xaml.cs">
+      <DependentUpon>LinearAxisMap.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RadialAxisMap.xaml.cs">
+      <DependentUpon>RadialAxisMap.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DataProvider.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FileSystem.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="MainWindow.xaml.cs" />
+    <Compile Include="Models\HOTASAxis.cs" />
     <Compile Include="ViewModels\ActionCatalogItem.cs" />
     <Compile Include="Models\AxisChangedEventArgs.cs" />
     <Compile Include="Models\ButtonAction.cs" />
@@ -136,6 +144,21 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Content Include="Sounds\click01.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Sounds\click02.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Sounds\click03.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Sounds\click04.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Sounds\click05.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -153,35 +176,72 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\LinearAxisMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RadialAxisMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\cancel_black_32x32.png" />
-    <Resource Include="Images\cancel_blue_32x32.png" />
-    <Resource Include="Images\open_32x32.png" />
-    <Resource Include="Images\record_black_32x32.png" />
-    <Resource Include="Images\record_blue_32x32.png" />
-    <Resource Include="Images\record_red_32x32.png" />
-    <Resource Include="Images\save_black_32x32.png" />
-    <Resource Include="Images\save_blue_32x32.png" />
-    <Resource Include="Images\stop_black_32x32.png" />
-    <Resource Include="Images\stop_blue_32x32.png" />
+    <Resource Include="Images\cancel_black_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\cancel_blue_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\open_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\record_black_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\record_blue_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\record_red_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\save_black_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\save_blue_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\stop_black_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\stop_blue_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\down_azure_32x32.png" />
-    <Resource Include="Images\up_azure_32x32.png" />
+    <Resource Include="Images\down_azure_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\up_azure_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\repeat_orange_32x32.png" />
+    <Resource Include="Images\repeat_orange_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\saveas_blue_32x32.png" />
+    <Resource Include="Images\saveas_blue_32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="icon32x32.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

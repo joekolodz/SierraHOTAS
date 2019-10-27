@@ -111,6 +111,13 @@ namespace SierraHOTAS.Models
             Debug.Write($"[Recording: {Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)e.Code, e.Flags)}");
         }
 
+        public void ClearUnassignedActions()
+        {
+            if (ActionName != "<No Action>") return;
+            ActionName = string.Empty;
+            Actions.Clear();
+        }
+
         public override string ToString()
         {
             var o = "";
