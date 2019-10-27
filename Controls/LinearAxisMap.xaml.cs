@@ -150,8 +150,8 @@ namespace SierraHOTAS.Controls
         private void DetectSelectedSegment(int value)
         {
             if (_segmentRanges.Count <= 1) return;
-            var segmentRange = _segmentRanges.FirstOrDefault(r => value <= r.Value);
-            var newSegment = segmentRange.Key;
+
+            var newSegment = GetSegmentFromRawValue(value);
 
             if (newSegment != _currentSegment)
             {
@@ -159,8 +159,13 @@ namespace SierraHOTAS.Controls
                 _mediaPlayer.Volume = 1f;
                 _mediaPlayer.Play();
                 _mediaPlayer.Position = TimeSpan.Zero;
-                Logging.Log.Info($"New Segment: {_currentSegment}");
             }
+        }
+
+        private int GetSegmentFromRawValue(int value)
+        {
+            var segmentRange = _segmentRanges.FirstOrDefault(r => value <= r.Value);
+            return segmentRange.Key;
         }
 
         private void DrawRectangle(int width)

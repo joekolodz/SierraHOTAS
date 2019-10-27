@@ -302,7 +302,17 @@ namespace SierraHOTAS.Models
 
         private void HandleAxis(JoystickUpdate state)
         {
-            
+            var offset = (int)state.Offset;
+
+            //map each axis segment to a virtual Offset value (greater than 128 to avoid collisions)
+
+            //translate axis movement to offset via segments
+
+            var map = GetMap(offset);
+            if (map != null && map.Actions.Count > 0)
+            {
+                HandleButtonPressed(map, offset);
+            }
         }
 
         private void OnAxisChanged(JoystickUpdate state)
