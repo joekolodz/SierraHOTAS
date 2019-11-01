@@ -40,18 +40,35 @@ namespace SierraHOTAS
 
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
-            
+
         }
 
+        private DeviceViewModel _currentlySelectedDeviceVm;
         private void CollectionViewModelAxisChanged(object sender, AxisChangedViewModelEventArgs e)
         {
-            if (e.AxisId == (int)JoystickOffset.RotationX) Dispatcher?.Invoke(() => RadialAxisMapRX.SetAxis(e.Value));
-            if (e.AxisId == (int)JoystickOffset.RotationY) Dispatcher?.Invoke(() => RadialAxisMapRY.SetAxis(e.Value));
-            if (e.AxisId == (int)JoystickOffset.RotationZ) Dispatcher?.Invoke(() => RadialAxisMapRZ.SetAxis(e.Value));
+            if (e.Device == null) return;
+            if (_currentlySelectedDeviceVm != e.Device) return;
 
-            if (e.AxisId == (int)JoystickOffset.X) Dispatcher?.Invoke(() => LinearAxisMapX.SetAxis(e.Value));
-            if (e.AxisId == (int)JoystickOffset.Y) Dispatcher?.Invoke(() => LinearAxisMapY.SetAxis(e.Value));
-            if (e.AxisId == (int)JoystickOffset.Z) Dispatcher?.Invoke(() => LinearAxisMapZ.SetAxis(e.Value));
+            foreach (var map in e.Device.ButtonMap)
+            {
+                if (map.ButtonId == e.AxisId)
+                {
+                    Dispatcher?.Invoke(() =>
+                    {
+                        if (map.Type == HOTASButtonMap.ButtonType.Button ||
+                            map.Type == HOTASButtonMap.ButtonType.POV)
+                        {
+                            gridMap.SelectedItem = map;
+                            gridMap.ScrollIntoView(map);
+                        }
+                        else
+                        {
+                            Dispatcher?.Invoke(() => e.Device.SetAxis(e.AxisId, e.Value));
+                        }
+                    });
+                    break;
+                }
+            }
         }
 
         private void HotasCollectionViewModel_FileOpened(object sender, EventArgs e)
@@ -77,6 +94,7 @@ namespace SierraHOTAS
         {
             HotasCollectionViewModel.Initialize();
             DataContext = HotasCollectionViewModel;
+
             Keyboard.Start();
         }
 
@@ -85,8 +103,6 @@ namespace SierraHOTAS
             HotasCollectionViewModel.Dispose();
             Keyboard.Stop();
         }
-
-
 
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
@@ -103,12 +119,8 @@ namespace SierraHOTAS
         public static bool IsApplicationActive()
         {
             var wnd = Application.Current.MainWindow;
-            if (IsActive(wnd)) return true;
-            return false;
+            return IsActive(wnd);
         }
-
-
-
 
         private void CollectionViewModelButtonPressed(object sender, ButtonPressedViewModelEventArgs e)
         {
@@ -130,15 +142,17 @@ namespace SierraHOTAS
 
             foreach (var map in e.Device.ButtonMap)
             {
-                if (map.ButtonId == e.ButtonId)
+                if (map.ButtonId != e.ButtonId) continue;
+
+                Dispatcher?.Invoke(() =>
                 {
-                    Dispatcher?.Invoke(() =>
+                    gridMap.SelectedItem = map;
+                    if (HotasCollectionViewModel.SnapToButton.GetValueOrDefault())
                     {
-                        gridMap.SelectedItem = map;
                         gridMap.ScrollIntoView(map);
-                    });
-                    break;
-                }
+                    }
+                });
+                break;
             }
         }
 
@@ -146,6 +160,7 @@ namespace SierraHOTAS
         {
             if (e.AddedItems.Count <= 0) return;
             if (!(e.AddedItems[0] is DeviceViewModel device)) return;
+            _currentlySelectedDeviceVm = device;
 
             gridMap.ItemsSource = device.ButtonMap;
 
@@ -153,17 +168,6 @@ namespace SierraHOTAS
             {
                 HotasCollectionViewModel.SelectionChangedCommand.Execute(device);
             }
-        }
-
-        private void ActionList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (!(sender is ComboBox box) || !(box.DataContext is MapViewModel mapContext)) return;
-            if (e.AddedItems.Count <= 0) return;
-            if (!(e.AddedItems[0] is ActionCatalogItem selectedAction)) return;
-
-            Logging.Log.Info($"map selected to be changed: {mapContext.ButtonName}");
-
-            HotasCollectionViewModel.ActionComboBoxSelectionChangeCommand(mapContext, selectedAction);
         }
     }
 }

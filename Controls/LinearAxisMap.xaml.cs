@@ -1,107 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using System.Windows;
+using SierraHOTAS.ViewModels;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace SierraHOTAS.Controls
 {
-    public enum AxisDirection
-    {
-        Forward,
-        Backward
-    }
-
     public partial class LinearAxisMap : UserControl
     {
         private Rectangle _rectLinearGauge;
         private Rectangle _rectLimitBorder;
-        private List<Line> _segmentLines;
-        private Dictionary<int, int> _segmentRanges;
-        private int _currentSegment;
-
-        public double GaugeWidth { get; set; } = 120;
-        public double GaugeHeight { get; set; } = 20;
-
+        private readonly List<Line> _segmentLines;
         private readonly Color _directionalColor;
+        private LinearAxisMapViewModel _axisVm;
 
-        private int _lastValue;
-        private AxisDirection _direction = AxisDirection.Forward;
-        private readonly JitterDetection _jitter;
+        private double _gaugeWidth = 120;
+        private double _gaugeHeight = 20;
 
-        private bool _isDirectional;
-        private readonly MediaPlayer _mediaPlayer;
 
         public LinearAxisMap()
         {
             InitializeComponent();
 
-            _jitter = new JitterDetection();
+            txtSegments.TextChanged += OnSegmentsTextChanged;
             _segmentLines = new List<Line>();
-            _segmentRanges = new Dictionary<int, int>();
-
             _directionalColor = (Color)ColorConverter.ConvertFromString("#80e5ff");
 
-            if (GaugeHeight > Height) GaugeHeight = Height;
-            if (GaugeWidth > Width) GaugeWidth = Width;
+            DataContextChanged += LinearAxisMap_DataContextChanged;
 
-            chkIsDirectional.Checked += ChkIsDirectional_Checked;
-            chkIsDirectional.Unchecked += ChkIsDirectional_Checked;
-            txtSegments.TextChanged += TxtSegments_TextChanged;
-
-            _mediaPlayer = new MediaPlayer {Volume = 0f};
-            _mediaPlayer.Open(new Uri(@"Sounds\click05.mp3", UriKind.Relative));
+            CreateAxisBar();
         }
 
-        private void TxtSegments_TextChanged(object sender, TextChangedEventArgs e)
+        private void _axisVm_OnAxisValueChanged(object sender, int axisValue)
         {
-            ResetSegments();
+            DrawRectangle(axisValue);
+        }
+
+        private void LinearAxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(_axisVm!=null)_axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
+
+            _axisVm = DataContext as LinearAxisMapViewModel;
+            if (_axisVm == null) return;
+
+            _axisVm.OnAxisValueChanged += _axisVm_OnAxisValueChanged;
+        }
+
+        private void OnSegmentsTextChanged(object sender, TextChangedEventArgs e)
+        {
+            RemoveAllSegmentLines();
 
             var success = int.TryParse(txtSegments.Text, out var segments);
             if (!success) return;
 
             if (segments < 1) return;
 
-            if (segments == 1)
-            {
-                _currentSegment = 1;
-                return;
-            }
-
-            CalculateSegmentRange(segments);
+            _axisVm.SegmentsCountChanged(segments);
             DrawSegmentBoundaries(segments);
-        }
-
-        private void CalculateSegmentRange(int segments)
-        {
-            var segmentRangeBoundary = ushort.MaxValue / (segments);
-            _segmentRanges.Clear();
-            for (var i = 1; i < segments; i++)
-            {
-                _segmentRanges.Add(i, (segmentRangeBoundary * i));
-            }
-
-            _segmentRanges.Add(segments, ushort.MaxValue);
-        }
-
-        private void ResetSegments()
-        {
-            _segmentRanges.Clear();
-            RemoveAllSegmentLines();
         }
 
         private void RemoveAllSegmentLines()
         {
             foreach (var line in _segmentLines)
             {
-                canvas_axis_bar.Children.Remove(line);
+                CanvasPlaceHolder.Children.Remove(line);
             }
+            _segmentLines.Clear();
         }
 
         private void DrawSegmentBoundaries(int segments)
         {
-            var segmentWidth = (int)(GaugeWidth / segments);
+            var segmentWidth = (int)(_gaugeWidth / segments);
 
             for (var s = 1; s < segments; s++)
             {
@@ -118,54 +90,9 @@ namespace SierraHOTAS.Controls
                 Canvas.SetLeft(line, 0);
                 Canvas.SetBottom(line, 1);
 
-                canvas_axis_bar.Children.Add(line);
+                CanvasPlaceHolder.Children.Add(line);
                 _segmentLines.Add(line);
             }
-        }
-
-        private void ChkIsDirectional_Checked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            _isDirectional = chkIsDirectional.IsChecked ?? false;
-            if (!_isDirectional) _direction = AxisDirection.Forward;
-        }
-
-        public void SetAxis(int value)
-        {
-            if (_jitter.IsJitter(value)) return;
-
-            SetDirection(value);
-            DetectSelectedSegment(value);
-            DrawRectangle(value);
-        }
-
-        private void SetDirection(int value)
-        {
-            if (_isDirectional)
-            {
-                _direction = value < _lastValue ? AxisDirection.Backward : AxisDirection.Forward;
-            }
-            _lastValue = value;
-        }
-
-        private void DetectSelectedSegment(int value)
-        {
-            if (_segmentRanges.Count <= 1) return;
-
-            var newSegment = GetSegmentFromRawValue(value);
-
-            if (newSegment != _currentSegment)
-            {
-                _currentSegment = newSegment;
-                _mediaPlayer.Volume = 1f;
-                _mediaPlayer.Play();
-                _mediaPlayer.Position = TimeSpan.Zero;
-            }
-        }
-
-        private int GetSegmentFromRawValue(int value)
-        {
-            var segmentRange = _segmentRanges.FirstOrDefault(r => value <= r.Value);
-            return segmentRange.Key;
         }
 
         private void DrawRectangle(int width)
@@ -175,7 +102,7 @@ namespace SierraHOTAS.Controls
                 CreateAxisBar();
             }
 
-            var ratio = 65535 / GaugeWidth;
+            var ratio = 65535 / _gaugeWidth;
             double w = width;
             w /= ratio;
             var final = Math.Round(w);
@@ -187,19 +114,29 @@ namespace SierraHOTAS.Controls
 
         private void CreateAxisBar()
         {
+            if (CanvasPlaceHolder.Children.Contains(_rectLimitBorder))
+            {
+                CanvasPlaceHolder.Children.Remove(_rectLimitBorder);
+            }
+
+            if (CanvasPlaceHolder.Children.Contains(_rectLimitBorder))
+            {
+                CanvasPlaceHolder.Children.Remove(_rectLimitBorder);
+            }
+
             _rectLinearGauge = new Rectangle()
             {
                 Stroke = new SolidColorBrush(Colors.Gold),
                 Fill = new SolidColorBrush(Colors.Gold),
                 Width = 1,
-                Height = GaugeHeight
+                Height = _gaugeHeight
             };
             _rectLimitBorder = new Rectangle()
             {
                 Stroke = new SolidColorBrush(Colors.Gold),
                 Fill = new SolidColorBrush(Colors.Transparent),
-                Width = GaugeWidth,
-                Height = GaugeHeight
+                Width = _gaugeWidth,
+                Height = _gaugeHeight
             };
             Canvas.SetLeft(_rectLinearGauge, 0);
             Canvas.SetBottom(_rectLinearGauge, 0);
@@ -207,13 +144,13 @@ namespace SierraHOTAS.Controls
             Canvas.SetLeft(_rectLimitBorder, 0);
             Canvas.SetBottom(_rectLimitBorder, 0);
 
-            canvas_axis_bar.Children.Add(_rectLimitBorder);
-            canvas_axis_bar.Children.Add(_rectLinearGauge);
+            CanvasPlaceHolder.Children.Add(_rectLimitBorder);
+            CanvasPlaceHolder.Children.Add(_rectLinearGauge);
         }
 
         private void SetDirectionalColor()
         {
-            if (_direction == AxisDirection.Forward)
+            if (_axisVm.Direction == AxisDirection.Forward)
             {
                 _rectLinearGauge.Fill = new SolidColorBrush(Colors.Gold);
                 _rectLinearGauge.Stroke = new SolidColorBrush(Colors.Gold);

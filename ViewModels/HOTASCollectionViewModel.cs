@@ -15,9 +15,20 @@ namespace SierraHOTAS.ViewModel
 {
     public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {
-        public bool IsDirectional { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ActionCatalogViewModel ActionCatalog { get; set; }
+
+        private bool? _snapToButton = true;
+        public bool? SnapToButton
+        {
+            get => _snapToButton;
+            set
+            {
+                if (value == _snapToButton) return;
+                _snapToButton = value ?? false;
+                OnPropertyChanged(nameof(SnapToButton));
+            }
+        }
 
         public string LastFileSaved => FileSystem.LastSavedFileName;
 
@@ -78,6 +89,16 @@ namespace SierraHOTAS.ViewModel
         public void Dispose()
         {
             _deviceList.Stop();
+        }
+
+        public void SetAxis(int buttonId, int value)
+        {
+            foreach (var d in Devices)
+            {
+                var map = d.ButtonMap.FirstOrDefault(axis => axis.ButtonId == buttonId);
+                if (map == null) return;
+                map.SetAxis(value);
+            }
         }
 
         private void BuildDevicesViewModelFromLoadedDevices(HOTASCollection loadedDevices)
@@ -164,15 +185,16 @@ namespace SierraHOTAS.ViewModel
             {
                 foreach (var map in device.ButtonMap)
                 {
-                    if (string.IsNullOrWhiteSpace(map.ActionName)) continue;
-                    if (ActionCatalog.Contains(map.ActionName)) continue;
+                    if (string.IsNullOrWhiteSpace(map.ButtonName)) continue;
+                    //todo action catalog for axis
+                    //if (ActionCatalog.Contains(map.ActionName!!!!!!!!!!!!)) continue;
 
-                    var item = new ActionCatalogItem()
-                    {
-                        ActionName = map.ActionName,
-                        Actions = map.GetHotasActions()
-                    };
-                    ActionCatalog.Add(item);
+                    //var item = new ActionCatalogItem()
+                    //{
+                    //    ActionName = map.ActionName,
+                    //    Actions = map.GetHotasActions()
+                    //};
+                    //ActionCatalog.Add(item);
                 }
             }
         }
@@ -193,13 +215,8 @@ namespace SierraHOTAS.ViewModel
 
         private void Device_RecordingStopped(object sender, EventArgs e)
         {
-            if (!(sender is MapViewModel mapVm)) return;
+            if (!(sender is ButtonMapViewModel mapVm)) return;
             ActionCatalog.Add(mapVm);
-        }
-
-        public void ActionComboBoxSelectionChangeCommand(MapViewModel mapContext, ActionCatalogItem selectedAction)
-        {
-            mapContext.AssignActions(selectedAction);
         }
 
         private void RemoveAllHandlers()

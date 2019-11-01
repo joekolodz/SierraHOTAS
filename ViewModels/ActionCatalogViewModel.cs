@@ -32,23 +32,23 @@ namespace SierraHOTAS.ViewModels
             return item;
         }
 
-        public ActionCatalogItem Add(MapViewModel map)
+        public ActionCatalogItem Add(ButtonMapViewModel buttonMap)
         {
-            var item = map.ActionItem;
+            var item = buttonMap.ActionItem;
             Logging.Log.Info("Add to actions catalog");
             if (string.IsNullOrWhiteSpace(item.ActionName))
             {
-                item.ActionName = $"Unassigned {map.ButtonName}";
-                item.Actions = map.GetHotasActions().ToObservableCollection();
+                item.ActionName = $"Unassigned {buttonMap.ButtonName}";
+                item.Actions = buttonMap.GetHotasActions().ToObservableCollection();
             }
 
             if (Catalog.Contains(item))
             {
-                Logging.Log.Info($"{item.ActionName} - {map.ButtonName} already exists in actions catalog. Removing first.");
+                Logging.Log.Info($"{item.ActionName} - {buttonMap.ButtonName} already exists in actions catalog. Removing first.");
                 Catalog.Remove(item);
             }
             Catalog.Add(item);
-            Logging.Log.Info($"{item.ActionName} - {map.ButtonName} added to actions catalog");
+            Logging.Log.Info($"{item.ActionName} - {buttonMap.ButtonName} added to actions catalog");
             return item;
         }
 

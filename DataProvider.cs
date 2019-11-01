@@ -18,9 +18,9 @@ d67c807f-98fd-4443-94ab-b2724e44f805, Stick
             {
                 new HOTASDevice(throttleGuid, "Joe's Test Throttle")
                 {
-                    ButtonMap = new ObservableCollection<HOTASMap>()
+                    ButtonMap = new ObservableCollection<IHotasBaseMap>()
                     {
-                        new HOTASMap(){ButtonName = "Button 1", Type = HOTASMap.ButtonType.Button, ButtonId = 54, Actions = new ObservableCollection<ButtonAction>()
+                        new HOTASButtonMap(){MapName = "Button 1", Type = HOTASButtonMap.ButtonType.Button, MapId = 54, Actions = new ObservableCollection<ButtonAction>()
                         {
                             new ButtonAction(){ ScanCode = (int) Win32Structures.ScanCodeShort.SPACE, TimeInMilliseconds = 0, Flags = 0},
                             new ButtonAction(){ ScanCode = (int) Win32Structures.ScanCodeShort.SPACE, TimeInMilliseconds = 0, Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP}
@@ -29,21 +29,21 @@ d67c807f-98fd-4443-94ab-b2724e44f805, Stick
                 },
                 new HOTASDevice(stickGuid, "Joe's Test Stick")
                 {
-                    ButtonMap = new ObservableCollection<HOTASMap>()
+                    ButtonMap = new ObservableCollection<IHotasBaseMap>()
                     {
-                        new HOTASMap(){ButtonName = "Button 0", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap()
+                        new HOTASButtonMap(){MapName = "Button 0", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap()
                         {
-                            ButtonName = "Button 1", Type = HOTASMap.ButtonType.Button, ButtonId = 55,
+                            MapName = "Button 1", Type = HOTASButtonMap.ButtonType.Button, MapId = 55,
                             Actions = new ObservableCollection<ButtonAction>()
                             {
                                 new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.LMENU, TimeInMilliseconds = 0, Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED},
                                 new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.LMENU, TimeInMilliseconds = 0, Flags = (int) (Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP | Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)}
                             }
                         },
-                        new HOTASMap()
+                        new HOTASButtonMap()
                         {
-                            ButtonName = "Button 2", Type = HOTASMap.ButtonType.Button, ButtonId = 56,
+                            MapName = "Button 2", Type = HOTASButtonMap.ButtonType.Button, MapId = 56,
                             Actions = new ObservableCollection<ButtonAction>()
                             {
                                 new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.RSHIFT, TimeInMilliseconds = 0, Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED},
@@ -52,16 +52,16 @@ d67c807f-98fd-4443-94ab-b2724e44f805, Stick
                                 new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.RSHIFT, TimeInMilliseconds = 0, Flags = (int) (Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP | Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)}
                             }
                         },
-                        new HOTASMap(){ButtonName = "Button 3", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap(){ButtonName = "Button 4", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap(){ButtonName = "Button 5", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap(){ButtonName = "Button 6", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap(){ButtonName = "Button 7", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap(){ButtonName = "Button 8", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap(){ButtonName = "Button 9", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap(){ButtonName = "Button 10", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap(){ButtonName = "Button 11", Actions = new ObservableCollection<ButtonAction>()},
-                        new HOTASMap(){ButtonName = "Button 12", Actions = new ObservableCollection<ButtonAction>()}                    }
+                        new HOTASButtonMap(){MapName = "Button 3", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap(){MapName = "Button 4", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap(){MapName = "Button 5", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap(){MapName = "Button 6", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap(){MapName = "Button 7", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap(){MapName = "Button 8", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap(){MapName = "Button 9", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap(){MapName = "Button 10", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap(){MapName = "Button 11", Actions = new ObservableCollection<ButtonAction>()},
+                        new HOTASButtonMap(){MapName = "Button 12", Actions = new ObservableCollection<ButtonAction>()}                    }
                 }
             };
             return devices;

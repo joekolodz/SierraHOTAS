@@ -3,7 +3,10 @@ using SierraHOTAS.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using SierraHOTAS.ViewModels;
 
 namespace SierraHOTAS.ViewModel
 {
@@ -17,7 +20,7 @@ namespace SierraHOTAS.ViewModel
 
         public string Name { get; set; }
 
-        public ObservableCollection<MapViewModel> ButtonMap { get; set; }
+        public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
 
         public DeviceViewModel()
         {
@@ -28,22 +31,41 @@ namespace SierraHOTAS.ViewModel
             _hotasDevice = device;
             InstanceId = _hotasDevice.InstanceId;
             Name = _hotasDevice.Name;
+
             BuildMap();
         }
 
         public void RebuildMap()
         {
             RemoveAllHandlers();
+
             ButtonMap.Clear();
-            foreach (var m in _hotasDevice.ButtonMap)
+
+            foreach (var baseMap in _hotasDevice.ButtonMap)
             {
-                var mapViewModel = new MapViewModel(m);
-                AddHandlers(mapViewModel);
-                ButtonMap.Add(mapViewModel);
+                switch (baseMap.Type)
+                {
+                    case HOTASButtonMap.ButtonType.AxisLinear:
+                        var linearMap = baseMap as HOTASAxisMap;
+                        ButtonMap.Add(new LinearAxisMapViewModel(linearMap));
+                        break;
+
+                    case HOTASButtonMap.ButtonType.AxisRadial:
+                        var radialMap = baseMap as HOTASAxisMap;
+                        ButtonMap.Add(new RadialAxisMapViewModel(radialMap));
+                        break;
+
+                    default:
+                        var buttonMap = baseMap as HOTASButtonMap;
+                        var mapViewModel = new ButtonMapViewModel(buttonMap);
+                        AddHandlers(mapViewModel);
+                        ButtonMap.Add(mapViewModel);
+                        break;
+                }
             }
         }
 
-        private void AddHandlers(MapViewModel mapViewModel)
+        private void AddHandlers(ButtonMapViewModel mapViewModel)
         {
             mapViewModel.RecordingStarted += MapViewModel_RecordingStarted;
             mapViewModel.RecordingStopped += MapViewModel_RecordingStopped;
@@ -54,23 +76,24 @@ namespace SierraHOTAS.ViewModel
         {
             foreach (var mapViewModel in ButtonMap)
             {
-                mapViewModel.RecordingStarted -= MapViewModel_RecordingStarted;
-                mapViewModel.RecordingStopped -= MapViewModel_RecordingStopped;
-                mapViewModel.RecordingCancelled -= MapViewModel_RecordingCancelled;
+                if (mapViewModel is ButtonMapViewModel)
+                {
+                    ((ButtonMapViewModel)mapViewModel).RecordingStarted -= MapViewModel_RecordingStarted;
+                    ((ButtonMapViewModel)mapViewModel).RecordingStopped -= MapViewModel_RecordingStopped;
+                    ((ButtonMapViewModel)mapViewModel).RecordingCancelled -= MapViewModel_RecordingCancelled;
+                }
             }
         }
 
         private void BuildMap()
         {
-            ButtonMap = new ObservableCollection<MapViewModel>();
+            ButtonMap = new ObservableCollection<IBaseMapViewModel>();
             RebuildMap();
         }
 
-        
+
         private void ForceDisableAllOtherMaps(object sender, bool isDisabled)
         {
-
-            //foreach (var map in WhatMap)
             foreach (var map in ButtonMap)
             {
                 if (sender == map) continue;
@@ -91,6 +114,12 @@ namespace SierraHOTAS.ViewModel
         private void MapViewModel_RecordingCancelled(object sender, EventArgs e)
         {
             ForceDisableAllOtherMaps(sender, false);
+        }
+
+        public void SetAxis(int buttonId, int value)
+        {
+            var map = ButtonMap.FirstOrDefault(axis => axis.ButtonId == buttonId);
+            map?.SetAxis(value);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -89,19 +89,30 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\ButtonMap.xaml.cs">
+      <DependentUpon>ButtonMap.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\JitterDetection.cs" />
+    <Compile Include="Controls\KeypressActions.xaml.cs">
+      <DependentUpon>KeypressActions.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\LinearAxisMap.xaml.cs">
       <DependentUpon>LinearAxisMap.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MacroTransport.xaml.cs">
+      <DependentUpon>MacroTransport.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\RadialAxisMap.xaml.cs">
       <DependentUpon>RadialAxisMap.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomJsonConverter.cs" />
     <Compile Include="DataProvider.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FileSystem.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="MainWindow.xaml.cs" />
-    <Compile Include="Models\HOTASAxis.cs" />
+    <Compile Include="Models\HOTASAxisMap.cs" />
+    <Compile Include="Models\IHotasBaseMap.cs" />
     <Compile Include="ViewModels\ActionCatalogItem.cs" />
     <Compile Include="Models\AxisChangedEventArgs.cs" />
     <Compile Include="Models\ButtonAction.cs" />
@@ -110,7 +121,7 @@
     <Compile Include="Models\HOTASAsync.cs" />
     <Compile Include="Models\HOTASCollection.cs" />
     <Compile Include="Models\HOTASDevice.cs" />
-    <Compile Include="Models\HOTASMap.cs" />
+    <Compile Include="Models\HOTASButtonMap.cs" />
     <Compile Include="Models\JoystickOffsetValues.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ViewModels\ActionCatalogViewModel.cs" />
@@ -121,7 +132,11 @@
     <Compile Include="ViewModels\Commands\RelayCommandWithParameter.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\HOTASCollectionViewModel.cs" />
-    <Compile Include="ViewModels\MapViewModel.cs" />
+    <Compile Include="ViewModels\IBaseMapViewModel.cs" />
+    <Compile Include="ViewModels\LinearAxisMapViewModel.cs" />
+    <Compile Include="ViewModels\ButtonMapViewModel.cs" />
+    <Compile Include="ViewModels\DataTemplates\MapDataTemplateSelector.cs" />
+    <Compile Include="ViewModels\RadialAxisMapViewModel.cs" />
     <Compile Include="Win32\Win32Structures.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -176,7 +191,19 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\ButtonMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\KeypressActions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\LinearAxisMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\MacroTransport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

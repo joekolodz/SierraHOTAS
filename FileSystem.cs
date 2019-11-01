@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.ObjectModel;
+using Newtonsoft.Json;
 using SierraHOTAS.Models;
 using System.Diagnostics;
 using System.IO;
@@ -68,8 +69,11 @@ namespace SierraHOTAS
             using (var file = File.OpenText(LastSavedFileName))
             {
                 Logging.Log.Info($"Reading profile from :{LastSavedFileName}");
-                var serializer = new JsonSerializer();
 
+
+
+                var serializer = new JsonSerializer();
+                serializer.Converters.Add(new CustomJsonConverter());
                 return (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
             }
         }

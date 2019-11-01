@@ -1,121 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Windows;
+using SierraHOTAS.ViewModels;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace SierraHOTAS.Controls
 {
-    /// <summary>
-    /// Interaction logic for RadialAxisMap.xaml
-    /// </summary>
     public partial class RadialAxisMap : UserControl
     {
+        private RadialAxisMapViewModel _axisVm;
         private Line _arc;
         private Ellipse _circle;
-        private List<Line> _segmentLines;
-        private Dictionary<int, int> _segmentRanges;
-        private int _currentSegment;
-
-        public double GaugeDiameter { get; set; } = 40;
-
+        private readonly List<Line> _segmentLines;
+        private double _gaugeDiameter = 40;
         private readonly Color _directionalColor;
 
-        private int _lastValue;
-        private AxisDirection _direction;
-        private readonly JitterDetection _jitter;
-
-        private bool _isDirectional;
-
-        private MediaPlayer _mediaPlayer;
 
         public RadialAxisMap()
         {
             InitializeComponent();
 
-            _jitter = new JitterDetection();
+            txtSegments.TextChanged += OnSegmentsTextChanged;
             _segmentLines = new List<Line>();
-            _segmentRanges = new Dictionary<int, int>();
-
             _directionalColor = (Color)ColorConverter.ConvertFromString("#80e5ff");
 
-            chkIsDirectional.Checked += ChkIsDirectional_Checked;
-            chkIsDirectional.Unchecked += ChkIsDirectional_Checked;
-            txtSegments.TextChanged += TxtSegments_TextChanged;
-
-            _mediaPlayer = new MediaPlayer { Volume = 0f };
-            _mediaPlayer.Open(new Uri(@"Sounds\click04.mp3", UriKind.Relative));
+            DataContextChanged += LinearAxisMap_DataContextChanged;
+            CreateDial();
         }
 
-        private void TxtSegments_TextChanged(object sender, TextChangedEventArgs e)
+        private void _axisVm_OnAxisValueChanged(object sender, int axisValue)
         {
-            ResetSegments();
+            DrawCircle(axisValue);
+        }
+
+        private void LinearAxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (_axisVm != null) _axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
+
+            _axisVm = DataContext as RadialAxisMapViewModel;
+            if (_axisVm == null) return;
+
+            _axisVm.OnAxisValueChanged += _axisVm_OnAxisValueChanged;
+        }
+
+        private void OnSegmentsTextChanged(object sender, TextChangedEventArgs e)
+        {
+            RemoveAllSegmentLines();
 
             var success = int.TryParse(txtSegments.Text, out var segments);
             if (!success) return;
 
             if (segments < 1) return;
 
-            if (segments == 1)
-            {
-                _currentSegment = 1;
-                return;
-            }
-
-            CalculateSegmentRange(segments);
+            _axisVm.SegmentsCountChanged(segments);
             DrawSegmentBoundaries(segments);
-        }
-
-        private void CalculateSegmentRange(int segments)
-        {
-            var segmentRangeBoundary = ushort.MaxValue / (segments);
-            _segmentRanges.Clear();
-            for (var i = 1; i < segments; i++)
-            {
-                _segmentRanges.Add(i, (segmentRangeBoundary * i));
-            }
-
-            _segmentRanges.Add(segments, ushort.MaxValue);
-        }
-
-        private void ResetSegments()
-        {
-            _segmentRanges.Clear();
-            RemoveAllSegmentLines();
         }
 
         private void RemoveAllSegmentLines()
         {
             foreach (var line in _segmentLines)
             {
-                canvas_axis_dial.Children.Remove(line);
+                CanvasPlaceHolder.Children.Remove(line);
             }
+            _segmentLines.Clear();
         }
 
         private void DrawSegmentBoundaries(int segments)
         {
-            //var segmentWidth = (int)(GaugeWidth / segments);
-
-            //for (var s = 1; s < segments; s++)
-            //{
-            //    var line = new Line();
-            //    line.X1 = segmentWidth * s;
-            //    line.Y1 = 0;
-
-            //    line.X2 = line.X1;
-            //    line.Y2 = 18;
-
-            //    line.Stroke = new SolidColorBrush(Colors.WhiteSmoke);
-            //    line.StrokeThickness = 2;
-
-            //    Canvas.SetLeft(line, 0);
-            //    Canvas.SetBottom(line, 1);
-
-            //    canvas_axis_bar.Children.Add(line);
-            //    _segmentLines.Add(line);
-            //}
-
             const double canvasLeft = 0;
             const double canvasTop = 0;
             const double angleRatio = ushort.MaxValue / 360.0f; //(joystick axis values range from 0 to 65535)
@@ -128,7 +81,7 @@ namespace SierraHOTAS.Controls
                 var theta = angle / angleRatio; //compress into degrees to get the angle on the circle
                 theta = angle;
 
-                var radius = GaugeDiameter / 2; //canvas_axis_dial.Height / 2;
+                var radius = _gaugeDiameter / 2; //canvas_axis_dial.Height / 2;
                 var h = canvasLeft + radius;
                 var k = canvasTop + radius;
 
@@ -149,52 +102,51 @@ namespace SierraHOTAS.Controls
                 arc.X2 = x;
                 arc.Y2 = y;
 
-                canvas_axis_dial.Children.Add(arc);
+                CanvasPlaceHolder.Children.Add(arc);
                 _segmentLines.Add(arc);
             }
-
         }
 
-        private void ChkIsDirectional_Checked(object sender, System.Windows.RoutedEventArgs e)
+        private void CreateDial()
         {
-            _isDirectional = chkIsDirectional.IsChecked ?? false;
-            if (!_isDirectional) _direction = AxisDirection.Forward;
-        }
+            var h = _gaugeDiameter / 2;
+            var k = _gaugeDiameter / 2;
 
-        public void SetAxis(int value)
-        {
-            if (_jitter.IsJitter(value)) return;
-
-            SetDirection(value);
-            DetectSelectedSegment(value);
-            DrawCircle(value);
-        }
-
-        private void SetDirection(int value)
-        {
-            if (_isDirectional)
+            _arc = new Line()
             {
-                _direction = value < _lastValue ? AxisDirection.Backward : AxisDirection.Forward;
-            }
-            _lastValue = value;
-        }
+                StrokeThickness = 4,
+                Stroke = Brushes.Gold,
+                X1 = h,
+                Y1 = k,
+                X2 = h,
+                Y2 = 0
+            };
 
-        private void DetectSelectedSegment(int value)
-        {
-            if (_segmentRanges.Count <= 1) return;
-            var segmentRange = _segmentRanges.FirstOrDefault(r => value <= r.Value);
-            var newSegment = segmentRange.Key;
-
-            if (newSegment != _currentSegment)
+            var zeroLine = new Line()
             {
-                _currentSegment = newSegment;
-                _mediaPlayer.Volume = 1f;
-                _mediaPlayer.Play();
-                _mediaPlayer.Position = TimeSpan.Zero;
-                Logging.Log.Info($"New Segment: {_currentSegment}");
-            }
-        }
+                StrokeThickness = 4,
+                Stroke = Brushes.Red,
+                X1 = h,
+                Y1 = k / 2,
+                X2 = h,
+                Y2 = 0
+            };
 
+            _circle = new Ellipse()
+            {
+                StrokeThickness = 3,
+                Width = _gaugeDiameter,
+                Height = _gaugeDiameter,
+                Fill = new SolidColorBrush(Colors.Transparent),
+                Stroke = Brushes.Gold
+            };
+            Canvas.SetLeft(_circle, 0);
+            Canvas.SetTop(_circle, 0);
+
+            CanvasPlaceHolder.Children.Add(_arc);
+            CanvasPlaceHolder.Children.Add(zeroLine);
+            CanvasPlaceHolder.Children.Add(_circle);
+        }
         private void DrawCircle(int angle)
         {
             const double canvasLeft = 0;
@@ -202,47 +154,13 @@ namespace SierraHOTAS.Controls
             const double angleRatio = ushort.MaxValue / 360.0f; //(joystick axis values range from 0 to 65535)
             var theta = angle / angleRatio; //compress joystick value into degrees to get the angle on the circle
 
-            var radius = GaugeDiameter / 2; //canvas_axis_dial.Height / 2;
-            var ellipseWidth = radius * 2;
-            var ellipseHeight = radius * 2;
+            var radius = _gaugeDiameter / 2;
             var h = canvasLeft + radius;
             var k = canvasTop + radius;
 
-
             if (_arc == null)
             {
-                _arc = new Line()
-                {
-                    StrokeThickness = 4,
-                    Stroke = Brushes.Gold,
-                    X1 = h,
-                    Y1 = k
-                };
-
-                var zeroLine = new Line()
-                {
-                    StrokeThickness = 4,
-                    Stroke = Brushes.Red,
-                    X1 = h,
-                    Y1 = k / 2,
-                    X2 = h,
-                    Y2 = 0
-                };
-
-                _circle = new Ellipse()
-                {
-                    StrokeThickness = 3,
-                    Width = ellipseWidth,
-                    Height = ellipseHeight,
-                    Fill = new SolidColorBrush(Colors.Transparent),
-                    Stroke = Brushes.Gold
-                };
-                Canvas.SetLeft(_circle, 0);
-                Canvas.SetTop(_circle, 0);
-
-                canvas_axis_dial.Children.Add(_arc);
-                canvas_axis_dial.Children.Add(zeroLine);
-                canvas_axis_dial.Children.Add(_circle);
+                CreateDial();
             }
 
             var radians = (Math.PI / 180) * theta; //turn joystick angle into radians
@@ -257,7 +175,7 @@ namespace SierraHOTAS.Controls
 
         private void SetDirectionalColor()
         {
-            if (_direction == AxisDirection.Forward)
+            if (_axisVm.Direction == AxisDirection.Forward)
             {
                 _arc.Stroke = Brushes.Gold;
                 _circle.Stroke = Brushes.Gold;

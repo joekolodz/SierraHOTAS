@@ -24,9 +24,9 @@ namespace SierraHOTAS.Models
         private IDisposable _disposableSubscription = null;
 
         private Joystick Joystick { get; set; }
-        private ObservableCollection<HOTASMap> _buttonMap;
+        private ObservableCollection<HOTASButtonMap> _buttonMap;
 
-        public void ListenAsync(Joystick joystick, ObservableCollection<HOTASMap> buttonMap)
+        public void ListenAsync(Joystick joystick, ObservableCollection<HOTASButtonMap> buttonMap)
         {
             Joystick = joystick;
             _buttonMap = buttonMap;
@@ -230,9 +230,9 @@ namespace SierraHOTAS.Models
         }
 
         private static bool _isStopRepeatRequested = false;
-        private async Task HandleButtonDownAsync(HOTASMap map)
+        private async Task HandleButtonDownAsync(HOTASButtonMap buttonMap)
         {
-            Debug.WriteLine($"===> start repeating {map}");
+            Debug.WriteLine($"===> start repeating {buttonMap}");
             var delay = Keyboard.KeyDownInitialDelay;
             while (!_isStopRepeatRequested && delay > 0)
             {
@@ -249,7 +249,7 @@ namespace SierraHOTAS.Models
                     delay -= 10;
                 }
             }
-            Debug.WriteLine($"===> end repeating {map}");
+            Debug.WriteLine($"===> end repeating {buttonMap}");
         }
 
         private void HandleAxis(JoystickUpdate state)
@@ -257,9 +257,9 @@ namespace SierraHOTAS.Models
 
         }
 
-        public HOTASMap GetMap(JoystickOffset buttonOffset)
+        public HOTASButtonMap GetMap(JoystickOffset buttonOffset)
         {
-            return _buttonMap.FirstOrDefault(m => m.ButtonId == (int)buttonOffset);
+            return _buttonMap.FirstOrDefault(m => m.MapId == (int)buttonOffset);
         }
 
         private void OnButtonPress(int buttonId)

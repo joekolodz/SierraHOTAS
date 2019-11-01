@@ -19,9 +19,9 @@ namespace SierraHOTAS.Models
         private CancellationToken _tokenListenLoop;
 
         private Joystick Joystick { get; set; }
-        private ObservableCollection<HOTASMap> _buttonMap;
+        private ObservableCollection<IHotasBaseMap> _buttonMap;
 
-        public void ListenAsync(Joystick joystick, ObservableCollection<HOTASMap> buttonMap)
+        public void ListenAsync(Joystick joystick, ObservableCollection<IHotasBaseMap> buttonMap)
         {
             Joystick = joystick;
             _buttonMap = buttonMap;
@@ -206,7 +206,7 @@ namespace SierraHOTAS.Models
                 var translatedOffset = (int)TranslatePointOfViewOffset(offset, value);
                 _lastPovButton.TryAdd(offset, translatedOffset);
                 Debug.WriteLine($"Pressing POV button: {offset} - {value}");
-                var map = GetMap(translatedOffset);
+                if (!(GetMap(translatedOffset) is HOTASButtonMap map)) return;
                 HandleButtonPressed(map, translatedOffset);
             }
         }
@@ -217,8 +217,7 @@ namespace SierraHOTAS.Models
         {
             if (IsButtonDown(value))
             {
-                var map = GetMap(offset);
-                if (map != null && map.Actions.Count > 0)
+                if (GetMap(offset) is HOTASButtonMap map && map.Actions.Count > 0)
                 {
                     //if action list has a timer in it, then it is a macro and executes on another thread independently. does not interrupt other buttons
                     HandleButtonPressed(map, offset);
@@ -230,9 +229,11 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private void HandleButtonPressed(HOTASMap map, int offset)
+        private void HandleButtonPressed(HOTASButtonMap buttonMap, int offset)
         {
-            if (map.IsMacro)
+            if (buttonMap == null) return;
+
+            if (buttonMap.IsMacro)
             {
                 if (_activeMacros.TryGetValue(offset, out var exists))
                 {
@@ -241,7 +242,7 @@ namespace SierraHOTAS.Models
                 }
 
                 _activeMacros.TryAdd(offset, true);
-                Task.Run(() => PlayMacroOnce(offset, map.Actions));
+                Task.Run(() => PlayMacroOnce(offset, buttonMap.Actions));
                 return;
             }
 
@@ -250,7 +251,7 @@ namespace SierraHOTAS.Models
             var succeed = _dicTokenRepeatTokenSource.TryAdd(offset, repeatTokenSource);
             if (!succeed) return;
 
-            var t = new Task(delegate { PlayActionWithRepeat(map.Actions, repeatToken); });
+            var t = new Task(delegate { PlayActionWithRepeat(buttonMap.Actions, repeatToken); });
             succeed = _activeButtons.TryAdd(offset, t);
             if (!succeed) return;
 
@@ -304,16 +305,13 @@ namespace SierraHOTAS.Models
         {
             var offset = (int)state.Offset;
             //lookup the segment by offset 
-
             //map each axis segment to a virtual Offset value (greater than 128 to avoid collisions)
-
             //translate axis movement to offset via segments
 
-            var map = GetMap(offset);
-            if (map != null && map.Actions.Count > 0)
-            {
-                HandleButtonPressed(map, offset);
-            }
+            if (!(GetMap(offset) is HOTASAxisMap axis)) return;
+
+            var map = axis.GetButtonMapFromRawValue(state.Value);
+            HandleButtonPressed(map, offset);
         }
 
         private void OnAxisChanged(JoystickUpdate state)
@@ -321,9 +319,9 @@ namespace SierraHOTAS.Models
             AxisChanged?.Invoke(this, new AxisChangedEventArgs(){AxisId = (int)state.Offset, Value = state.Value, Device = null});
         }
 
-        public HOTASMap GetMap(int buttonOffset)
+        public IHotasBaseMap GetMap(int buttonOffset)
         {
-            return _buttonMap.FirstOrDefault(m => m.ButtonId == buttonOffset);
+            return _buttonMap.FirstOrDefault(m => m.MapId == buttonOffset);
         }
 
         private void OnButtonPress(int buttonId)

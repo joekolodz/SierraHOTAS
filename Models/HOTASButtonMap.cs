@@ -8,18 +8,18 @@ using SharpDX.DirectInput;
 
 namespace SierraHOTAS.Models
 {
-    public class HOTASMap
+    public class HOTASButtonMap : IHotasBaseMap
     {
         public enum ButtonType
         {
-            Axis,
+            AxisLinear,
+            AxisRadial,
             POV,
             Button
         }
-
-        public uint Offset { get; set; }
-        public int ButtonId { get; set; }
-        public string ButtonName { get; set; }
+        public int Offset { get; set; }//todo kill me
+        public int MapId { get; set; }
+        public string MapName { get; set; }
         public string ActionName { get; set; }
         public ObservableCollection<ButtonAction> Actions { get; set; }
         public ButtonType Type { get; set; }
@@ -30,7 +30,7 @@ namespace SierraHOTAS.Models
         private bool _isRecording;
         private ObservableCollection<ButtonAction> _actionsHistory;
 
-        public HOTASMap()
+        public HOTASButtonMap()
         {
             Actions = new ObservableCollection<ButtonAction>();
         }
@@ -116,6 +116,16 @@ namespace SierraHOTAS.Models
             if (ActionName != "<No Action>") return;
             ActionName = string.Empty;
             Actions.Clear();
+        }
+
+        public void CalculateSegmentRange(int segments)
+        {
+            return;
+        }
+
+        public void Clear()
+        {
+            return;
         }
 
         public override string ToString()

@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="SierraHOTAS.Controls.MacroTransport"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SierraHOTAS.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <!-- First Column - button name and recording controls -->
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch" >
+
+        <!-- Macro Buttons-->
+        <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0,20,0,0">
+
+            <TextBox Text="{Binding ButtonName}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Margin="1,0,2,0" Width="200" Height="30" FontSize="14" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
+
+            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStartCommandWithParameter, IsAsync=True}">
+                <Image>
+                    <Image.Style>
+                        <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRecording}" Value="True">
+                                    <Setter Property="Source" Value="../Images/cancel_black_32x32.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsRecording}" Value="False">
+                                    <Setter Property="Source" Value="../Images/record_red_32x32.png"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Button>
+
+            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStopCommandWithParameter, IsAsync=True}">
+                <Image>
+                    <Image.Style>
+                        <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
+                            <Setter Property="Source" Value="../Images/stop_black_32x32.png"/>
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Button>
+
+            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroCancelCommandWithParameter, IsAsync=True}">
+                <Image>
+                    <Image.Style>
+                        <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
+                            <Setter Property="Source" Value="../Images/cancel_black_32x32.png"/>
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Button>
+        </StackPanel>
+
+        <!-- Action Catalog Selection -->
+        <ComboBox Name="cmbMacroName2" 
+                  SelectionChanged="ActionList_OnSelectionChanged" 
+                  Text="{Binding ActionName, UpdateSourceTrigger=LostFocus}" 
+                  ItemsSource="{Binding DataContext.ActionCatalog.Catalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" 
+                  DisplayMemberPath="ActionName" 
+                  IsEditable="True" 
+                  IsTextSearchEnabled="False" 
+                  FontSize="14" 
+                  Height="28" 
+                  Margin="0,2,0,20" 
+                  HorizontalAlignment="Stretch" 
+                  VerticalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

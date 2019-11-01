@@ -6,13 +6,13 @@
              xmlns:local="clr-namespace:SierraHOTAS.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="40" d:DesignWidth="122">
-    <StackPanel Orientation="Horizontal">
-        <StackPanel Orientation="Vertical">
-            <Grid>
-                <Canvas Name="canvas_axis_bar" Height="18" Width="120"/>
-            </Grid>
-            <CheckBox Name="chkIsDirectional" Content="Directional" IsChecked="{Binding IsDirectional}" Height="15" Foreground="Azure" Margin="1"/>
+    <StackPanel Orientation="Vertical">
+        <Label Content="{Binding ButtonName}" Foreground="{StaticResource TextBrush}" FontSize="14"/>
+        <Canvas Name="CanvasPlaceHolder" Height="20" Width="120"/>
+        <CheckBox Name="chkIsDirectional" Content="Directional" IsChecked="{Binding IsDirectional}" Height="15" Foreground="{StaticResource TextBrush}" Margin="2" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
+        <StackPanel Orientation="Horizontal">
+            <TextBox Name="txtSegments" Text="{Binding Segments}" Height="18" Width="22" HorizontalAlignment="Left" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
+            <Label Content="Segments" Foreground="{StaticResource TextBrush}"/>
         </StackPanel>
-        <TextBox Name="txtSegments" Text="{Binding Segments}" Height="18" Width="22"/>
     </StackPanel>
 </UserControl>
