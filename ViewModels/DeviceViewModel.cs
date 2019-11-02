@@ -6,9 +6,8 @@ using System.ComponentModel;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using SierraHOTAS.ViewModels;
 
-namespace SierraHOTAS.ViewModel
+namespace SierraHOTAS.ViewModels
 {
     public class DeviceViewModel : INotifyPropertyChanged
     {

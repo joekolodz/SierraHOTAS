@@ -1,4 +1,4 @@
-﻿using SierraHOTAS.ViewModel;
+﻿using SierraHOTAS.ViewModels;
 using System;
 
 namespace SierraHOTAS.ViewModels

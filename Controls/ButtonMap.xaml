@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SierraHOTAS.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="80" d:DesignWidth="500">
-    <StackPanel Orientation="Horizontal" Width="800">
+             d:DesignHeight="80" d:DesignWidth="600">
+    <StackPanel Orientation="Horizontal" Width="600">
         <local:MacroTransport VerticalContentAlignment="Center"/>
         <local:KeypressActions VerticalContentAlignment="Center"/>
     </StackPanel>

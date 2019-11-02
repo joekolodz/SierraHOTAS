@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace SierraHOTAS.ViewModel.Commands
+namespace SierraHOTAS.ViewModels.Commands
 {
     public class CommandHandler : ICommand
     {

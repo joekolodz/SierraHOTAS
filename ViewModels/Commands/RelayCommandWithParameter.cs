@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace SierraHOTAS.ViewModel.Commands
+namespace SierraHOTAS.ViewModels.Commands
 {
     //TODO: do this later...https://johnthiriet.com/mvvm-going-async-with-async-command/#
     public class RelayCommandWithParameter : ICommand

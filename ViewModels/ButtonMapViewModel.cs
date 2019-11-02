@@ -7,12 +7,11 @@ using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using System.Windows.Input;
 using SierraHOTAS.Annotations;
-using SierraHOTAS.Models;
-using SierraHOTAS.ViewModel.Commands;
+using SierraHOTAS.ViewModels.Commands;
 using SharpDX.DirectInput;
-using SierraHOTAS.ViewModels;
+using SierraHOTAS.Models;
 
-namespace SierraHOTAS.ViewModel
+namespace SierraHOTAS.ViewModels
 {
     public class ButtonMapViewModel : IBaseMapViewModel, INotifyPropertyChanged
     {
@@ -98,6 +97,10 @@ namespace SierraHOTAS.ViewModel
             BuildButtonActionViewModel(buttonMap.Actions);
         }
 
+        public override string ToString()
+        {
+            return $"ButtonMap MapId:{_hotasButtonMap.MapId}, {_hotasButtonMap.MapName}";
+        }
 
         public ObservableCollection<ButtonAction> GetHotasActions()
         {

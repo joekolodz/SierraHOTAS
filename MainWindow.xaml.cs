@@ -1,14 +1,10 @@
-﻿using SierraHOTAS.ViewModel;
+﻿using SierraHOTAS.Models;
+using SierraHOTAS.ViewModels;
 using SierraHOTAS.Win32;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
-using System.Windows.Media;
-using SharpDX.DirectInput;
-using SierraHOTAS.Models;
-using SierraHOTAS.ViewModels;
-using Math = System.Math;
 
 //https://www.pinvoke.net/default.aspx/user32/SendInput.html
 //https://cboard.cprogramming.com/windows-programming/170043-how-use-sendmessage-wm_keyup.html

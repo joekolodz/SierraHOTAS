@@ -3,7 +3,7 @@ using SierraHOTAS.Models;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace SierraHOTAS.ViewModel
+namespace SierraHOTAS.ViewModels
 {
     public class ButtonActionViewModel : INotifyPropertyChanged
     {

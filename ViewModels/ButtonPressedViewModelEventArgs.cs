@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SierraHOTAS.ViewModel
+namespace SierraHOTAS.ViewModels
 {
     public class ButtonPressedViewModelEventArgs : EventArgs
     {

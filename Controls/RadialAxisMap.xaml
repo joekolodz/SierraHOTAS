@@ -8,7 +8,7 @@
              d:DesignHeight="40" d:DesignWidth="122">
     <StackPanel Orientation="Vertical">
         <Label Content="{Binding ButtonName}" Foreground="{StaticResource TextBrush}" FontSize="14"/>
-        <Grid Name="CanvasPlaceHolder" Height="40" Width="40"/>
+        <Grid Name="CanvasPlaceHolder" HorizontalAlignment="Left" Height="40" Width="40"/>
         <CheckBox Name="chkIsDirectional" Content="Directional" IsChecked="{Binding IsDirectional}" Height="15" Foreground="{StaticResource TextBrush}" Margin="2" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
         <StackPanel Orientation="Horizontal">
             <TextBox Name="txtSegments" Text="{Binding Segments}" Height="18" Width="22" HorizontalAlignment="Left" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>

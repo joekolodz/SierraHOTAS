@@ -1,7 +1,6 @@
 ﻿using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
-using SierraHOTAS.ViewModel.Commands;
-using SierraHOTAS.ViewModels;
+using SierraHOTAS.ViewModels.Commands;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,7 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 
-namespace SierraHOTAS.ViewModel
+namespace SierraHOTAS.ViewModels
 {
     public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {

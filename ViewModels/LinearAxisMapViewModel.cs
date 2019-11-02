@@ -75,7 +75,6 @@ namespace SierraHOTAS.ViewModels
 
         public AxisDirection Direction { get; set; } = AxisDirection.Forward;
 
-        public Dictionary<int, HOTASButtonMap> MapRanges { get => _hotasAxisMap.MapRanges; set => _hotasAxisMap.MapRanges = value; }
         public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
 
         private int _currentSegment;
@@ -86,6 +85,7 @@ namespace SierraHOTAS.ViewModels
 
         public LinearAxisMapViewModel(HOTASAxisMap map)
         {
+            ButtonMap = new ObservableCollection<IBaseMapViewModel>();
             _hotasAxisMap = map;
             _jitter = new JitterDetection();
 
@@ -97,13 +97,18 @@ namespace SierraHOTAS.ViewModels
         {
             _hotasAxisMap.Clear();
 
-            if (_segments == 1)
-            {
-                _currentSegment = 1;
-                return;
-            }
-
             _hotasAxisMap.CalculateSegmentRange(_segments);
+            RemoveAllHandlers();
+            ButtonMap.Clear();
+
+            if (_segments == 1) return;
+
+            foreach (HOTASButtonMap map in _hotasAxisMap.ButtonMap)
+            {
+                var vm = new ButtonMapViewModel(map);
+                AddHandlers(vm);
+                ButtonMap.Add(vm);
+            }
         }
 
         public void ResetSegments()
@@ -141,6 +146,49 @@ namespace SierraHOTAS.ViewModels
             _mediaPlayer.Volume = 1f;
             _mediaPlayer.Play();
             _mediaPlayer.Position = TimeSpan.Zero;
+        }
+
+        private void AddHandlers(ButtonMapViewModel mapViewModel)
+        {
+            mapViewModel.RecordingStarted += MapViewModel_RecordingStarted;
+            mapViewModel.RecordingStopped += MapViewModel_RecordingStopped;
+            mapViewModel.RecordingCancelled += MapViewModel_RecordingCancelled;
+        }
+
+        private void RemoveAllHandlers()
+        {
+            foreach (var mapViewModel in ButtonMap)
+            {
+                if (mapViewModel is ButtonMapViewModel)
+                {
+                    ((ButtonMapViewModel)mapViewModel).RecordingStarted -= MapViewModel_RecordingStarted;
+                    ((ButtonMapViewModel)mapViewModel).RecordingStopped -= MapViewModel_RecordingStopped;
+                    ((ButtonMapViewModel)mapViewModel).RecordingCancelled -= MapViewModel_RecordingCancelled;
+                }
+            }
+        }
+
+        private void ForceDisableAllOtherMaps(object sender, bool isDisabled)
+        {
+            foreach (var map in ButtonMap)
+            {
+                if (sender == map) continue;
+                map.IsDisabledForced = isDisabled;
+            }
+        }
+
+        private void MapViewModel_RecordingStarted(object sender, EventArgs e)
+        {
+            ForceDisableAllOtherMaps(sender, true);
+        }
+
+        private void MapViewModel_RecordingStopped(object sender, EventArgs e)
+        {
+            ForceDisableAllOtherMaps(sender, false);
+        }
+        private void MapViewModel_RecordingCancelled(object sender, EventArgs e)
+        {
+            ForceDisableAllOtherMaps(sender, false);
         }
 
         [NotifyPropertyChangedInvocator]
