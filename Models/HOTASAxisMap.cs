@@ -11,6 +11,7 @@ namespace SierraHOTAS.Models
         public string MapName { get; set; }
         public HOTASButtonMap.ButtonType Type { get; set; }
         public Dictionary<int, HOTASButtonMap> MapRanges { get; set; }
+        public ObservableCollection<IHotasBaseMap> ButtonMap { get; set; }
         public bool IsDirectional { get; set; }
         public Dictionary<int, int> Segments { get; }
 
@@ -18,6 +19,7 @@ namespace SierraHOTAS.Models
         {
             Segments = new Dictionary<int, int>();
             MapRanges = new Dictionary<int, HOTASButtonMap>();
+            ButtonMap = new ObservableCollection<IHotasBaseMap>();
         }
 
         public void CalculateSegmentRange(int segments)
@@ -32,18 +34,18 @@ namespace SierraHOTAS.Models
             Segments.Add(segments, ushort.MaxValue);
 
             //try not to lose any macros already established. if more segments, then don't lose any macros. if less segments only trim from bottom of list
-            if (segments < MapRanges.Count)
+            if (segments < ButtonMap.Count)
             {
-                for (var i = MapRanges.Count - 1; i > segments; i--)
+                for (var i = ButtonMap.Count - 1; i > segments; i--)
                 {
-                    MapRanges.Remove(i);
+                    ButtonMap.RemoveAt(i);
                 }
             }
             else
             {
-                for (var i = MapRanges.Count; i <= segments; i++)
+                for (var i = ButtonMap.Count; i <= segments; i++)
                 {
-                    MapRanges.Add(i, new HOTASButtonMap(){MapId = MapId, MapName = $"Axis Button {i}", Type = HOTASButtonMap.ButtonType.Button});
+                    ButtonMap.Add(new HOTASButtonMap() { MapId = i, MapName = $"Axis Button {i}", Type = HOTASButtonMap.ButtonType.Button });
                 }
             }
         }
@@ -62,7 +64,7 @@ namespace SierraHOTAS.Models
         public HOTASButtonMap GetButtonMapFromRawValue(int value)
         {
             var segment = GetSegmentFromRawValue(value);
-            MapRanges.TryGetValue(segment, out var map);
+            var map = ButtonMap.FirstOrDefault(m => m.MapId == segment) as HOTASButtonMap;
             return map;
         }
 

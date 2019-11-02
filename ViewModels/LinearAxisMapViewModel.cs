@@ -2,6 +2,8 @@
 using SierraHOTAS.Controls;
 using SierraHOTAS.Models;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
@@ -72,6 +74,9 @@ namespace SierraHOTAS.ViewModels
         }
 
         public AxisDirection Direction { get; set; } = AxisDirection.Forward;
+
+        public Dictionary<int, HOTASButtonMap> MapRanges { get => _hotasAxisMap.MapRanges; set => _hotasAxisMap.MapRanges = value; }
+        public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
 
         private int _currentSegment;
         private readonly MediaPlayer _mediaPlayer;

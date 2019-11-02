@@ -27,7 +27,7 @@ namespace SierraHOTAS
 
         public MainWindow()
         {
-            //IsDebug = true;
+            IsDebug = true;
 
             InitializeComponent();
 

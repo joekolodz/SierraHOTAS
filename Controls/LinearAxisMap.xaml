@@ -14,5 +14,6 @@
             <TextBox Name="txtSegments" Text="{Binding Segments}" Height="18" Width="22" HorizontalAlignment="Left" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
             <Label Content="Segments" Foreground="{StaticResource TextBrush}"/>
         </StackPanel>
+        <ListView ItemsSource="{Binding ButtonMap}"/>
     </StackPanel>
 </UserControl>
