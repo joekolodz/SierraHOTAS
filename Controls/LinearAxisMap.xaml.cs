@@ -58,7 +58,7 @@ namespace SierraHOTAS.Controls
 
             if (segments < 1) return;
 
-            _axisVm.SegmentsCountChanged(segments);
+            //_axisVm.SegmentsCountChanged(segments);
             DrawSegmentBoundaries(segments);
         }
 

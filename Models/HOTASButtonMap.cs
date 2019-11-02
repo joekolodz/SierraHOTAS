@@ -17,7 +17,7 @@ namespace SierraHOTAS.Models
             POV,
             Button
         }
-        public int Offset { get; set; }//todo kill me
+        //public int Offset { get; set; }//todo kill me
         public int MapId { get; set; }
         public string MapName { get; set; }
         public string ActionName { get; set; }

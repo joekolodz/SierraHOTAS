@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace SierraHOTAS.Models
 {
@@ -11,36 +12,50 @@ namespace SierraHOTAS.Models
         public HOTASButtonMap.ButtonType Type { get; set; }
         public Dictionary<int, HOTASButtonMap> MapRanges { get; set; }
         public bool IsDirectional { get; set; }
-        public int SegmentCount => _segmentRanges.Count;
-
-        private readonly Dictionary<int, int> _segmentRanges;
+        public Dictionary<int, int> Segments { get; }
 
         public HOTASAxisMap()
         {
-            _segmentRanges = new Dictionary<int, int>();
+            Segments = new Dictionary<int, int>();
             MapRanges = new Dictionary<int, HOTASButtonMap>();
         }
 
         public void CalculateSegmentRange(int segments)
         {
             var segmentRangeBoundary = ushort.MaxValue / (segments);
-            _segmentRanges.Clear();
+            Segments.Clear();
             for (var i = 1; i < segments; i++)
             {
-                _segmentRanges.Add(i, (segmentRangeBoundary * i));
+                Segments.Add(i, (segmentRangeBoundary * i));
             }
 
-            _segmentRanges.Add(segments, ushort.MaxValue);
+            Segments.Add(segments, ushort.MaxValue);
+
+            //try not to lose any macros already established. if more segments, then don't lose any macros. if less segments only trim from bottom of list
+            if (segments < MapRanges.Count)
+            {
+                for (var i = MapRanges.Count - 1; i > segments; i--)
+                {
+                    MapRanges.Remove(i);
+                }
+            }
+            else
+            {
+                for (var i = MapRanges.Count; i <= segments; i++)
+                {
+                    MapRanges.Add(i, new HOTASButtonMap(){MapId = MapId, MapName = $"Axis Button {i}", Type = HOTASButtonMap.ButtonType.Button});
+                }
+            }
         }
 
         public void Clear()
         {
-            _segmentRanges.Clear();
+            Segments.Clear();
         }
 
         public int GetSegmentFromRawValue(int value)
         {
-            var segmentRange = _segmentRanges.FirstOrDefault(r => value <= r.Value);
+            var segmentRange = Segments.FirstOrDefault(r => value <= r.Value);
             return segmentRange.Key;
         }
 

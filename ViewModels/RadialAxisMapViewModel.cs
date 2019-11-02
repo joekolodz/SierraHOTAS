@@ -45,25 +45,25 @@ namespace SierraHOTAS.ViewModels
         private int _segments;
         public int Segments
         {
-            get => _segments;
+            get => _hotasAxisMap.Segments.Count;
             set
             {
                 if (_segments == value) return;
                 _segments = value;
+                SegmentsCountChanged();
                 OnPropertyChanged(nameof(_segments));
             }
-
         }
 
-        private bool _isDirectional = false;
+
         public bool? IsDirectional
         {
-            get => _isDirectional;
+            get => _hotasAxisMap.IsDirectional;
             set
             {
-                if (_isDirectional == value) return;
-                _isDirectional = value ?? false;
-                if (!_isDirectional) Direction = AxisDirection.Forward;
+                if (_hotasAxisMap.IsDirectional == value) return;
+                _hotasAxisMap.IsDirectional = value ?? false;
+                if (!_hotasAxisMap.IsDirectional) Direction = AxisDirection.Forward;
             }
         }
 
@@ -93,17 +93,17 @@ namespace SierraHOTAS.ViewModels
             _hotasAxisMap.Clear();
         }
 
-        public void SegmentsCountChanged(int segments)
+        public void SegmentsCountChanged()
         {
             _hotasAxisMap.Clear();
 
-            if (segments == 1)
+            if (_segments == 1)
             {
                 _currentSegment = 1;
                 return;
             }
 
-            _hotasAxisMap.CalculateSegmentRange(segments);
+            _hotasAxisMap.CalculateSegmentRange(_segments);
         }
 
         public void SetAxis(int value)
@@ -117,7 +117,7 @@ namespace SierraHOTAS.ViewModels
 
         private void SetDirection(int value)
         {
-            if (_isDirectional)
+            if (_hotasAxisMap.IsDirectional)
             {
                 Direction = value < _lastValue ? AxisDirection.Backward : AxisDirection.Forward;
             }
@@ -126,7 +126,7 @@ namespace SierraHOTAS.ViewModels
 
         private void DetectSelectedSegment(int value)
         {
-            if (_hotasAxisMap.SegmentCount <= 1) return;
+            if (_hotasAxisMap.Segments.Count <= 1) return;
 
             var newSegment = _hotasAxisMap.GetSegmentFromRawValue(value);
 
