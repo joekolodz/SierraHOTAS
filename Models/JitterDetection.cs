@@ -1,4 +1,4 @@
-﻿namespace SierraHOTAS.Controls
+﻿namespace SierraHOTAS.Models
 {
     public class JitterDetection
     {

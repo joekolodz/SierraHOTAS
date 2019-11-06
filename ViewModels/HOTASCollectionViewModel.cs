@@ -7,8 +7,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Input;
+using Application = System.Windows.Application;
 
 namespace SierraHOTAS.ViewModels
 {
@@ -90,27 +90,11 @@ namespace SierraHOTAS.ViewModels
             _deviceList.Stop();
         }
 
-        public void SetAxis(int buttonId, int value)
-        {
-            foreach (var d in Devices)
-            {
-                var map = d.ButtonMap.FirstOrDefault(axis => axis.ButtonId == buttonId);
-                if (map == null) return;
-                map.SetAxis(value);
-            }
-        }
-
         private void BuildDevicesViewModelFromLoadedDevices(HOTASCollection loadedDevices)
         {
             foreach (var ld in loadedDevices.Devices)
             {
-                DeviceViewModel deviceVm = null;
-                foreach (var vm in Devices)
-                {
-                    if (vm.InstanceId != ld.InstanceId) continue;
-                    deviceVm = vm;
-                    break;
-                }
+                var deviceVm = Devices.FirstOrDefault(vm => vm.InstanceId == ld.InstanceId);
 
                 if (deviceVm == null)
                 {
@@ -185,17 +169,44 @@ namespace SierraHOTAS.ViewModels
                 foreach (var map in device.ButtonMap)
                 {
                     if (string.IsNullOrWhiteSpace(map.ButtonName)) continue;
-                    //todo action catalog for axis
-                    //if (ActionCatalog.Contains(map.ActionName!!!!!!!!!!!!)) continue;
 
-                    //var item = new ActionCatalogItem()
-                    //{
-                    //    ActionName = map.ActionName,
-                    //    Actions = map.GetHotasActions()
-                    //};
-                    //ActionCatalog.Add(item);
+                    switch (map)
+                    {
+                        case AxisMapViewModel axisVm:
+                            {
+                                AddButtonsToCatalog(axisVm.ButtonMap);
+                                AddButtonsToCatalog(axisVm.ReverseButtonMap);
+                                break;
+                            }
+                        case ButtonMapViewModel buttonVm:
+                            {
+                                AddButtonToCatalog(buttonVm);
+                                break;
+                            }
+                    }
                 }
             }
+        }
+
+        private void AddButtonsToCatalog(ObservableCollection<IBaseMapViewModel> buttonVmList)
+        {
+            foreach (var baseVm in buttonVmList)
+            {
+                if (!(baseVm is ButtonMapViewModel mapVm)) return;
+                AddButtonToCatalog(mapVm);
+            }
+        }
+
+        private void AddButtonToCatalog(ButtonMapViewModel mapVm)
+        {
+            var item = new ActionCatalogItem()
+            {
+                ActionName = mapVm.ActionName,
+                Actions = mapVm.GetHotasActions()
+            };
+            if (item.Actions.Count <= 0) return;
+            if (string.IsNullOrWhiteSpace(item.ActionName)) item.ActionName = $"<Un-named> - {mapVm.ButtonName}";
+            ActionCatalog.Add(item);
         }
 
         public void lstDevices_OnSelectionChanged(object device)

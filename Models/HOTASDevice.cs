@@ -25,7 +25,6 @@ namespace SierraHOTAS.Models
         public ObservableCollection<IHotasBaseMap> ButtonMap { get; set; }
 
         private Joystick Joystick { get; set; }
-        private HOTAS _hotas;
         private HOTASAsync _hotasAsync;
 
 
@@ -62,15 +61,11 @@ namespace SierraHOTAS.Models
 
         public void ListenAsync()
         {
-            //_hotas = new HOTAS();
             _hotasAsync = new HOTASAsync();
 
-            //_hotas.ButtonPressed += OnButtonPress;
             _hotasAsync.ButtonPressed += OnButtonPress;
             _hotasAsync.AxisChanged += OnAxisChanged;
 
-
-            //_hotas.ListenAsync(Joystick, ButtonMap);
             _hotasAsync.ListenAsync(Joystick, ButtonMap);
 
             Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
@@ -92,7 +87,6 @@ namespace SierraHOTAS.Models
             if (Capabilities.AxeCount > 0) SeedAxisMap(JoystickOffset.X, Capabilities.AxeCount);
             if (Capabilities.ButtonCount > 0) SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button);
             if (Capabilities.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV);
-
         }
 
         private void SeedPointOfViewMap(JoystickOffset startFrom, int length, HOTASButtonMap.ButtonType type)
@@ -171,7 +165,6 @@ namespace SierraHOTAS.Models
 
         public void Stop()
         {
-            //_hotas.Stop();
             _hotasAsync?.Stop();
         }
 

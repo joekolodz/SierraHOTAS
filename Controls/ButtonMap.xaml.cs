@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SierraHOTAS.Controls
+namespace SierraHOTAS.Models
 {
     /// <summary>
     /// Interaction logic for ButtonMap.xaml

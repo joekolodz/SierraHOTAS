@@ -6,11 +6,11 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace SierraHOTAS.Controls
+namespace SierraHOTAS.Models
 {
     public partial class RadialAxisMap : UserControl
     {
-        private RadialAxisMapViewModel _axisVm;
+        private AxisMapViewModel _axisVm;
         private Line _arc;
         private Ellipse _circle;
         private readonly List<Line> _segmentLines;
@@ -26,7 +26,7 @@ namespace SierraHOTAS.Controls
             _segmentLines = new List<Line>();
             _directionalColor = (Color)ColorConverter.ConvertFromString("#80e5ff");
 
-            DataContextChanged += LinearAxisMap_DataContextChanged;
+            DataContextChanged += AxisMap_DataContextChanged;
             CreateDial();
         }
 
@@ -35,11 +35,11 @@ namespace SierraHOTAS.Controls
             DrawCircle(axisValue);
         }
 
-        private void LinearAxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void AxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (_axisVm != null) _axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
 
-            _axisVm = DataContext as RadialAxisMapViewModel;
+            _axisVm = DataContext as AxisMapViewModel;
             if (_axisVm == null) return;
 
             _axisVm.OnAxisValueChanged += _axisVm_OnAxisValueChanged;
@@ -54,7 +54,6 @@ namespace SierraHOTAS.Controls
 
             if (segments < 1) return;
 
-            //_axisVm.SegmentsCountChanged(segments);
             DrawSegmentBoundaries(segments);
         }
 

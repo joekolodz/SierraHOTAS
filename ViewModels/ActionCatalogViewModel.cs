@@ -28,6 +28,7 @@ namespace SierraHOTAS.ViewModels
 
         public ActionCatalogItem Add(ActionCatalogItem item)
         {
+            if (Catalog.Any(x => x.ActionName == item.ActionName)) return null;
             Catalog.Add(item);
             return item;
         }

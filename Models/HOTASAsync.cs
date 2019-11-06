@@ -17,6 +17,8 @@ namespace SierraHOTAS.Models
         private Task _deviceTask;
         private CancellationTokenSource _tokenSourceListenLoop;
         private CancellationToken _tokenListenLoop;
+        private JitterDetection _jitter;
+
 
         private Joystick Joystick { get; set; }
         private ObservableCollection<IHotasBaseMap> _buttonMap;
@@ -25,6 +27,7 @@ namespace SierraHOTAS.Models
         {
             Joystick = joystick;
             _buttonMap = buttonMap;
+            _jitter = new JitterDetection();
             _dicTokenRepeatTokenSource = new ConcurrentDictionary<int, CancellationTokenSource>();
             _tokenSourceListenLoop = new CancellationTokenSource();
             _tokenListenLoop = _tokenSourceListenLoop.Token;
@@ -98,10 +101,12 @@ namespace SierraHOTAS.Models
                     if (offset == JoystickOffset.X ||
                         offset == JoystickOffset.Y ||
                         offset == JoystickOffset.Z ||
-                        offset == JoystickOffset.RotationX || 
+                        offset == JoystickOffset.RotationX ||
                         offset == JoystickOffset.RotationY ||
                         offset == JoystickOffset.RotationZ)
                     {
+                        if (_jitter.IsJitter(state.Value)) continue;
+
                         HandleAxis(state);
                         OnAxisChanged(state);
                         continue;
@@ -161,7 +166,6 @@ namespace SierraHOTAS.Models
             }
 
 
-            //Debug.WriteLine($"===> start repeating");
             var delay = Keyboard.KeyDownInitialDelay;
             while (!cancel.IsCancellationRequested && delay > 0)
             {
@@ -260,10 +264,8 @@ namespace SierraHOTAS.Models
 
         private async Task PlayMacroOnce(int offset, ObservableCollection<ButtonAction> actions)
         {
-            //Debug.WriteLine($"playing macro for:{offset}");
             foreach (var action in actions)
             {
-                //Debug.WriteLine($" - - sending key:{action.ScanCode}");
                 Keyboard.SendKeyPress(action.ScanCode, action.Flags);
                 if (action.TimeInMilliseconds > 0)
                 {
@@ -271,7 +273,6 @@ namespace SierraHOTAS.Models
                     var timeLeft = action.TimeInMilliseconds;
                     while (timeLeft > 0)
                     {
-                        //Debug.WriteLine($" - - repeating last key:{action.ScanCode}");
                         await Task.Delay(Keyboard.KeyDownRepeatDelay);
                         Keyboard.SendKeyPress(action.ScanCode, action.Flags);
                         timeLeft -= Keyboard.KeyDownRepeatDelay;
@@ -290,7 +291,7 @@ namespace SierraHOTAS.Models
             token.Cancel();
 
             success = _activeButtons.TryRemove(offset, out var t);
-            if (!success) throw new ArgumentException("shit");
+            if (!success) return;
 
             while (!t.IsCompleted)
             {
@@ -307,13 +308,18 @@ namespace SierraHOTAS.Models
 
             if (!(GetMap(offset) is HOTASAxisMap axis)) return;
 
+            axis.SetAxis(state.Value);
+
+            if (!axis.IsSegmentChanged) return;
+
             var map = axis.GetButtonMapFromRawValue(state.Value);
             HandleButtonPressed(map, offset);
+            HandleButtonReleased(offset);
         }
 
         private void OnAxisChanged(JoystickUpdate state)
         {
-            AxisChanged?.Invoke(this, new AxisChangedEventArgs(){AxisId = (int)state.Offset, Value = state.Value, Device = null});
+            AxisChanged?.Invoke(this, new AxisChangedEventArgs() { AxisId = (int)state.Offset, Value = state.Value, Device = null });
         }
 
         public IHotasBaseMap GetMap(int buttonOffset)

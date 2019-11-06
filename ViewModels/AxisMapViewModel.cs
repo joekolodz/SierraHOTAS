@@ -1,8 +1,6 @@
 ﻿using SierraHOTAS.Annotations;
-using SierraHOTAS.Controls;
 using SierraHOTAS.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -16,12 +14,13 @@ namespace SierraHOTAS.ViewModels
         Backward
     }
 
-    public class LinearAxisMapViewModel : IBaseMapViewModel, INotifyPropertyChanged
+    public class AxisMapViewModel : IBaseMapViewModel, INotifyPropertyChanged
     {
         private readonly HOTASAxisMap _hotasAxisMap;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<int> OnAxisValueChanged;
+        public event EventHandler RecordingStopped;
 
         public bool IsDisabledForced { get; set; }
         public bool IsRecording { get; set; }
@@ -62,52 +61,74 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        public bool? IsDirectional
+        public bool IsMultiAction
+        {
+            get => _hotasAxisMap.IsMultiAction;
+            set
+            {
+                if (_hotasAxisMap.IsMultiAction == value) return;
+                _hotasAxisMap.IsMultiAction = value;
+                SegmentsCountChanged();
+            }
+        }
+
+        public bool IsDirectional
         {
             get => _hotasAxisMap.IsDirectional;
             set
             {
                 if (_hotasAxisMap.IsDirectional == value) return;
-                _hotasAxisMap.IsDirectional = value ?? false;
+                _hotasAxisMap.IsDirectional = value;
                 if (!_hotasAxisMap.IsDirectional) Direction = AxisDirection.Forward;
+                SegmentsCountChanged();
             }
         }
 
         public AxisDirection Direction { get; set; } = AxisDirection.Forward;
 
         public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
+        public ObservableCollection<IBaseMapViewModel> ReverseButtonMap { get; set; }
 
-        private int _currentSegment;
         private readonly MediaPlayer _mediaPlayer;
-        private int _lastValue;
-        private readonly JitterDetection _jitter;
 
-
-        public LinearAxisMapViewModel(HOTASAxisMap map)
+        public AxisMapViewModel(HOTASAxisMap map)
         {
             ButtonMap = new ObservableCollection<IBaseMapViewModel>();
+            ReverseButtonMap = new ObservableCollection<IBaseMapViewModel>();
             _hotasAxisMap = map;
-            _jitter = new JitterDetection();
+            _segments = _hotasAxisMap.Segments.Count;
+
+            _hotasAxisMap.OnAxisDirectionChanged += OnAxisDirectionChanged;
+            _hotasAxisMap.OnAxisSegmentChanged += OnAxisSegmentChanged;
 
             _mediaPlayer = new MediaPlayer { Volume = 0f };
             _mediaPlayer.Open(new Uri(@"Sounds\click05.mp3", UriKind.Relative));
+            SegmentsCountChanged();
         }
 
         private void SegmentsCountChanged()
         {
-            _hotasAxisMap.Clear();
+            ResetSegments();
 
             _hotasAxisMap.CalculateSegmentRange(_segments);
             RemoveAllHandlers();
             ButtonMap.Clear();
+            ReverseButtonMap.Clear();
 
             if (_segments == 1) return;
 
-            foreach (HOTASButtonMap map in _hotasAxisMap.ButtonMap)
+            foreach (var map in _hotasAxisMap.ButtonMap)
             {
                 var vm = new ButtonMapViewModel(map);
                 AddHandlers(vm);
                 ButtonMap.Add(vm);
+            }
+
+            foreach (var map in _hotasAxisMap.ReverseButtonMap)
+            {
+                var vm = new ButtonMapViewModel(map);
+                AddHandlers(vm);
+                ReverseButtonMap.Add(vm);
             }
         }
 
@@ -118,34 +139,23 @@ namespace SierraHOTAS.ViewModels
 
         public void SetAxis(int value)
         {
-            if (_jitter.IsJitter(value)) return;
-
-            SetDirection(value);
-            DetectSelectedSegment(value);
             OnAxisValueChanged?.Invoke(this, value);
         }
 
-        private void SetDirection(int value)
+        private void OnAxisDirectionChanged(object sender, AxisDirectionChangedEventArgs e)
         {
-            if (_hotasAxisMap.IsDirectional)
-            {
-                Direction = value < _lastValue ? AxisDirection.Backward : AxisDirection.Forward;
-            }
-            _lastValue = value;
+            Direction = e.NewDirection;
         }
 
-        private void DetectSelectedSegment(int value)
+        private void OnAxisSegmentChanged(object sender, AxisSegmentChangedEventArgs e)
         {
-            if (_hotasAxisMap.Segments.Count <= 1) return;
-
-            var newSegment = _hotasAxisMap.GetSegmentFromRawValue(value);
-
-            if (newSegment == _currentSegment) return;
-
-            _currentSegment = newSegment;
-            _mediaPlayer.Volume = 1f;
-            _mediaPlayer.Play();
-            _mediaPlayer.Position = TimeSpan.Zero;
+            _mediaPlayer.Dispatcher?.Invoke(() =>
+            {
+                _mediaPlayer.Volume = 1f;
+                _mediaPlayer.Play();
+                _mediaPlayer.Position = TimeSpan.Zero;
+            });
+            Logging.Log.Info($"Segment changed: {e.NewSegment}");
         }
 
         private void AddHandlers(ButtonMapViewModel mapViewModel)
@@ -175,6 +185,12 @@ namespace SierraHOTAS.ViewModels
                 if (sender == map) continue;
                 map.IsDisabledForced = isDisabled;
             }
+
+            foreach (var map in ReverseButtonMap)
+            {
+                if (sender == map) continue;
+                map.IsDisabledForced = isDisabled;
+            }
         }
 
         private void MapViewModel_RecordingStarted(object sender, EventArgs e)
@@ -185,6 +201,7 @@ namespace SierraHOTAS.ViewModels
         private void MapViewModel_RecordingStopped(object sender, EventArgs e)
         {
             ForceDisableAllOtherMaps(sender, false);
+            RecordingStopped?.Invoke(sender, e);
         }
         private void MapViewModel_RecordingCancelled(object sender, EventArgs e)
         {

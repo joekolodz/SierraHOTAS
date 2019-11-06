@@ -36,7 +36,7 @@ namespace SierraHOTAS.ViewModels
 
         public void RebuildMap()
         {
-            RemoveAllHandlers();
+            RemoveAllButtonMapHandlers();
 
             ButtonMap.Clear();
 
@@ -46,40 +46,53 @@ namespace SierraHOTAS.ViewModels
                 {
                     case HOTASButtonMap.ButtonType.AxisLinear:
                         var linearMap = baseMap as HOTASAxisMap;
-                        ButtonMap.Add(new LinearAxisMapViewModel(linearMap));
+                        var lmVm = new AxisMapViewModel(linearMap);
+                        AddAxisMapHandlers(lmVm);
+                        ButtonMap.Add(lmVm);
                         break;
 
                     case HOTASButtonMap.ButtonType.AxisRadial:
                         var radialMap = baseMap as HOTASAxisMap;
-                        ButtonMap.Add(new RadialAxisMapViewModel(radialMap));
+                        var rmVm = new AxisMapViewModel(radialMap);
+                        AddAxisMapHandlers(rmVm);
+                        ButtonMap.Add(rmVm);
                         break;
 
                     default:
                         var buttonMap = baseMap as HOTASButtonMap;
-                        var mapViewModel = new ButtonMapViewModel(buttonMap);
-                        AddHandlers(mapViewModel);
-                        ButtonMap.Add(mapViewModel);
+                        var bmVm = new ButtonMapViewModel(buttonMap);
+                        AddButtonMapHandlers(bmVm);
+                        ButtonMap.Add(bmVm);
                         break;
                 }
             }
         }
 
-        private void AddHandlers(ButtonMapViewModel mapViewModel)
+        private void AddButtonMapHandlers(ButtonMapViewModel mapViewModel)
         {
             mapViewModel.RecordingStarted += MapViewModel_RecordingStarted;
             mapViewModel.RecordingStopped += MapViewModel_RecordingStopped;
             mapViewModel.RecordingCancelled += MapViewModel_RecordingCancelled;
         }
 
-        private void RemoveAllHandlers()
+        private void AddAxisMapHandlers(AxisMapViewModel mapViewModel)
+        {
+            mapViewModel.RecordingStopped += MapViewModel_RecordingStopped;
+        }
+
+        private void RemoveAllButtonMapHandlers()
         {
             foreach (var mapViewModel in ButtonMap)
             {
-                if (mapViewModel is ButtonMapViewModel)
+                if (mapViewModel is ButtonMapViewModel button)
                 {
-                    ((ButtonMapViewModel)mapViewModel).RecordingStarted -= MapViewModel_RecordingStarted;
-                    ((ButtonMapViewModel)mapViewModel).RecordingStopped -= MapViewModel_RecordingStopped;
-                    ((ButtonMapViewModel)mapViewModel).RecordingCancelled -= MapViewModel_RecordingCancelled;
+                    button.RecordingStarted -= MapViewModel_RecordingStarted;
+                    button.RecordingStopped -= MapViewModel_RecordingStopped;
+                    button.RecordingCancelled -= MapViewModel_RecordingCancelled;
+                }
+                else
+                {
+                    ((AxisMapViewModel)mapViewModel).RecordingStopped -= MapViewModel_RecordingStopped;
                 }
             }
         }

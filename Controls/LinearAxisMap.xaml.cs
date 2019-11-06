@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace SierraHOTAS.Controls
+namespace SierraHOTAS.Models
 {
     public partial class LinearAxisMap : UserControl
     {
@@ -15,7 +15,7 @@ namespace SierraHOTAS.Controls
         private Rectangle _rectLimitBorder;
         private readonly List<Line> _segmentLines;
         private readonly Color _directionalColor;
-        private LinearAxisMapViewModel _axisVm;
+        private AxisMapViewModel _axisVm;
 
         private double _gaugeWidth = 120;
         private double _gaugeHeight = 20;
@@ -29,7 +29,7 @@ namespace SierraHOTAS.Controls
             _segmentLines = new List<Line>();
             _directionalColor = (Color)ColorConverter.ConvertFromString("#80e5ff");
 
-            DataContextChanged += LinearAxisMap_DataContextChanged;
+            DataContextChanged += AxisMap_DataContextChanged;
 
             CreateAxisBar();
         }
@@ -39,11 +39,11 @@ namespace SierraHOTAS.Controls
             DrawRectangle(axisValue);
         }
 
-        private void LinearAxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void AxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if(_axisVm!=null)_axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
 
-            _axisVm = DataContext as LinearAxisMapViewModel;
+            _axisVm = DataContext as AxisMapViewModel;
             if (_axisVm == null) return;
 
             _axisVm.OnAxisValueChanged += _axisVm_OnAxisValueChanged;
@@ -58,7 +58,6 @@ namespace SierraHOTAS.Controls
 
             if (segments < 1) return;
 
-            //_axisVm.SegmentsCountChanged(segments);
             DrawSegmentBoundaries(segments);
         }
 

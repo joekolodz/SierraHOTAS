@@ -17,17 +17,24 @@ namespace SierraHOTAS
                    objectType == typeof(HOTASAxisMap);
         }
 
-        public override object ReadJson(Newtonsoft.Json.JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            if (objectType == typeof(HOTASButtonMap))
+            {
+                var buttonMap = new HOTASButtonMap();
+                serializer.Populate(reader, buttonMap);
+                return buttonMap;
+            }
+
             var list = new ObservableCollection<IHotasBaseMap>();
             var jsonArray = JArray.Load(reader);
-
+            
             foreach (var jsonObject in jsonArray)
             {
-                var map = default(IHotasBaseMap);
+                IHotasBaseMap map;
                 var testValue = jsonObject.Value<string>("Type");
-                HOTASButtonMap.ButtonType testType;
-                Enum.TryParse(testValue, out testType);
+                Enum.TryParse(testValue, out HOTASButtonMap.ButtonType testType);
+
                 try
                 {
                     switch (testType)

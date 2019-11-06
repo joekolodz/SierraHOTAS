@@ -92,7 +92,9 @@
     <Compile Include="Controls\ButtonMap.xaml.cs">
       <DependentUpon>ButtonMap.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\JitterDetection.cs" />
+    <Compile Include="Models\AxisDirectionChangedEventArgs.cs" />
+    <Compile Include="Models\AxisSegmentChangedEventArgs.cs" />
+    <Compile Include="Models\JitterDetection.cs" />
     <Compile Include="Controls\KeypressActions.xaml.cs">
       <DependentUpon>KeypressActions.xaml</DependentUpon>
     </Compile>
@@ -133,10 +135,9 @@
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\HOTASCollectionViewModel.cs" />
     <Compile Include="ViewModels\IBaseMapViewModel.cs" />
-    <Compile Include="ViewModels\LinearAxisMapViewModel.cs" />
+    <Compile Include="ViewModels\AxisMapViewModel.cs" />
     <Compile Include="ViewModels\ButtonMapViewModel.cs" />
     <Compile Include="ViewModels\DataTemplates\MapDataTemplateSelector.cs" />
-    <Compile Include="ViewModels\RadialAxisMapViewModel.cs" />
     <Compile Include="Win32\Win32Structures.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
