@@ -1,7 +1,7 @@
 ﻿using SierraHOTAS.ViewModels;
 using System.Windows.Controls;
 
-namespace SierraHOTAS.Models
+namespace SierraHOTAS.Controls
 {
     /// <summary>
     /// Interaction logic for MacroTransport.xaml

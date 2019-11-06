@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace SierraHOTAS.Models
+namespace SierraHOTAS.Controls
 {
     public partial class RadialAxisMap : UserControl
     {
