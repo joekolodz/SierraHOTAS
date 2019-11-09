@@ -165,8 +165,7 @@ namespace SierraHOTAS.Models
             var offset = state.Offset;
             var map = GetMap(offset);
 
-            Debug.WriteLine(offset);
-            if (map != null && map.Actions.Count > 0)
+            if (map != null && map.ActionCatalogItem.Actions.Count > 0)
             {
                 if (IsButtonDown(state.Value))
                 {
@@ -181,12 +180,12 @@ namespace SierraHOTAS.Models
                         }
 
                         _activeMacros.TryAdd(offset, true);
-                        Task.Run(() => PlayMacroOnce(offset, map.Actions));
+                        Task.Run(() => PlayMacroOnce(offset, map.ActionCatalogItem.Actions));
                         return;
                     }
 
                     StopRepeatingKey();
-                    PlayActionOnce(map.Actions, out _repeatKeyDownAction, out _lastKeyUpAction);
+                    PlayActionOnce(map.ActionCatalogItem.Actions, out _repeatKeyDownAction, out _lastKeyUpAction);
                     if (_lstKeyUpBuffer.ContainsKey(offset))
                     {
                         Debug.WriteLine($"Button pressed before release was recognized! {offset}");

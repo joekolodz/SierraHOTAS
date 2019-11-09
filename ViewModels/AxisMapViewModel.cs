@@ -86,15 +86,15 @@ namespace SierraHOTAS.ViewModels
 
         public AxisDirection Direction { get; set; } = AxisDirection.Forward;
 
-        public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
-        public ObservableCollection<IBaseMapViewModel> ReverseButtonMap { get; set; }
+        public ObservableCollection<ButtonMapViewModel> ButtonMap { get; set; }
+        public ObservableCollection<ButtonMapViewModel> ReverseButtonMap { get; set; }
 
         private readonly MediaPlayer _mediaPlayer;
 
         public AxisMapViewModel(HOTASAxisMap map)
         {
-            ButtonMap = new ObservableCollection<IBaseMapViewModel>();
-            ReverseButtonMap = new ObservableCollection<IBaseMapViewModel>();
+            ButtonMap = new ObservableCollection<ButtonMapViewModel>();
+            ReverseButtonMap = new ObservableCollection<ButtonMapViewModel>();
             _hotasAxisMap = map;
             _segments = _hotasAxisMap.Segments.Count;
 
@@ -103,7 +103,7 @@ namespace SierraHOTAS.ViewModels
 
             _mediaPlayer = new MediaPlayer { Volume = 0f };
             _mediaPlayer.Open(new Uri(@"Sounds\click05.mp3", UriKind.Relative));
-            SegmentsCountChanged();
+            RebuildButtonMapViewModels();
         }
 
         private void SegmentsCountChanged()
@@ -117,6 +117,11 @@ namespace SierraHOTAS.ViewModels
 
             if (_segments == 1) return;
 
+            RebuildButtonMapViewModels();
+        }
+
+        private void RebuildButtonMapViewModels()
+        {
             foreach (var map in _hotasAxisMap.ButtonMap)
             {
                 var vm = new ButtonMapViewModel(map);

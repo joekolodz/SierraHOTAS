@@ -221,7 +221,7 @@ namespace SierraHOTAS.Models
         {
             if (IsButtonDown(value))
             {
-                if (GetMap(offset) is HOTASButtonMap map && map.Actions.Count > 0)
+                if (GetMap(offset) is HOTASButtonMap map && map.ActionCatalogItem.Actions.Count > 0)
                 {
                     //if action list has a timer in it, then it is a macro and executes on another thread independently. does not interrupt other buttons
                     HandleButtonPressed(map, offset);
@@ -246,7 +246,7 @@ namespace SierraHOTAS.Models
                 }
 
                 _activeMacros.TryAdd(offset, true);
-                Task.Run(() => PlayMacroOnce(offset, buttonMap.Actions));
+                Task.Run(() => PlayMacroOnce(offset, buttonMap.ActionCatalogItem.Actions));
                 return;
             }
 
@@ -255,7 +255,7 @@ namespace SierraHOTAS.Models
             var succeed = _dicTokenRepeatTokenSource.TryAdd(offset, repeatTokenSource);
             if (!succeed) return;
 
-            var t = new Task(delegate { PlayActionWithRepeat(buttonMap.Actions, repeatToken); });
+            var t = new Task(delegate { PlayActionWithRepeat(buttonMap.ActionCatalogItem.Actions, repeatToken); });
             succeed = _activeButtons.TryAdd(offset, t);
             if (!succeed) return;
 

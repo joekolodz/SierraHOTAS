@@ -3,7 +3,6 @@ using SierraHOTAS.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -31,16 +30,22 @@ namespace SierraHOTAS.ViewModels
             InstanceId = _hotasDevice.InstanceId;
             Name = _hotasDevice.Name;
 
-            BuildMap();
+            ButtonMap = new ObservableCollection<IBaseMapViewModel>();
+            RebuildMap();
         }
 
         public void RebuildMap()
+        {
+            RebuildMap(_hotasDevice.ButtonMap);
+        }
+
+        public void RebuildMap(ObservableCollection<IHotasBaseMap> map)
         {
             RemoveAllButtonMapHandlers();
 
             ButtonMap.Clear();
 
-            foreach (var baseMap in _hotasDevice.ButtonMap)
+            foreach (var baseMap in map)
             {
                 switch (baseMap.Type)
                 {
@@ -96,13 +101,6 @@ namespace SierraHOTAS.ViewModels
                 }
             }
         }
-
-        private void BuildMap()
-        {
-            ButtonMap = new ObservableCollection<IBaseMapViewModel>();
-            RebuildMap();
-        }
-
 
         private void ForceDisableAllOtherMaps(object sender, bool isDisabled)
         {

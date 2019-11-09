@@ -240,7 +240,7 @@ namespace SierraHOTAS.Models
             }
             else
             {
-                map = ButtonMap.FirstOrDefault(m => m.MapId == 1);
+                map = ButtonMap.FirstOrDefault(m => m.MapId == segment);
             }
             return map;
         }
@@ -251,13 +251,13 @@ namespace SierraHOTAS.Models
             {
                 if (b.ActionName != "<No Action>") return;
                 b.ActionName = string.Empty;
-                b.Actions.Clear();
+                b.ActionCatalogItem.Actions.Clear();
             }
             foreach (var b in ReverseButtonMap)
             {
                 if (b.ActionName != "<No Action>") return;
                 b.ActionName = string.Empty;
-                b.Actions.Clear();
+                b.ActionCatalogItem.Actions.Clear();
             }
         }
     }

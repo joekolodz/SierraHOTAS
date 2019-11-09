@@ -16,7 +16,12 @@ namespace SierraHOTAS.ViewModels
     public class ButtonMapViewModel : IBaseMapViewModel, INotifyPropertyChanged
     {
         private readonly HOTASButtonMap _hotasButtonMap;
-        public ActionCatalogItem ActionItem { get; set; }
+
+        public ActionCatalogItem ActionItem
+        {
+            get => _hotasButtonMap.ActionCatalogItem; 
+            set => _hotasButtonMap.ActionCatalogItem = value;
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -55,7 +60,6 @@ namespace SierraHOTAS.ViewModels
                 if (ActionItem.ActionName == value) return;
                 Logging.Log.Info($"about to change ActionName from: {ActionItem.ActionName} to: {value}");
                 ActionItem.ActionName = value;
-                _hotasButtonMap.ActionName = value;
                 OnPropertyChanged(nameof(ActionName));
             }
         }
@@ -83,7 +87,6 @@ namespace SierraHOTAS.ViewModels
         public ButtonMapViewModel(HOTASButtonMap buttonMap)
         {
             _hotasButtonMap = buttonMap;
-            _hotasButtonMap.Actions.CollectionChanged += Actions_CollectionChanged;
 
             RecordMacroStartCommandWithParameter = new RelayCommandWithParameter(RecordMacroStart, RecordMacroStartCanExecute);
             RecordMacroStopCommandWithParameter = new RelayCommandWithParameter(RecordMacroStop, RecordMacroStopCanExecute);
@@ -91,10 +94,9 @@ namespace SierraHOTAS.ViewModels
             IsRecording = false;
             IsDisabledForced = false;
             Actions = new ObservableCollection<ButtonActionViewModel>();
-            ActionItem = new ActionCatalogItem();
-            ActionName = buttonMap.ActionName;
+            ActionItem = buttonMap.ActionCatalogItem;
             AddHandlers();
-            BuildButtonActionViewModel(buttonMap.Actions);
+            BuildButtonActionViewModel(buttonMap.ActionCatalogItem.Actions);
         }
 
         public override string ToString()
@@ -104,13 +106,15 @@ namespace SierraHOTAS.ViewModels
 
         public ObservableCollection<ButtonAction> GetHotasActions()
         {
-            return _hotasButtonMap.Actions;
+            return ActionItem.Actions;
         }
 
         public void AssignActions(ActionCatalogItem actionCatalogItem)
         {
-            _hotasButtonMap.Actions = actionCatalogItem.Actions;
-            _hotasButtonMap.ActionName = actionCatalogItem.ActionName;
+            if (actionCatalogItem.NoAction)
+            {
+                actionCatalogItem = new ActionCatalogItem();
+            }
 
             RemoveHandlers();
             ActionItem = actionCatalogItem;
@@ -122,11 +126,13 @@ namespace SierraHOTAS.ViewModels
 
         private void AddHandlers()
         {
+            ActionItem.Actions.CollectionChanged += Actions_CollectionChanged;
             ActionItem.PropertyChanged += ActionItem_PropertyChanged;
         }
 
         private void RemoveHandlers()
         {
+            ActionItem.Actions.CollectionChanged -= Actions_CollectionChanged;
             ActionItem.PropertyChanged -= ActionItem_PropertyChanged;
         }
 
@@ -140,9 +146,9 @@ namespace SierraHOTAS.ViewModels
             ReBuildButtonActionViewModel();
         }
 
-        private void ReBuildButtonActionViewModel()
+        public void ReBuildButtonActionViewModel()
         {
-            BuildButtonActionViewModel(_hotasButtonMap.Actions);
+            BuildButtonActionViewModel(ActionItem.Actions);
         }
 
         private void BuildButtonActionViewModel(ObservableCollection<ButtonAction> actions)
@@ -179,9 +185,7 @@ namespace SierraHOTAS.ViewModels
 
             _hotasButtonMap.Stop();
 
-            //save changes
             ReBuildButtonActionViewModel();
-
 
             IsRecording = false;
             Debug.WriteLine($"STOPPED - Recorded==>{_hotasButtonMap}");

@@ -115,7 +115,7 @@
     <Compile Include="MainWindow.xaml.cs" />
     <Compile Include="Models\HOTASAxisMap.cs" />
     <Compile Include="Models\IHotasBaseMap.cs" />
-    <Compile Include="ViewModels\ActionCatalogItem.cs" />
+    <Compile Include="Models\ActionCatalogItem.cs" />
     <Compile Include="Models\AxisChangedEventArgs.cs" />
     <Compile Include="Models\ButtonAction.cs" />
     <Compile Include="Models\ButtonPressedEventArgs.cs" />

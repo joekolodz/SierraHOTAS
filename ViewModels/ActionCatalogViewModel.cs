@@ -1,5 +1,6 @@
 ﻿using SierraHOTAS.ViewModels;
 using System.Collections.ObjectModel;
+using System.Data.Common;
 using System.Linq;
 using SierraHOTAS.Models;
 
@@ -8,6 +9,8 @@ namespace SierraHOTAS.ViewModels
     public class ActionCatalogViewModel
     {
         public ObservableCollection<ActionCatalogItem> Catalog { get; }
+
+        private const string NO_ACTION_TEXT = "<No Action>";
 
         public ActionCatalogViewModel()
         {
@@ -26,36 +29,36 @@ namespace SierraHOTAS.ViewModels
             return Catalog.Any(i => i.ActionName == actionName);
         }
 
-        public ActionCatalogItem Add(ActionCatalogItem item)
+        public void Add(ActionCatalogItem item)
         {
-            if (Catalog.Any(x => x.ActionName == item.ActionName)) return null;
+            if (Catalog.Contains(item)) return;
+
+            if (Contains(item.ActionName))
+            {
+                var i = Catalog.First(x => x.ActionName == item.ActionName);
+                Catalog.Remove(i);
+            }
             Catalog.Add(item);
-            return item;
         }
 
-        public ActionCatalogItem Add(ButtonMapViewModel buttonMap)
+        public void Add(ButtonMapViewModel buttonMap)
         {
             var item = buttonMap.ActionItem;
+            if (Catalog.Contains(item)) return;
+
             Logging.Log.Info("Add to actions catalog");
-            if (string.IsNullOrWhiteSpace(item.ActionName))
+            if (string.IsNullOrWhiteSpace(item.ActionName) || item.ActionName == NO_ACTION_TEXT)
             {
-                item.ActionName = $"Unassigned {buttonMap.ButtonName}";
-                item.Actions = buttonMap.GetHotasActions().ToObservableCollection();
+                item.ActionName = $"Action for {buttonMap.ButtonName}";
             }
 
-            if (Catalog.Contains(item))
-            {
-                Logging.Log.Info($"{item.ActionName} - {buttonMap.ButtonName} already exists in actions catalog. Removing first.");
-                Catalog.Remove(item);
-            }
             Catalog.Add(item);
             Logging.Log.Info($"{item.ActionName} - {buttonMap.ButtonName} added to actions catalog");
-            return item;
         }
 
         private void AddEmptyItem()
         {
-            Add(new ActionCatalogItem() { ActionName = "<No Action>", Actions = new ObservableCollection<ButtonAction>() });
+            Add(new ActionCatalogItem() { NoAction = true, ActionName = NO_ACTION_TEXT, Actions = new ObservableCollection<ButtonAction>() });
         }
     }
 }

@@ -4,11 +4,12 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using SierraHOTAS.Annotations;
 
-namespace SierraHOTAS.ViewModels
+namespace SierraHOTAS.Models
 {
     public class ActionCatalogItem : INotifyPropertyChanged
     {
         private string _actionName;
+        public bool NoAction { get; set; } = false;
         public string ActionName
         {
             get => _actionName;
@@ -23,6 +24,17 @@ namespace SierraHOTAS.ViewModels
         public ObservableCollection<ButtonAction> Actions { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public override string ToString()
+        {
+            return $"{ActionName} - {Actions.Count}";
+        }
+
+        public ActionCatalogItem()
+        {
+            ActionName = "";
+            Actions = new ObservableCollection<ButtonAction>();
+        }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

@@ -1,5 +1,6 @@
 ﻿using SierraHOTAS.ViewModels;
 using System.Windows.Controls;
+using SierraHOTAS.Models;
 
 namespace SierraHOTAS.Controls
 {

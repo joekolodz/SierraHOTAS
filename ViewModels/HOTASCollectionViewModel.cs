@@ -107,7 +107,7 @@ namespace SierraHOTAS.ViewModels
                 var d = _deviceList.GetDevice(ld.InstanceId);
                 if (d == null) continue;
                 d.ButtonMap = ld.ButtonMap.ToObservableCollection();
-                deviceVm.RebuildMap();
+                deviceVm.RebuildMap(ld.ButtonMap);
             }
         }
 
@@ -174,8 +174,8 @@ namespace SierraHOTAS.ViewModels
                     {
                         case AxisMapViewModel axisVm:
                             {
-                                AddButtonsToCatalog(axisVm.ButtonMap);
-                                AddButtonsToCatalog(axisVm.ReverseButtonMap);
+                                AddButtonListToCatalog(axisVm.ButtonMap);
+                                AddButtonListToCatalog(axisVm.ReverseButtonMap);
                                 break;
                             }
                         case ButtonMapViewModel buttonVm:
@@ -188,12 +188,11 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        private void AddButtonsToCatalog(ObservableCollection<IBaseMapViewModel> buttonVmList)
+        private void AddButtonListToCatalog(ObservableCollection<ButtonMapViewModel> buttonVmList)
         {
             foreach (var baseVm in buttonVmList)
             {
-                if (!(baseVm is ButtonMapViewModel mapVm)) return;
-                AddButtonToCatalog(mapVm);
+                AddButtonToCatalog(baseVm);
             }
         }
 

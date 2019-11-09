@@ -20,19 +20,26 @@ namespace SierraHOTAS.Models
 
         public int MapId { get; set; }
         public string MapName { get; set; }
-        public string ActionName { get; set; }
-        public ObservableCollection<ButtonAction> Actions { get; set; }
         public ButtonType Type { get; set; }
 
         [JsonIgnore]
-        public bool IsMacro => Actions.Any(a => a.TimeInMilliseconds > 0);
+        public string ActionName
+        {
+            get => ActionCatalogItem.ActionName;
+            set => ActionCatalogItem.ActionName = value;
+        }
+
+        public ActionCatalogItem ActionCatalogItem { get; set; }
+
+        [JsonIgnore]
+        public bool IsMacro => ActionCatalogItem.Actions.Any(a => a.TimeInMilliseconds > 0);
 
         private bool _isRecording;
         private ObservableCollection<ButtonAction> _actionsHistory;
 
         public HOTASButtonMap()
         {
-            Actions = new ObservableCollection<ButtonAction>();
+            ActionCatalogItem = new ActionCatalogItem();
         }
 
         private void SetRecordState(bool isRecording)
@@ -51,8 +58,8 @@ namespace SierraHOTAS.Models
 
         public void Record()
         {
-            _actionsHistory = Actions.ToList().ToObservableCollection();//make an actual copy
-            Actions.Clear();
+            _actionsHistory = ActionCatalogItem.Actions.ToList().ToObservableCollection();//make an actual copy
+            ActionCatalogItem.Actions.Clear();
             SetRecordState(true);
         }
 
@@ -65,10 +72,10 @@ namespace SierraHOTAS.Models
         public void Cancel()
         {
             SetRecordState(false);
-            Actions.Clear();
+            ActionCatalogItem.Actions.Clear();
             foreach (var a in _actionsHistory)
             {
-                Actions.Add(a);
+                ActionCatalogItem.Actions.Add(a);
             }
         }
 
@@ -106,7 +113,7 @@ namespace SierraHOTAS.Models
         {
             if (!_isRecording) return;
 
-            Actions.Add(new ButtonAction() { Flags = e.Flags, ScanCode = e.Code, TimeInMilliseconds = 0 });
+            ActionCatalogItem.Actions.Add(new ButtonAction() { Flags = e.Flags, ScanCode = e.Code, TimeInMilliseconds = 0 });
 
             Debug.Write($"[Recording: {Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)e.Code, e.Flags)}");
         }
@@ -115,7 +122,7 @@ namespace SierraHOTAS.Models
         {
             if (ActionName != "<No Action>") return;
             ActionName = string.Empty;
-            Actions.Clear();
+            ActionCatalogItem.Actions.Clear();
         }
 
         public void CalculateSegmentRange(int segments)
@@ -131,7 +138,7 @@ namespace SierraHOTAS.Models
         public override string ToString()
         {
             var o = "";
-            foreach (var a in Actions)
+            foreach (var a in ActionCatalogItem.Actions)
             {
                 var upDown = "v";
                 if ((a.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) ==
