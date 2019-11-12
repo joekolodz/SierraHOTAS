@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using SierraHOTAS.ViewModels;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -22,12 +23,16 @@ namespace SierraHOTAS.Controls
         {
             InitializeComponent();
 
-            txtSegments.TextChanged += OnSegmentsTextChanged;
             _segmentLines = new List<Line>();
             _directionalColor = (Color)ColorConverter.ConvertFromString("#80e5ff");
 
             DataContextChanged += AxisMap_DataContextChanged;
             CreateDial();
+        }
+
+        private bool SegmentFilter(object segment)
+        {
+            return _axisVm.SegmentFilter(segment);
         }
 
         private void _axisVm_OnAxisValueChanged(object sender, int axisValue)
@@ -37,24 +42,61 @@ namespace SierraHOTAS.Controls
 
         private void AxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (_axisVm != null) _axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
+            if (_axisVm != null)
+            {
+                _axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
+                _axisVm.PropertyChanged -= _axisVm_PropertyChanged;
+                _axisVm.SegmentBoundaryChanged -= _axisVm_SegmentBoundaryChanged;
+            }
 
             _axisVm = DataContext as AxisMapViewModel;
             if (_axisVm == null) return;
 
+            SetSegmentBoundaryFilter();
+
             _axisVm.OnAxisValueChanged += _axisVm_OnAxisValueChanged;
+            _axisVm.PropertyChanged += _axisVm_PropertyChanged;
+            _axisVm.SegmentBoundaryChanged += _axisVm_SegmentBoundaryChanged;
+
+            OnSegmentsChanged();
         }
 
-        private void OnSegmentsTextChanged(object sender, TextChangedEventArgs e)
+        private void _axisVm_SegmentBoundaryChanged(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                RemoveAllSegmentLines();
+                DrawSegmentBoundaries();
+            });
+        }
+
+        private void SetSegmentBoundaryFilter()
+        {
+            lstSegments.ItemsSource = _axisVm.Segments;
+            var view = (CollectionView)CollectionViewSource.GetDefaultView(lstSegments.ItemsSource);
+            if (view != null)
+            {
+                view.Filter = SegmentFilter;
+            }
+        }
+        private void _axisVm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(_axisVm.SegmentCount))
+            {
+                OnSegmentsChanged();
+            }
+        }
+
+        private void OnSegmentsChanged()
         {
             RemoveAllSegmentLines();
 
-            var success = int.TryParse(txtSegments.Text, out var segments);
-            if (!success) return;
+            if (_axisVm.SegmentCount < 1) return;
 
-            if (segments < 1) return;
+            DrawSegmentBoundaries();
 
-            DrawSegmentBoundaries(segments);
+            //refreshes the filter so we don't see the last segment which is always pinned to 100%
+            CollectionViewSource.GetDefaultView(lstSegments.ItemsSource).Refresh();
         }
 
         private void RemoveAllSegmentLines()
@@ -66,19 +108,17 @@ namespace SierraHOTAS.Controls
             _segmentLines.Clear();
         }
 
-        private void DrawSegmentBoundaries(int segments)
+        private void DrawSegmentBoundaries()
         {
             const double canvasLeft = 0;
             const double canvasTop = 0;
             const double angleRatio = ushort.MaxValue / 360.0f; //(joystick axis values range from 0 to 65535)
 
-            var segmentDegrees = 360 / segments;
-
-            for (var s = 1; s < segments; s++)
+            foreach (var keyValue in _axisVm.Segments)
             {
-                var angle = segmentDegrees * s;
-                var theta = angle / angleRatio; //compress into degrees to get the angle on the circle
-                theta = angle;
+                if (keyValue.Value >= ushort.MaxValue - 655) continue;
+                var angle = keyValue.Value / angleRatio; //compress into degrees to get the angle on the circle
+                var theta = angle;
 
                 var radius = _gaugeDiameter / 2; //canvas_axis_dial.Height / 2;
                 var h = canvasLeft + radius;

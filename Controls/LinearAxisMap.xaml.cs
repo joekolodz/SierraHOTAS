@@ -1,8 +1,7 @@
-﻿using System;
+﻿using SierraHOTAS.ViewModels;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows;
-using SierraHOTAS.ViewModels;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -67,7 +66,7 @@ namespace SierraHOTAS.Controls
 
         private void _axisVm_SegmentBoundaryChanged(object sender, EventArgs e)
         {
-            Dispatcher.Invoke(()=>
+            Dispatcher?.Invoke(() =>
             {
                 RemoveAllSegmentLines();
                 DrawSegmentBoundaries();
