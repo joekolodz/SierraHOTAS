@@ -17,11 +17,11 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <WrapPanel>
-                            <TextBlock Text="Boundary: " />
-                            <TextBlock Text="{Binding Key}" />
-                            <TextBlock Text=" - " />
-                            <TextBlock Text="Percent:" />
-                            <TextBox Text="{Binding Value}" />
+                            <TextBlock Text="Boundary " />
+                            <TextBlock Text="{Binding Id}" />
+                            <TextBlock Text=":  " />
+                            <TextBox Text="{Binding Value, Converter={StaticResource AxisValueToPercentageConverter}}" />
+                            <TextBlock Text=" %" />
                         </WrapPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>

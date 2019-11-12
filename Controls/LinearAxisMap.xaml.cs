@@ -115,10 +115,10 @@ namespace SierraHOTAS.Controls
 
         private void DrawSegmentBoundaries()
         {
-            const float ratio = 546.125f;//based on bar width of 120px ie 65535/120
+            const float ratio = 546.125f;//based on bar width of 120px ie 65535/120 - promote this to public const
             foreach (var keyValue in _axisVm.Segments)
             {
-                if (keyValue.Value >= 65535) continue;
+                if (keyValue.Value >= ushort.MaxValue - 655) continue;
                 var point = keyValue.Value / ratio;
 
                 var line = new Line();

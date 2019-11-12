@@ -119,11 +119,15 @@ namespace SierraHOTAS.Models
             var previous = Segments[0].Value;
             for(var i = 1; i<Segments.Count; i++)
             {
+                if(Segments[i].Value>ushort.MaxValue)
+                {
+                    Segments[i].Value = ushort.MaxValue - 655;
+                }
                 if(Segments[i].Value<previous)
                 {
-                    Segments[i].Value = previous + 1;
+                    Segments[i].Value = previous + 655;
                 }
-                previous = Segments[i].Value
+                previous = Segments[i].Value;
             }
         }
 

@@ -28,7 +28,8 @@
         <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="#313f47" />
         <SolidColorBrush x:Key="DisabledBorderBrush" Color="#313f47" />
 
-
+        <controls:AxisValueToPercentageConverter x:Key="AxisValueToPercentageConverter"/>
+        
         <Style TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Left" />
         </Style>

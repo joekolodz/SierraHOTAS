@@ -89,6 +89,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\AxisValueToPercentageConverter.cs" />
     <Compile Include="Controls\ButtonMap.xaml.cs">
       <DependentUpon>ButtonMap.xaml</DependentUpon>
     </Compile>
