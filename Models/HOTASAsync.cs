@@ -255,7 +255,9 @@ namespace SierraHOTAS.Models
             var succeed = _dicTokenRepeatTokenSource.TryAdd(offset, repeatTokenSource);
             if (!succeed) return;
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             var t = new Task(delegate { PlayActionWithRepeat(buttonMap.ActionCatalogItem.Actions, repeatToken); });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             succeed = _activeButtons.TryAdd(offset, t);
             if (!succeed) return;
 

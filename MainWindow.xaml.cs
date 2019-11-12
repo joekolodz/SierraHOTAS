@@ -104,7 +104,7 @@ namespace SierraHOTAS
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         static extern IntPtr GetForegroundWindow();
 
-        private static bool IsActive(Window wnd)
+        private new static bool IsActive(Window wnd)
         {
             // workaround for minimization bug
             // Managed .IsActive may return wrong value

@@ -20,7 +20,9 @@ namespace SierraHOTAS.Models
         
         public bool IsDirectional { get; set; } = true;
         public bool IsMultiAction { get; set; } = false;
-        public Dictionary<int, int> Segments { get; }
+
+        public ObservableCollection<Segment> Segments { get; set; }
+        
         [JsonIgnore]
         public bool IsSegmentChanged { get; set; }
 
@@ -30,7 +32,7 @@ namespace SierraHOTAS.Models
 
         public HOTASAxisMap()
         {
-            Segments = new Dictionary<int, int>();
+            Segments = new ObservableCollection<Segment>();
             ButtonMap = new ObservableCollection<HOTASButtonMap>();
             ReverseButtonMap = new ObservableCollection<HOTASButtonMap>();
         }
@@ -62,7 +64,7 @@ namespace SierraHOTAS.Models
             IsSegmentChanged = false;
 
             if (Segments.Count <= 1) return;
-
+            
             var newSegment = GetSegmentFromRawValue(value);
 
             if (newSegment == _currentSegment) return;
@@ -168,10 +170,10 @@ namespace SierraHOTAS.Models
             var segmentRangeBoundary = ushort.MaxValue / (segments);
             for (var i = 1; i < segments; i++)
             {
-                Segments.Add(i, (segmentRangeBoundary * i));
+                Segments.Add(new Segment(i, (segmentRangeBoundary * i)));
             }
 
-            Segments.Add(segments, ushort.MaxValue);
+            Segments.Add(new Segment(segments, ushort.MaxValue));
         }
 
         public void Clear()
@@ -182,7 +184,13 @@ namespace SierraHOTAS.Models
         public int GetSegmentFromRawValue(int value)
         {
             var segmentRange = Segments.FirstOrDefault(r => value <= r.Value);
-            return segmentRange.Key;
+            if (segmentRange == null) return 0;
+            return segmentRange.Id;
+        }
+
+        public bool SegmentFilter(Segment item)
+        {
+            return item.Value != ushort.MaxValue;
         }
 
         public HOTASButtonMap GetButtonMapFromRawValue(int value)

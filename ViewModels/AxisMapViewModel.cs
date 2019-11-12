@@ -1,6 +1,7 @@
 ﻿using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -48,17 +49,23 @@ namespace SierraHOTAS.ViewModels
             set => _hotasAxisMap.Type = value;
         }
 
-        private int _segments;
-        public int Segments
+        private int _segmentCount;
+        public int SegmentCount
         {
             get => _hotasAxisMap.Segments.Count;
             set
             {
-                if (_segments == value) return;
-                _segments = value;
+                if (_segmentCount == value) return;
+                _segmentCount = value;
                 SegmentsCountChanged();
-                OnPropertyChanged(nameof(_segments));
+                OnPropertyChanged(nameof(SegmentCount));
             }
+        }
+
+        public ObservableCollection<Segment> Segments
+        {
+            get => _hotasAxisMap.Segments;
+            set => _hotasAxisMap.Segments = value;
         }
 
         public bool IsMultiAction
@@ -96,7 +103,7 @@ namespace SierraHOTAS.ViewModels
             ButtonMap = new ObservableCollection<ButtonMapViewModel>();
             ReverseButtonMap = new ObservableCollection<ButtonMapViewModel>();
             _hotasAxisMap = map;
-            _segments = _hotasAxisMap.Segments.Count;
+            _segmentCount = _hotasAxisMap.Segments.Count;
 
             _hotasAxisMap.OnAxisDirectionChanged += OnAxisDirectionChanged;
             _hotasAxisMap.OnAxisSegmentChanged += OnAxisSegmentChanged;
@@ -106,16 +113,21 @@ namespace SierraHOTAS.ViewModels
             RebuildButtonMapViewModels();
         }
 
+        public bool SegmentFilter(object item)
+        {
+            return _hotasAxisMap.SegmentFilter((Segment) item);
+        }
+
         private void SegmentsCountChanged()
         {
             ResetSegments();
 
-            _hotasAxisMap.CalculateSegmentRange(_segments);
+            _hotasAxisMap.CalculateSegmentRange(_segmentCount);
             RemoveAllHandlers();
             ButtonMap.Clear();
             ReverseButtonMap.Clear();
 
-            if (_segments == 1) return;
+            if (_segmentCount == 1) return;
 
             RebuildButtonMapViewModels();
         }

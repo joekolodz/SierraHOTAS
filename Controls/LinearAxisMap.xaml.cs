@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows;
 using SierraHOTAS.ViewModels;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -25,13 +26,17 @@ namespace SierraHOTAS.Controls
         {
             InitializeComponent();
 
-            txtSegments.TextChanged += OnSegmentsTextChanged;
             _segmentLines = new List<Line>();
             _directionalColor = (Color)ColorConverter.ConvertFromString("#80e5ff");
 
             DataContextChanged += AxisMap_DataContextChanged;
 
             CreateAxisBar();
+        }
+
+        private bool SegmentFilter(object segment)
+        {
+            return _axisVm.SegmentFilter(segment);
         }
 
         private void _axisVm_OnAxisValueChanged(object sender, int axisValue)
@@ -41,24 +46,48 @@ namespace SierraHOTAS.Controls
 
         private void AxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if(_axisVm!=null)_axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
+            if (_axisVm != null)
+            {
+                _axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
+                _axisVm.PropertyChanged -= _axisVm_PropertyChanged;
+
+            }
 
             _axisVm = DataContext as AxisMapViewModel;
             if (_axisVm == null) return;
 
+            lstSegments.ItemsSource = _axisVm.Segments;
+            var view = (CollectionView)CollectionViewSource.GetDefaultView(lstSegments.ItemsSource);
+            if (view != null)
+            {
+                view.Filter = SegmentFilter;
+            }
+
             _axisVm.OnAxisValueChanged += _axisVm_OnAxisValueChanged;
+            _axisVm.PropertyChanged += _axisVm_PropertyChanged;
+
+            OnSegmentsChanged();
         }
 
-        private void OnSegmentsTextChanged(object sender, TextChangedEventArgs e)
+        private void _axisVm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(_axisVm.SegmentCount))
+            {
+                OnSegmentsChanged();
+            }
+        }
+
+        private void OnSegmentsChanged()
         {
             RemoveAllSegmentLines();
 
-            var success = int.TryParse(txtSegments.Text, out var segments);
-            if (!success) return;
+            if (_axisVm.SegmentCount < 1) return;
 
-            if (segments < 1) return;
+            DrawSegmentBoundaries(_axisVm.SegmentCount);
+            //lstSegments.ItemsSource = _axisVm.Segments;
 
-            DrawSegmentBoundaries(segments);
+            //refreshes the filter so we don't see the last segment which is always pinned to 100%
+            CollectionViewSource.GetDefaultView(lstSegments.ItemsSource).Refresh();
         }
 
         private void RemoveAllSegmentLines()
@@ -72,12 +101,14 @@ namespace SierraHOTAS.Controls
 
         private void DrawSegmentBoundaries(int segments)
         {
-            var segmentWidth = (int)(_gaugeWidth / segments);
-
-            for (var s = 1; s < segments; s++)
+            const float ratio = 546.125f;//based on bar width of 120px ie 65535/120
+            foreach (var keyValue in _axisVm.Segments)
             {
+                if (keyValue.Value >= 65535) continue;
+                var point = keyValue.Value / ratio;
+
                 var line = new Line();
-                line.X1 = segmentWidth * s;
+                line.X1 = point;
                 line.Y1 = 0;
 
                 line.X2 = line.X1;

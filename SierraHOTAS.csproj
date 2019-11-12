@@ -125,6 +125,7 @@
     <Compile Include="Models\HOTASDevice.cs" />
     <Compile Include="Models\HOTASButtonMap.cs" />
     <Compile Include="Models\JoystickOffsetValues.cs" />
+    <Compile Include="Models\Segment.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ViewModels\ActionCatalogViewModel.cs" />
     <Compile Include="ViewModels\AxisChangedViewModelEventArgs.cs" />
