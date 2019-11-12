@@ -76,6 +76,8 @@ namespace SierraHOTAS.Models
 
         public void CalculateSegmentRange(int segments)
         {
+            RemoveSegmentBoundaryHandlers();
+
             Segments.Clear();
             if (segments == 0)
             {
@@ -98,6 +100,38 @@ namespace SierraHOTAS.Models
             else
             {
                 CreateSingleActionButtonMapList();
+            }
+
+            AddSegmentBoundaryHandlers();
+        }
+
+        private void AddSegmentBoundaryHandlers()
+        {
+            foreach(var item in Segments)
+            {
+                item.PropertyChanged += Segment_PropertyChanged;
+            }
+        }
+
+        private void Segment_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            //validate segments don't cross each other
+            var previous = Segments[0].Value;
+            for(var i = 1; i<Segments.Count; i++)
+            {
+                if(Segments[i].Value<previous)
+                {
+                    Segments[i].Value = previous + 1;
+                }
+                previous = Segments[i].Value
+            }
+        }
+
+        private void RemoveSegmentBoundaryHandlers()
+        {
+            foreach (var item in Segments)
+            {
+                item.PropertyChanged -= Segment_PropertyChanged;
             }
         }
 
@@ -176,7 +210,7 @@ namespace SierraHOTAS.Models
             Segments.Add(new Segment(segments, ushort.MaxValue));
         }
 
-        public void Clear()
+        public void ClearSegments()
         {
             Segments.Clear();
         }

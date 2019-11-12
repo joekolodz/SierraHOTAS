@@ -7,6 +7,6 @@
         int MapId { get; set; }
         void ClearUnassignedActions();
         void CalculateSegmentRange(int segments);
-        void Clear();
+        void ClearSegments();
     }
 }

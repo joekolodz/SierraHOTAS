@@ -50,23 +50,38 @@ namespace SierraHOTAS.Controls
             {
                 _axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
                 _axisVm.PropertyChanged -= _axisVm_PropertyChanged;
-
+                _axisVm.SegmentBoundaryChanged -= _axisVm_SegmentBoundaryChanged;
             }
 
             _axisVm = DataContext as AxisMapViewModel;
             if (_axisVm == null) return;
 
+            SetSegmentBoundaryFilter();
+
+            _axisVm.OnAxisValueChanged += _axisVm_OnAxisValueChanged;
+            _axisVm.PropertyChanged += _axisVm_PropertyChanged;
+            _axisVm.SegmentBoundaryChanged += _axisVm_SegmentBoundaryChanged;
+
+            OnSegmentsChanged();
+        }
+
+        private void _axisVm_SegmentBoundaryChanged(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(()=>
+            {
+                RemoveAllSegmentLines();
+                DrawSegmentBoundaries();
+            });
+        }
+
+        private void SetSegmentBoundaryFilter()
+        {
             lstSegments.ItemsSource = _axisVm.Segments;
             var view = (CollectionView)CollectionViewSource.GetDefaultView(lstSegments.ItemsSource);
             if (view != null)
             {
                 view.Filter = SegmentFilter;
             }
-
-            _axisVm.OnAxisValueChanged += _axisVm_OnAxisValueChanged;
-            _axisVm.PropertyChanged += _axisVm_PropertyChanged;
-
-            OnSegmentsChanged();
         }
 
         private void _axisVm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -83,8 +98,7 @@ namespace SierraHOTAS.Controls
 
             if (_axisVm.SegmentCount < 1) return;
 
-            DrawSegmentBoundaries(_axisVm.SegmentCount);
-            //lstSegments.ItemsSource = _axisVm.Segments;
+            DrawSegmentBoundaries();
 
             //refreshes the filter so we don't see the last segment which is always pinned to 100%
             CollectionViewSource.GetDefaultView(lstSegments.ItemsSource).Refresh();
@@ -99,7 +113,7 @@ namespace SierraHOTAS.Controls
             _segmentLines.Clear();
         }
 
-        private void DrawSegmentBoundaries(int segments)
+        private void DrawSegmentBoundaries()
         {
             const float ratio = 546.125f;//based on bar width of 120px ie 65535/120
             foreach (var keyValue in _axisVm.Segments)

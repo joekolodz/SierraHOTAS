@@ -22,6 +22,7 @@ namespace SierraHOTAS.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<int> OnAxisValueChanged;
         public event EventHandler RecordingStopped;
+        public event EventHandler SegmentBoundaryChanged;
 
         public bool IsDisabledForced { get; set; }
         public bool IsRecording { get; set; }
@@ -115,15 +116,16 @@ namespace SierraHOTAS.ViewModels
 
         public bool SegmentFilter(object item)
         {
-            return _hotasAxisMap.SegmentFilter((Segment) item);
+            return _hotasAxisMap.SegmentFilter((Segment)item);
         }
 
         private void SegmentsCountChanged()
         {
             ResetSegments();
-
             _hotasAxisMap.CalculateSegmentRange(_segmentCount);
-            RemoveAllHandlers();
+            AddSegmentHandlers();
+
+            RemoveButtonMapHandlers();
             ButtonMap.Clear();
             ReverseButtonMap.Clear();
 
@@ -137,21 +139,43 @@ namespace SierraHOTAS.ViewModels
             foreach (var map in _hotasAxisMap.ButtonMap)
             {
                 var vm = new ButtonMapViewModel(map);
-                AddHandlers(vm);
+                AddButtonMapHandlers(vm);
                 ButtonMap.Add(vm);
             }
 
             foreach (var map in _hotasAxisMap.ReverseButtonMap)
             {
                 var vm = new ButtonMapViewModel(map);
-                AddHandlers(vm);
+                AddButtonMapHandlers(vm);
                 ReverseButtonMap.Add(vm);
             }
         }
 
         public void ResetSegments()
         {
-            _hotasAxisMap.Clear();
+            RemoveSegmentHandlers();
+            _hotasAxisMap.ClearSegments();
+        }
+
+        private void AddSegmentHandlers()
+        {
+            foreach (var item in Segments)
+            {
+                item.PropertyChanged += Segment_PropertyChanged;
+            }
+        }
+
+        private void RemoveSegmentHandlers()
+        {
+            foreach (var item in Segments)
+            {
+                item.PropertyChanged -= Segment_PropertyChanged;
+            }
+        }
+
+        private void Segment_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            SegmentBoundaryChanged?.Invoke(this, new EventArgs());
         }
 
         public void SetAxis(int value)
@@ -175,14 +199,14 @@ namespace SierraHOTAS.ViewModels
             Logging.Log.Info($"Segment changed: {e.NewSegment}");
         }
 
-        private void AddHandlers(ButtonMapViewModel mapViewModel)
+        private void AddButtonMapHandlers(ButtonMapViewModel mapViewModel)
         {
             mapViewModel.RecordingStarted += MapViewModel_RecordingStarted;
             mapViewModel.RecordingStopped += MapViewModel_RecordingStopped;
             mapViewModel.RecordingCancelled += MapViewModel_RecordingCancelled;
         }
 
-        private void RemoveAllHandlers()
+        private void RemoveButtonMapHandlers()
         {
             foreach (var mapViewModel in ButtonMap)
             {

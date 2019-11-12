@@ -130,7 +130,7 @@ namespace SierraHOTAS.Models
             return;
         }
 
-        public void Clear()
+        public void ClearSegments()
         {
             return;
         }
