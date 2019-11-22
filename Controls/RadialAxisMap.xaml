@@ -10,10 +10,10 @@
             <Label Content="{Binding ButtonName}" Foreground="{StaticResource TextBrush}" FontSize="14"/>
             <Canvas Name="CanvasPlaceHolder" HorizontalAlignment="Left" Height="40" Width="40"/>
             <StackPanel Orientation="Horizontal">
-                <TextBox Name="txtSegments" Text="{Binding SegmentCount}" Height="18" Width="22" HorizontalAlignment="Left" Foreground="{StaticResource TextBrush}" Margin="0,8,0,6" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
-                <Label Content="Virtual Buttons" Foreground="{StaticResource TextBrush}" Margin="0,8"/>
+                <TextBox Name="txtSegments" Text="{Binding SegmentCount}" Height="18" Width="22" HorizontalAlignment="Left" Foreground="{StaticResource TextBrush}" Margin="0,8,0,2" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
+                <Label Content="Virtual Buttons" Foreground="{StaticResource TextBrush}" Margin="0,8,0,2"/>
             </StackPanel>
-            <ListView Name="lstSegments" ItemsSource="{Binding Segments}">
+            <ListView Name="lstSegments" ItemsSource="{Binding Segments}" Style="{StaticResource CustomListView}" Margin="0,0,0,12">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <WrapPanel>
@@ -27,30 +27,28 @@
                 </ListView.ItemTemplate>
             </ListView>
             <CheckBox Name="chkIsDirectional" Content="Directional" IsChecked="{Binding IsDirectional}" Height="15" Foreground="{StaticResource TextBrush}" Margin="0,2" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
-            <CheckBox Name="chkIsMultiAction" Content="Unique Buttons" IsChecked="{Binding IsMultiAction}" Height="15" Foreground="{StaticResource TextBrush}" Margin="0,8,0,0" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
+            <CheckBox Name="chkIsMultiAction" Content="Unique Buttons" IsChecked="{Binding IsMultiAction}" Height="15" Foreground="{StaticResource TextBrush}" Margin="0,8,0,14" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
         </StackPanel>
         <StackPanel Orientation="Vertical" MinWidth="120" MinHeight="190">
             <ListView Name="gridMapForward" 
                   ItemsSource="{Binding ButtonMap}" 
+                  Style="{StaticResource CustomListView}"
                   ItemContainerStyle="{StaticResource CustomButtonListViewItem}" 
                   AlternationCount="2" 
                   Margin="10,29,10,10" 
                   Width="Auto"
                   MaxHeight="320"
-                  BorderBrush="{StaticResource AxisForwardBrush}"
-                  Background="{StaticResource WindowBackgroundBrush}" 
-                  Foreground="{StaticResource TextBrush}"/>
+                  BorderBrush="{StaticResource AxisForwardBrush}"/>
 
             <ListView Name="gridMapReverse"
                   ItemsSource="{Binding ReverseButtonMap}" 
+                  Style="{StaticResource CustomListView}"
                   ItemContainerStyle="{StaticResource CustomButtonListViewItem}" 
                   AlternationCount="2" 
                   Margin="10,29,10,10" 
                   Width="Auto"
                   MaxHeight="320"
-                  BorderBrush="{StaticResource AxisReverseBrush}"
-                  Background="{StaticResource WindowBackgroundBrush}" 
-                  Foreground="{StaticResource TextBrush}"/>
+                  BorderBrush="{StaticResource AxisReverseBrush}"/>
 
         </StackPanel>
     </StackPanel>

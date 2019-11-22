@@ -17,6 +17,7 @@
         <SolidColorBrush x:Key="SelectedBrush" Color="#2f4c5a" />
         <SolidColorBrush x:Key="SelectedBorderBrush" Color="#26a0da" />
 
+        <SolidColorBrush x:Key="GroupBorderBrush" Color="#708090" />
         <SolidColorBrush x:Key="NormalBorderBrush" Color="Azure" />
         <SolidColorBrush x:Key="RowBrush" Color="Transparent" />
         <SolidColorBrush x:Key="RowAlternateBrush" Color="#393939" />
@@ -106,6 +107,12 @@
                                    LinearDataTemplate="{StaticResource LinearAxisMapTemplate}"
                                    ButtonDataTemplate="{StaticResource ButtonMapTemplate}"
                                    RadialDataTemplate="{StaticResource RadialAxisMapTemplate}"/>
+
+        <Style TargetType="{x:Type ListView}" x:Key="CustomListView">
+            <Setter Property="BorderBrush" Value="{StaticResource GroupBorderBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
+        </Style>
 
         <!-- ListView color control for rows, highlight, and selected -->
         <Style TargetType="{x:Type ListViewItem}" x:Key="CustomButtonListViewItem">
