@@ -93,8 +93,10 @@
     <Compile Include="Controls\ButtonMap.xaml.cs">
       <DependentUpon>ButtonMap.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\ActionJobItem.cs" />
     <Compile Include="Models\AxisDirectionChangedEventArgs.cs" />
     <Compile Include="Models\AxisSegmentChangedEventArgs.cs" />
+    <Compile Include="Models\HOTASQueue.cs" />
     <Compile Include="Models\JitterDetection.cs" />
     <Compile Include="Controls\KeypressActions.xaml.cs">
       <DependentUpon>KeypressActions.xaml</DependentUpon>
