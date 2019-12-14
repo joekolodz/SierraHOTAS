@@ -36,7 +36,6 @@ namespace SierraHOTAS.Models
             _buttonMap = buttonMap;
             _jitter = new JitterDetection();
 
-            _dicTokenRepeatTokenSource = new ConcurrentDictionary<int, CancellationTokenSource>();
             _actionJobs = new BlockingCollection<ActionJobItem>();
 
             _tokenSourceListenLoop = new CancellationTokenSource();
@@ -86,8 +85,8 @@ namespace SierraHOTAS.Models
             while (!_tokenListenLoop.IsCancellationRequested)
             {
                 if (Joystick == null) return;
-                Joystick.Poll();
                 Thread.Sleep(1);//give CPU back
+                Joystick.Poll();
                 var data = Joystick.GetBufferedData();
 
                 foreach (var state in data)
@@ -143,7 +142,7 @@ namespace SierraHOTAS.Models
 
             foreach (var job in _actionJobs.GetConsumingEnumerable(_tokenDequeueLoop))
             {
-                Logging.Log.Info("Job Started ==>");
+                Logging.Log.Info($"Job Started ({_actionJobs.Count} left) ==>");
 
                 if (keyUpList.Count > 0)
                 {
@@ -182,81 +181,6 @@ namespace SierraHOTAS.Models
         private bool IsButtonDown(int value)
         {
             return value == (int)JoystickOffsetValues.ButtonState.ButtonPressed;
-        }
-
-        private ConcurrentDictionary<int, CancellationTokenSource> _dicTokenRepeatTokenSource;
-
-        private async Task PlayActionWithRepeat(ObservableCollection<ButtonAction> actions, CancellationToken cancel)
-        {
-
-            var keyUpList = new ObservableCollection<ButtonAction>();
-
-            ButtonAction lastKeyDown = null;
-
-            foreach (var action in actions)
-            {
-                //buffer all of the key up actions and send them later
-                if ((action.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
-                {
-                    keyUpList.Add(action);
-                }
-                else
-                {
-                    Logging.Log.Debug($"==>Pressing[{action.ScanCode}]-[{action.Flags}]");
-                    Keyboard.SendKeyPress(action.ScanCode, action.Flags);
-                    lastKeyDown = action;
-                }
-            }
-
-            if (keyUpList.Count > 0)
-            {
-                cancel.Register(() =>
-                {
-                    var msg = "\nKeyDown cancelled list -> ";
-                    foreach (var keyUp in keyUpList)
-                    {
-                        msg += $"\n [{keyUp.ScanCode}]-[{keyUp.Flags}]";
-                        Keyboard.SendKeyPress(keyUp.ScanCode, keyUp.Flags);
-                        Thread.Sleep(5);
-                    }
-                    Logging.Log.Debug($"{msg} <- KeyDown cancelled - done -\n\n");
-                });
-            }
-
-            if (cancel.IsCancellationRequested)
-            {
-                Logging.Log.Debug("*Cancel requested. returning*");
-                return;
-            }
-
-
-            var delay = Keyboard.KeyDownInitialDelay;
-            while (!cancel.IsCancellationRequested && delay > 0)
-            {
-                await Task.Delay(5);
-                delay -= 5;
-            }
-
-            while (!cancel.IsCancellationRequested)
-            {
-                if (lastKeyDown != null)
-                {
-                    Keyboard.SendKeyPress(lastKeyDown.ScanCode, lastKeyDown.Flags);
-                    Logging.Log.Debug($"~~~Repeating: {lastKeyDown.ScanCode} - {lastKeyDown.Flags}");
-                }
-                delay = Keyboard.KeyDownRepeatDelay;
-                while (!cancel.IsCancellationRequested && delay > 0)
-                {
-                    await Task.Delay(5);
-                    delay -= 5;
-                }
-            }
-
-            if (cancel.IsCancellationRequested)
-            {
-                Logging.Log.Debug($"Cancel requested. end of method. {lastKeyDown.ScanCode} - {lastKeyDown.Flags}");
-            }
-
         }
 
         private static readonly ConcurrentDictionary<JoystickOffset, int> _lastPovButton = new ConcurrentDictionary<JoystickOffset, int>();
@@ -314,17 +238,7 @@ namespace SierraHOTAS.Models
                 return;
             }
 
-            //var repeatTokenSource = new CancellationTokenSource();
-            //var repeatToken = repeatTokenSource.Token;
-            //var succeed = _dicTokenRepeatTokenSource.TryAdd(offset, repeatTokenSource);
-            //if (!succeed) return;
-
             _actionJobs.Add(new ActionJobItem() { Offset = offset, Actions = buttonMap.ActionCatalogItem.Actions }, _tokenDequeueLoop);
-
-            //var t = new Task(delegate { PlayActionWithRepeat(buttonMap.ActionCatalogItem.Actions, repeatToken); });
-            //succeed = _activeButtons.TryAdd(offset, t);
-            //if (!succeed) return;
-            //t.Start();
         }
 
         private async Task PlayMacroOnce(int offset, ObservableCollection<ButtonAction> actions)
@@ -334,7 +248,7 @@ namespace SierraHOTAS.Models
                 Keyboard.SendKeyPress(action.ScanCode, action.Flags);
                 if (action.TimeInMilliseconds > 0)
                 {
-                    //yes this is precise only to the nearest 60 milliseconds. repeated keys are on a 60 millisecond boundary, so the UI could be locked to 60ms increments only
+                    //yes this is precise only to the nearest KeyDownRepeatDelay milliseconds. repeated keys are on a 60 millisecond boundary, so the UI could be locked to 60ms increments only
                     var timeLeft = action.TimeInMilliseconds;
                     while (timeLeft > 0)
                     {
@@ -350,23 +264,6 @@ namespace SierraHOTAS.Models
         private void HandleButtonReleased(int offset)
         {
             _actionJobs.Add(new ActionJobItem(){Offset = offset, Actions = null}, _tokenDequeueLoop);
-
-            //if (!_dicTokenRepeatTokenSource.ContainsKey(offset)) return;
-
-            //var success = _dicTokenRepeatTokenSource.TryRemove(offset, out var token);
-            //if (!success) throw new ArgumentException("crap");
-            //token.Cancel();
-
-            //success = _activeButtons.TryRemove(offset, out var t);
-            //if (!success) return;
-
-            //while (!t.IsCompleted)
-            //{
-            //    Thread.Sleep(1);
-            //}
-
-            //token.Dispose();
-            //t.Dispose();
         }
 
         private void HandleAxis(JoystickUpdate state)

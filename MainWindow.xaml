@@ -6,7 +6,8 @@
         xmlns:viewModel="clr-namespace:SierraHOTAS.ViewModels"
         x:Class="SierraHOTAS.MainWindow"
         mc:Ignorable="d"
-        Title="Sierra HOTAS" Height="900" Width="1200">
+        Title="Sierra HOTAS" Height="900" Width="1200"
+        KeyDown="Window_KeyDown">
 
     <Window.DataContext>
         <viewModel:HOTASCollectionViewModel/>

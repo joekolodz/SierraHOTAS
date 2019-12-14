@@ -23,7 +23,7 @@ namespace SierraHOTAS
 
         public MainWindow()
         {
-            //IsDebug = true;
+            IsDebug = true;
 
             InitializeComponent();
 
@@ -163,6 +163,17 @@ namespace SierraHOTAS
             if (HotasCollectionViewModel.SelectionChangedCommand.CanExecute(null))
             {
                 HotasCollectionViewModel.SelectionChangedCommand.Execute(device);
+            }
+        }
+
+        private void Window_KeyDown_1(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            MessageBox.Show(e.Key.ToString() + " Pressed!");
+
+            if (e.Key == Key.Delete)
+            {
+                MessageBox.Show("delete pressed");
+                //Do something
             }
         }
     }
