@@ -4,6 +4,7 @@ using SierraHOTAS.Win32;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
 
 //https://www.pinvoke.net/default.aspx/user32/SendInput.html
@@ -23,7 +24,7 @@ namespace SierraHOTAS
 
         public MainWindow()
         {
-            IsDebug = true;
+            //IsDebug = true;
 
             InitializeComponent();
 
@@ -166,14 +167,11 @@ namespace SierraHOTAS
             }
         }
 
-        private void Window_KeyDown_1(object sender, System.Windows.Input.KeyEventArgs e)
+        private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            MessageBox.Show(e.Key.ToString() + " Pressed!");
-
+            if (!IsDebug) return;
             if (e.Key == Key.Delete)
             {
-                MessageBox.Show("delete pressed");
-                //Do something
             }
         }
     }

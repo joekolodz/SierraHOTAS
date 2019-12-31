@@ -149,7 +149,7 @@ namespace SierraHOTAS.Controls
             double w = width;
             w /= ratio;
             var final = Math.Round(w);
-
+            if (final < 0) return;
             _rectLinearGauge.Width = final;
 
             SetDirectionalColor();
