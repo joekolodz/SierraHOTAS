@@ -53,7 +53,7 @@ namespace SierraHOTAS.Models
 
             var i = new DirectInput();
             Joystick = new Joystick(i, InstanceId);
-            Joystick.Properties.BufferSize = 128;
+            Joystick.Properties.BufferSize = 4096;
             Joystick.Acquire();
 
             LoadCapabilitiesMapping();

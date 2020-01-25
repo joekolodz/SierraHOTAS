@@ -211,7 +211,7 @@ namespace SierraHOTAS.ViewModels
         public void lstDevices_OnSelectionChanged(object device)
         {
             SelectedDevice = device as DeviceViewModel;
-            if (SelectedDevice != null) Debug.WriteLine($"Device Selected:{SelectedDevice.Name}");
+            //if (SelectedDevice != null) Debug.WriteLine($"Device Selected:{SelectedDevice.Name}");
         }
 
         private void AddHandlers()

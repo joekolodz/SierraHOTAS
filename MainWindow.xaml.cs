@@ -143,9 +143,9 @@ namespace SierraHOTAS
 
                 Dispatcher?.Invoke(() =>
                 {
-                    gridMap.SelectedItem = map;
                     if (HotasCollectionViewModel.SnapToButton.GetValueOrDefault())
                     {
+                        gridMap.SelectedItem = map;
                         gridMap.ScrollIntoView(map);
                     }
                 });

@@ -196,7 +196,6 @@ namespace SierraHOTAS.ViewModels
                 _mediaPlayer.Play();
                 _mediaPlayer.Position = TimeSpan.Zero;
             });
-            Logging.Log.Info($"Segment changed: {e.NewSegment}");
         }
 
         private void AddButtonMapHandlers(ButtonMapViewModel mapViewModel)
