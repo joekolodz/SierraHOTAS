@@ -47,6 +47,11 @@ namespace SierraHOTAS.Models
             _deviceDequeueLoopTask = Task.Factory.StartNew(DequeueLoop, _tokenDequeueLoop, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
+        public void ForceButtonPress(JoystickOffset offset, bool isDown)
+        {
+            HandleStandardButton((int)offset, isDown ? 128 : 0);
+        }
+
         public void Stop()
         {
             if (MainWindow.IsDebug) return;
@@ -146,7 +151,7 @@ namespace SierraHOTAS.Models
 
                 if (keyUpList.Count > 0)
                 {
-                    foreach (var keyUp in keyUpList.Where(i=>i.Item1 == job.Offset).ToList())
+                    foreach (var keyUp in keyUpList.Where(i => i.Item1 == job.Offset).ToList())
                     {
                         Logging.Log.Info($"Key Up [scan:{keyUp.Item2.ScanCode}]-[flag:{keyUp.Item2.Flags}]");
                         Keyboard.SendKeyPress(keyUp.Item2.ScanCode, keyUp.Item2.Flags);
@@ -263,7 +268,7 @@ namespace SierraHOTAS.Models
 
         private void HandleButtonReleased(int offset)
         {
-            _actionJobs.Add(new ActionJobItem(){Offset = offset, Actions = null}, _tokenDequeueLoop);
+            _actionJobs.Add(new ActionJobItem() { Offset = offset, Actions = null }, _tokenDequeueLoop);
         }
 
         private void HandleAxis(JoystickUpdate state)

@@ -24,7 +24,7 @@ namespace SierraHOTAS
 
         public MainWindow()
         {
-            //IsDebug = true;
+            IsDebug = true;
 
             InitializeComponent();
 
@@ -170,8 +170,13 @@ namespace SierraHOTAS
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (!IsDebug) return;
-            if (e.Key == Key.Delete)
+            if (e.Key == Key.LeftShift)
             {
+                _currentlySelectedDeviceVm.ForceButtonPress(SharpDX.DirectInput.JoystickOffset.Buttons0, true);
+            }
+            if (e.Key == Key.LeftCtrl)
+            {
+                _currentlySelectedDeviceVm.ForceButtonPress(SharpDX.DirectInput.JoystickOffset.Buttons0, false);
             }
         }
     }

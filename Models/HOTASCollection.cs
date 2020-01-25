@@ -72,6 +72,11 @@ namespace SierraHOTAS.Models
             }
         }
 
+        public void ForceButtonPress(HOTASDevice device, JoystickOffset offset, bool isDown)
+        {
+            device.ForceButtonPress(offset, isDown);
+        }
+
         private void Device_AxisChanged(object sender, AxisChangedEventArgs e)
         {
             _selectedDevice = e.Device;

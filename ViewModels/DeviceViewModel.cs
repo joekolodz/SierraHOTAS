@@ -1,4 +1,5 @@
-﻿using SierraHOTAS.Annotations;
+﻿using SharpDX.DirectInput;
+using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -71,6 +72,11 @@ namespace SierraHOTAS.ViewModels
                         break;
                 }
             }
+        }
+
+        public void ForceButtonPress(JoystickOffset offset, bool isDown)
+        {
+            _hotasDevice.ForceButtonPress(offset, isDown);
         }
 
         private void AddButtonMapHandlers(ButtonMapViewModel mapViewModel)

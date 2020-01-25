@@ -69,6 +69,12 @@ namespace SierraHOTAS.Models
             Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
         }
 
+        public void ForceButtonPress(JoystickOffset offset, bool isDown)
+        {
+            OnButtonPress(null, new ButtonPressedEventArgs() { ButtonId = 0, Device = this });
+            //_hotasQueue.ForceButtonPress(offset, isDown);
+        }
+
         private void LoadCapabilitiesMapping()
         {
             Debug.WriteLine($"\nLoading device capabilities for ...{Name}");
