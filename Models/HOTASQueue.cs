@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace SierraHOTAS.Models
 {
@@ -142,13 +143,10 @@ namespace SierraHOTAS.Models
 
             foreach (var job in _actionJobs.GetConsumingEnumerable(_tokenDequeueLoop))
             {
-                Logging.Log.Info($"Job Started ({_actionJobs.Count} left) ==>");
-
                 if (keyUpList.Count > 0)
                 {
-                    foreach (var keyUp in keyUpList.Where(i=>i.Item1 == job.Offset).ToList())
+                    foreach (var keyUp in keyUpList.Where(i => i.Item1 == job.Offset).ToList())
                     {
-                        Logging.Log.Info($"Key Up [scan:{keyUp.Item2.ScanCode}]-[flag:{keyUp.Item2.Flags}]");
                         Keyboard.SendKeyPress(keyUp.Item2.ScanCode, keyUp.Item2.Flags);
                         keyUpList.Remove(keyUp);
                     }
@@ -156,7 +154,6 @@ namespace SierraHOTAS.Models
 
                 if (job.Actions == null)
                 {
-                    Logging.Log.Info("just a key up nothing left to do");
                     continue;
                 }
 
@@ -164,12 +161,10 @@ namespace SierraHOTAS.Models
                 {
                     if ((action.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
                     {
-                        Logging.Log.Info($"KeyUp (storing) [offset:{job.Offset}]-[scan:{action.ScanCode}]-[flag:{action.Flags}]");
                         keyUpList.Add(new Tuple<int, ButtonAction>(job.Offset, action));
                     }
                     else
                     {
-                        Logging.Log.Info($"Pressing[offset:{job.Offset}]-[scan:{action.ScanCode}]-[flag:{action.Flags}]");
                         Keyboard.SendKeyPress(action.ScanCode, action.Flags);
                     }
                 }
@@ -263,7 +258,7 @@ namespace SierraHOTAS.Models
 
         private void HandleButtonReleased(int offset)
         {
-            _actionJobs.Add(new ActionJobItem(){Offset = offset, Actions = null}, _tokenDequeueLoop);
+            _actionJobs.Add(new ActionJobItem() { Offset = offset, Actions = null }, _tokenDequeueLoop);
         }
 
         private void HandleAxis(JoystickUpdate state)
