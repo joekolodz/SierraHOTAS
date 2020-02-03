@@ -9,6 +9,8 @@ namespace SierraHOTAS.Models
     [JsonObject(MemberSerialization.OptIn)]
     public class HOTASCollection
     {
+        public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
+        public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
 
@@ -50,6 +52,9 @@ namespace SierraHOTAS.Models
             foreach (var device in Devices)
             {
                 device.ButtonPressed -= Device_ButtonPressed;
+                device.AxisChanged -= Device_AxisChanged;
+                device.KeystrokeDownSent -= Device_KeystrokeDownSent;
+                device.KeystrokeUpSent -= Device_KeystrokeUpSent;
                 device.Stop();
             }
         }
@@ -59,6 +64,7 @@ namespace SierraHOTAS.Models
         /// </summary>
         private void LoadAllDevices()
         {
+            if (MainWindow.IsDebug) return;
             Devices = QueryOperatingSystemForDevices();
         }
 
@@ -68,8 +74,20 @@ namespace SierraHOTAS.Models
             {
                 device.ButtonPressed += Device_ButtonPressed;
                 device.AxisChanged += Device_AxisChanged;
+                device.KeystrokeDownSent += Device_KeystrokeDownSent;
+                device.KeystrokeUpSent += Device_KeystrokeUpSent;
                 device.ListenAsync();
             }
+        }
+
+        private void Device_KeystrokeDownSent(object sender, KeystrokeSentEventArgs e)
+        {
+            KeystrokeDownSent?.Invoke(sender, e);
+        }
+
+        private void Device_KeystrokeUpSent(object sender, KeystrokeSentEventArgs e)
+        {
+            KeystrokeUpSent?.Invoke(sender, e);
         }
 
         public void ForceButtonPress(HOTASDevice device, JoystickOffset offset, bool isDown)

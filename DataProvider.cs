@@ -37,7 +37,7 @@ namespace SierraHOTAS
                     {
                         new HOTASAxisMap(){MapName = "Axis 1", Type = HOTASButtonMap.ButtonType.AxisLinear, MapId = 42, IsDirectional =true },
                         new HOTASAxisMap(){MapName = "Axis 2", Type = HOTASButtonMap.ButtonType.AxisRadial, MapId = 43, IsDirectional =false },
-                        new HOTASButtonMap(){MapName = "Button 0", Type = HOTASButtonMap.ButtonType.POV},
+                        new HOTASButtonMap(){MapName = "Button 0", Type = HOTASButtonMap.ButtonType.Button, MapId = 48},
                         new HOTASButtonMap()
                         {
                             MapName = "Button 1", Type = HOTASButtonMap.ButtonType.Button, MapId = 55,

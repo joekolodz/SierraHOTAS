@@ -14,7 +14,27 @@
     </Window.DataContext>
 
     <Window.Resources>
-
+        <Style  x:Key="RoundLabelStyle" TargetType="Label">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Label}">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                Background="{TemplateBinding Background}" 
+                                Padding="{TemplateBinding Padding}" 
+                                SnapsToDevicePixels="true" 
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <DockPanel Width="Auto" Height="Auto" LastChildFill="True" Background="{StaticResource WindowBackgroundBrush}">
@@ -42,22 +62,48 @@
             <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
             <TextBox x:Name="txtTestBox" Height="100" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}" FontSize="14"></TextBox>
             <TextBlock Text="Activity" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
-            <ListBox x:Name="lstActivity" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" Height="350" FontSize="13" Background="Transparent" Foreground="{StaticResource TextBrush}" BorderBrush="SlateGray"/>
 
-            <!--<ListView Name="lstActionCatalog" ItemsSource="{Binding ActionCatalog.Catalog}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <WrapPanel>
-                            <TextBlock Text="{Binding ActionName}" />
-                            <TextBlock Text=" - " />
-                            <TextBlock Text="{Binding Actions.Count}" />
-                            <TextBlock Text=" - " />
-                            <TextBlock Text="{Binding NoAction}" />
-                        </WrapPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>-->
-            
+            <ListBox Height="400" ItemContainerStyle="{StaticResource ListBoxItemStyleNoHighlighting}" ScrollViewer.VerticalScrollBarVisibility="Visible" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}">
+                <ItemsControl ItemsSource="{Binding Activity}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+
+                            <Grid>
+                                <!-- This grid allows the scrollbar on the ListBox to appear. otherwise, the stackpanel will expand to fit all children (so no scrollbar) and they will all clip off the edge-->
+                                <StackPanel Orientation="Horizontal">
+                                    <Grid>
+                                        <Label Style="{StaticResource RoundLabelStyle}" Width="48" Height="34" Margin="0,4,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" BorderBrush="{StaticResource HoverBorderBrush}" BorderThickness="2" Foreground="{StaticResource TextBrush}"/>
+                                        <Label Content="{Binding Key}" Width="Auto" FontSize="10"  HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" Foreground="{StaticResource TextBrush}"/>
+
+                                        <Image Height="20" Width="20" VerticalAlignment="Center" Margin="0,16,0,0">
+                                            <Image.Style>
+                                                <Style TargetType="{x:Type Image}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsKeyUp}" Value="False">
+                                                            <Setter Property="Source" Value="../Images/down_azure_32x32.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsKeyUp}" Value="True">
+                                                            <Setter Property="Source" Value="../Images/up_azure_32x32.png"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </Grid>
+                                    <Label Content="{Binding ButtonName}" Width="Auto" FontSize="10"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="{StaticResource TextBrush}"/>
+                                    <Label Content="{Binding ActionName}" Width="Auto" FontSize="10"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="{StaticResource TextBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ListBox>
+
         </StackPanel>
 
         <ListView Name="gridMap" 

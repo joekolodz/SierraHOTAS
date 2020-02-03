@@ -2,6 +2,7 @@
 using SierraHOTAS.ViewModels;
 using SierraHOTAS.Win32;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -31,6 +32,7 @@ namespace SierraHOTAS
             Logging.Log.Info("Startup");
 
             HotasCollectionViewModel = new HOTASCollectionViewModel();
+            HotasCollectionViewModel.AppDispatcher = Dispatcher;
             HotasCollectionViewModel.ButtonPressed += CollectionViewModelButtonPressed;
             HotasCollectionViewModel.AxisChanged += CollectionViewModelAxisChanged;
             HotasCollectionViewModel.FileOpened += HotasCollectionViewModel_FileOpened;
@@ -137,20 +139,17 @@ namespace SierraHOTAS
                 lstDevices.SelectedItem = e.Device;
             });
 
-            foreach (var map in e.Device.ButtonMap)
-            {
-                if (map.ButtonId != e.ButtonId) continue;
+            var map = e.Device.ButtonMap.FirstOrDefault(m => m.ButtonId == e.ButtonId);
+            if (map == null) return;
 
-                Dispatcher?.Invoke(() =>
+            Dispatcher?.Invoke(() =>
+            {
+                if (HotasCollectionViewModel.SnapToButton.GetValueOrDefault())
                 {
-                    if (HotasCollectionViewModel.SnapToButton.GetValueOrDefault())
-                    {
-                        gridMap.SelectedItem = map;
-                        gridMap.ScrollIntoView(map);
-                    }
-                });
-                break;
-            }
+                    gridMap.SelectedItem = map;
+                    gridMap.ScrollIntoView(map);
+                }
+            });
         }
 
         private void LstDevices_OnSelectionChanged(object sender, SelectionChangedEventArgs e)

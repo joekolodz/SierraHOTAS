@@ -35,6 +35,13 @@ namespace SierraHOTAS.ViewModels
             RebuildMap();
         }
 
+        public ActionCatalogItem GetActionCatalogItem(int buttonId)
+        {
+            var baseMap =_hotasDevice.ButtonMap.FirstOrDefault(m => m.MapId == buttonId);
+            var buttonMap = baseMap as HOTASButtonMap;
+            return buttonMap.ActionCatalogItem;
+        }
+
         public void RebuildMap()
         {
             RebuildMap(_hotasDevice.ButtonMap);

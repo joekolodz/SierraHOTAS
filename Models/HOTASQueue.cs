@@ -13,7 +13,10 @@ namespace SierraHOTAS.Models
 {
     public class HOTASQueue
     {
+        public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
+        public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
+        public event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
 
         private Task _deviceListenLoopTask;
@@ -103,7 +106,6 @@ namespace SierraHOTAS.Models
                         Logging.Log.Debug($"{offset} - {state.Value}");
                         Logging.Log.Debug($"Offset:{offset}, Raw Offset:{state.RawOffset}, Seq:{state.Sequence}, Val:{state.Value}");
                         HandleStandardButton((int)offset, state.Value);
-                        OnButtonPress((int)offset);
                         continue;
                     }
 
@@ -119,7 +121,6 @@ namespace SierraHOTAS.Models
                         Logging.Log.Debug($"Offset:{state.Offset}, translated:{translatedOffset}, RawOffset:{state.RawOffset}, Seq:{state.Sequence}, Val:{state.Value}");
 
                         HandlePovButton(state.Offset, state.Value);
-                        OnButtonPress((int)translatedOffset);
                         continue;
                     }
 
@@ -154,6 +155,8 @@ namespace SierraHOTAS.Models
                     {
                         Keyboard.SendKeyPress(keyUp.Item2.ScanCode, keyUp.Item2.Flags);
                         keyUpList.Remove(keyUp);
+                        
+                        KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(keyUp.Item1, keyUp.Item2.ScanCode, keyUp.Item2.Flags));
                     }
                 }
 
@@ -171,6 +174,7 @@ namespace SierraHOTAS.Models
                     else
                     {
                         Keyboard.SendKeyPress(action.ScanCode, action.Flags);
+                        KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(job.Offset, action.ScanCode, action.Flags));
                     }
                 }
             }
@@ -192,6 +196,7 @@ namespace SierraHOTAS.Models
                 var success = _lastPovButton.TryRemove(offset, out var translatedOffset);
                 if (!success) return;
                 HandleButtonReleased(translatedOffset);
+                OnButtonRelease(translatedOffset);
             }
             else
             {
@@ -200,6 +205,7 @@ namespace SierraHOTAS.Models
                 Logging.Log.Debug($"Pressing POV button: {offset} - {value}");
                 if (!(GetMap(translatedOffset) is HOTASButtonMap map)) return;
                 HandleButtonPressed(map, translatedOffset);
+                OnButtonPress(translatedOffset);
             }
         }
 
@@ -213,11 +219,13 @@ namespace SierraHOTAS.Models
                 {
                     //if action list has a timer in it, then it is a macro and executes on another thread independently. does not interrupt other buttons
                     HandleButtonPressed(map, offset);
+                    OnButtonPress((int)offset);
                 }
             }
             else
             {
                 HandleButtonReleased(offset);
+                OnButtonRelease((int)offset);
             }
         }
 
@@ -294,6 +302,11 @@ namespace SierraHOTAS.Models
         private void OnButtonPress(int buttonId)
         {
             ButtonPressed?.Invoke(this, new ButtonPressedEventArgs() { ButtonId = buttonId, Device = null });
+        }
+
+        private void OnButtonRelease(int buttonId)
+        {
+            ButtonReleased?.Invoke(this, new ButtonPressedEventArgs() { ButtonId = buttonId, Device = null });
         }
     }
 

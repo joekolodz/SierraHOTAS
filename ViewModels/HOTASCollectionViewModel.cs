@@ -8,14 +8,18 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Application = System.Windows.Application;
 
 namespace SierraHOTAS.ViewModels
 {
     public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {
+        public Dispatcher AppDispatcher { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ActionCatalogViewModel ActionCatalog { get; set; }
+
+        public ObservableCollection<ActivityItem> Activity { get; set; }
 
         private bool? _snapToButton = true;
         public bool? SnapToButton
@@ -66,6 +70,7 @@ namespace SierraHOTAS.ViewModels
         {
             _deviceList = new HOTASCollection();
             ActionCatalog = new ActionCatalogViewModel();
+            Activity = new ObservableCollection<ActivityItem>();
         }
 
         public void Initialize()
@@ -76,13 +81,49 @@ namespace SierraHOTAS.ViewModels
             }
             else
             {
-                _deviceList.ButtonPressed += DeviceList_ButtonPressed;
                 _deviceList.AxisChanged += DeviceList_AxisChanged;
-                _deviceList.Start();
             }
+
+            _deviceList.ButtonPressed += DeviceList_ButtonPressed;
+            _deviceList.KeystrokeDownSent += DeviceList_KeystrokeDownSent;
+            _deviceList.KeystrokeUpSent += DeviceList_KeystrokeUpSent;
+            _deviceList.Start();
 
             BuildDevicesViewModel();
             AddHandlers();
+        }
+
+        private void DeviceList_KeystrokeUpSent(object sender, KeystrokeSentEventArgs e)
+        {
+            AddActivity(sender as HOTASQueue, e);
+        }
+
+        private void DeviceList_KeystrokeDownSent(object sender, KeystrokeSentEventArgs e)
+        {
+            AddActivity(sender as HOTASQueue, e);
+        }
+
+        private void AddActivity(HOTASQueue queue, KeystrokeSentEventArgs e)
+        {
+            var map = queue.GetMap(e.Offset);
+            string actionName;
+
+            if (map.Type == HOTASButtonMap.ButtonType.Button || map.Type == HOTASButtonMap.ButtonType.POV)
+            {
+                actionName = (map as HOTASButtonMap).ActionName;
+            }
+            else
+            {
+                //check direction to properly get ButtonMap or ReverseButtonMap
+                 actionName = (map as HOTASAxisMap).ButtonMap.FirstOrDefault(m => m.MapId == e.Offset).ActionName;
+            }
+
+            var activity = new ActivityItem() { Offset = e.Offset, ButtonName = map.MapName, ScanCode = e.Code, Flags = e.Flags, ActionName = actionName };
+
+            AppDispatcher?.Invoke(() =>
+            {
+                Activity.Add(activity);
+            });
         }
 
         public void Dispose()
