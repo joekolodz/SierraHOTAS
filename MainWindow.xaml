@@ -95,6 +95,7 @@
                                             </Image.Style>
                                         </Image>
                                     </Grid>
+                                    <Label Content="{Binding Time}" ContentStringFormat="mm:ss:ff" Width="50" FontSize="10"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="{StaticResource TextBrush}"/>
                                     <Label Content="{Binding ButtonName}" Width="Auto" FontSize="10"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="{StaticResource TextBrush}"/>
                                     <Label Content="{Binding ActionName}" Width="Auto" FontSize="10"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="{StaticResource TextBrush}"/>
                                 </StackPanel>

@@ -133,6 +133,8 @@ namespace SierraHOTAS.Models
                     {
                         if (_jitter.IsJitter(state.Value)) continue;
 
+                        Debug.WriteLine($"{Joystick.Properties.ProductName} - Offset:{offset} - Value:{state.Value}");
+
                         HandleAxis(state);
                         OnAxisChanged(state);
                         continue;
@@ -219,8 +221,8 @@ namespace SierraHOTAS.Models
                 {
                     //if action list has a timer in it, then it is a macro and executes on another thread independently. does not interrupt other buttons
                     HandleButtonPressed(map, offset);
-                    OnButtonPress((int)offset);
                 }
+                OnButtonPress((int)offset);
             }
             else
             {
@@ -254,6 +256,16 @@ namespace SierraHOTAS.Models
             foreach (var action in actions)
             {
                 Keyboard.SendKeyPress(action.ScanCode, action.Flags);
+
+                if ((action.Flags & (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
+                {
+                    KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(offset, action.ScanCode, action.Flags));
+                }
+                else
+                {
+                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset, action.ScanCode, action.Flags));
+                }
+
                 if (action.TimeInMilliseconds > 0)
                 {
                     //yes this is precise only to the nearest KeyDownRepeatDelay milliseconds. repeated keys are on a 60 millisecond boundary, so the UI could be locked to 60ms increments only
@@ -261,7 +273,6 @@ namespace SierraHOTAS.Models
                     while (timeLeft > 0)
                     {
                         await Task.Delay(Keyboard.KeyDownRepeatDelay);
-                        Keyboard.SendKeyPress(action.ScanCode, action.Flags);
                         timeLeft -= Keyboard.KeyDownRepeatDelay;
                     }
                 }

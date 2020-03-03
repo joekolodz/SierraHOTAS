@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SierraHOTAS.Models
 {
@@ -13,6 +9,8 @@ namespace SierraHOTAS.Models
         public string ActionName { get; set; }
         public int ScanCode { get; set; }
         public int Flags { get; set; }
+        public bool IsMacro { get; set; }
+        public DateTime Time { get; set; }
         public string Key => GetScanCodeDisplay();
         public bool IsKeyUp => (Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP;
 

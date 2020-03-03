@@ -25,7 +25,7 @@ namespace SierraHOTAS
 
         public MainWindow()
         {
-            IsDebug = true;
+            //IsDebug = true;
 
             InitializeComponent();
 
@@ -62,7 +62,8 @@ namespace SierraHOTAS
                         }
                         else
                         {
-                            Dispatcher?.Invoke(() => e.Device.SetAxis(e.AxisId, e.Value));
+                            //Dispatcher?.Invoke(() => e.Device.SetAxis(e.AxisId, e.Value));
+                            Dispatcher?.Invoke(() => e.Device.SetAxis(map.ButtonId, e.Value));
                         }
                     });
                     break;

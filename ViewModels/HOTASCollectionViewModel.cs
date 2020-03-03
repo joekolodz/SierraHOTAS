@@ -118,11 +118,11 @@ namespace SierraHOTAS.ViewModels
                  actionName = (map as HOTASAxisMap).ButtonMap.FirstOrDefault(m => m.MapId == e.Offset).ActionName;
             }
 
-            var activity = new ActivityItem() { Offset = e.Offset, ButtonName = map.MapName, ScanCode = e.Code, Flags = e.Flags, ActionName = actionName };
+            var activity = new ActivityItem() { Offset = e.Offset, ButtonName = map.MapName, ScanCode = e.Code, Flags = e.Flags, ActionName = actionName, Time = DateTime.Now};
 
             AppDispatcher?.Invoke(() =>
             {
-                Activity.Add(activity);
+                Activity.Insert(0,activity);
             });
         }
 
@@ -252,7 +252,6 @@ namespace SierraHOTAS.ViewModels
         public void lstDevices_OnSelectionChanged(object device)
         {
             SelectedDevice = device as DeviceViewModel;
-            //if (SelectedDevice != null) Debug.WriteLine($"Device Selected:{SelectedDevice.Name}");
         }
 
         private void AddHandlers()

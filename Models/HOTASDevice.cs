@@ -91,7 +91,7 @@ namespace SierraHOTAS.Models
 
             Debug.WriteLine("\nBuilding button maps...");
 
-            if (Capabilities.AxeCount > 0) SeedAxisMap(JoystickOffset.X, Capabilities.AxeCount);
+            if (Capabilities.AxeCount > 0) SeedAxisMap(JoystickOffset.X, 6);
             if (Capabilities.ButtonCount > 0) SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button);
             if (Capabilities.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV);
         }
