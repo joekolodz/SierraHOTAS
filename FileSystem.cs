@@ -77,5 +77,19 @@ namespace SierraHOTAS
                 return (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
             }
         }
+
+        public static string GetSoundFileName()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                DefaultExt = ".mp3",
+                Filter = "Audio Clip (.mp3)|*.mp3"
+            };
+
+            var result = dlg.ShowDialog();
+            if (result != true) return null;
+
+            return dlg.FileName;
+        }
     }
 }

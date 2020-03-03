@@ -1,10 +1,12 @@
 ﻿using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
+using SierraHOTAS.ViewModels.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace SierraHOTAS.ViewModels
@@ -43,6 +45,11 @@ namespace SierraHOTAS.ViewModels
                 OnPropertyChanged(nameof(ButtonName));
             }
         }
+
+        private ICommand _fileOpenCommand;
+        public ICommand OpenFileCommand => _fileOpenCommand ?? (_fileOpenCommand = new CommandHandler(LoadNewSound, () => CanExecute));
+
+        public bool CanExecute => true;
 
         public HOTASButtonMap.ButtonType Type
         {
@@ -92,6 +99,12 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
+        public string SoundFileName
+        {
+            get => _hotasAxisMap.SoundFileName;
+            set => _hotasAxisMap.SoundFileName = value;
+        }
+
         public AxisDirection Direction { get; set; } = AxisDirection.Forward;
 
         public ObservableCollection<ButtonMapViewModel> ButtonMap { get; set; }
@@ -110,7 +123,10 @@ namespace SierraHOTAS.ViewModels
             _hotasAxisMap.OnAxisSegmentChanged += OnAxisSegmentChanged;
 
             _mediaPlayer = new MediaPlayer { Volume = 0f };
-            _mediaPlayer.Open(new Uri(@"Sounds\click05.mp3", UriKind.Relative));
+
+            if (string.IsNullOrEmpty(map.SoundFileName)) map.SoundFileName = @"Sounds\click05.mp3";
+
+            _mediaPlayer.Open(new Uri(map.SoundFileName, UriKind.Relative));
             RebuildButtonMapViewModels();
         }
 
@@ -252,6 +268,15 @@ namespace SierraHOTAS.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void LoadNewSound()
+        {
+            var soundFileName = FileSystem.GetSoundFileName();
+            if (soundFileName == null) return;
+            SoundFileName = soundFileName;
+            _mediaPlayer.Close();
+            _mediaPlayer.Open(new Uri(SoundFileName, UriKind.Relative));
         }
     }
 }
