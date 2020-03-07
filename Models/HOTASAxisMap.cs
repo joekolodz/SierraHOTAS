@@ -28,7 +28,8 @@ namespace SierraHOTAS.Models
 
         private int _currentSegment;
         private int _lastValue;
-        private AxisDirection _direction;
+        
+        public AxisDirection Direction { get; private set; }
 
         public HOTASAxisMap()
         {
@@ -47,16 +48,16 @@ namespace SierraHOTAS.Models
         {
             if (IsDirectional)
             {
-                _direction = value < _lastValue ? AxisDirection.Backward : AxisDirection.Forward;
+                Direction = value < _lastValue ? AxisDirection.Backward : AxisDirection.Forward;
             }
             else
             {
-                _direction = AxisDirection.Forward;
+                Direction = AxisDirection.Forward;
             }
 
             _lastValue = value;
 
-            OnAxisDirectionChanged?.Invoke(this, new AxisDirectionChangedEventArgs() { NewDirection = _direction });
+            OnAxisDirectionChanged?.Invoke(this, new AxisDirectionChangedEventArgs() { NewDirection = Direction });
         }
 
         private void DetectSelectedSegment(int value)
@@ -254,7 +255,7 @@ namespace SierraHOTAS.Models
             HOTASButtonMap map;
             if (IsDirectional)
             {
-                if (_direction == AxisDirection.Forward)
+                if (Direction == AxisDirection.Forward)
                 {
                     map = ButtonMap.FirstOrDefault(m => m.MapId == 1);
                 }
@@ -275,7 +276,7 @@ namespace SierraHOTAS.Models
             HOTASButtonMap map;
             if (IsDirectional)
             {
-                if (_direction == AxisDirection.Forward)
+                if (Direction == AxisDirection.Forward)
                 {
                     map = ButtonMap.FirstOrDefault(m => m.MapId == segment);
                 }

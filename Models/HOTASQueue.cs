@@ -133,7 +133,7 @@ namespace SierraHOTAS.Models
                     {
                         if (_jitter.IsJitter(state.Value)) continue;
 
-                        Debug.WriteLine($"{Joystick.Properties.ProductName} - Offset:{offset} - Value:{state.Value}");
+                        //Debug.WriteLine($"{Joystick.Properties.ProductName} - Offset:{offset} - Value:{state.Value}");
 
                         HandleAxis(state);
                         OnAxisChanged(state);
@@ -158,7 +158,7 @@ namespace SierraHOTAS.Models
                         Keyboard.SendKeyPress(keyUp.Item2.ScanCode, keyUp.Item2.Flags);
                         keyUpList.Remove(keyUp);
                         
-                        KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(keyUp.Item1, keyUp.Item2.ScanCode, keyUp.Item2.Flags));
+                        KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(job.MapId, keyUp.Item1, keyUp.Item2.ScanCode, keyUp.Item2.Flags));
                     }
                 }
 
@@ -176,7 +176,7 @@ namespace SierraHOTAS.Models
                     else
                     {
                         Keyboard.SendKeyPress(action.ScanCode, action.Flags);
-                        KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(job.Offset, action.ScanCode, action.Flags));
+                        KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(job.MapId, job.Offset, action.ScanCode, action.Flags));
                     }
                 }
             }
@@ -248,7 +248,7 @@ namespace SierraHOTAS.Models
                 return;
             }
 
-            _actionJobs.Add(new ActionJobItem() { Offset = offset, Actions = buttonMap.ActionCatalogItem.Actions }, _tokenDequeueLoop);
+            _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = buttonMap.MapId, Actions = buttonMap.ActionCatalogItem.Actions }, _tokenDequeueLoop);
         }
 
         private async Task PlayMacroOnce(int offset, ObservableCollection<ButtonAction> actions)
@@ -259,11 +259,11 @@ namespace SierraHOTAS.Models
 
                 if ((action.Flags & (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
                 {
-                    KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(offset, action.ScanCode, action.Flags));
+                    KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
                 }
                 else
                 {
-                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset, action.ScanCode, action.Flags));
+                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset,offset, action.ScanCode, action.Flags));
                 }
 
                 if (action.TimeInMilliseconds > 0)
@@ -282,7 +282,12 @@ namespace SierraHOTAS.Models
 
         private void HandleButtonReleased(int offset)
         {
-            _actionJobs.Add(new ActionJobItem() { Offset = offset, Actions = null }, _tokenDequeueLoop);
+            HandleButtonReleased(0, offset);
+        }
+
+        private void HandleButtonReleased(int mapId, int offset)
+        {
+            _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = mapId, Actions = null }, _tokenDequeueLoop);
         }
 
         private void HandleAxis(JoystickUpdate state)
@@ -297,7 +302,7 @@ namespace SierraHOTAS.Models
 
             var map = axis.GetButtonMapFromRawValue(state.Value);
             HandleButtonPressed(map, offset);
-            HandleButtonReleased(offset);
+            HandleButtonReleased(map.MapId, offset);
         }
 
         private void OnAxisChanged(JoystickUpdate state)

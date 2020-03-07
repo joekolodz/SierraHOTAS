@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using SierraHOTAS.Models;
 using System.Diagnostics;
@@ -70,8 +71,6 @@ namespace SierraHOTAS
             {
                 Logging.Log.Info($"Reading profile from :{LastSavedFileName}");
 
-
-
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
                 return (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
@@ -83,13 +82,12 @@ namespace SierraHOTAS
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
                 DefaultExt = ".mp3",
-                Filter = "Audio Clip (.mp3)|*.mp3"
+                Filter = "Audio Clip (.mp3)|*.mp3|(all)|*.*",
+                InitialDirectory = $@"{Environment.CurrentDirectory}\Sounds"
             };
 
             var result = dlg.ShowDialog();
-            if (result != true) return null;
-
-            return dlg.FileName;
+            return result != true ? null : dlg.FileName;
         }
     }
 }

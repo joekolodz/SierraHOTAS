@@ -35,7 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>icon32x32.ico</ApplicationIcon>
+    <ApplicationIcon>icon64x64.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -93,6 +93,8 @@
     <Compile Include="Controls\ButtonMap.xaml.cs">
       <DependentUpon>ButtonMap.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FileNameConverter.cs" />
+    <Compile Include="Controls\NullToVisibilityConverter.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
     <Compile Include="Models\ActivityItem.cs" />
     <Compile Include="Models\AxisDirectionChangedEventArgs.cs" />
@@ -166,6 +168,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="icon64x64.ico" />
     <Content Include="Sounds\click01.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -272,9 +275,6 @@
     <Resource Include="Images\saveas_blue_32x32.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="icon32x32.ico" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

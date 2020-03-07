@@ -13,7 +13,7 @@
                 <TextBox Name="txtSegments" Text="{Binding SegmentCount}" Height="18" Width="22" HorizontalAlignment="Left" Foreground="{StaticResource TextBrush}" Margin="0,8,0,2" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
                 <Label Content="Virtual Buttons" Foreground="{StaticResource TextBrush}" Margin="0,8,0,2"/>
             </StackPanel>
-            <ListView Name="lstSegments" ItemsSource="{Binding Segments}" Style="{StaticResource CustomListView}" Margin="0,0,0,12">
+            <ListView Name="lstSegments" ItemsSource="{Binding Segments}" Style="{StaticResource CustomListView}" Margin="0,0,0,12" Visibility="{Binding Path=SegmentCount, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NullToVisibilityConverter}}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <WrapPanel>
@@ -28,10 +28,13 @@
             </ListView>
             <CheckBox Name="chkIsDirectional" Content="Directional" IsChecked="{Binding IsDirectional}" Height="15" Foreground="{StaticResource TextBrush}" Margin="0,2" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
             <CheckBox Name="chkIsMultiAction" Content="Unique Buttons" IsChecked="{Binding IsMultiAction}" Height="15" Foreground="{StaticResource TextBrush}" Margin="0,8,0,10" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
-            <StackPanel Orientation="Horizontal" Height="32" Background="{StaticResource HoverBrush}">
-                <TextBlock Text="Sound01.mp3" Width="100" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                <Button Style="{StaticResource MenuButton}" Command="{Binding OpenFileCommand, IsAsync=True}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,0,0" BorderBrush="AliceBlue">
+            <StackPanel Orientation="Horizontal" Height="26" Background="{StaticResource HoverBrush}">
+                <TextBlock Text="{Binding SoundFileName, Converter={StaticResource FileNameConverter}}" Width="100" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <Button Style="{StaticResource MenuButton}" Command="{Binding OpenFileCommand, IsAsync=True}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,0,0" BorderBrush="AliceBlue" BorderThickness="0">
                     <Image Source="../Images/open_32x32.png"/>
+                </Button>
+                <Button Style="{StaticResource MenuButton}" Command="{Binding RemoveSoundCommand, IsAsync=True}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,0,0" BorderBrush="AliceBlue" BorderThickness="0">
+                    <Image Source="../Images/cancel_blue_32x32.png"/>
                 </Button>
             </StackPanel>
         </StackPanel>
@@ -44,6 +47,7 @@
                   Margin="10,29,10,10" 
                   Width="Auto"
                   MaxHeight="320"
+                  Visibility="{Binding Path=ButtonMap, Converter={StaticResource NullToVisibilityConverter}}"
                   BorderBrush="{StaticResource AxisForwardBrush}"/>
 
             <ListView Name="gridMapReverse"
@@ -54,6 +58,7 @@
                   Margin="10,29,10,10" 
                   Width="Auto"
                   MaxHeight="320"
+                  Visibility="{Binding Path=ReverseButtonMap, Converter={StaticResource NullToVisibilityConverter}}"
                   BorderBrush="{StaticResource AxisReverseBrush}"/>
 
         </StackPanel>

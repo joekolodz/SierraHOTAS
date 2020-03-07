@@ -110,12 +110,24 @@ namespace SierraHOTAS.ViewModels
 
             if (map.Type == HOTASButtonMap.ButtonType.Button || map.Type == HOTASButtonMap.ButtonType.POV)
             {
-                actionName = (map as HOTASButtonMap).ActionName;
+                if (!(map is HOTASButtonMap buttonMap)) return;
+                actionName = buttonMap.ActionName;
             }
             else
             {
-                //check direction to properly get ButtonMap or ReverseButtonMap
-                 actionName = (map as HOTASAxisMap).ButtonMap.FirstOrDefault(m => m.MapId == e.Offset).ActionName;
+                if (!(map is HOTASAxisMap axisMap)) return;
+                
+                //only virtual axis buttons will have a map id > 0, otherwise map id is equal to offset
+                if (e.MapId == 0) e.MapId = e.Offset;
+
+                if (axisMap.Direction == AxisDirection.Forward)
+                {
+                    actionName = axisMap.ButtonMap.FirstOrDefault(m => m.MapId == e.MapId)?.ActionName;
+                }
+                else
+                {
+                    actionName = axisMap.ReverseButtonMap.FirstOrDefault(m => m.MapId == e.MapId)?.ActionName;
+                }
             }
 
             var activity = new ActivityItem() { Offset = e.Offset, ButtonName = map.MapName, ScanCode = e.Code, Flags = e.Flags, ActionName = actionName, Time = DateTime.Now};

@@ -49,6 +49,9 @@ namespace SierraHOTAS.ViewModels
         private ICommand _fileOpenCommand;
         public ICommand OpenFileCommand => _fileOpenCommand ?? (_fileOpenCommand = new CommandHandler(LoadNewSound, () => CanExecute));
 
+        private ICommand _removeSoundCommand;
+        public ICommand RemoveSoundCommand => _removeSoundCommand ?? (_removeSoundCommand = new CommandHandler(RemoveSound, () => CanExecute));
+
         public bool CanExecute => true;
 
         public HOTASButtonMap.ButtonType Type
@@ -102,20 +105,51 @@ namespace SierraHOTAS.ViewModels
         public string SoundFileName
         {
             get => _hotasAxisMap.SoundFileName;
-            set => _hotasAxisMap.SoundFileName = value;
+            set
+            {
+                if (_hotasAxisMap.SoundFileName == value) return;
+                _hotasAxisMap.SoundFileName = value;
+                OnPropertyChanged(nameof(SoundFileName));
+            }
         }
 
         public AxisDirection Direction { get; set; } = AxisDirection.Forward;
 
-        public ObservableCollection<ButtonMapViewModel> ButtonMap { get; set; }
-        public ObservableCollection<ButtonMapViewModel> ReverseButtonMap { get; set; }
+        private ObservableCollection<ButtonMapViewModel> _buttonMap;
+        public ObservableCollection<ButtonMapViewModel> ButtonMap
+        {
+            get => _buttonMap;
+            set
+            {
+                if (_buttonMap == value) return;
+                RemoveHandlersToButtonMapCollection();
+                _buttonMap = value;
+                AddHandlersToButtonMapCollection();
+            }
+        }
 
+        private ObservableCollection<ButtonMapViewModel> _reverseButtonMap;
+        public ObservableCollection<ButtonMapViewModel> ReverseButtonMap
+        {
+            get => _reverseButtonMap;
+            set
+            {
+                if (_reverseButtonMap == value) return;
+                RemoveHandlersToReverseButtonMapCollection();
+                _reverseButtonMap = value;
+                AddHandlersToReverseButtonMapCollection();
+            }
+        }
         private readonly MediaPlayer _mediaPlayer;
 
         public AxisMapViewModel(HOTASAxisMap map)
         {
             ButtonMap = new ObservableCollection<ButtonMapViewModel>();
+            AddHandlersToButtonMapCollection();
+                
             ReverseButtonMap = new ObservableCollection<ButtonMapViewModel>();
+            AddHandlersToReverseButtonMapCollection();
+
             _hotasAxisMap = map;
             _segmentCount = _hotasAxisMap.Segments.Count;
 
@@ -124,10 +158,47 @@ namespace SierraHOTAS.ViewModels
 
             _mediaPlayer = new MediaPlayer { Volume = 0f };
 
-            if (string.IsNullOrEmpty(map.SoundFileName)) map.SoundFileName = @"Sounds\click05.mp3";
-
-            _mediaPlayer.Open(new Uri(map.SoundFileName, UriKind.Relative));
+            if (string.IsNullOrWhiteSpace(SoundFileName))
+            {
+                _mediaPlayer.IsMuted = true;
+            }
+            else
+            {
+                _mediaPlayer.Open(new Uri(map.SoundFileName, UriKind.Relative));
+            }
             RebuildButtonMapViewModels();
+        }
+
+        private void AddHandlersToButtonMapCollection()
+        {
+            ButtonMap.CollectionChanged += ButtonMap_CollectionChanged;
+        }
+
+        private void RemoveHandlersToButtonMapCollection()
+        {
+            if (ButtonMap == null) return;
+            ButtonMap.CollectionChanged -= ButtonMap_CollectionChanged;
+        }
+
+        private void ButtonMap_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(ButtonMap));
+        }
+
+        private void AddHandlersToReverseButtonMapCollection()
+        {
+            ReverseButtonMap.CollectionChanged += ReverseButtonMap_CollectionChanged;
+        }
+
+        private void RemoveHandlersToReverseButtonMapCollection()
+        {
+            if (ReverseButtonMap == null) return;
+            ReverseButtonMap.CollectionChanged -= ReverseButtonMap_CollectionChanged;
+        }
+
+        private void ReverseButtonMap_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(ReverseButtonMap));
         }
 
         public bool SegmentFilter(object item)
@@ -206,6 +277,7 @@ namespace SierraHOTAS.ViewModels
 
         private void OnAxisSegmentChanged(object sender, AxisSegmentChangedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(SoundFileName)) return;
             _mediaPlayer.Dispatcher?.Invoke(() =>
             {
                 _mediaPlayer.Volume = 1f;
@@ -277,6 +349,13 @@ namespace SierraHOTAS.ViewModels
             SoundFileName = soundFileName;
             _mediaPlayer.Close();
             _mediaPlayer.Open(new Uri(SoundFileName, UriKind.Relative));
+            _mediaPlayer.IsMuted = false;
+        }
+
+        private void RemoveSound()
+        {
+            SoundFileName = string.Empty;
+            _mediaPlayer.IsMuted = true;
         }
     }
 }

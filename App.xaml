@@ -30,7 +30,9 @@
         <SolidColorBrush x:Key="DisabledBorderBrush" Color="#313f47" />
 
         <controls:AxisValueToPercentageConverter x:Key="AxisValueToPercentageConverter"/>
-        
+        <controls:FileNameConverter x:Key="FileNameConverter"/>
+        <controls:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+
         <Style TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Left" />
         </Style>
