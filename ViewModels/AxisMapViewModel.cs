@@ -42,7 +42,7 @@ namespace SierraHOTAS.ViewModels
             {
                 if (_hotasAxisMap.MapName == value) return;
                 _hotasAxisMap.MapName = value;
-                OnPropertyChanged(nameof(ButtonName));
+                OnPropertyChanged();
             }
         }
 
@@ -69,7 +69,7 @@ namespace SierraHOTAS.ViewModels
                 if (_segmentCount == value) return;
                 _segmentCount = value;
                 SegmentsCountChanged();
-                OnPropertyChanged(nameof(SegmentCount));
+                OnPropertyChanged();
             }
         }
 
@@ -109,7 +109,18 @@ namespace SierraHOTAS.ViewModels
             {
                 if (_hotasAxisMap.SoundFileName == value) return;
                 _hotasAxisMap.SoundFileName = value;
-                OnPropertyChanged(nameof(SoundFileName));
+                OnPropertyChanged();
+            }
+        }
+
+        public double SoundVolume
+        {
+            get => _hotasAxisMap.SoundVolume;
+            set
+            {
+                if (_hotasAxisMap.SoundVolume == value) return;
+                _hotasAxisMap.SoundVolume = value;
+                OnPropertyChanged();
             }
         }
 

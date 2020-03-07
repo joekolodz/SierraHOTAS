@@ -37,6 +37,7 @@
                     <Image Source="../Images/cancel_blue_32x32.png"/>
                 </Button>
             </StackPanel>
+            <Slider Name="volumeSlider" HorizontalAlignment="Left" VerticalAlignment="Center"  Minimum="0" Maximum="1" Value="{Binding SoundVolume}" Width="164" TickPlacement="BottomRight" TickFrequency=".02" IsSnapToTickEnabled="True"/>
         </StackPanel>
         <StackPanel Orientation="Vertical" MinWidth="120" MinHeight="190">
             <ListView Name="gridMapForward" 
