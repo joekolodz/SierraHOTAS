@@ -13,7 +13,7 @@
 
             <TextBox Text="{Binding ButtonName}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Margin="1,0,2,0" Width="200" Height="30" FontSize="14" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
 
-            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStartCommandWithParameter, IsAsync=True}">
+            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStartCommandWithParameter, IsAsync=True}" ToolTip="Record a new keystroke activity" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                 <Image>
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
@@ -30,7 +30,7 @@
                 </Image>
             </Button>
 
-            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStopCommandWithParameter, IsAsync=True}">
+            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStopCommandWithParameter, IsAsync=True}" ToolTip="Stop recording keystrokes" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                 <Image>
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
@@ -40,7 +40,7 @@
                 </Image>
             </Button>
 
-            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroCancelCommandWithParameter, IsAsync=True}">
+            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroCancelCommandWithParameter, IsAsync=True}" ToolTip="Undo/Revert recorded keystrokes" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                 <Image>
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
@@ -52,7 +52,8 @@
         </StackPanel>
 
         <!-- Action Catalog Selection -->
-        <ComboBox Name="cmbMacroName2" 
+        <ComboBox Name="cmbMacroName2"
+                  ToolTip="Select or rename an existing keystroke activity" ToolTipService.InitialShowDelay="800"
                   SelectionChanged="ActionList_OnSelectionChanged" 
                   Text="{Binding ActionName, UpdateSourceTrigger=LostFocus}" 
                   ItemsSource="{Binding DataContext.ActionCatalog.Catalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" 

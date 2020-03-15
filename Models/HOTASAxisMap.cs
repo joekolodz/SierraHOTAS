@@ -37,6 +37,7 @@ namespace SierraHOTAS.Models
             Segments = new ObservableCollection<Segment>();
             ButtonMap = new ObservableCollection<HOTASButtonMap>();
             ReverseButtonMap = new ObservableCollection<HOTASButtonMap>();
+            SoundVolume = 1.0d;
         }
 
         public void SetAxis(int value)

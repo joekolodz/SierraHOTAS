@@ -21,6 +21,8 @@ namespace SierraHOTAS.ViewModels
 
         public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
 
+        public bool IsDeviceLoaded => _hotasDevice?.Capabilities != null;
+
         public DeviceViewModel()
         {
         }
@@ -35,11 +37,21 @@ namespace SierraHOTAS.ViewModels
             RebuildMap();
         }
 
-        public ActionCatalogItem GetActionCatalogItem(int buttonId)
+        public void ReplaceDeviceWithDefaultMap(HOTASDevice newDevice)
         {
-            var baseMap =_hotasDevice.ButtonMap.FirstOrDefault(m => m.MapId == buttonId);
-            var buttonMap = baseMap as HOTASButtonMap;
-            return buttonMap.ActionCatalogItem;
+            _hotasDevice = newDevice;
+            InstanceId = _hotasDevice.InstanceId;
+            Name = _hotasDevice.Name;
+
+            ButtonMap = new ObservableCollection<IBaseMapViewModel>();
+            RebuildMap();
+        }
+
+        public void ReInitializeDevice(HOTASDevice newDevice)
+        {
+            newDevice.ButtonMap = _hotasDevice.ButtonMap.ToObservableCollection();
+            //_hotasDevice.ReAcquireJoystick();
+            //_hotasDevice.LoadCapabilities();
         }
 
         public void RebuildMap()

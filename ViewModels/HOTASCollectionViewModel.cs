@@ -64,6 +64,10 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand ExitApplicationCommand => _exitApplicationCommand ?? (_exitApplicationCommand = new CommandHandler(ExitApplication, () => CanExecute));
 
+        private ICommand _refreshDeviceListCommand;
+
+        public ICommand RefreshDeviceListCommand => _refreshDeviceListCommand ?? (_refreshDeviceListCommand = new CommandHandler(RefreshDeviceList, () => CanExecute));
+
         public bool CanExecute => true;
 
         public HOTASCollectionViewModel()
@@ -116,7 +120,7 @@ namespace SierraHOTAS.ViewModels
             else
             {
                 if (!(map is HOTASAxisMap axisMap)) return;
-                
+
                 //only virtual axis buttons will have a map id > 0, otherwise map id is equal to offset
                 if (e.MapId == 0) e.MapId = e.Offset;
 
@@ -130,11 +134,11 @@ namespace SierraHOTAS.ViewModels
                 }
             }
 
-            var activity = new ActivityItem() { Offset = e.Offset, ButtonName = map.MapName, ScanCode = e.Code, Flags = e.Flags, ActionName = actionName, Time = DateTime.Now};
+            var activity = new ActivityItem() { Offset = e.Offset, ButtonName = map.MapName, ScanCode = e.Code, Flags = e.Flags, ActionName = actionName, Time = DateTime.Now };
 
             AppDispatcher?.Invoke(() =>
             {
-                Activity.Insert(0,activity);
+                Activity.Insert(0, activity);
             });
         }
 
@@ -181,6 +185,32 @@ namespace SierraHOTAS.ViewModels
             if (Devices == null) return;
             var device = Devices.First(d => d.InstanceId == e.Device.InstanceId);
             AxisChanged?.Invoke(sender, new AxisChangedViewModelEventArgs() { AxisId = e.AxisId, Value = e.Value, Device = device });
+        }
+
+        private void RefreshDeviceList()
+        {
+            var newDevices = _deviceList.RescanDevices();
+
+            //if the device has a mapping already loaded, then assign this device to that mapping
+            foreach (var deviceViewModel in Devices)
+            {
+                var newDevice = newDevices.FirstOrDefault(n => n.InstanceId == deviceViewModel.InstanceId);
+                if (newDevice == null) continue;
+
+                newDevices.Remove(newDevice);
+                deviceViewModel.ReInitializeDevice(newDevice);
+                _deviceList.Devices.Add(newDevice);
+                _deviceList.ListenToDevice(newDevice);
+            }
+
+            //remaining devices here do not have a mapping loaded, so assign a default mapping
+            foreach (var n in newDevices)
+            {
+                var vm = new DeviceViewModel(n);
+                Devices.Add(vm);
+                _deviceList.Devices.Add(n);
+                _deviceList.ListenToDevice(n);
+            }
         }
 
         private static void ExitApplication()

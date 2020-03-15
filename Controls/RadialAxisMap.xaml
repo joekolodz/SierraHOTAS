@@ -6,38 +6,47 @@
              mc:Ignorable="d" 
              d:DesignHeight="40" d:DesignWidth="122">
     <StackPanel Orientation="Horizontal">
-        <StackPanel Orientation="Vertical" Margin="4,0,0,0" MinWidth="120" MinHeight="190">
+        <StackPanel Orientation="Vertical" Margin="4,0,0,0" MinWidth="120">
+            
             <Label Content="{Binding ButtonName}" Foreground="{StaticResource TextBrush}" FontSize="14"/>
+            
             <Canvas Name="CanvasPlaceHolder" HorizontalAlignment="Left" Height="40" Width="40"/>
+            
             <StackPanel Orientation="Horizontal">
-                <TextBox Name="txtSegments" Text="{Binding SegmentCount}" Height="18" Width="22" HorizontalAlignment="Left" Foreground="{StaticResource TextBrush}" Margin="0,8,0,2" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
+                <TextBox Name="txtSegments" Text="{Binding SegmentCount}" Height="18" Width="22" HorizontalAlignment="Left" Foreground="{StaticResource TextBrush}" Margin="6,8,0,2" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
                 <Label Content="Virtual Buttons" Foreground="{StaticResource TextBrush}" Margin="0,8,0,2"/>
             </StackPanel>
-            <ListView Name="lstSegments" ItemsSource="{Binding Segments}" Style="{StaticResource CustomListView}" Margin="0,0,0,12" Visibility="{Binding Path=SegmentCount, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NullToVisibilityConverter}}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <WrapPanel>
-                            <TextBlock Text="Boundary " />
-                            <TextBlock Text="{Binding Id}" />
-                            <TextBlock Text=":  " />
-                            <TextBox Text="{Binding Value, Converter={StaticResource AxisValueToPercentageConverter}}" />
-                            <TextBlock Text=" %" />
-                        </WrapPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <CheckBox Name="chkIsDirectional" Content="Directional" IsChecked="{Binding IsDirectional}" Height="15" Foreground="{StaticResource TextBrush}" Margin="0,2" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
-            <CheckBox Name="chkIsMultiAction" Content="Unique Buttons" IsChecked="{Binding IsMultiAction}" Height="15" Foreground="{StaticResource TextBrush}" Margin="0,8,0,10" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
-            <StackPanel Orientation="Horizontal" Height="26" Background="{StaticResource HoverBrush}">
-                <TextBlock Text="{Binding SoundFileName, Converter={StaticResource FileNameConverter}}" Width="100" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                <Button Style="{StaticResource MenuButton}" Command="{Binding OpenFileCommand, IsAsync=True}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,0,0" BorderBrush="AliceBlue" BorderThickness="0">
-                    <Image Source="../Images/open_32x32.png"/>
-                </Button>
-                <Button Style="{StaticResource MenuButton}" Command="{Binding RemoveSoundCommand, IsAsync=True}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,0,0" BorderBrush="AliceBlue" BorderThickness="0">
-                    <Image Source="../Images/cancel_blue_32x32.png"/>
-                </Button>
-            </StackPanel>
-            <Slider Name="volumeSlider" HorizontalAlignment="Left" VerticalAlignment="Center"  Minimum="0" Maximum="1" Value="{Binding SoundVolume}" Width="164" TickPlacement="BottomRight" TickFrequency=".02" IsSnapToTickEnabled="True"/>
+
+            <GroupBox BorderBrush="Transparent" BorderThickness="0" Visibility="{Binding Path=SegmentCount, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel>
+                    <ListView Name="lstSegments" ItemsSource="{Binding Segments}" Style="{StaticResource CustomListView}" Margin="0,0,0,12">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <WrapPanel>
+                                    <TextBlock Text="Boundary " />
+                                    <TextBlock Text="{Binding Id}" />
+                                    <TextBlock Text=":  " />
+                                    <TextBox Text="{Binding Value, Converter={StaticResource AxisValueToPercentageConverter}}" />
+                                    <TextBlock Text=" %" />
+                                </WrapPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <CheckBox Name="chkIsDirectional" Content="Directional" IsChecked="{Binding IsDirectional}" Height="15" Foreground="{StaticResource TextBrush}" Margin="0,2" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
+                    <CheckBox Name="chkIsMultiAction" Content="Unique Buttons" IsChecked="{Binding IsMultiAction}" Height="15" Foreground="{StaticResource TextBrush}" Margin="0,8,0,10" Background="Transparent" BorderBrush="{StaticResource NormalBorderBrush}"/>
+                    <StackPanel Orientation="Horizontal" Height="24" Background="{StaticResource HoverBrush}">
+                        <TextBlock Text="{Binding SoundFileName, Converter={StaticResource FileNameConverter}}" Width="114" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        <Button Style="{StaticResource SoundButton}" Command="{Binding OpenFileCommand, IsAsync=True}" HorizontalAlignment="Right" Padding="0,0,0,0" BorderBrush="AliceBlue" BorderThickness="0">
+                            <Image Source="../Images/open_32x32.png"/>
+                        </Button>
+                        <Button Style="{StaticResource SoundButton}" Command="{Binding RemoveSoundCommand, IsAsync=True}" HorizontalAlignment="Right" Padding="0,0,0,0" BorderBrush="AliceBlue" BorderThickness="0">
+                            <Image Source="../Images/cancel_blue_32x32.png"/>
+                        </Button>
+                    </StackPanel>
+                    <Slider Name="volumeSlider" Margin="-5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Minimum="0" Maximum="1" Value="{Binding SoundVolume}" Width="168" TickPlacement="BottomRight" TickFrequency=".05" IsSnapToTickEnabled="True"/>
+                </StackPanel>
+            </GroupBox>
+
         </StackPanel>
         <StackPanel Orientation="Vertical" MinWidth="120" MinHeight="190">
             <ListView Name="gridMapForward" 

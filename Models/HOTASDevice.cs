@@ -52,13 +52,23 @@ namespace SierraHOTAS.Models
         private void Initialize()
         {
             if (MainWindow.IsDebug) return;
+            AcquireJoystick();
+            LoadCapabilitiesMapping();
+        }
 
+        public void ReAcquireJoystick()
+        {
+            Joystick?.Unacquire();
+            Joystick?.Dispose();
+            AcquireJoystick();
+        }
+
+        private void AcquireJoystick()
+        {
             var i = new DirectInput();
             Joystick = new Joystick(i, InstanceId);
             Joystick.Properties.BufferSize = 4096;
             Joystick.Acquire();
-
-            LoadCapabilitiesMapping();
         }
 
         public void ListenAsync()
@@ -80,6 +90,17 @@ namespace SierraHOTAS.Models
 
         private void LoadCapabilitiesMapping()
         {
+            LoadCapabilities();
+
+            Debug.WriteLine("\nBuilding button maps...");
+
+            if (Capabilities.AxeCount > 0) SeedAxisMap(JoystickOffset.X, 6);
+            if (Capabilities.ButtonCount > 0) SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button);
+            if (Capabilities.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV);
+        }
+
+        public void LoadCapabilities()
+        {
             Debug.WriteLine($"\nLoading device capabilities for ...{Name}");
 
             Capabilities = Joystick.Capabilities;
@@ -88,12 +109,6 @@ namespace SierraHOTAS.Models
             Debug.WriteLine("ButtonCount {0}", Capabilities.ButtonCount);
             Debug.WriteLine("PovCount {0}", Capabilities.PovCount);
             Debug.WriteLine("Flags {0}", Capabilities.Flags);
-
-            Debug.WriteLine("\nBuilding button maps...");
-
-            if (Capabilities.AxeCount > 0) SeedAxisMap(JoystickOffset.X, 6);
-            if (Capabilities.ButtonCount > 0) SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button);
-            if (Capabilities.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV);
         }
 
         private void SeedPointOfViewMap(JoystickOffset startFrom, int length, HOTASButtonMap.ButtonType type)

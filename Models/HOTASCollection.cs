@@ -3,6 +3,7 @@ using SharpDX.DirectInput;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using SierraHOTAS.ViewModels;
 
 namespace SierraHOTAS.Models
 {
@@ -72,12 +73,17 @@ namespace SierraHOTAS.Models
         {
             foreach (var device in Devices)
             {
-                device.ButtonPressed += Device_ButtonPressed;
-                device.AxisChanged += Device_AxisChanged;
-                device.KeystrokeDownSent += Device_KeystrokeDownSent;
-                device.KeystrokeUpSent += Device_KeystrokeUpSent;
-                device.ListenAsync();
+                ListenToDevice(device);
             }
+        }
+
+        public void ListenToDevice(HOTASDevice device)
+        {
+            device.ButtonPressed += Device_ButtonPressed;
+            device.AxisChanged += Device_AxisChanged;
+            device.KeystrokeDownSent += Device_KeystrokeDownSent;
+            device.KeystrokeUpSent += Device_KeystrokeUpSent;
+            device.ListenAsync();
         }
 
         private void Device_KeystrokeDownSent(object sender, KeystrokeSentEventArgs e)
@@ -112,7 +118,7 @@ namespace SierraHOTAS.Models
             ButtonPressed?.Invoke(sender, e);
         }
 
-        private ObservableCollection<HOTASDevice> QueryOperatingSystemForDevices()
+        private static ObservableCollection<HOTASDevice> QueryOperatingSystemForDevices()
         {
             var deviceList = new ObservableCollection<HOTASDevice>();
 
@@ -142,6 +148,20 @@ namespace SierraHOTAS.Models
             {
                 d.ClearUnassignedActions();
             }
+        }
+
+        public ObservableCollection<HOTASDevice> RescanDevices()
+        {
+            var rescannedDevices = QueryOperatingSystemForDevices();
+            var newDevices = new ObservableCollection<HOTASDevice>();
+
+            foreach (var n in rescannedDevices)
+            {
+                if (Devices.Any(d => d.InstanceId == n.InstanceId)) continue;
+                newDevices.Add(n);
+            }
+
+            return newDevices;
         }
     }
 }
