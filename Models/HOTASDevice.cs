@@ -207,5 +207,12 @@ namespace SierraHOTAS.Models
                 m.ClearUnassignedActions();
             }
         }
+
+        public void ClearButtonMap()
+        {
+            ButtonMap.Clear();
+            if (MainWindow.IsDebug) return;
+            LoadCapabilitiesMapping();
+        }
     }
 }

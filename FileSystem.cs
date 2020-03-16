@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using SierraHOTAS.Models;
+using System;
 using System.Diagnostics;
 using System.IO;
 

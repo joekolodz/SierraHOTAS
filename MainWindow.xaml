@@ -48,11 +48,14 @@
             <Button  Style="{StaticResource MenuButton}" Command="{Binding SaveFileAsCommand, IsAsync=True}" ToolTip="Save As..." ToolTipService.InitialShowDelay="800">
                 <Image Source="Images/saveas_blue_32x32.png"/>
             </Button>
-            <Button  Style="{StaticResource MenuButton}" Command="{Binding ExitApplicationCommand, IsAsync=True}" ToolTip="Exit" ToolTipService.InitialShowDelay="800">
+            <Button  Style="{StaticResource MenuButton}" Command="{Binding ClearActiveProfileSetCommand, IsAsync=True}" ToolTip="Clear Active Profile Set" ToolTipService.InitialShowDelay="800">
                 <Image Source="Images/cancel_blue_32x32.png"/>
             </Button>
-            <CheckBox Content="Snap to Button" IsChecked="{Binding SnapToButton}" Margin="2" ToolTip="When checked, will automatically highlight and focus the activated button" ToolTipService.InitialShowDelay="800" ToolTipService.ShowDuration="8000"/>
-            <Label Name="txtLastFile" VerticalAlignment="Center" Foreground="{StaticResource TextHeaderBrush}" VerticalContentAlignment="Center"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10,0,0,0" Background="{StaticResource WindowBackgroundBrush}">
+            <TextBlock Text="Active Profile Set:" VerticalAlignment="Center" Foreground="{StaticResource TextBrush}"/>
+            <TextBlock Name="txtLastFile" Text="{Binding ProfileSetFileName}" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextHeaderBrush}"/>
         </StackPanel>
 
         <!--d:DataContext="{d:DesignData Source=sample_data_CollectionViewModel.xaml}"-->
@@ -114,12 +117,15 @@
 
         </StackPanel>
 
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="32" Background="{StaticResource WindowBackgroundBrush}">
+            <CheckBox Content="Snap to Button" IsChecked="{Binding SnapToButton}" Margin="4,0,0,0" ToolTip="When checked, will automatically highlight and focus the activated button" ToolTipService.InitialShowDelay="800" ToolTipService.ShowDuration="8000"/>
+        </StackPanel>
         <ListView Name="gridMap" 
                   ItemsSource="{Binding}" 
                   Style="{StaticResource CustomListView}"
                   ItemContainerStyle="{StaticResource CustomButtonListViewItem}" 
                   AlternationCount="2" 
-                  Margin="5,30,10,10"/>
+                  Margin="5,-10,10,10"/>
 
     </DockPanel>
 

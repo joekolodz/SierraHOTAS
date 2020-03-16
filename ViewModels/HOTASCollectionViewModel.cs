@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Threading;
+using SharpDX.DirectInput;
 using Application = System.Windows.Application;
 
 namespace SierraHOTAS.ViewModels
@@ -22,6 +23,7 @@ namespace SierraHOTAS.ViewModels
         public ObservableCollection<ActivityItem> Activity { get; set; }
 
         private bool? _snapToButton = true;
+
         public bool? SnapToButton
         {
             get => _snapToButton;
@@ -29,11 +31,22 @@ namespace SierraHOTAS.ViewModels
             {
                 if (value == _snapToButton) return;
                 _snapToButton = value ?? false;
-                OnPropertyChanged(nameof(SnapToButton));
+                OnPropertyChanged();
             }
         }
 
-        public string LastFileSaved => FileSystem.LastSavedFileName;
+        private string _profileSetFileName;
+
+        public string ProfileSetFileName
+        {
+            get { return _profileSetFileName; }
+            set
+            {
+                if (value == _profileSetFileName) return;
+                _profileSetFileName = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event EventHandler<ButtonPressedViewModelEventArgs> ButtonPressed;
         public event EventHandler<AxisChangedViewModelEventArgs> AxisChanged;
@@ -60,9 +73,9 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand SelectionChangedCommand => _selectionChangedCommand ?? (_selectionChangedCommand = new RelayCommandWithParameter(lstDevices_OnSelectionChanged));
 
-        private ICommand _exitApplicationCommand;
+        private ICommand _clearActiveProfileSetCommand;
 
-        public ICommand ExitApplicationCommand => _exitApplicationCommand ?? (_exitApplicationCommand = new CommandHandler(ExitApplication, () => CanExecute));
+        public ICommand ClearActiveProfileSetCommand => _clearActiveProfileSetCommand ?? (_clearActiveProfileSetCommand = new CommandHandler(ClearActiveProfileSet, () => CanExecute));
 
         private ICommand _refreshDeviceListCommand;
 
@@ -213,9 +226,19 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        private static void ExitApplication()
+        private void ClearActiveProfileSet()
         {
-            Application.Current.Shutdown(0);
+            _deviceList.ClearButtonMap();
+            //unload button mappings
+            //clear catalog?
+            foreach (var deviceVm in Devices)
+            {
+                deviceVm.ClearButtonMap();
+                deviceVm.RebuildMap();
+            }
+
+            FileSystem.LastSavedFileName = "";
+            ProfileSetFileName = FileSystem.LastSavedFileName;
         }
 
         private void FileSave()

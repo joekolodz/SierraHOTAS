@@ -60,6 +60,14 @@ namespace SierraHOTAS.Models
             }
         }
 
+        public void ClearButtonMap()
+        {
+            foreach (var d in Devices)
+            {
+                d.ClearButtonMap();
+            }
+        }
+
         /// <summary>
         /// Get all devices attached and load their custom button map profiles
         /// </summary>

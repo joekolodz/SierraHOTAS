@@ -73,9 +73,9 @@ namespace SierraHOTAS
 
         private void HotasCollectionViewModel_FileOpened(object sender, EventArgs e)
         {
-            txtLastFile.Content = FileSystem.LastSavedFileName;
             Logging.Log.Info($"Loaded a device set...");
             DataContext = HotasCollectionViewModel;
+            HotasCollectionViewModel.ProfileSetFileName = FileSystem.LastSavedFileName;
             lstDevices.ItemsSource = HotasCollectionViewModel.Devices;
             lstDevices.SelectedIndex = 0;
             foreach (var d in HotasCollectionViewModel.Devices)

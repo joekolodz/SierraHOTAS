@@ -47,11 +47,15 @@ namespace SierraHOTAS.ViewModels
             RebuildMap();
         }
 
+        public void ClearButtonMap()
+        {
+            RemoveAllButtonMapHandlers();
+            _hotasDevice.ClearUnassignedActions();
+        }
+
         public void ReInitializeDevice(HOTASDevice newDevice)
         {
             newDevice.ButtonMap = _hotasDevice.ButtonMap.ToObservableCollection();
-            //_hotasDevice.ReAcquireJoystick();
-            //_hotasDevice.LoadCapabilities();
         }
 
         public void RebuildMap()
