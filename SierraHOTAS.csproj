@@ -96,6 +96,7 @@
     <Compile Include="Controls\FileNameConverter.cs" />
     <Compile Include="Controls\NullToVisibilityConverter.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
+    <Compile Include="Models\ShiftModeChangedEventArgs.cs" />
     <Compile Include="Models\ActivityItem.cs" />
     <Compile Include="Models\AxisDirectionChangedEventArgs.cs" />
     <Compile Include="Models\AxisSegmentChangedEventArgs.cs" />

@@ -18,6 +18,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
+        public event EventHandler<ShiftModeChangedEventArgs> ShiftModeChanged;
 
         private Task _deviceListenLoopTask;
         private CancellationTokenSource _tokenSourceListenLoop;
@@ -95,6 +96,8 @@ namespace SierraHOTAS.Models
             {
                 if (Joystick == null) return;
                 Thread.Sleep(1);//give CPU back
+
+                //if exception due to lost device, then break out of loop so the user can refresh the device list and start over
                 Joystick.Poll();
                 var data = Joystick.GetBufferedData();
 
@@ -157,7 +160,7 @@ namespace SierraHOTAS.Models
                     {
                         Keyboard.SendKeyPress(keyUp.Item2.ScanCode, keyUp.Item2.Flags);
                         keyUpList.Remove(keyUp);
-                        
+
                         KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(job.MapId, keyUp.Item1, keyUp.Item2.ScanCode, keyUp.Item2.Flags));
                     }
                 }
@@ -237,18 +240,33 @@ namespace SierraHOTAS.Models
 
             if (buttonMap.IsMacro)
             {
-                if (_activeMacros.TryGetValue(offset, out var exists))
-                {
-                    //prevent a given macro from running more than once
-                    return;
-                }
-
-                _activeMacros.TryAdd(offset, true);
-                Task.Run(() => PlayMacroOnce(offset, buttonMap.ActionCatalogItem.Actions));
+                HandleMacro(buttonMap, offset);
                 return;
             }
 
+            if (buttonMap.ShiftModePage > 0)
+            {
+                HandleShiftMode(buttonMap.ShiftModePage);
+            }
+
             _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = buttonMap.MapId, Actions = buttonMap.ActionCatalogItem.Actions }, _tokenDequeueLoop);
+        }
+
+        private void HandleMacro(HOTASButtonMap buttonMap, int offset)
+        {
+            if (_activeMacros.TryGetValue(offset, out var exists))
+            {
+                //prevent a given macro from running more than once
+                return;
+            }
+
+            _activeMacros.TryAdd(offset, true);
+            Task.Run(() => PlayMacroOnce(offset, buttonMap.ActionCatalogItem.Actions));
+        }
+
+        private void HandleShiftMode(int mode)
+        {
+            ShiftModeChanged?.Invoke(this, new ShiftModeChangedEventArgs() { Mode = mode });
         }
 
         private async Task PlayMacroOnce(int offset, ObservableCollection<ButtonAction> actions)
@@ -257,13 +275,13 @@ namespace SierraHOTAS.Models
             {
                 Keyboard.SendKeyPress(action.ScanCode, action.Flags);
 
-                if ((action.Flags & (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
+                if ((action.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
                 {
                     KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
                 }
                 else
                 {
-                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset,offset, action.ScanCode, action.Flags));
+                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
                 }
 
                 if (action.TimeInMilliseconds > 0)

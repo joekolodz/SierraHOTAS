@@ -169,6 +169,7 @@ namespace SierraHOTAS
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
+            //if there are no devices connected to trigger button events, use debug mode on and send a DOWN event for Button0 with left shift and button UP event for Button0 with left control
             if (!IsDebug) return;
             if (e.Key == Key.LeftShift)
             {

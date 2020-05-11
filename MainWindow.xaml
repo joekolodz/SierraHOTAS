@@ -58,22 +58,33 @@
             <TextBlock Name="txtLastFile" Text="{Binding ProfileSetFileName}" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextHeaderBrush}"/>
         </StackPanel>
 
-        <!--d:DataContext="{d:DesignData Source=sample_data_CollectionViewModel.xaml}"-->
-        <StackPanel  Orientation="Vertical" Margin="10,10,5,10" Width="300" VerticalAlignment="Top">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Devices" FontSize="15" Foreground="{StaticResource TextHeaderBrush}" VerticalAlignment="Bottom"/>
-                <Button Style="{StaticResource RefreshButton}" Command="{Binding RefreshDeviceListCommand, IsAsync=True}" Margin="2,0,0,0" ToolTip="Rescan for devices" ToolTipService.InitialShowDelay="800">
-                    <Button.Content>
-                        <Image Source="Images/refresh_32x32.png"/>
-                    </Button.Content>
-                </Button>
+        <DockPanel DockPanel.Dock="Left" Width="300" LastChildFill="True" Margin="10,10,5,10" Background="{StaticResource WindowBackgroundBrush}">
+            <StackPanel DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Devices" FontSize="15" Foreground="{StaticResource TextHeaderBrush}" VerticalAlignment="Bottom"/>
+                    <Button Style="{StaticResource RefreshButton}" Command="{Binding RefreshDeviceListCommand, IsAsync=True}" Margin="2,0,0,0" ToolTip="Rescan for devices" ToolTipService.InitialShowDelay="800">
+                        <Button.Content>
+                            <Image Source="Images/refresh_32x32.png"/>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+                <ListBox x:Name="lstDevices" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" Height="150" FontSize="13" Background="Transparent" Foreground="{StaticResource TextBrush}" BorderBrush="SlateGray" SelectionChanged="LstDevices_OnSelectionChanged"/>
+                <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
+                <TextBox x:Name="txtTestBox" Height="100" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}" FontSize="14"></TextBox>
             </StackPanel>
-            <ListBox x:Name="lstDevices" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" Height="150" FontSize="13" Background="Transparent" Foreground="{StaticResource TextBrush}" BorderBrush="SlateGray" SelectionChanged="LstDevices_OnSelectionChanged"/>
-            <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
-            <TextBox x:Name="txtTestBox" Height="100" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}" FontSize="14"></TextBox>
-            <TextBlock Text="Activity" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
 
-            <ListBox Height="470" ItemContainerStyle="{StaticResource ListBoxItemStyleNoHighlighting}" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}">
+            <StackPanel DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Activity" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
+                    <Button Style="{StaticResource RefreshButton}" Command="{Binding ClearActivityListCommand, IsAsync=True}" Margin="2,0,0,0" ToolTip="Clear Activity" ToolTipService.InitialShowDelay="800">
+                        <Button.Content>
+                            <Image Source="Images/refresh_32x32.png"/>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+
+            <ListBox ScrollViewer.CanContentScroll="False" ItemContainerStyle="{StaticResource ListBoxItemStyleNoHighlighting}" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}">
                 <ItemsControl ItemsSource="{Binding Activity}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -115,7 +126,11 @@
                 </ItemsControl>
             </ListBox>
 
-        </StackPanel>
+        </DockPanel>
+
+
+
+
 
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="32" Background="{StaticResource WindowBackgroundBrush}">
             <CheckBox Content="Snap to Button" IsChecked="{Binding SnapToButton}" Margin="4,0,0,0" ToolTip="When checked, will automatically highlight and focus the activated button" ToolTipService.InitialShowDelay="800" ToolTipService.ShowDuration="8000"/>

@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using SierraHOTAS.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace SierraHOTAS
@@ -26,40 +27,50 @@ namespace SierraHOTAS
                 return buttonMap;
             }
 
-            var list = new ObservableCollection<IHotasBaseMap>();
-            var jsonArray = JArray.Load(reader);
-            
-            foreach (var jsonObject in jsonArray)
-            {
-                IHotasBaseMap map;
-                var testValue = jsonObject.Value<string>("Type");
-                Enum.TryParse(testValue, out HOTASButtonMap.ButtonType testType);
+            var dic = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
 
-                try
+            var jsonDictionary = JObject.Load(reader);
+
+            foreach (var kv in jsonDictionary)
+            {
+                var key = int.Parse(kv.Key);
+                var jsonArray = kv.Value;
+                var list = new ObservableCollection<IHotasBaseMap>();
+
+                foreach (var jsonObject in jsonArray)
                 {
-                    switch (testType)
+                    IHotasBaseMap map;
+                    var testValue = jsonObject.Value<string>("Type");
+                    Enum.TryParse(testValue, out HOTASButtonMap.ButtonType testType);
+
+                    try
                     {
-                        case HOTASButtonMap.ButtonType.AxisLinear:
-                        case HOTASButtonMap.ButtonType.AxisRadial:
-                            map = new HOTASAxisMap();
-                            serializer.Populate(jsonObject.CreateReader(), map);
-                            break;
-                        default:
-                            map = new HOTASButtonMap();
-                            serializer.Populate(jsonObject.CreateReader(), map);
-                            break;
+                        switch (testType)
+                        {
+                            case HOTASButtonMap.ButtonType.AxisLinear:
+                            case HOTASButtonMap.ButtonType.AxisRadial:
+                                map = new HOTASAxisMap();
+                                serializer.Populate(jsonObject.CreateReader(), map);
+                                break;
+                            default:
+                                map = new HOTASButtonMap();
+                                serializer.Populate(jsonObject.CreateReader(), map);
+                                break;
+                        }
                     }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+                    list.Add(map);
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
-                list.Add(map);
+                dic.Add(key, list);
             }
 
-            return list;
+            return dic;
         }
+
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {

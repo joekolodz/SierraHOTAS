@@ -76,6 +76,18 @@ namespace SierraHOTAS.ViewModels
 
         public bool IsRecording { get; set; }
 
+        public int ActivateShiftModePage
+        {
+            get => _hotasButtonMap.ShiftModePage;
+            set
+            {
+                if (_hotasButtonMap.ShiftModePage == value) return;
+                Logging.Log.Info($"about to change Mode from: {_hotasButtonMap.ShiftModePage} to: {value}");
+                _hotasButtonMap.ShiftModePage = value;
+                OnPropertyChanged(nameof(ActivateShiftModePage));
+            }
+        }
+
         public ButtonMapViewModel()
         {
             _hotasButtonMap = new HOTASButtonMap();

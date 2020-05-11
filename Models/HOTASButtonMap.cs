@@ -22,6 +22,8 @@ namespace SierraHOTAS.Models
         public string MapName { get; set; }
         public ButtonType Type { get; set; }
 
+        public int ShiftModePage { get; set; }
+
         [JsonIgnore]
         public string ActionName
         {

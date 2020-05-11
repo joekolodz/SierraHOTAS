@@ -3,17 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             mc:Ignorable="d">
     <!-- First Column - button name and recording controls -->
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch" >
 
         <!-- Macro Buttons-->
-        <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0,20,0,0">
+        <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0,0,0,0">
 
-            <TextBox Text="{Binding ButtonName}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Margin="1,0,2,0" Width="200" Height="30" FontSize="14" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
+            <TextBox Text="{Binding ButtonName}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Margin="0,0,2,0" Width="200" Height="30" FontSize="14" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
 
-            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStartCommandWithParameter, IsAsync=True}" ToolTip="Record a new keystroke activity" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
+            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStartCommandWithParameter, IsAsync=True}" Margin="0,0,1,0" ToolTip="Record a new keystroke activity" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                 <Image>
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
@@ -30,7 +29,7 @@
                 </Image>
             </Button>
 
-            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStopCommandWithParameter, IsAsync=True}" ToolTip="Stop recording keystrokes" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
+            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStopCommandWithParameter, IsAsync=True}" Margin="0,0,1,0" ToolTip="Stop recording keystrokes" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                 <Image>
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">
@@ -62,8 +61,9 @@
                   IsTextSearchEnabled="False" 
                   FontSize="14" 
                   Height="28" 
-                  Margin="0,2,0,20" 
-                  HorizontalAlignment="Stretch" 
+                  Width="300"
+                  Margin="0,2,0,0" 
+                  HorizontalAlignment="Left" 
                   VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>

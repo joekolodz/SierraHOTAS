@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharpDX.DirectInput;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -12,6 +13,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
+        public event EventHandler<ShiftModeChangedEventArgs> ShiftModeChanged;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
 
         [JsonProperty]
@@ -22,17 +24,27 @@ namespace SierraHOTAS.Models
 
         public Capabilities Capabilities { get; set; }
 
+        public ObservableCollection<IHotasBaseMap> ButtonMap
+        {
+            get => _buttonMap;
+            private set => _buttonMap = value;
+        }
+
+
         [JsonProperty]
         [JsonConverter(typeof(CustomJsonConverter))]
-        public ObservableCollection<IHotasBaseMap> ButtonMap { get; set; }
+        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ButtonMapShiftProfile { get; set; }
+
+
 
         private Joystick Joystick { get; set; }
         private HOTASQueue _hotasQueue;
+        private ObservableCollection<IHotasBaseMap> _buttonMap;
 
 
         public HOTASDevice()
         {
-            ButtonMap = new ObservableCollection<IHotasBaseMap>();
+            SetupNewButtonMapProfile();
         }
 
         public HOTASDevice(Guid instanceId, string name)
@@ -44,9 +56,16 @@ namespace SierraHOTAS.Models
 
             InstanceId = instanceId;
             Name = name;
-            ButtonMap = new ObservableCollection<IHotasBaseMap>();
+            SetupNewButtonMapProfile();
 
             Initialize();
+        }
+
+        private void SetupNewButtonMapProfile()
+        {
+            ButtonMapShiftProfile = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            ButtonMap = new ObservableCollection<IHotasBaseMap>();
+            ButtonMapShiftProfile.Add(0, ButtonMap);
         }
 
         private void Initialize()
@@ -78,9 +97,15 @@ namespace SierraHOTAS.Models
             _hotasQueue.KeystrokeUpSent += OnKeystrokeUpSent;
             _hotasQueue.ButtonPressed += OnButtonPress;
             _hotasQueue.AxisChanged += OnAxisChanged;
+            _hotasQueue.ShiftModeChanged += OnShiftModeChanged;
             _hotasQueue.ListenAsync(Joystick, ButtonMap);
 
             Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
+        }
+
+        public void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap)
+        {
+            ButtonMap = buttonMap;
         }
 
         public void ForceButtonPress(JoystickOffset offset, bool isDown)
@@ -187,6 +212,13 @@ namespace SierraHOTAS.Models
         private void OnButtonPress(object sender, ButtonPressedEventArgs e)
         {
             ButtonPressed?.Invoke(this, new ButtonPressedEventArgs() { ButtonId = e.ButtonId, Device = this });
+
+            //testing shift mode change
+            if (e.ButtonId == (int)JoystickOffset.Buttons0)
+            {
+                Logging.Log.Debug("test this");
+            }
+
         }
 
         private void OnAxisChanged(object sender, AxisChangedEventArgs e)
@@ -198,6 +230,11 @@ namespace SierraHOTAS.Models
         public void Stop()
         {
             _hotasQueue?.Stop();
+        }
+
+        private void OnShiftModeChanged(object sender, ShiftModeChangedEventArgs e)
+        {
+            ShiftModeChanged?.Invoke(sender, e);
         }
 
         public void ClearUnassignedActions()

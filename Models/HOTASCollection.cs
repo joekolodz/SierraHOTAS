@@ -56,6 +56,7 @@ namespace SierraHOTAS.Models
                 device.AxisChanged -= Device_AxisChanged;
                 device.KeystrokeDownSent -= Device_KeystrokeDownSent;
                 device.KeystrokeUpSent -= Device_KeystrokeUpSent;
+                
                 device.Stop();
             }
         }
@@ -91,7 +92,17 @@ namespace SierraHOTAS.Models
             device.AxisChanged += Device_AxisChanged;
             device.KeystrokeDownSent += Device_KeystrokeDownSent;
             device.KeystrokeUpSent += Device_KeystrokeUpSent;
+            device.ShiftModeChanged += Device_ShiftModeChanged;
             device.ListenAsync();
+        }
+
+        private void Device_ShiftModeChanged(object sender, ShiftModeChangedEventArgs e)
+        {
+            //swap out activities and then notify VM/UI to redraw
+            if (sender is HOTASDevice device)
+            {
+                Logging.Log.Debug($"yo from: {device.Name}");
+            }
         }
 
         private void Device_KeystrokeDownSent(object sender, KeystrokeSentEventArgs e)

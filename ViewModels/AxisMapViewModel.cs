@@ -157,7 +157,7 @@ namespace SierraHOTAS.ViewModels
         {
             ButtonMap = new ObservableCollection<ButtonMapViewModel>();
             AddHandlersToButtonMapCollection();
-                
+
             ReverseButtonMap = new ObservableCollection<ButtonMapViewModel>();
             AddHandlersToReverseButtonMapCollection();
 
@@ -289,12 +289,15 @@ namespace SierraHOTAS.ViewModels
         private void OnAxisSegmentChanged(object sender, AxisSegmentChangedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(SoundFileName)) return;
-            _mediaPlayer.Dispatcher?.Invoke(() =>
+            if (sender is HOTASAxisMap axisMap)
             {
-                _mediaPlayer.Volume = 1f;
-                _mediaPlayer.Play();
-                _mediaPlayer.Position = TimeSpan.Zero;
-            });
+                _mediaPlayer.Dispatcher?.Invoke(() =>
+                {
+                    _mediaPlayer.Volume = axisMap.SoundVolume;
+                    _mediaPlayer.Play();
+                    _mediaPlayer.Position = TimeSpan.Zero;
+                });
+            }
         }
 
         private void AddButtonMapHandlers(ButtonMapViewModel mapViewModel)

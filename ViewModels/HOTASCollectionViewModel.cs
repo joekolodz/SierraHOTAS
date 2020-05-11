@@ -81,6 +81,10 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand RefreshDeviceListCommand => _refreshDeviceListCommand ?? (_refreshDeviceListCommand = new CommandHandler(RefreshDeviceList, () => CanExecute));
 
+        private ICommand _clearActivityListCommand;
+
+        public ICommand ClearActivityListCommand => _clearActivityListCommand ?? (_clearActivityListCommand = new CommandHandler(ClearActivityList, () => CanExecute));
+
         public bool CanExecute => true;
 
         public HOTASCollectionViewModel()
@@ -104,6 +108,7 @@ namespace SierraHOTAS.ViewModels
             _deviceList.ButtonPressed += DeviceList_ButtonPressed;
             _deviceList.KeystrokeDownSent += DeviceList_KeystrokeDownSent;
             _deviceList.KeystrokeUpSent += DeviceList_KeystrokeUpSent;
+            
             _deviceList.Start();
 
             BuildDevicesViewModel();
@@ -176,8 +181,11 @@ namespace SierraHOTAS.ViewModels
 
                 var d = _deviceList.GetDevice(ld.InstanceId);
                 if (d == null) continue;
-                d.ButtonMap = ld.ButtonMap.ToObservableCollection();
-                deviceVm.RebuildMap(ld.ButtonMap);
+                
+                d.ButtonMapShiftProfile = ld.ButtonMapShiftProfile;
+                d.SetButtonMap(ld.ButtonMapShiftProfile[0].ToObservableCollection());
+
+                deviceVm.RebuildMap(d.ButtonMap);
             }
         }
 
@@ -224,6 +232,11 @@ namespace SierraHOTAS.ViewModels
                 _deviceList.Devices.Add(n);
                 _deviceList.ListenToDevice(n);
             }
+        }
+
+        private void ClearActivityList()
+        {
+            Activity.Clear();
         }
 
         private void ClearActiveProfileSet()
