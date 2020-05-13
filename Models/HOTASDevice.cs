@@ -13,7 +13,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
-        public event EventHandler<ShiftModeChangedEventArgs> ShiftModeChanged;
+        public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
 
         [JsonProperty]
@@ -33,7 +33,7 @@ namespace SierraHOTAS.Models
 
         [JsonProperty]
         [JsonConverter(typeof(CustomJsonConverter))]
-        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ButtonMapShiftProfile { get; set; }
+        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles { get; set; }
 
 
 
@@ -44,7 +44,7 @@ namespace SierraHOTAS.Models
 
         public HOTASDevice()
         {
-            SetupNewButtonMapProfile();
+            InitializeModeProfileDictionary();
         }
 
         public HOTASDevice(Guid instanceId, string name)
@@ -56,16 +56,25 @@ namespace SierraHOTAS.Models
 
             InstanceId = instanceId;
             Name = name;
-            SetupNewButtonMapProfile();
+            InitializeModeProfileDictionary();
 
             Initialize();
         }
 
-        private void SetupNewButtonMapProfile()
+        private void InitializeModeProfileDictionary()
         {
-            ButtonMapShiftProfile = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            ModeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
             ButtonMap = new ObservableCollection<IHotasBaseMap>();
-            ButtonMapShiftProfile.Add(0, ButtonMap);
+            ModeProfiles.Add(1, ButtonMap);
+        }
+
+        public void SetupNewModeProfile()
+        {
+            var newMode = ModeProfiles.Count + 1;
+            ButtonMap = new ObservableCollection<IHotasBaseMap>();
+            ModeProfiles.Add(newMode, ButtonMap);
+            BuildButtonMapProfile();
+            SetMode(newMode);
         }
 
         private void Initialize()
@@ -97,7 +106,7 @@ namespace SierraHOTAS.Models
             _hotasQueue.KeystrokeUpSent += OnKeystrokeUpSent;
             _hotasQueue.ButtonPressed += OnButtonPress;
             _hotasQueue.AxisChanged += OnAxisChanged;
-            _hotasQueue.ShiftModeChanged += OnShiftModeChanged;
+            _hotasQueue.ModeProfileSelected += OnModeProfileSelected;
             _hotasQueue.ListenAsync(Joystick, ButtonMap);
 
             Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
@@ -106,6 +115,17 @@ namespace SierraHOTAS.Models
         public void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap)
         {
             ButtonMap = buttonMap;
+        }
+
+        public void SetMode(int mode)
+        {
+            if (!ModeProfiles.ContainsKey(mode))
+            {
+                Logging.Log.Warn($"Tried to change device to Mode {mode}, but there was no profile for it. Profile will remain unchanged. Device ID: {InstanceId}, Device Name: {Name}");
+                return;
+            }
+            ButtonMap = ModeProfiles[mode];
+            _hotasQueue.SetButtonMap(ButtonMap);
         }
 
         public void ForceButtonPress(JoystickOffset offset, bool isDown)
@@ -119,6 +139,11 @@ namespace SierraHOTAS.Models
 
             Debug.WriteLine("\nBuilding button maps...");
 
+            BuildButtonMapProfile();
+        }
+
+        private void BuildButtonMapProfile()
+        {
             if (Capabilities.AxeCount > 0) SeedAxisMap(JoystickOffset.X, 6);
             if (Capabilities.ButtonCount > 0) SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button);
             if (Capabilities.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV);
@@ -232,9 +257,9 @@ namespace SierraHOTAS.Models
             _hotasQueue?.Stop();
         }
 
-        private void OnShiftModeChanged(object sender, ShiftModeChangedEventArgs e)
+        private void OnModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
         {
-            ShiftModeChanged?.Invoke(sender, e);
+            ModeProfileSelected?.Invoke(this, e);
         }
 
         public void ClearUnassignedActions()
@@ -250,6 +275,15 @@ namespace SierraHOTAS.Models
             ButtonMap.Clear();
             if (MainWindow.IsDebug) return;
             LoadCapabilitiesMapping();
+        }
+
+        //use this to query which mode the device is set to
+        public bool GetButtonState(string buttonName)
+        {
+            var rawOffset = JoystickOffsetValues.GetIndex(buttonName);
+            var js = new JoystickState();
+            Joystick.GetCurrentState(ref js);
+            return js.Buttons[rawOffset];
         }
     }
 }

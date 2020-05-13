@@ -3,6 +3,7 @@ using SharpDX.DirectInput;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Threading;
 using SierraHOTAS.ViewModels;
 
 namespace SierraHOTAS.Models
@@ -14,9 +15,13 @@ namespace SierraHOTAS.Models
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
+        public event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
+
 
         [JsonProperty]
         public ObservableCollection<HOTASDevice> Devices { get; set; }
+
+        public int Mode { get; set; } = 1;
 
         private HOTASDevice _selectedDevice;
 
@@ -56,7 +61,8 @@ namespace SierraHOTAS.Models
                 device.AxisChanged -= Device_AxisChanged;
                 device.KeystrokeDownSent -= Device_KeystrokeDownSent;
                 device.KeystrokeUpSent -= Device_KeystrokeUpSent;
-                
+                device.ModeProfileSelected -= Device_ModeProfileSelected;
+
                 device.Stop();
             }
         }
@@ -92,17 +98,29 @@ namespace SierraHOTAS.Models
             device.AxisChanged += Device_AxisChanged;
             device.KeystrokeDownSent += Device_KeystrokeDownSent;
             device.KeystrokeUpSent += Device_KeystrokeUpSent;
-            device.ShiftModeChanged += Device_ShiftModeChanged;
+            device.ModeProfileSelected += Device_ModeProfileSelected;
             device.ListenAsync();
         }
 
-        private void Device_ShiftModeChanged(object sender, ShiftModeChangedEventArgs e)
+        public void SetupNewModeProfile()
         {
-            //swap out activities and then notify VM/UI to redraw
-            if (sender is HOTASDevice device)
+            foreach (var d in Devices)
             {
-                Logging.Log.Debug($"yo from: {device.Name}");
+                d.SetupNewModeProfile();
             }
+        }
+
+        private void Device_ModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
+        {
+            if (!(sender is HOTASDevice device)) return;
+            if (Mode == e.Mode) return;
+
+            Logging.Log.Info($"Mode Profile changed to: {e.Mode}");
+            Mode = e.Mode;
+
+            SetMode(Mode);
+
+            ModeProfileChanged?.Invoke(this, new ModeProfileChangedEventArgs() { Mode = e.Mode });
         }
 
         private void Device_KeystrokeDownSent(object sender, KeystrokeSentEventArgs e)
@@ -181,6 +199,42 @@ namespace SierraHOTAS.Models
             }
 
             return newDevices;
+        }
+
+        /// <summary>
+        /// Activate the profile for the given Mode
+        /// </summary>
+        /// <param name="mode"></param>
+        public void SetMode(int mode)
+        {
+            foreach (var d in Devices)
+            {
+                d.SetMode(mode);
+            }
+        }
+
+        /// <summary>
+        /// Automatically determine if a Mode button is selected. If so, activate that Mode's profile.
+        /// </summary>
+        public void AutoSetMode()
+        {
+            foreach (var d in Devices)
+            {
+                foreach (var map in d.ButtonMap)
+                {
+                    if (map is HOTASButtonMap buttonMap)
+                    {
+                        if (buttonMap.ShiftModePage > 0)
+                        {
+                            var isOn = d.GetButtonState(buttonMap.MapName);
+                            if (isOn)
+                            {
+                                SetMode(buttonMap.ShiftModePage);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

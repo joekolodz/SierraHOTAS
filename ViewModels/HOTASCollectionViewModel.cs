@@ -50,7 +50,7 @@ namespace SierraHOTAS.ViewModels
 
         public event EventHandler<ButtonPressedViewModelEventArgs> ButtonPressed;
         public event EventHandler<AxisChangedViewModelEventArgs> AxisChanged;
-
+        public event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
         public event EventHandler<EventArgs> FileOpened;
 
         private HOTASCollection _deviceList;
@@ -85,6 +85,16 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand ClearActivityListCommand => _clearActivityListCommand ?? (_clearActivityListCommand = new CommandHandler(ClearActivityList, () => CanExecute));
 
+        private ICommand _createNewModeProfileCommand;
+
+        public ICommand CreateNewModeProfileCommand => _createNewModeProfileCommand ?? (_createNewModeProfileCommand = new CommandHandler(CreateNewModeProfile, () => CanExecute));
+
+        private void CreateNewModeProfile()
+        {
+            _deviceList.SetupNewModeProfile();
+            OnModeProfileChanged(this, new ModeProfileChangedEventArgs(){Mode = _deviceList.Mode });
+        }
+
         public bool CanExecute => true;
 
         public HOTASCollectionViewModel()
@@ -108,11 +118,23 @@ namespace SierraHOTAS.ViewModels
             _deviceList.ButtonPressed += DeviceList_ButtonPressed;
             _deviceList.KeystrokeDownSent += DeviceList_KeystrokeDownSent;
             _deviceList.KeystrokeUpSent += DeviceList_KeystrokeUpSent;
-            
+            _deviceList.ModeProfileChanged += DeviceList_ModeProfileChanged;
+
             _deviceList.Start();
 
             BuildDevicesViewModel();
             AddHandlers();
+        }
+
+        private void DeviceList_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
+        {
+            OnModeProfileChanged(sender, e);
+        }
+
+        private void OnModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
+        {
+            AppDispatcher.Invoke(RebuildAllButtonMaps); //crossing thread boundaries from HOTASQueue thread to UI thread
+            ModeProfileChanged?.Invoke(sender, e);
         }
 
         private void DeviceList_KeystrokeUpSent(object sender, KeystrokeSentEventArgs e)
@@ -165,6 +187,16 @@ namespace SierraHOTAS.ViewModels
             _deviceList.Stop();
         }
 
+        private void RebuildAllButtonMaps()
+        {
+            foreach (var deviceVm in Devices)
+            {
+                var d = _deviceList.GetDevice(deviceVm.InstanceId);
+                if (d == null) continue;
+                deviceVm.RebuildMap();
+            }
+        }
+
         private void BuildDevicesViewModelFromLoadedDevices(HOTASCollection loadedDevices)
         {
             foreach (var ld in loadedDevices.Devices)
@@ -181,9 +213,11 @@ namespace SierraHOTAS.ViewModels
 
                 var d = _deviceList.GetDevice(ld.InstanceId);
                 if (d == null) continue;
-                
-                d.ButtonMapShiftProfile = ld.ButtonMapShiftProfile;
-                d.SetButtonMap(ld.ButtonMapShiftProfile[0].ToObservableCollection());
+
+                d.ModeProfiles = ld.ModeProfiles;
+
+                const int defaultModeKey = 1;
+                d.SetButtonMap(ld.ModeProfiles[defaultModeKey].ToObservableCollection());
 
                 deviceVm.RebuildMap(d.ButtonMap);
             }
@@ -272,6 +306,10 @@ namespace SierraHOTAS.ViewModels
             if (loadedDeviceList == null) return;
 
             BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
+
+            _deviceList.AutoSetMode();
+            //_deviceList.SetMode(_deviceList.Mode);
+
             AddHandlers();
             BuildActionCatalogFromLoadedDevices();
 

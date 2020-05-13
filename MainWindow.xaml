@@ -134,6 +134,12 @@
 
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="32" Background="{StaticResource WindowBackgroundBrush}">
             <CheckBox Content="Snap to Button" IsChecked="{Binding SnapToButton}" Margin="4,0,0,0" ToolTip="When checked, will automatically highlight and focus the activated button" ToolTipService.InitialShowDelay="800" ToolTipService.ShowDuration="8000"/>
+            <TextBlock Text="Create New Mode" Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"/>
+            <Button Style="{StaticResource RefreshButton}" Command="{Binding CreateNewModeProfileCommand, IsAsync=True}" Margin="2,0,0,0" ToolTip="Create a new mode" ToolTipService.InitialShowDelay="800">
+                <Button.Content>
+                    <Image Source="Images/refresh_32x32.png"/>
+                </Button.Content>
+            </Button>
         </StackPanel>
         <ListView Name="gridMap" 
                   ItemsSource="{Binding}" 

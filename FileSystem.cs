@@ -72,7 +72,8 @@ namespace SierraHOTAS
 
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
-                return (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
+                var xxx = (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
+                return xxx;
             }
         }
 

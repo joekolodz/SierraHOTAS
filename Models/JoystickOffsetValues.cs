@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Windows.Markup;
 
 namespace SierraHOTAS.Models
 {
@@ -50,15 +52,52 @@ namespace SierraHOTAS.Models
             OffsetLookup = Offsets.ToDictionary(name => index++);
         }
 
+        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
         private static void PopulateOffsetIndexLookup()
         {
             //build map of offset indexes and the offset's string name to get them by
             IndexLookup = new Dictionary<string, int>();
-            var i = 0;
-            foreach (var n in Enum.GetNames(typeof(JoystickOffset)))
+            //var names = Enum.GetNames(typeof(JoystickOffset));
+            //var values = (int[])Enum.GetValues(typeof(JoystickOffset));
+
+            foreach (var o in Offsets)
             {
-                IndexLookup.Add(n, i++);
+                IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), o), (int)o);
             }
+
+            //            var i = 0;
+            //            foreach (var n in Enum.GetNames(typeof(JoystickOffset)))
+            //            {
+            ////                IndexLookup.Add(n, );
+            //            }
+
+
+
+
+
+
+
+
+
+            //manually insert the first 12 because they're deltas are not contiguous increments of 1
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.X), (int)JoystickOffset.X);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.Y), (int)JoystickOffset.Y);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.Z), (int)JoystickOffset.Z);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.RotationX), (int)JoystickOffset.RotationX);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.RotationY), (int)JoystickOffset.RotationY);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.RotationZ), (int)JoystickOffset.RotationZ);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.Sliders0), (int)JoystickOffset.Sliders0);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.Sliders1), (int)JoystickOffset.Sliders1);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.PointOfViewControllers0), (int)JoystickOffset.PointOfViewControllers0);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.PointOfViewControllers1), (int)JoystickOffset.PointOfViewControllers1);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.PointOfViewControllers2), (int)JoystickOffset.PointOfViewControllers2);
+            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.PointOfViewControllers3), (int)JoystickOffset.PointOfViewControllers3);
+
+
+            //for (var i = IndexLookup.Count; i < names.Length; i++)
+            //{
+            //    IndexLookup.Add(names[i],i);
+            //}
         }
 
         //longs names renamed to shorter names
@@ -78,7 +117,7 @@ namespace SierraHOTAS.Models
         }
 
         /// <summary>
-        /// get cardinal index from offset string name
+        /// get cardinal index from offset string name (ie: 12 from "Buttons55")
         /// </summary>
         /// <param name="offsetName"></param>
         /// <returns></returns>
@@ -92,7 +131,18 @@ namespace SierraHOTAS.Models
         }
 
         /// <summary>
-        /// get offset enum from cardinal index lookup
+        /// get cardinal index from offset enum (ie: 12 from JoystickOffset.Buttons55 [or 103])
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public static int GetIndex(int offset)
+        {
+            var buttonName = GetName(offset);
+            return GetIndex(buttonName);
+        }
+
+        /// <summary>
+        /// get offset enum from cardinal index lookup (ie: JoystickOffset.Buttons0 from 12)
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
@@ -109,7 +159,7 @@ namespace SierraHOTAS.Models
         }
 
         /// <summary>
-        /// get offset string name from enum integer value (not index)
+        /// get offset string name from enum integer value (not index) (ie: "Buttons55" from 103)
         /// </summary>
         /// <param name="offset"></param>
         /// <returns></returns>
@@ -119,7 +169,7 @@ namespace SierraHOTAS.Models
         }
 
         /// <summary>
-        /// get clean (display) offset string name from offset enum value
+        /// get clean (display) offset string name from offset enum value. (ie: "Buttons55" from JoystickOffset.Buttons55)
         /// </summary>
         /// <param name="offset"></param>
         /// <returns></returns>

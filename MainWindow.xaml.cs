@@ -36,10 +36,16 @@ namespace SierraHOTAS
             HotasCollectionViewModel.ButtonPressed += CollectionViewModelButtonPressed;
             HotasCollectionViewModel.AxisChanged += CollectionViewModelAxisChanged;
             HotasCollectionViewModel.FileOpened += HotasCollectionViewModel_FileOpened;
+            HotasCollectionViewModel.ModeProfileChanged += HotasCollectionViewModel_ModeProfileChanged;
 
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
 
+        }
+
+        private void HotasCollectionViewModel_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
+        {
+            Logging.Log.Info($"Main window Mode changed event for mode:{e.Mode}");
         }
 
         private DeviceViewModel _currentlySelectedDeviceVm;

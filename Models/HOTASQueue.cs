@@ -18,7 +18,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
-        public event EventHandler<ShiftModeChangedEventArgs> ShiftModeChanged;
+        public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
 
         private Task _deviceListenLoopTask;
         private CancellationTokenSource _tokenSourceListenLoop;
@@ -60,20 +60,8 @@ namespace SierraHOTAS.Models
         public void Stop()
         {
             if (MainWindow.IsDebug) return;
-
-            WaitForLoopToStop(_tokenSourceListenLoop, _deviceListenLoopTask);
-            WaitForLoopToStop(_tokenSourceDequeueLoop, _deviceDequeueLoopTask);
-        }
-
-        private void WaitForLoopToStop(CancellationTokenSource cancelSource, Task taskToStop)
-        {
-            if (cancelSource == null) return;
-            cancelSource.Cancel();
-            while (!taskToStop.IsCanceled && !taskToStop.IsCompleted)
-            {
-                Thread.Sleep(1);
-            }
-            taskToStop.Dispose();
+            _tokenSourceListenLoop?.Cancel();
+            _tokenSourceDequeueLoop?.Cancel();
         }
 
         public static uint TranslatePointOfViewOffset(JoystickOffset offset, int value)
@@ -91,9 +79,10 @@ namespace SierraHOTAS.Models
 
         private void ListenLoop()
         {
-
-            while (!_tokenListenLoop.IsCancellationRequested)
+            while (true)
             {
+                _tokenListenLoop.ThrowIfCancellationRequested();
+
                 if (Joystick == null) return;
                 Thread.Sleep(1);//give CPU back
 
@@ -109,6 +98,7 @@ namespace SierraHOTAS.Models
                         Logging.Log.Debug($"{offset} - {state.Value}");
                         Logging.Log.Debug($"Offset:{offset}, Raw Offset:{state.RawOffset}, Seq:{state.Sequence}, Val:{state.Value}");
                         HandleStandardButton((int)offset, state.Value);
+                        Logging.Log.Warn($"button:{(int)offset} - {state.Value}");
                         continue;
                     }
 
@@ -220,7 +210,7 @@ namespace SierraHOTAS.Models
         {
             if (IsButtonDown(value))
             {
-                if (GetMap(offset) is HOTASButtonMap map && map.ActionCatalogItem.Actions.Count > 0)
+                if (GetMap(offset) is HOTASButtonMap map && (map.ActionCatalogItem.Actions.Count > 0 || map.ShiftModePage > 0))
                 {
                     //if action list has a timer in it, then it is a macro and executes on another thread independently. does not interrupt other buttons
                     HandleButtonPressed(map, offset);
@@ -247,6 +237,7 @@ namespace SierraHOTAS.Models
             if (buttonMap.ShiftModePage > 0)
             {
                 HandleShiftMode(buttonMap.ShiftModePage);
+                if (buttonMap.ActionCatalogItem.Actions.Count == 0) return;
             }
 
             _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = buttonMap.MapId, Actions = buttonMap.ActionCatalogItem.Actions }, _tokenDequeueLoop);
@@ -266,7 +257,7 @@ namespace SierraHOTAS.Models
 
         private void HandleShiftMode(int mode)
         {
-            ShiftModeChanged?.Invoke(this, new ShiftModeChangedEventArgs() { Mode = mode });
+            ModeProfileSelected?.Invoke(this, new ModeProfileSelectedEventArgs() { Mode = mode });
         }
 
         private async Task PlayMacroOnce(int offset, ObservableCollection<ButtonAction> actions)
@@ -341,6 +332,11 @@ namespace SierraHOTAS.Models
         private void OnButtonRelease(int buttonId)
         {
             ButtonReleased?.Invoke(this, new ButtonPressedEventArgs() { ButtonId = buttonId, Device = null });
+        }
+
+        public void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap)
+        {
+            _buttonMap = buttonMap;
         }
     }
 
