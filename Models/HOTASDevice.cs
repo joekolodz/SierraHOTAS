@@ -71,10 +71,48 @@ namespace SierraHOTAS.Models
         public void SetupNewModeProfile()
         {
             var newMode = ModeProfiles.Count + 1;
-            ButtonMap = new ObservableCollection<IHotasBaseMap>();
-            ModeProfiles.Add(newMode, ButtonMap);
-            BuildButtonMapProfile();
-            SetMode(newMode);
+            var newButtonMap = new ObservableCollection<IHotasBaseMap>();
+            ModeProfiles.Add(newMode, newButtonMap);
+            
+            //create the button map, but do not switch to it yet
+            CopyButtonMapProfile(ModeProfiles[1], newButtonMap);
+            //TODO: need to link a button to activate the mode first
+
+            //TODO: fix file - it has shift mode set to 1 for every button
+        }
+
+        private void CopyButtonMapProfile(ObservableCollection<IHotasBaseMap> source, ObservableCollection<IHotasBaseMap> destination)
+        {
+            foreach (var map in source)
+            {
+                switch (map)
+                {
+                    case HOTASAxisMap axisMap:
+                        {
+                            break;
+                        }
+                    case HOTASButtonMap buttonMap:
+                        {
+                            var newMap = new HOTASButtonMap
+                            {
+                                MapId = buttonMap.MapId,
+                                MapName = buttonMap.MapName,
+                                ShiftModePage = 0,
+                                ActionName = buttonMap.ActionName,
+                                Type = buttonMap.Type,
+                                ActionCatalogItem = new ActionCatalogItem()
+                                {
+                                    ActionName = buttonMap.ActionCatalogItem.ActionName,
+                                    NoAction = false,
+                                    Actions = buttonMap.ActionCatalogItem.Actions.ToObservableCollection()
+                                }
+                            };
+
+                            destination.Add(newMap);
+                            break;
+                        }
+                }
+            }
         }
 
         private void Initialize()
@@ -277,10 +315,9 @@ namespace SierraHOTAS.Models
             LoadCapabilitiesMapping();
         }
 
-        //use this to query which mode the device is set to
-        public bool GetButtonState(string buttonName)
+        public bool GetButtonState(int mapId)
         {
-            var rawOffset = JoystickOffsetValues.GetIndex(buttonName);
+            var rawOffset = JoystickOffsetValues.GetButtonIndexForJoystickState(mapId);
             var js = new JoystickState();
             Joystick.GetCurrentState(ref js);
             return js.Buttons[rawOffset];

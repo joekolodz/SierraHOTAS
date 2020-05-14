@@ -29,6 +29,8 @@ namespace SierraHOTAS.Models
             POVNorthWest = 31500
         }
 
+        private const int ButtonStartOffset = (int)JoystickOffset.Buttons0;
+
         //DirectX enum for joystick offset names restructured into a dictionary to use as a lookup
         private static Dictionary<int, JoystickOffset> OffsetLookup { get; set; }
         private static Dictionary<string, int> IndexLookup { get; set; }
@@ -57,47 +59,12 @@ namespace SierraHOTAS.Models
         {
             //build map of offset indexes and the offset's string name to get them by
             IndexLookup = new Dictionary<string, int>();
-            //var names = Enum.GetNames(typeof(JoystickOffset));
-            //var values = (int[])Enum.GetValues(typeof(JoystickOffset));
+            var names = Enum.GetNames(typeof(JoystickOffset));
 
-            foreach (var o in Offsets)
+            for (var i = IndexLookup.Count; i < names.Length; i++)
             {
-                IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), o), (int)o);
+                IndexLookup.Add(names[i], i);
             }
-
-            //            var i = 0;
-            //            foreach (var n in Enum.GetNames(typeof(JoystickOffset)))
-            //            {
-            ////                IndexLookup.Add(n, );
-            //            }
-
-
-
-
-
-
-
-
-
-            //manually insert the first 12 because they're deltas are not contiguous increments of 1
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.X), (int)JoystickOffset.X);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.Y), (int)JoystickOffset.Y);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.Z), (int)JoystickOffset.Z);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.RotationX), (int)JoystickOffset.RotationX);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.RotationY), (int)JoystickOffset.RotationY);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.RotationZ), (int)JoystickOffset.RotationZ);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.Sliders0), (int)JoystickOffset.Sliders0);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.Sliders1), (int)JoystickOffset.Sliders1);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.PointOfViewControllers0), (int)JoystickOffset.PointOfViewControllers0);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.PointOfViewControllers1), (int)JoystickOffset.PointOfViewControllers1);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.PointOfViewControllers2), (int)JoystickOffset.PointOfViewControllers2);
-            IndexLookup.Add(Enum.GetName(typeof(JoystickOffset), JoystickOffset.PointOfViewControllers3), (int)JoystickOffset.PointOfViewControllers3);
-
-
-            //for (var i = IndexLookup.Count; i < names.Length; i++)
-            //{
-            //    IndexLookup.Add(names[i],i);
-            //}
         }
 
         //longs names renamed to shorter names
@@ -131,14 +98,17 @@ namespace SierraHOTAS.Models
         }
 
         /// <summary>
-        /// get cardinal index from offset enum (ie: 12 from JoystickOffset.Buttons55 [or 103])
+        /// Returns a 0 based index for the raw button offset range. (ie: MapId of 48 (Buttons0) returns 0, MapId of 103 (Buttons55) returns 55)
+        /// Joystick.GetCurrentState is a 0 based array for the list of each capability, so Buttons0 is found at index 0 so we can't use the directX offset values
         /// </summary>
-        /// <param name="offset"></param>
+        /// <param name="mapId"></param>
         /// <returns></returns>
-        public static int GetIndex(int offset)
+        public static int GetButtonIndexForJoystickState(int mapId)
         {
-            var buttonName = GetName(offset);
-            return GetIndex(buttonName);
+            if (mapId < ButtonStartOffset) return 0;
+            if (mapId > (int)JoystickOffset.Buttons127) return 127;
+
+            return mapId - ButtonStartOffset;
         }
 
         /// <summary>

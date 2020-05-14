@@ -2,6 +2,7 @@
 using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace SierraHOTAS.ViewModels
         public string Name { get; set; }
 
         public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
+        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles => _hotasDevice.ModeProfiles;
 
         public bool IsDeviceLoaded => _hotasDevice?.Capabilities != null;
 

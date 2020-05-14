@@ -308,12 +308,12 @@ namespace SierraHOTAS.ViewModels
             BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
 
             _deviceList.AutoSetMode();
-            //_deviceList.SetMode(_deviceList.Mode);
 
             AddHandlers();
             BuildActionCatalogFromLoadedDevices();
 
             FileOpened?.Invoke(this, new EventArgs());
+
             _deviceList.ListenToAllDevices();
         }
 
@@ -323,45 +323,47 @@ namespace SierraHOTAS.ViewModels
 
             foreach (var device in Devices)
             {
-                foreach (var map in device.ButtonMap)
+                foreach (var mode in device.ModeProfiles)
                 {
-                    if (string.IsNullOrWhiteSpace(map.ButtonName)) continue;
-
-                    switch (map)
+                    foreach (var m in mode.Value)
                     {
-                        case AxisMapViewModel axisVm:
+                        if (string.IsNullOrWhiteSpace(m.MapName)) continue;
+                        switch (m)
+                        {
+                            case HOTASAxisMap axisMap:
                             {
-                                AddButtonListToCatalog(axisVm.ButtonMap);
-                                AddButtonListToCatalog(axisVm.ReverseButtonMap);
+                                    AddButtonListToCatalog(axisMap.ButtonMap);
+                                    AddButtonListToCatalog(axisMap.ReverseButtonMap);
+                                    break;
+                            }
+                            case HOTASButtonMap buttonMap:
+                            {
+                                AddButtonToCatalog(buttonMap.ActionName, buttonMap.ActionCatalogItem.Actions, buttonMap.MapName);
                                 break;
                             }
-                        case ButtonMapViewModel buttonVm:
-                            {
-                                AddButtonToCatalog(buttonVm);
-                                break;
-                            }
+                        }
                     }
                 }
             }
         }
 
-        private void AddButtonListToCatalog(ObservableCollection<ButtonMapViewModel> buttonVmList)
+        private void AddButtonListToCatalog(ObservableCollection<HOTASButtonMap> mapList)
         {
-            foreach (var baseVm in buttonVmList)
+            foreach (var baseMap in mapList)
             {
-                AddButtonToCatalog(baseVm);
+                AddButtonToCatalog(baseMap.ActionName, baseMap.ActionCatalogItem.Actions, baseMap.MapName);
             }
         }
 
-        private void AddButtonToCatalog(ButtonMapViewModel mapVm)
+        private void AddButtonToCatalog(string actionName, ObservableCollection<ButtonAction> actions, string buttonName)
         {
             var item = new ActionCatalogItem()
             {
-                ActionName = mapVm.ActionName,
-                Actions = mapVm.GetHotasActions()
+                ActionName = actionName,
+                Actions = actions
             };
             if (item.Actions.Count <= 0) return;
-            if (string.IsNullOrWhiteSpace(item.ActionName)) item.ActionName = $"<Un-named> - {mapVm.ButtonName}";
+            if (string.IsNullOrWhiteSpace(item.ActionName)) item.ActionName = $"<Un-named> - {buttonName}";
             ActionCatalog.Add(item);
         }
 

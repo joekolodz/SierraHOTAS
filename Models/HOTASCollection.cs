@@ -113,14 +113,7 @@ namespace SierraHOTAS.Models
         private void Device_ModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
         {
             if (!(sender is HOTASDevice device)) return;
-            if (Mode == e.Mode) return;
-
-            Logging.Log.Info($"Mode Profile changed to: {e.Mode}");
-            Mode = e.Mode;
-
-            SetMode(Mode);
-
-            ModeProfileChanged?.Invoke(this, new ModeProfileChangedEventArgs() { Mode = e.Mode });
+            SetMode(e.Mode);
         }
 
         private void Device_KeystrokeDownSent(object sender, KeystrokeSentEventArgs e)
@@ -207,10 +200,15 @@ namespace SierraHOTAS.Models
         /// <param name="mode"></param>
         public void SetMode(int mode)
         {
+            if (Mode == mode) return;
+            Logging.Log.Info($"Mode Profile changed to: {mode}");
+            Mode = mode;
+
             foreach (var d in Devices)
             {
                 d.SetMode(mode);
             }
+            ModeProfileChanged?.Invoke(this, new ModeProfileChangedEventArgs() { Mode = mode });
         }
 
         /// <summary>
@@ -222,17 +220,14 @@ namespace SierraHOTAS.Models
             {
                 foreach (var map in d.ButtonMap)
                 {
-                    if (map is HOTASButtonMap buttonMap)
-                    {
-                        if (buttonMap.ShiftModePage > 0)
-                        {
-                            var isOn = d.GetButtonState(buttonMap.MapName);
-                            if (isOn)
-                            {
-                                SetMode(buttonMap.ShiftModePage);
-                            }
-                        }
-                    }
+                    if (!(map is HOTASButtonMap buttonMap)) continue;
+                    if (buttonMap.ShiftModePage <= 0) continue;
+
+                    var isOn = d.GetButtonState(buttonMap.MapId);
+                    if (!isOn) continue;
+
+                    SetMode(buttonMap.ShiftModePage);
+                    return;
                 }
             }
         }
