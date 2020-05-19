@@ -33,14 +33,26 @@
         <controls:FileNameConverter x:Key="FileNameConverter"/>
         <controls:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 
+        <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
+
+        <Style TargetType="TextBlock" x:Key="ModeActivationTextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+
+        <Style TargetType="TextBox" x:Key="ModeActivationTextBox">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+
         <Style TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Left" />
         </Style>
         <Style TargetType="Button" x:Key="MenuButton">
             <Setter Property="Margin" Value="2,0"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Width" Value="32"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="BorderBrush" Value="Transparent"/>

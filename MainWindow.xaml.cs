@@ -45,7 +45,7 @@ namespace SierraHOTAS
 
         private void HotasCollectionViewModel_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
         {
-            Logging.Log.Info($"Main window Mode changed event for mode:{e.Mode}");
+            Logging.Log.Debug($"Main window Mode changed event for mode:{e.Mode}");
         }
 
         private DeviceViewModel _currentlySelectedDeviceVm;

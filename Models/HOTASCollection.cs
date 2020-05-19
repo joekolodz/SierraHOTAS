@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharpDX.DirectInput;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Threading;
@@ -24,6 +25,8 @@ namespace SierraHOTAS.Models
         public int Mode { get; set; } = 1;
 
         private HOTASDevice _selectedDevice;
+        public Dictionary<int, (Guid, int)> ModeProfileActivationButtons { get; }
+
 
         public void RemoveDevice(Guid instanceId)
         {
@@ -45,6 +48,7 @@ namespace SierraHOTAS.Models
         public HOTASCollection()
         {
             Devices = new ObservableCollection<HOTASDevice>();
+            ModeProfileActivationButtons = new Dictionary<int, (Guid, int)>();
         }
 
         public void Start()
@@ -102,12 +106,15 @@ namespace SierraHOTAS.Models
             device.ListenAsync();
         }
 
-        public void SetupNewModeProfile()
+        public int SetupNewModeProfile()
         {
+            var newMode = 0;
             foreach (var d in Devices)
             {
-                d.SetupNewModeProfile();
+                newMode = d.SetupNewModeProfile();
             }
+
+            return newMode;
         }
 
         private void Device_ModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
@@ -229,6 +236,60 @@ namespace SierraHOTAS.Models
                     SetMode(buttonMap.ShiftModePage);
                     return;
                 }
+            }
+        }
+
+        /// <summary>
+        /// The activation button should be applied across all profiles in the set to ensure the new mode can be reached from any device.
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <param name="deviceInstanceId"></param>
+        /// <param name="activationButtonId"></param>
+        public void ApplyActivationButton(int mode, Guid deviceInstanceId, int activationButtonId)
+        {
+            ModeProfileActivationButtons.Add(mode, (deviceInstanceId, activationButtonId));
+
+            //new profiles, wont have the link to previous profiles, so we iterate the entire dictionary to sync them all 
+            foreach (var ab in ModeProfileActivationButtons)
+            {
+                var device = Devices.FirstOrDefault(d => d.InstanceId == ab.Value.Item1);
+                if (device == null) continue;
+
+                foreach (var profile in device.ModeProfiles)
+                {
+                    var map = profile.Value.FirstOrDefault(m => m.MapId == ab.Value.Item2);
+
+                    switch (map)
+                    {
+                        case HOTASAxisMap axisMap:
+                            {
+                                ApplyShiftModePage(ab.Key, ab.Value.Item2, axisMap.ButtonMap);
+                                ApplyShiftModePage(ab.Key, ab.Value.Item2, axisMap.ReverseButtonMap);
+                                break;
+                            }
+                        case HOTASButtonMap buttonMap:
+                            {
+                                ApplyShiftModePage(ab.Key, ab.Value.Item2, buttonMap);
+                                break;
+                            }
+                    }
+                }
+            }
+        }
+
+        private static void ApplyShiftModePage(int mode, int activationButtonId, ObservableCollection<HOTASButtonMap> buttonMap)
+        {
+            foreach (var b in buttonMap)
+            {
+                ApplyShiftModePage(mode, activationButtonId, buttonMap);
+            }
+        }
+
+        private static void ApplyShiftModePage(int mode, int activationButtonId, HOTASButtonMap buttonMap)
+        {
+            if (buttonMap.MapId == activationButtonId)
+            {
+                buttonMap.ShiftModePage = mode;
             }
         }
     }

@@ -209,7 +209,7 @@ namespace SierraHOTAS.Models
             {
                 var translatedOffset = (int)TranslatePointOfViewOffset(offset, value);
                 _lastPovButton.TryAdd(offset, translatedOffset);
-                Debug.WriteLine($"Pressing POV button: {offset} - {value}");
+                Logging.Log.Info($"Pressing POV button: {offset} - {value}");
                 if (!(GetMap(translatedOffset) is HOTASButtonMap map)) return;
                 HandleButtonPressed(map, translatedOffset);
             }

@@ -33,7 +33,7 @@ namespace SierraHOTAS.Models
 
         [JsonProperty]
         [JsonConverter(typeof(CustomJsonConverter))]
-        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles { get; set; }
+        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles { get; private set; }
 
 
 
@@ -68,17 +68,28 @@ namespace SierraHOTAS.Models
             ModeProfiles.Add(1, ButtonMap);
         }
 
-        public void SetupNewModeProfile()
+        public void SetModeProfile(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile)
+        {
+            ModeProfiles = profile;
+            const int defaultModeKey = 1;
+            SetButtonMap(profile[defaultModeKey].ToObservableCollection());
+        }
+
+        public int SetupNewModeProfile()
         {
             var newMode = ModeProfiles.Count + 1;
             var newButtonMap = new ObservableCollection<IHotasBaseMap>();
             ModeProfiles.Add(newMode, newButtonMap);
-            
+
             //create the button map, but do not switch to it yet
             CopyButtonMapProfile(ModeProfiles[1], newButtonMap);
+            newButtonMap[0].MapName = $"!!!Mode:{newMode}";
+
             //TODO: need to link a button to activate the mode first
 
             //TODO: fix file - it has shift mode set to 1 for every button
+
+            return newMode;
         }
 
         private void CopyButtonMapProfile(ObservableCollection<IHotasBaseMap> source, ObservableCollection<IHotasBaseMap> destination)
@@ -89,30 +100,59 @@ namespace SierraHOTAS.Models
                 {
                     case HOTASAxisMap axisMap:
                         {
+                            var newAxisMap = new HOTASAxisMap()
+                            {
+                                MapId = axisMap.MapId,
+                                MapName = axisMap.MapName,
+                                Type = axisMap.Type,
+                                IsDirectional = axisMap.IsDirectional,
+                                IsMultiAction = axisMap.IsMultiAction,
+                                SoundFileName = axisMap.SoundFileName,
+                                SoundVolume = axisMap.SoundVolume,
+                                Segments = axisMap.Segments.ToObservableCollection()
+                            };
+
+                            foreach (var b in axisMap.ButtonMap)
+                            {
+                                var newMap = BuildAxisButtonMap(b);
+                                newAxisMap.ButtonMap.Add(newMap);
+                            }
+
+                            foreach (var b in axisMap.ReverseButtonMap)
+                            {
+                                var newMap = BuildAxisButtonMap(b);
+                                newAxisMap.ReverseButtonMap.Add(newMap);
+                            }
+                            destination.Add(newAxisMap);
                             break;
                         }
                     case HOTASButtonMap buttonMap:
                         {
-                            var newMap = new HOTASButtonMap
-                            {
-                                MapId = buttonMap.MapId,
-                                MapName = buttonMap.MapName,
-                                ShiftModePage = 0,
-                                ActionName = buttonMap.ActionName,
-                                Type = buttonMap.Type,
-                                ActionCatalogItem = new ActionCatalogItem()
-                                {
-                                    ActionName = buttonMap.ActionCatalogItem.ActionName,
-                                    NoAction = false,
-                                    Actions = buttonMap.ActionCatalogItem.Actions.ToObservableCollection()
-                                }
-                            };
-
+                            var newMap = BuildAxisButtonMap(buttonMap);
                             destination.Add(newMap);
                             break;
                         }
                 }
             }
+        }
+
+        private static HOTASButtonMap BuildAxisButtonMap(HOTASButtonMap map)
+        {
+            var newMap = new HOTASButtonMap
+            {
+                MapId = map.MapId,
+                MapName = map.MapName,
+                ShiftModePage = 0,
+                ActionName = map.ActionName,
+                Type = map.Type,
+                ActionCatalogItem = new ActionCatalogItem()
+                {
+                    ActionName = map.ActionCatalogItem.ActionName,
+                    NoAction = false,
+                    Actions = map.ActionCatalogItem.Actions.ToObservableCollection()
+                }
+            };
+            return newMap;
         }
 
         private void Initialize()
@@ -275,13 +315,6 @@ namespace SierraHOTAS.Models
         private void OnButtonPress(object sender, ButtonPressedEventArgs e)
         {
             ButtonPressed?.Invoke(this, new ButtonPressedEventArgs() { ButtonId = e.ButtonId, Device = this });
-
-            //testing shift mode change
-            if (e.ButtonId == (int)JoystickOffset.Buttons0)
-            {
-                Logging.Log.Debug("test this");
-            }
-
         }
 
         private void OnAxisChanged(object sender, AxisChangedEventArgs e)

@@ -88,17 +88,27 @@ namespace SierraHOTAS.Models
 
                 //if exception due to lost device, then break out of loop so the user can refresh the device list and start over
                 Joystick.Poll();
-                var data = Joystick.GetBufferedData();
+                JoystickUpdate[] data;
+                try
+                {
+                     data = Joystick.GetBufferedData();
+                }
+                catch (Exception e)
+                {
+                    //TODO: dispose everything and exit
+                    Console.WriteLine(e);
+                    throw;
+                }
 
                 foreach (var state in data)
                 {
                     var offset = state.Offset;
                     if (offset >= JoystickOffset.Buttons0 && offset <= JoystickOffset.Buttons127)
                     {
-                        Logging.Log.Debug($"{offset} - {state.Value}");
+                        Logging.Log.Debug($"Offset:{offset} - Value:{state.Value}");
                         Logging.Log.Debug($"Offset:{offset}, Raw Offset:{state.RawOffset}, Seq:{state.Sequence}, Val:{state.Value}");
                         HandleStandardButton((int)offset, state.Value);
-                        Logging.Log.Warn($"button:{(int)offset} - {state.Value}");
+                        Logging.Log.Debug($"button:{(int)offset} - {state.Value}");
                         continue;
                     }
 

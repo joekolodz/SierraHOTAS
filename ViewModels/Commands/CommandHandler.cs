@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Windows.Input;
 
 namespace SierraHOTAS.ViewModels.Commands
@@ -18,6 +19,11 @@ namespace SierraHOTAS.ViewModels.Commands
         {
             add => CommandManager.RequerySuggested += value;
             remove => CommandManager.RequerySuggested -= value;
+        }
+
+        public void ForceCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
         }
 
         public bool CanExecute(object parameter)

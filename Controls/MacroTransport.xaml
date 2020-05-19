@@ -58,7 +58,7 @@
                   ItemsSource="{Binding DataContext.ActionCatalog.Catalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" 
                   DisplayMemberPath="ActionName" 
                   IsEditable="True" 
-                  IsTextSearchEnabled="False" 
+                  IsTextSearchEnabled="True" 
                   FontSize="14" 
                   Height="28" 
                   Width="300"

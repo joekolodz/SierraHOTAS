@@ -2,6 +2,7 @@
 using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels.Commands;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Threading;
 using SharpDX.DirectInput;
+using SierraHOTAS.ModeProfileWindow;
 using Application = System.Windows.Application;
 
 namespace SierraHOTAS.ViewModels
@@ -89,13 +91,36 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand CreateNewModeProfileCommand => _createNewModeProfileCommand ?? (_createNewModeProfileCommand = new CommandHandler(CreateNewModeProfile, () => CanExecute));
 
+        public bool CanExecute => true;
+
         private void CreateNewModeProfile()
         {
-            _deviceList.SetupNewModeProfile();
-            OnModeProfileChanged(this, new ModeProfileChangedEventArgs(){Mode = _deviceList.Mode });
+            const int defaultMode = 1;
+
+            if (!_deviceList.ModeProfileActivationButtons.ContainsKey(defaultMode))
+            {
+                AssignActivationButton(defaultMode);
+            }
+
+            var mode = _deviceList.SetupNewModeProfile();
+            _deviceList.SetMode(mode);
+            AssignActivationButton(mode);
+
+            OnModeProfileChanged(this, new ModeProfileChangedEventArgs() { Mode = _deviceList.Mode });
         }
 
-        public bool CanExecute => true;
+        private void AssignActivationButton(int mode)
+        {
+            var modeWindow = new NewModeProfileWindow(mode, _deviceList.ModeProfileActivationButtons, _deviceList);
+            _deviceList.ButtonPressed += modeWindow.ModeProfileViewModel.DeviceList_ButtonPressed;
+            modeWindow.ShowDialog();
+            _deviceList.ButtonPressed -= modeWindow.ModeProfileViewModel.DeviceList_ButtonPressed;
+
+            Logging.Log.Info($"Profile name: {modeWindow.ProfileName}, Device: {modeWindow.ModeProfileViewModel.DeviceName}, Button: {modeWindow.ModeProfileViewModel.ActivationButtonId}");
+
+            _deviceList.ApplyActivationButton(mode, modeWindow.ModeProfileViewModel.DeviceInstanceId,
+                modeWindow.ModeProfileViewModel.ActivationButtonId);
+        }
 
         public HOTASCollectionViewModel()
         {
@@ -214,10 +239,7 @@ namespace SierraHOTAS.ViewModels
                 var d = _deviceList.GetDevice(ld.InstanceId);
                 if (d == null) continue;
 
-                d.ModeProfiles = ld.ModeProfiles;
-
-                const int defaultModeKey = 1;
-                d.SetButtonMap(ld.ModeProfiles[defaultModeKey].ToObservableCollection());
+                d.SetModeProfile(ld.ModeProfiles);
 
                 deviceVm.RebuildMap(d.ButtonMap);
             }
@@ -331,16 +353,16 @@ namespace SierraHOTAS.ViewModels
                         switch (m)
                         {
                             case HOTASAxisMap axisMap:
-                            {
+                                {
                                     AddButtonListToCatalog(axisMap.ButtonMap);
                                     AddButtonListToCatalog(axisMap.ReverseButtonMap);
                                     break;
-                            }
+                                }
                             case HOTASButtonMap buttonMap:
-                            {
-                                AddButtonToCatalog(buttonMap.ActionName, buttonMap.ActionCatalogItem.Actions, buttonMap.MapName);
-                                break;
-                            }
+                                {
+                                    AddButtonToCatalog(buttonMap.ActionName, buttonMap.ActionCatalogItem.Actions, buttonMap.MapName);
+                                    break;
+                                }
                         }
                     }
                 }
