@@ -138,7 +138,7 @@
     <Compile Include="ModeProfileWindow\NewModeProfileWindow.xaml.cs">
       <DependentUpon>NewModeProfileWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ModeProfileWindow\ViewModels\ModeActivationItem.cs" />
+    <Compile Include="Models\ModeActivationItem.cs" />
     <Compile Include="ModeProfileWindow\ViewModels\NewModeProfileWindowViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ViewModels\ActionCatalogViewModel.cs" />

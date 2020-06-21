@@ -274,17 +274,6 @@ namespace SierraHOTAS.Models
         {
             foreach (var action in actions)
             {
-                Keyboard.SendKeyPress(action.ScanCode, action.Flags);
-
-                if ((action.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
-                {
-                    KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
-                }
-                else
-                {
-                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
-                }
-
                 if (action.TimeInMilliseconds > 0)
                 {
                     //yes this is precise only to the nearest KeyDownRepeatDelay milliseconds. repeated keys are on a 60 millisecond boundary, so the UI could be locked to 60ms increments only
@@ -294,6 +283,17 @@ namespace SierraHOTAS.Models
                         await Task.Delay(Keyboard.KeyDownRepeatDelay);
                         timeLeft -= Keyboard.KeyDownRepeatDelay;
                     }
+                }
+
+                Keyboard.SendKeyPress(action.ScanCode, action.Flags);
+
+                if ((action.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
+                {
+                    KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
+                }
+                else
+                {
+                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
                 }
             }
             _activeMacros.TryRemove(offset, out var ignore);

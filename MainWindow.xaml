@@ -6,7 +6,7 @@
         xmlns:viewModel="clr-namespace:SierraHOTAS.ViewModels"
         x:Class="SierraHOTAS.MainWindow"
         mc:Ignorable="d"
-        Title="Sierra HOTAS" Height="900" Width="1200"
+        Title="Sierra HOTAS" Height="900" Width="1220"
         KeyDown="Window_KeyDown">
 
     <Window.DataContext>
@@ -58,7 +58,7 @@
             <TextBlock Name="txtLastFile" Text="{Binding ProfileSetFileName}" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextHeaderBrush}"/>
         </StackPanel>
 
-        <DockPanel DockPanel.Dock="Left" Width="300" LastChildFill="True" Margin="10,10,5,10" Background="{StaticResource WindowBackgroundBrush}">
+        <DockPanel DockPanel.Dock="Left" Width="320" LastChildFill="True" Margin="10,10,5,10" Background="{StaticResource WindowBackgroundBrush}">
             <StackPanel DockPanel.Dock="Top">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Devices" FontSize="15" Foreground="{StaticResource TextHeaderBrush}" VerticalAlignment="Bottom"/>
@@ -71,6 +71,26 @@
                 <ListBox x:Name="lstDevices" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" Height="150" FontSize="13" Background="Transparent" Foreground="{StaticResource TextBrush}" BorderBrush="SlateGray" SelectionChanged="LstDevices_OnSelectionChanged"/>
                 <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
                 <TextBox x:Name="txtTestBox" Height="100" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}" FontSize="14"></TextBox>
+            </StackPanel>
+
+            <StackPanel DockPanel.Dock="Top">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Mode Profiles" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
+                    <DataGrid Name="ModeActivationGrid" ItemsSource="{Binding ModeActivationItems}" Height="125" Width="Auto" AutoGenerateColumns="False" Background="Transparent">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Mode" Binding="{Binding Mode}" MaxWidth="45"/>
+                            <DataGridTextColumn Header="Profile" Binding="{Binding ProfileName}" Width="75"/>
+                            <DataGridTextColumn Header="Button" Binding="{Binding ButtonName}" Width="90"/>
+                            <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}"  Width="105"/>
+                        </DataGrid.Columns>
+                        <DataGrid.ItemContainerStyle>
+                            <Style TargetType="DataGridRow">
+                                <EventSetter Event="Selected" Handler="ModeActivationGrid_Selected"/>
+                            </Style>
+                        </DataGrid.ItemContainerStyle>
+
+                    </DataGrid>
+                </StackPanel>
             </StackPanel>
 
             <StackPanel DockPanel.Dock="Top">

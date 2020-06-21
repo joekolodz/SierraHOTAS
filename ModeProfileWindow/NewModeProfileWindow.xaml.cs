@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,10 +23,10 @@ namespace SierraHOTAS.ModeProfileWindow
     public partial class NewModeProfileWindow : Window
     {
         public NewModeProfileWindowViewModel ModeProfileViewModel { get; }
-        public NewModeProfileWindow(int mode, Dictionary<int, (Guid, int)> activationButtonList, HOTASCollection devices)
+        public NewModeProfileWindow(int mode, Dictionary<int, ModeActivationItem> activationButtonList)
         {
             InitializeComponent();
-            ModeProfileViewModel = new NewModeProfileWindowViewModel(mode, activationButtonList, devices);
+            ModeProfileViewModel = new NewModeProfileWindowViewModel(mode, activationButtonList);
             ModeProfileViewModel.AppDispatcher = Dispatcher;
             ModeProfileViewModel.NewModeSavedEventHandler += NewModeSaved;
             DataContext = ModeProfileViewModel;

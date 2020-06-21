@@ -32,7 +32,7 @@ namespace SierraHOTAS.ViewModels
         public DeviceViewModel(HOTASDevice device)
         {
             _hotasDevice = device;
-            InstanceId = _hotasDevice.InstanceId;
+            InstanceId = _hotasDevice.DeviceId;
             Name = _hotasDevice.Name;
 
             ButtonMap = new ObservableCollection<IBaseMapViewModel>();
@@ -42,7 +42,7 @@ namespace SierraHOTAS.ViewModels
         public void ReplaceDeviceWithDefaultMap(HOTASDevice newDevice)
         {
             _hotasDevice = newDevice;
-            InstanceId = _hotasDevice.InstanceId;
+            InstanceId = _hotasDevice.DeviceId;
             Name = _hotasDevice.Name;
 
             ButtonMap = new ObservableCollection<IBaseMapViewModel>();

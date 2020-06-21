@@ -3,8 +3,11 @@ using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows.Threading;
+using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels;
 
 namespace SierraHOTAS.Models
@@ -25,7 +28,9 @@ namespace SierraHOTAS.Models
         public int Mode { get; set; } = 1;
 
         private HOTASDevice _selectedDevice;
-        public Dictionary<int, (Guid, int)> ModeProfileActivationButtons { get; }
+        
+        [JsonProperty]
+        public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
 
 
         public void RemoveDevice(Guid instanceId)
@@ -33,7 +38,7 @@ namespace SierraHOTAS.Models
             HOTASDevice remove = null;
             foreach (var d in Devices)
             {
-                if (d.InstanceId == instanceId)
+                if (d.DeviceId == instanceId)
                 {
                     remove = d;
                 }
@@ -48,7 +53,7 @@ namespace SierraHOTAS.Models
         public HOTASCollection()
         {
             Devices = new ObservableCollection<HOTASDevice>();
-            ModeProfileActivationButtons = new Dictionary<int, (Guid, int)>();
+            ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
         }
 
         public void Start()
@@ -161,12 +166,7 @@ namespace SierraHOTAS.Models
 
             using (var i = new DirectInput())
             {
-                foreach (var device in i.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AttachedOnly))
-                {
-                    deviceList.Add(new HOTASDevice(device.InstanceGuid, device.ProductName));
-                }
-
-                foreach (var device in i.GetDevices(DeviceType.FirstPerson, DeviceEnumerationFlags.AttachedOnly))
+                foreach (var device in i.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly))
                 {
                     deviceList.Add(new HOTASDevice(device.InstanceGuid, device.ProductName));
                 }
@@ -176,7 +176,7 @@ namespace SierraHOTAS.Models
 
         public HOTASDevice GetDevice(Guid instanceId)
         {
-            return Devices.FirstOrDefault(d => d.InstanceId == instanceId);
+            return Devices.FirstOrDefault(d => d.DeviceId == instanceId);
         }
 
         public void ClearUnassignedActions()
@@ -194,7 +194,7 @@ namespace SierraHOTAS.Models
 
             foreach (var n in rescannedDevices)
             {
-                if (Devices.Any(d => d.InstanceId == n.InstanceId)) continue;
+                if (Devices.Any(d => d.DeviceId == n.DeviceId)) continue;
                 newDevices.Add(n);
             }
 
@@ -242,34 +242,29 @@ namespace SierraHOTAS.Models
         /// <summary>
         /// The activation button should be applied across all profiles in the set to ensure the new mode can be reached from any device.
         /// </summary>
-        /// <param name="mode"></param>
-        /// <param name="deviceInstanceId"></param>
-        /// <param name="activationButtonId"></param>
-        public void ApplyActivationButton(int mode, Guid deviceInstanceId, int activationButtonId)
+        public void ApplyActivationButtonToAllProfiles()
         {
-            ModeProfileActivationButtons.Add(mode, (deviceInstanceId, activationButtonId));
-
             //new profiles, wont have the link to previous profiles, so we iterate the entire dictionary to sync them all 
-            foreach (var ab in ModeProfileActivationButtons)
+            foreach (var item in ModeProfileActivationButtons)
             {
-                var device = Devices.FirstOrDefault(d => d.InstanceId == ab.Value.Item1);
+                var device = Devices.FirstOrDefault(d => d.DeviceId == item.Value.DeviceId);
                 if (device == null) continue;
 
                 foreach (var profile in device.ModeProfiles)
                 {
-                    var map = profile.Value.FirstOrDefault(m => m.MapId == ab.Value.Item2);
+                    var map = profile.Value.FirstOrDefault(m => m.MapId == item.Value.ButtonId);
 
                     switch (map)
                     {
                         case HOTASAxisMap axisMap:
                             {
-                                ApplyShiftModePage(ab.Key, ab.Value.Item2, axisMap.ButtonMap);
-                                ApplyShiftModePage(ab.Key, ab.Value.Item2, axisMap.ReverseButtonMap);
+                                ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ButtonMap);
+                                ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ReverseButtonMap);
                                 break;
                             }
                         case HOTASButtonMap buttonMap:
                             {
-                                ApplyShiftModePage(ab.Key, ab.Value.Item2, buttonMap);
+                                ApplyShiftModePage(item.Key, item.Value.ButtonId, buttonMap);
                                 break;
                             }
                     }

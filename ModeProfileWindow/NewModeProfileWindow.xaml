@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:SierraHOTAS.ModeProfileWindow.ViewModels"
         mc:Ignorable="d"
-        Title="New Mode Profile" Height="260" Width="450">
+        Title="New Mode Profile" Height="190" Width="450">
 
     <Window.DataContext>
         <viewModels:NewModeProfileWindowViewModel/>
@@ -25,7 +25,6 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="10"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -44,10 +43,6 @@
             <Button Grid.Row="5" Grid.Column="1" Style="{StaticResource MenuButton}" Command="{Binding SaveNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{StaticResource WindowBackgroundBrush}" ToolTip="Save this new mode activation assignment" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                 <Image Source="../Images/save_blue_32x32.png"/>
             </Button>
-
-            <DataGrid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Name="ModeActivationGrid" ItemsSource="{Binding ModeActivationItems}">
-            </DataGrid>
-
         </Grid>
     </Grid>
 
