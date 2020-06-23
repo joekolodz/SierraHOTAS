@@ -17,7 +17,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
 
         [JsonProperty]
-        public Guid InstanceId { get; set; }
+        public Guid DeviceId { get; set; }
 
         [JsonProperty]
         public string Name { get; set; }
@@ -47,14 +47,14 @@ namespace SierraHOTAS.Models
             InitializeModeProfileDictionary();
         }
 
-        public HOTASDevice(Guid instanceId, string name)
+        public HOTASDevice(Guid deviceId, string name)
         {
-            if (instanceId == Guid.Empty || instanceId == null || string.IsNullOrWhiteSpace(name))
+            if (deviceId == Guid.Empty || deviceId == null || string.IsNullOrWhiteSpace(name))
             {
                 throw new NullReferenceException("Information about Joystick is unavailable (this should only disable the Save and Load options");
             }
 
-            InstanceId = instanceId;
+            DeviceId = deviceId;
             Name = name;
             InitializeModeProfileDictionary();
 
@@ -172,7 +172,7 @@ namespace SierraHOTAS.Models
         private void AcquireJoystick()
         {
             var i = new DirectInput();
-            Joystick = new Joystick(i, InstanceId);
+            Joystick = new Joystick(i, DeviceId);
             Joystick.Properties.BufferSize = 4096;
             Joystick.Acquire();
         }
@@ -199,7 +199,7 @@ namespace SierraHOTAS.Models
         {
             if (!ModeProfiles.ContainsKey(mode))
             {
-                Logging.Log.Warn($"Tried to change device to Mode {mode}, but there was no profile for it. Profile will remain unchanged. Device ID: {InstanceId}, Device Name: {Name}");
+                Logging.Log.Warn($"Tried to change device to Mode {mode}, but there was no profile for it. Profile will remain unchanged. Device ID: {DeviceId}, Device Name: {Name}");
                 return;
             }
             ButtonMap = ModeProfiles[mode];

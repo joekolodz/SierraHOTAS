@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using SharpDX.DirectInput;
 using SierraHOTAS.ModeProfileWindow;
+using SierraHOTAS.ModeProfileWindow.ViewModels;
 using Application = System.Windows.Application;
 
 namespace SierraHOTAS.ViewModels
@@ -21,8 +22,9 @@ namespace SierraHOTAS.ViewModels
         public Dispatcher AppDispatcher { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ActionCatalogViewModel ActionCatalog { get; set; }
-
         public ObservableCollection<ActivityItem> Activity { get; set; }
+
+        public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeProfileActivationButtons.Values.ToObservableCollection();
 
         private bool? _snapToButton = true;
 
@@ -41,7 +43,7 @@ namespace SierraHOTAS.ViewModels
 
         public string ProfileSetFileName
         {
-            get { return _profileSetFileName; }
+            get => _profileSetFileName;
             set
             {
                 if (value == _profileSetFileName) return;
@@ -105,21 +107,26 @@ namespace SierraHOTAS.ViewModels
             var mode = _deviceList.SetupNewModeProfile();
             _deviceList.SetMode(mode);
             AssignActivationButton(mode);
+            OnModeProfileChanged(this, new ModeProfileChangedEventArgs() { Mode = _deviceList.Mode });
+        }
 
+        public void SetMode(int mode)
+        {
+            _deviceList.SetMode(mode);
             OnModeProfileChanged(this, new ModeProfileChangedEventArgs() { Mode = _deviceList.Mode });
         }
 
         private void AssignActivationButton(int mode)
         {
-            var modeWindow = new NewModeProfileWindow(mode, _deviceList.ModeProfileActivationButtons, _deviceList);
+            var modeWindow = new NewModeProfileWindow(mode, _deviceList.ModeProfileActivationButtons);
             _deviceList.ButtonPressed += modeWindow.ModeProfileViewModel.DeviceList_ButtonPressed;
             modeWindow.ShowDialog();
             _deviceList.ButtonPressed -= modeWindow.ModeProfileViewModel.DeviceList_ButtonPressed;
 
             Logging.Log.Info($"Profile name: {modeWindow.ProfileName}, Device: {modeWindow.ModeProfileViewModel.DeviceName}, Button: {modeWindow.ModeProfileViewModel.ActivationButtonId}");
 
-            _deviceList.ApplyActivationButton(mode, modeWindow.ModeProfileViewModel.DeviceInstanceId,
-                modeWindow.ModeProfileViewModel.ActivationButtonId);
+            _deviceList.ApplyActivationButtonToAllProfiles();
+            OnPropertyChanged(nameof(ModeActivationItems));
         }
 
         public HOTASCollectionViewModel()
@@ -226,7 +233,7 @@ namespace SierraHOTAS.ViewModels
         {
             foreach (var ld in loadedDevices.Devices)
             {
-                var deviceVm = Devices.FirstOrDefault(vm => vm.InstanceId == ld.InstanceId);
+                var deviceVm = Devices.FirstOrDefault(vm => vm.InstanceId == ld.DeviceId);
 
                 if (deviceVm == null)
                 {
@@ -236,7 +243,7 @@ namespace SierraHOTAS.ViewModels
                     continue;
                 }
 
-                var d = _deviceList.GetDevice(ld.InstanceId);
+                var d = _deviceList.GetDevice(ld.DeviceId);
                 if (d == null) continue;
 
                 d.SetModeProfile(ld.ModeProfiles);
@@ -253,14 +260,14 @@ namespace SierraHOTAS.ViewModels
 
         private void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
         {
-            var device = Devices?.First(d => d.InstanceId == e.Device.InstanceId);
+            var device = Devices?.First(d => d.InstanceId == e.Device.DeviceId);
             ButtonPressed?.Invoke(sender, new ButtonPressedViewModelEventArgs() { ButtonId = e.ButtonId, Device = device });
         }
 
         private void DeviceList_AxisChanged(object sender, AxisChangedEventArgs e)
         {
             if (Devices == null) return;
-            var device = Devices.First(d => d.InstanceId == e.Device.InstanceId);
+            var device = Devices.First(d => d.InstanceId == e.Device.DeviceId);
             AxisChanged?.Invoke(sender, new AxisChangedViewModelEventArgs() { AxisId = e.AxisId, Value = e.Value, Device = device });
         }
 
@@ -271,7 +278,7 @@ namespace SierraHOTAS.ViewModels
             //if the device has a mapping already loaded, then assign this device to that mapping
             foreach (var deviceViewModel in Devices)
             {
-                var newDevice = newDevices.FirstOrDefault(n => n.InstanceId == deviceViewModel.InstanceId);
+                var newDevice = newDevices.FirstOrDefault(n => n.DeviceId == deviceViewModel.InstanceId);
                 if (newDevice == null) continue;
 
                 newDevices.Remove(newDevice);
@@ -328,18 +335,25 @@ namespace SierraHOTAS.ViewModels
             if (loadedDeviceList == null) return;
 
             BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
+            BuildModeProfileActivationListFromLoadedDevices(loadedDeviceList);
+            ReBuildActionCatalog();
+            AddHandlers();
 
             _deviceList.AutoSetMode();
-
-            AddHandlers();
-            BuildActionCatalogFromLoadedDevices();
-
-            FileOpened?.Invoke(this, new EventArgs());
-
             _deviceList.ListenToAllDevices();
+            FileOpened?.Invoke(this, new EventArgs());
         }
 
-        private void BuildActionCatalogFromLoadedDevices()
+        private void BuildModeProfileActivationListFromLoadedDevices(HOTASCollection loadedDevices)
+        {
+            foreach (var item in loadedDevices.ModeProfileActivationButtons)
+            {
+                _deviceList.ModeProfileActivationButtons.Add(item.Key, item.Value);
+            }
+            OnPropertyChanged(nameof(ModeActivationItems));
+        }
+
+        private void ReBuildActionCatalog()
         {
             ActionCatalog.Clear();
 

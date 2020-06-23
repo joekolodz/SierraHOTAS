@@ -22,18 +22,18 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
 
         public string ProfileName { get; set; }
         public string DeviceName { get; set; }
-        public Guid DeviceInstanceId { get; set; }
+        public Guid DeviceId { get; set; }
         public string ActivationButtonName { get; set; }
         public int ActivationButtonId { get; set; }
         public bool IsActivationErrorVisible { get; set; }
-        public ObservableCollection<ModeActivationItem> ModeActivationItems { get; set; }
+        public ModeActivationItem ActivationItem { get; set; }
 
-        private bool _isActivationButtonValid = true;
+        private bool _isActivationButtonValid = false;
 
         public Dispatcher AppDispatcher { get; set; }
 
-        private int _mode;
-        private readonly Dictionary<int, (Guid, int)> _activationButtonList;
+        private readonly int _mode;
+        private readonly Dictionary<int, ModeActivationItem> _activationButtonList;
         private HOTASButtonMap _buttonMap;
 
         private CommandHandler _createNewModeProfileCommand;
@@ -43,14 +43,10 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
         {
         }
 
-        public NewModeProfileWindowViewModel(int mode, Dictionary<int, (Guid, int)> activationButtonList, HOTASCollection devices)
+        public NewModeProfileWindowViewModel(int mode, Dictionary<int, ModeActivationItem> activationButtonList)
         {
             _mode = mode;
             _activationButtonList = activationButtonList;
-
-            //todo: show the list of profiles with their name and activation button
-            ModeActivationItems = new ObservableCollection<ModeActivationItem>();
-            BuildActivationButtonGrid();
         }
 
         public void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -61,22 +57,14 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
                 return;
             }
 
-            //HOTASButtonMap map = null;
-            //foreach (var m in e.Device.ButtonMap)
-            //{
-            //    if (m.MapId != e.ButtonId) continue;
-            //    map = (HOTASButtonMap)m;
-            //    break;
-            //}
-            //if (map == null) return;
-
             Logging.Log.Info($"{e.ButtonId} from {e.Device.Name} - {sender}; ShiftMode:{map.ShiftModePage}");
 
             _buttonMap = map;
             DeviceName = e.Device.Name;
-            DeviceInstanceId = e.Device.InstanceId;
+            DeviceId = e.Device.DeviceId;
             ActivationButtonId = _buttonMap.MapId;
             ActivationButtonName = map.MapName;
+            ActivationButtonId = map.MapId;
             ValidateActivationButton();
 
             AppDispatcher?.Invoke(() =>
@@ -86,12 +74,22 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
                 OnPropertyChanged(nameof(IsActivationErrorVisible));
                 _createNewModeProfileCommand.ForceCanExecuteChanged();
             });
-
         }
 
         private void SaveNewModeProfile()
         {
             _buttonMap.ShiftModePage = _mode;
+            ActivationItem = new ModeActivationItem()
+            {
+                Mode = _mode,
+                ProfileName = ProfileName,
+                DeviceName = DeviceName,
+                DeviceId = DeviceId,
+                ButtonName = ActivationButtonName,
+                ButtonId = ActivationButtonId
+            };
+            _activationButtonList.Add(_mode, ActivationItem);
+
             NewModeSavedEventHandler?.Invoke(this, new EventArgs());
         }
 
@@ -99,10 +97,11 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
         {
             Logging.Log.Debug($"canexecute {_buttonMap?.ShiftModePage}");
 
-            _isActivationButtonValid = true;
+            _isActivationButtonValid = _buttonMap != null;
+
             foreach (var mapId in _activationButtonList)
             {
-                if (mapId.Value.Item1 != DeviceInstanceId || mapId.Value.Item2 != ActivationButtonId) continue;
+                if (mapId.Value.DeviceId != DeviceId || mapId.Value.ButtonId != ActivationButtonId) continue;
                 _isActivationButtonValid = false;
                 break;
             }
@@ -112,20 +111,6 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
         private bool CanExecuteSaveNewMode()
         {
             return _isActivationButtonValid;
-        }
-
-        private void BuildActivationButtonGrid()
-        {
-            foreach (var a in _activationButtonList)
-            {
-                var item = new ModeActivationItem()
-                {
-                    Mode = a.Key.ToString(),
-                    DeviceName = a.Value.Item1.ToString(),
-                    ActivationButtonName = a.Value.Item2.ToString()
-                };
-                ModeActivationItems.Add(item);
-            }
         }
 
         [NotifyPropertyChangedInvocator]

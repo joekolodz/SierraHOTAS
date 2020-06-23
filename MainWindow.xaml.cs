@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using SierraHOTAS.ModeProfileWindow.ViewModels;
 
 //https://www.pinvoke.net/default.aspx/user32/SendInput.html
 //https://cboard.cprogramming.com/windows-programming/170043-how-use-sendmessage-wm_keyup.html
@@ -163,6 +164,12 @@ namespace SierraHOTAS
         {
             if (e.AddedItems.Count <= 0) return;
             if (!(e.AddedItems[0] is DeviceViewModel device)) return;
+
+            SelectDevice(device);
+        }
+
+        private void SelectDevice(DeviceViewModel device)
+        {
             _currentlySelectedDeviceVm = device;
 
             gridMap.ItemsSource = device.ButtonMap;
@@ -185,6 +192,23 @@ namespace SierraHOTAS
             {
                 _currentlySelectedDeviceVm.ForceButtonPress(SharpDX.DirectInput.JoystickOffset.Buttons0, false);
             }
+        }
+
+        private void ModeActivationGrid_Selected(object sender, RoutedEventArgs e)
+        {
+            if (!(ModeActivationGrid.CurrentItem is ModeActivationItem item)) return;
+
+            Logging.Log.Info($"datagrid select: {item.ProfileName}");
+
+            foreach (var device in HotasCollectionViewModel.Devices)
+            {
+                if(device.InstanceId != item.DeviceId) continue;
+                SelectDevice(device);
+                HotasCollectionViewModel.SetMode(item.Mode);
+                break;
+            }
+
+            
         }
     }
 }
