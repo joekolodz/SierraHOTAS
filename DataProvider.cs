@@ -16,7 +16,7 @@ namespace SierraHOTAS
                 new HOTASDevice(stickGuid, "Joe's Test Stick")
             };
 
-            devices[1].SetButtonMap(new ObservableCollection<IHotasBaseMap>()
+            devices[0].SetButtonMap(new ObservableCollection<IHotasBaseMap>()
             {
                 new HOTASButtonMap()
                 {
@@ -42,7 +42,7 @@ namespace SierraHOTAS
                 new HOTASAxisMap() {MapName = "Axis 2", Type = HOTASButtonMap.ButtonType.AxisRadial, MapId = 55, IsDirectional = true}
             });
 
-            devices[2].SetButtonMap(new ObservableCollection<IHotasBaseMap>()
+            devices[1].SetButtonMap(new ObservableCollection<IHotasBaseMap>()
             {
                 new HOTASAxisMap() { MapName = "Axis 1", Type = HOTASButtonMap.ButtonType.AxisLinear, MapId = 42, IsDirectional = true },
                 new HOTASAxisMap() { MapName = "Axis 2", Type = HOTASButtonMap.ButtonType.AxisRadial, MapId = 43, IsDirectional = false },
