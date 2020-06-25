@@ -93,6 +93,14 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand CreateNewModeProfileCommand => _createNewModeProfileCommand ?? (_createNewModeProfileCommand = new CommandHandler(CreateNewModeProfile, () => CanExecute));
 
+        private ICommand _editModeProfileCommand;
+
+        public ICommand EditModeProfileCommand => _editModeProfileCommand ?? (_editModeProfileCommand = new CommandHandler(EditModeProfile, () => CanExecute));
+
+        private ICommand _deleteModeProfileCommand;
+
+        public ICommand DeleteModeProfileCommand => _deleteModeProfileCommand ?? (_deleteModeProfileCommand = new CommandHandler(DeleteModeProfile, () => CanExecute));
+
         public bool CanExecute => true;
 
         private void CreateNewModeProfile()
@@ -108,6 +116,16 @@ namespace SierraHOTAS.ViewModels
             _deviceList.SetMode(mode);
             AssignActivationButton(mode);
             OnModeProfileChanged(this, new ModeProfileChangedEventArgs() { Mode = _deviceList.Mode });
+        }
+
+        private void EditModeProfile()
+        {
+            Logging.Log.Debug("EDIT!");
+        }
+
+        private void DeleteModeProfile()
+        {
+            Logging.Log.Debug("DELETE!");
         }
 
         public void SetMode(int mode)
@@ -305,6 +323,7 @@ namespace SierraHOTAS.ViewModels
         private void ClearActiveProfileSet()
         {
             _deviceList.ClearButtonMap();
+
             //unload button mappings
             //clear catalog?
             foreach (var deviceVm in Devices)
@@ -312,6 +331,9 @@ namespace SierraHOTAS.ViewModels
                 deviceVm.ClearButtonMap();
                 deviceVm.RebuildMap();
             }
+
+            _deviceList.ModeProfileActivationButtons.Clear();
+            OnPropertyChanged(nameof(ModeActivationItems));
 
             FileSystem.LastSavedFileName = "";
             ProfileSetFileName = FileSystem.LastSavedFileName;

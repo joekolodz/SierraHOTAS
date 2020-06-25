@@ -47,6 +47,15 @@ namespace SierraHOTAS
         private void HotasCollectionViewModel_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
         {
             Logging.Log.Debug($"Main window Mode changed event for mode:{e.Mode}");
+
+            Dispatcher?.Invoke(() =>
+            {
+                var selectedProfile = HotasCollectionViewModel.ModeActivationItems.FirstOrDefault<ModeActivationItem>(x => x.Mode == e.Mode);
+                if (selectedProfile != null)
+                {
+                    ModeActivationGrid.SelectedItem = selectedProfile;
+                }
+            });
         }
 
         private DeviceViewModel _currentlySelectedDeviceVm;
@@ -202,13 +211,13 @@ namespace SierraHOTAS
 
             foreach (var device in HotasCollectionViewModel.Devices)
             {
-                if(device.InstanceId != item.DeviceId) continue;
+                if (device.InstanceId != item.DeviceId) continue;
                 SelectDevice(device);
                 HotasCollectionViewModel.SetMode(item.Mode);
                 break;
             }
 
-            
+
         }
     }
 }

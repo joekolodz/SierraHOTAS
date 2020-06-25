@@ -75,20 +75,64 @@
 
             <StackPanel DockPanel.Dock="Top">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Mode Profiles" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
-                    <DataGrid Name="ModeActivationGrid" ItemsSource="{Binding ModeActivationItems}" Height="125" Width="Auto" AutoGenerateColumns="False" Background="Transparent">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Mode Profiles" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
+                        <TextBlock Text="Create New Mode" Foreground="{StaticResource TextBrush}" VerticalAlignment="Bottom" Margin="8,0,0,0"/>
+                        <Button Style="{StaticResource RefreshButton}" Command="{Binding CreateNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" Margin="2,0,0,0" ToolTip="Create a new mode" ToolTipService.InitialShowDelay="800">
+                            <Button.Content>
+                                <Image Source="Images/refresh_32x32.png"/>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+
+                    <DataGrid Name="ModeActivationGrid" 
+                              ItemsSource="{Binding ModeActivationItems}" 
+                              Height="145" 
+                              Width="Auto" 
+                              AutoGenerateColumns="False" 
+                              Background="Transparent"
+                              GridLinesVisibility="None"
+                              AlternationCount="2"
+                              RowHeaderWidth="0"
+                              CanUserAddRows="False" 
+                              IsReadOnly="True"
+                              CanUserDeleteRows="False"
+                              Style="{DynamicResource DataGridStyle}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Mode" Binding="{Binding Mode}" MaxWidth="45"/>
                             <DataGridTextColumn Header="Profile" Binding="{Binding ProfileName}" Width="75"/>
                             <DataGridTextColumn Header="Button" Binding="{Binding ButtonName}" Width="90"/>
-                            <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}"  Width="105"/>
+                            <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="105"/>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.EditModeProfileCommand}">Edit</Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.DeleteModeProfileCommand}">Delete</Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                         <DataGrid.ItemContainerStyle>
                             <Style TargetType="DataGridRow">
                                 <EventSetter Event="Selected" Handler="ModeActivationGrid_Selected"/>
                             </Style>
                         </DataGrid.ItemContainerStyle>
-
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
+                                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellStyle}">
+                                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                            </Style>
+                        </DataGrid.CellStyle>
                     </DataGrid>
                 </StackPanel>
             </StackPanel>
@@ -148,18 +192,8 @@
 
         </DockPanel>
 
-
-
-
-
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="32" Background="{StaticResource WindowBackgroundBrush}">
             <CheckBox Content="Snap to Button" IsChecked="{Binding SnapToButton}" Margin="4,0,0,0" ToolTip="When checked, will automatically highlight and focus the activated button" ToolTipService.InitialShowDelay="800" ToolTipService.ShowDuration="8000"/>
-            <TextBlock Text="Create New Mode" Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"/>
-            <Button Style="{StaticResource RefreshButton}" Command="{Binding CreateNewModeProfileCommand, IsAsync=True}" Margin="2,0,0,0" ToolTip="Create a new mode" ToolTipService.InitialShowDelay="800">
-                <Button.Content>
-                    <Image Source="Images/refresh_32x32.png"/>
-                </Button.Content>
-            </Button>
         </StackPanel>
         <ListView Name="gridMap" 
                   ItemsSource="{Binding}" 
