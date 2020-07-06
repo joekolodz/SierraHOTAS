@@ -20,7 +20,7 @@
         <SolidColorBrush x:Key="GroupBorderBrush" Color="#708090" />
         <SolidColorBrush x:Key="NormalBorderBrush" Color="Azure" />
         <SolidColorBrush x:Key="RowBrush" Color="Transparent" />
-        <SolidColorBrush x:Key="RowAlternateBrush" Color="#393939" />
+        <SolidColorBrush x:Key="RowAlternateBrush" Color="#424242" />
 
         <SolidColorBrush x:Key="AxisForwardBrush" Color="Gold" />
         <SolidColorBrush x:Key="AxisReverseBrush" Color="#80e5ff" />
@@ -82,6 +82,24 @@
             </Style.Triggers>
         </Style>
         <Style TargetType="Button" x:Key="RefreshButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Height" Value="17"/>
+            <Setter Property="Width" Value="17"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style TargetType="Button" x:Key="AddButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Height" Value="17"/>
+            <Setter Property="Width" Value="17"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style TargetType="Button" x:Key="ClearListButton">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Height" Value="17"/>
             <Setter Property="Width" Value="17"/>
@@ -409,7 +427,7 @@
         </Style>
 
         <Style x:Key="DataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="Height" Value="22"/>
+            <Setter Property="Height" Value="24"/>
             <Setter Property="Background" Value="{StaticResource HoverBrush}" />
             <Setter Property="Foreground" Value="{StaticResource TextHeaderBrush}"/>
             <Setter Property="Margin" Value="2"/>
@@ -429,7 +447,7 @@
         <Style x:Key="DataGridRowStyle" TargetType="{x:Type DataGridRow}">
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-            <Setter Property="Height" Value="20"/>
+            <Setter Property="Height" Value="24"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Style.Triggers>
                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">

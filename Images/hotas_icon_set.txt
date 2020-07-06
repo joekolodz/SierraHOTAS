@@ -1,0 +1,11 @@
+most icons shoudld be around 22x22
+some icons can go 26x26 like the edit pencil or the save as or file open icons where some parts overhang the 22x22 area
+for rounded or smooth edges, use block erase 50% transparency
+
+Save final icons to PNG with transparency
+- select area to export
+- CTRL+SHIFT+C to copy merged
+- CTRL+N to make a new window
+- paste, delete background
+- CTRL+SHIFT+S to save as
+- select PNG

@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignWidth="600">
 
-    <StackPanel Orientation="Horizontal" Width="600" Margin="10">
+    <StackPanel Orientation="Horizontal" Margin="10">
         <StackPanel Orientation="Vertical">
             <local:MacroTransport VerticalContentAlignment="Top"/>
         </StackPanel>

@@ -58,7 +58,7 @@
             <TextBlock Name="txtLastFile" Text="{Binding ProfileSetFileName}" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextHeaderBrush}"/>
         </StackPanel>
 
-        <DockPanel DockPanel.Dock="Left" Width="320" LastChildFill="True" Margin="10,10,5,10" Background="{StaticResource WindowBackgroundBrush}">
+        <DockPanel DockPanel.Dock="Left" Width="330" LastChildFill="True" Margin="10,10,5,10" Background="{StaticResource WindowBackgroundBrush}">
             <StackPanel DockPanel.Dock="Top">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Devices" FontSize="15" Foreground="{StaticResource TextHeaderBrush}" VerticalAlignment="Bottom"/>
@@ -69,18 +69,15 @@
                     </Button>
                 </StackPanel>
                 <ListBox x:Name="lstDevices" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" Height="150" FontSize="13" Background="Transparent" Foreground="{StaticResource TextBrush}" BorderBrush="SlateGray" SelectionChanged="LstDevices_OnSelectionChanged"/>
-                <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
-                <TextBox x:Name="txtTestBox" Height="100" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}" FontSize="14"></TextBox>
             </StackPanel>
 
             <StackPanel DockPanel.Dock="Top">
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Mode Profiles" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
-                        <TextBlock Text="Create New Mode" Foreground="{StaticResource TextBrush}" VerticalAlignment="Bottom" Margin="8,0,0,0"/>
-                        <Button Style="{StaticResource RefreshButton}" Command="{Binding CreateNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" Margin="2,0,0,0" ToolTip="Create a new mode" ToolTipService.InitialShowDelay="800">
+                        <Button Style="{StaticResource AddButton}" Command="{Binding CreateNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" Margin="2,0,0,0" ToolTip="Create a new mode" ToolTipService.InitialShowDelay="800">
                             <Button.Content>
-                                <Image Source="Images/refresh_32x32.png"/>
+                                <Image Source="Images/add_green_22x22.png"/>
                             </Button.Content>
                         </Button>
                     </StackPanel>
@@ -99,21 +96,25 @@
                               CanUserDeleteRows="False"
                               Style="{DynamicResource DataGridStyle}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Mode" Binding="{Binding Mode}" MaxWidth="45"/>
+                            <!--<DataGridTextColumn Header="Mode" Binding="{Binding Mode}" MaxWidth="45"/>-->
                             <DataGridTextColumn Header="Profile" Binding="{Binding ProfileName}" Width="75"/>
                             <DataGridTextColumn Header="Button" Binding="{Binding ButtonName}" Width="90"/>
                             <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="105"/>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.EditModeProfileCommand}">Edit</Button>
+                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.EditModeProfileCommand}" ToolTip="Edit mode" ToolTipService.InitialShowDelay="800" Background="Transparent"  BorderBrush="Transparent">
+                                            <Image Source="Images/edit_blue_26x26.png"/>
+                                        </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.DeleteModeProfileCommand}">Delete</Button>
+                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.DeleteModeProfileCommand}" ToolTip="Remove mode" ToolTipService.InitialShowDelay="800" Background="Transparent" BorderBrush="Transparent">
+                                            <Image Source="Images/remove_red_26x26.png"/>
+                                        </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -138,11 +139,14 @@
             </StackPanel>
 
             <StackPanel DockPanel.Dock="Top">
+                <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
+                <TextBox x:Name="txtTestBox" Height="100" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}" FontSize="14"></TextBox>
+
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Activity" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
-                    <Button Style="{StaticResource RefreshButton}" Command="{Binding ClearActivityListCommand, IsAsync=True}" Margin="2,0,0,0" ToolTip="Clear Activity" ToolTipService.InitialShowDelay="800">
+                    <Button Style="{StaticResource ClearListButton}" Command="{Binding ClearActivityListCommand, IsAsync=True}" Margin="2,10,0,0" ToolTip="Clear Activity" ToolTipService.InitialShowDelay="800">
                         <Button.Content>
-                            <Image Source="Images/refresh_32x32.png"/>
+                            <Image Source="Images/clear_list_22x22.png"/>
                         </Button.Content>
                     </Button>
                 </StackPanel>
