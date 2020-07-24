@@ -343,11 +343,13 @@ namespace SierraHOTAS.ViewModels
         {
             _deviceList.ClearUnassignedActions();
             FileSystem.FileSave(_deviceList);
+            ProfileSetFileName = FileSystem.LastSavedFileName;
         }
 
         private void FileSaveAs()
         {
             FileSystem.FileSaveAs(_deviceList);
+            ProfileSetFileName = FileSystem.LastSavedFileName;
         }
 
         private void FileOpen()
@@ -360,10 +362,17 @@ namespace SierraHOTAS.ViewModels
             BuildModeProfileActivationListFromLoadedDevices(loadedDeviceList);
             ReBuildActionCatalog();
             AddHandlers();
+            ProfileSetFileName = FileSystem.LastSavedFileName;
 
             _deviceList.AutoSetMode();
             _deviceList.ListenToAllDevices();
             FileOpened?.Invoke(this, new EventArgs());
+
+            Logging.Log.Info($"Loaded a device set...");
+            foreach (var d in Devices)
+            {
+                Logging.Log.Info($"{d.InstanceId}, {d.Name}");
+            }
         }
 
         private void BuildModeProfileActivationListFromLoadedDevices(HOTASCollection loadedDevices)

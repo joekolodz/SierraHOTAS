@@ -81,7 +81,14 @@ namespace SierraHOTAS.Models
         {
             while (true)
             {
-                _tokenListenLoop.ThrowIfCancellationRequested();
+                try
+                {
+                    _tokenListenLoop.ThrowIfCancellationRequested();
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
 
                 if (Joystick == null) return;
                 Thread.Sleep(1);//give CPU back
