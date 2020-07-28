@@ -66,11 +66,17 @@ namespace SierraHOTAS.ViewModels
 
         public ObservableCollection<ButtonActionViewModel> Actions { get; set; }
 
-        public RelayCommandWithParameter RecordMacroStartCommandWithParameter { get; set; }
+        private CommandHandler _recordMacroStartCommand;
+        public ICommand RecordMacroStartCommand => _recordMacroStartCommand ?? (_recordMacroStartCommand = new CommandHandler(RecordMacroStart, RecordMacroStartCanExecute));
 
-        public RelayCommandWithParameter RecordMacroStopCommandWithParameter { get; set; }
 
-        public RelayCommandWithParameter RecordMacroCancelCommandWithParameter { get; set; }
+        private CommandHandler _recordMacroStopCommand;
+        public ICommand RecordMacroStopCommand => _recordMacroStopCommand ?? (_recordMacroStopCommand = new CommandHandler(RecordMacroStop, RecordMacroStopCanExecute));
+
+        
+        private CommandHandler _recordMacroCancelCommand;
+        public ICommand RecordMacroCancelCommand => _recordMacroCancelCommand ?? (_recordMacroCancelCommand = new CommandHandler(RecordMacroCancel, RecordMacroCancelCanExecute));
+
 
         public bool IsDisabledForced { get; set; }
 
@@ -99,10 +105,6 @@ namespace SierraHOTAS.ViewModels
         public ButtonMapViewModel(HOTASButtonMap buttonMap)
         {
             _hotasButtonMap = buttonMap;
-
-            RecordMacroStartCommandWithParameter = new RelayCommandWithParameter(RecordMacroStart, RecordMacroStartCanExecute);
-            RecordMacroStopCommandWithParameter = new RelayCommandWithParameter(RecordMacroStop, RecordMacroStopCanExecute);
-            RecordMacroCancelCommandWithParameter = new RelayCommandWithParameter(RecordMacroCancel, RecordMacroCancelCanExecute);
             IsRecording = false;
             IsDisabledForced = false;
             Actions = new ObservableCollection<ButtonActionViewModel>();
@@ -172,7 +174,7 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        private void RecordMacroStart(object parameter)
+        private void RecordMacroStart()
         {
             if (IsDisabledForced) return;
 
@@ -185,13 +187,13 @@ namespace SierraHOTAS.ViewModels
             RecordingStarted?.Invoke(this, EventArgs.Empty);
         }
 
-        private bool RecordMacroStartCanExecute(object parameter)
+        private bool RecordMacroStartCanExecute()
         {
             if (IsDisabledForced) return false;
             return !IsRecording;
         }
 
-        private void RecordMacroStop(object parameter)
+        private void RecordMacroStop()
         {
             if (IsDisabledForced) return;
 
@@ -204,12 +206,12 @@ namespace SierraHOTAS.ViewModels
             RecordingStopped?.Invoke(this, EventArgs.Empty);
         }
 
-        private bool RecordMacroStopCanExecute(object parameter)
+        private bool RecordMacroStopCanExecute()
         {
             if (IsDisabledForced) return false;
             return IsRecording;
         }
-        private void RecordMacroCancel(object parameter)
+        private void RecordMacroCancel()
         {
             if (IsDisabledForced) return;
 
@@ -222,7 +224,7 @@ namespace SierraHOTAS.ViewModels
             RecordingCancelled?.Invoke(this, EventArgs.Empty);
         }
 
-        private bool RecordMacroCancelCanExecute(object parameter)
+        private bool RecordMacroCancelCanExecute()
         {
             if (IsDisabledForced) return false;
             return IsRecording;

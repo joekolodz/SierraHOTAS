@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 
 namespace SierraHOTAS.Models
 {
@@ -77,17 +78,15 @@ namespace SierraHOTAS.Models
 
         public int SetupNewModeProfile()
         {
-            var newMode = ModeProfiles.Count + 1;
+            var max = ModeProfiles.OrderByDescending(x=>x.Key).First();
+            var newMode = max.Key + 1;
+
             var newButtonMap = new ObservableCollection<IHotasBaseMap>();
             ModeProfiles.Add(newMode, newButtonMap);
 
             //create the button map, but do not switch to it yet
             CopyButtonMapProfile(ModeProfiles[1], newButtonMap);
             newButtonMap[0].MapName = $"!!!Mode:{newMode}";
-
-            //TODO: need to link a button to activate the mode first
-
-            //TODO: fix file - it has shift mode set to 1 for every button
 
             return newMode;
         }

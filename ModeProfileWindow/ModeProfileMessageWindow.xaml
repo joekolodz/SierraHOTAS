@@ -1,0 +1,23 @@
+﻿<Window x:Class="SierraHOTAS.ModeProfileWindow.ModeProfileMessageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SierraHOTAS.ModeProfileWindow"
+        mc:Ignorable="d"
+        Title="Mode Profile Message" Height="130" Width="700">
+
+    <Grid Background="{StaticResource WindowBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Before creating a new profile, you must first assign an activation button to the existing profile." VerticalAlignment="Center" Style="{StaticResource ModeActivationTextBlock}" HorizontalAlignment="Center"/>
+        <Button Grid.Row="1" Click="ButtonBase_OnClick" Content="Continue" Width="80" Height="24" Command="{Binding SaveNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource HoverBorderBrush}" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
+
+    </Grid>
+</Window>

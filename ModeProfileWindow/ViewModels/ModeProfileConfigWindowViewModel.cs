@@ -15,7 +15,7 @@ using SierraHOTAS.ViewModels.Commands;
 
 namespace SierraHOTAS.ModeProfileWindow.ViewModels
 {
-    public class NewModeProfileWindowViewModel : INotifyPropertyChanged
+    public class ModeProfileConfigWindowViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<EventArgs> NewModeSavedEventHandler;
@@ -39,11 +39,11 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
         private CommandHandler _createNewModeProfileCommand;
         public ICommand SaveNewModeProfileCommand => _createNewModeProfileCommand ?? (_createNewModeProfileCommand = new CommandHandler(SaveNewModeProfile, CanExecuteSaveNewMode));
 
-        public NewModeProfileWindowViewModel()
+        public ModeProfileConfigWindowViewModel()
         {
         }
 
-        public NewModeProfileWindowViewModel(int mode, Dictionary<int, ModeActivationItem> activationButtonList)
+        public ModeProfileConfigWindowViewModel(int mode, Dictionary<int, ModeActivationItem> activationButtonList)
         {
             _mode = mode;
             _activationButtonList = activationButtonList;

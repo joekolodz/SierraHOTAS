@@ -28,7 +28,7 @@ namespace SierraHOTAS.Models
         public int Mode { get; set; } = 1;
 
         private HOTASDevice _selectedDevice;
-        
+
         [JsonProperty]
         public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
 
@@ -207,6 +207,19 @@ namespace SierraHOTAS.Models
         /// <param name="mode"></param>
         public void SetMode(int mode)
         {
+            
+            
+            
+            
+            
+            //after removing a row, it wants to fire a selected event on the grid that still is referring to the removed row. FIX IT
+            
+            
+            
+            
+            
+            
+            
             if (Mode == mode) return;
             Logging.Log.Info($"Mode Profile changed to: {mode}");
             Mode = mode;
@@ -235,6 +248,57 @@ namespace SierraHOTAS.Models
 
                     SetMode(buttonMap.ShiftModePage);
                     return;
+                }
+            }
+        }
+
+        public bool RemoveModeProfile(ModeActivationItem item)
+        {
+            if (ModeProfileActivationButtons.Remove(item.Mode))
+            {
+                RemoveActivationButtonModeFromAllProfiles(item);
+                foreach (var d in Devices)
+                {
+                    d.ModeProfiles.Remove(item.Mode);
+                }
+
+                Logging.Log.Debug($"DELETED Mode {item.Mode}!");
+                if (ModeProfileActivationButtons.Count > 0)
+                {
+                    var firstMode = ModeProfileActivationButtons.Keys.FirstOrDefault();
+                    SetMode(firstMode);
+                    Logging.Log.Debug($"Setting Mode to {firstMode}!");
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private void RemoveActivationButtonModeFromAllProfiles(ModeActivationItem item)
+        {
+            foreach (var button in ModeProfileActivationButtons)
+            {
+                var device = Devices.FirstOrDefault(d => d.DeviceId == button.Value.DeviceId);
+                if (device == null) continue;
+
+                foreach (var profile in device.ModeProfiles)
+                {
+                    var map = profile.Value.FirstOrDefault(m => m.MapId == item.ButtonId);
+
+                    switch (map)
+                    {
+                        case HOTASAxisMap axisMap:
+                        {
+                            //ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ButtonMap);
+                            //ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ReverseButtonMap);
+                            break;
+                        }
+                        case HOTASButtonMap buttonMap:
+                        {
+                            buttonMap.ShiftModePage = 0;
+                            break;
+                        }
+                    }
                 }
             }
         }

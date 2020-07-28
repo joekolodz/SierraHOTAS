@@ -1,18 +1,16 @@
 ﻿using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
-using SierraHOTAS.ViewModels.Commands;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Threading;
-using SharpDX.DirectInput;
 using SierraHOTAS.ModeProfileWindow;
 using SierraHOTAS.ModeProfileWindow.ViewModels;
+using SierraHOTAS.ViewModels.Commands;
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Threading;
 using Application = System.Windows.Application;
 
 namespace SierraHOTAS.ViewModels
@@ -63,45 +61,43 @@ namespace SierraHOTAS.ViewModels
 
         private ICommand _fileSaveCommand;
 
-        public ICommand SaveFileCommand => _fileSaveCommand ?? (_fileSaveCommand = new CommandHandler(FileSave, () => CanExecute));
+        public ICommand SaveFileCommand => _fileSaveCommand ?? (_fileSaveCommand = new CommandHandler(FileSave));
 
         private ICommand _fileSaveAsCommand;
 
-        public ICommand SaveFileAsCommand => _fileSaveAsCommand ?? (_fileSaveAsCommand = new CommandHandler(FileSaveAs, () => CanExecute));
+        public ICommand SaveFileAsCommand => _fileSaveAsCommand ?? (_fileSaveAsCommand = new CommandHandler(FileSaveAs));
 
         private ICommand _fileOpenCommand;
 
-        public ICommand OpenFileCommand => _fileOpenCommand ?? (_fileOpenCommand = new CommandHandler(FileOpen, () => CanExecute));
+        public ICommand OpenFileCommand => _fileOpenCommand ?? (_fileOpenCommand = new CommandHandler(FileOpen));
 
         private ICommand _selectionChangedCommand;
 
-        public ICommand SelectionChangedCommand => _selectionChangedCommand ?? (_selectionChangedCommand = new RelayCommandWithParameter(lstDevices_OnSelectionChanged));
+        public ICommand SelectionChangedCommand => _selectionChangedCommand ?? (_selectionChangedCommand = new CommandHandlerWithParameter<DeviceViewModel>(lstDevices_OnSelectionChanged));
 
         private ICommand _clearActiveProfileSetCommand;
 
-        public ICommand ClearActiveProfileSetCommand => _clearActiveProfileSetCommand ?? (_clearActiveProfileSetCommand = new CommandHandler(ClearActiveProfileSet, () => CanExecute));
+        public ICommand ClearActiveProfileSetCommand => _clearActiveProfileSetCommand ?? (_clearActiveProfileSetCommand = new CommandHandler(ClearActiveProfileSet));
 
         private ICommand _refreshDeviceListCommand;
 
-        public ICommand RefreshDeviceListCommand => _refreshDeviceListCommand ?? (_refreshDeviceListCommand = new CommandHandler(RefreshDeviceList, () => CanExecute));
+        public ICommand RefreshDeviceListCommand => _refreshDeviceListCommand ?? (_refreshDeviceListCommand = new CommandHandler(RefreshDeviceList));
 
         private ICommand _clearActivityListCommand;
 
-        public ICommand ClearActivityListCommand => _clearActivityListCommand ?? (_clearActivityListCommand = new CommandHandler(ClearActivityList, () => CanExecute));
+        public ICommand ClearActivityListCommand => _clearActivityListCommand ?? (_clearActivityListCommand = new CommandHandler(ClearActivityList));
 
         private ICommand _createNewModeProfileCommand;
 
-        public ICommand CreateNewModeProfileCommand => _createNewModeProfileCommand ?? (_createNewModeProfileCommand = new CommandHandler(CreateNewModeProfile, () => CanExecute));
+        public ICommand CreateNewModeProfileCommand => _createNewModeProfileCommand ?? (_createNewModeProfileCommand = new CommandHandler(CreateNewModeProfile));
 
         private ICommand _editModeProfileCommand;
 
-        public ICommand EditModeProfileCommand => _editModeProfileCommand ?? (_editModeProfileCommand = new CommandHandler(EditModeProfile, () => CanExecute));
+        public ICommand EditModeProfileCommand => _editModeProfileCommand ?? (_editModeProfileCommand = new CommandHandlerWithParameter<ModeActivationItem>(EditModeProfile));
 
         private ICommand _deleteModeProfileCommand;
 
-        public ICommand DeleteModeProfileCommand => _deleteModeProfileCommand ?? (_deleteModeProfileCommand = new CommandHandler(DeleteModeProfile, () => CanExecute));
-
-        public bool CanExecute => true;
+        public ICommand DeleteModeProfileCommand => _deleteModeProfileCommand ?? (_deleteModeProfileCommand = new CommandHandlerWithParameter<ModeActivationItem>(DeleteModeProfile));
 
         private void CreateNewModeProfile()
         {
@@ -109,6 +105,12 @@ namespace SierraHOTAS.ViewModels
 
             if (!_deviceList.ModeProfileActivationButtons.ContainsKey(defaultMode))
             {
+                var modeMessageWindow = new ModeProfileMessageWindow
+                {
+                    Owner = Application.Current.MainWindow,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                };
+                modeMessageWindow.ShowDialog();
                 AssignActivationButton(defaultMode);
             }
 
@@ -118,14 +120,19 @@ namespace SierraHOTAS.ViewModels
             OnModeProfileChanged(this, new ModeProfileChangedEventArgs() { Mode = _deviceList.Mode });
         }
 
-        private void EditModeProfile()
+        private void EditModeProfile(ModeActivationItem item)
         {
             Logging.Log.Debug("EDIT!");
+            var exists = _deviceList.ModeProfileActivationButtons.ContainsKey(item.Mode);
+            OnPropertyChanged(nameof(ModeActivationItems));
         }
 
-        private void DeleteModeProfile()
+        private void DeleteModeProfile(ModeActivationItem item)
         {
-            Logging.Log.Debug("DELETE!");
+            if (_deviceList.RemoveModeProfile(item))
+            {
+                OnPropertyChanged(nameof(ModeActivationItems));
+            }
         }
 
         public void SetMode(int mode)
@@ -136,12 +143,14 @@ namespace SierraHOTAS.ViewModels
 
         private void AssignActivationButton(int mode)
         {
-            var modeWindow = new NewModeProfileWindow(mode, _deviceList.ModeProfileActivationButtons);
-            _deviceList.ButtonPressed += modeWindow.ModeProfileViewModel.DeviceList_ButtonPressed;
+            var modeWindow = new ModeProfileConfigWindow(mode, _deviceList.ModeProfileActivationButtons);
+            modeWindow.Owner = Application.Current.MainWindow;
+            modeWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            _deviceList.ButtonPressed += modeWindow.ModeProfileConfigViewModel.DeviceList_ButtonPressed;
             modeWindow.ShowDialog();
-            _deviceList.ButtonPressed -= modeWindow.ModeProfileViewModel.DeviceList_ButtonPressed;
+            _deviceList.ButtonPressed -= modeWindow.ModeProfileConfigViewModel.DeviceList_ButtonPressed;
 
-            Logging.Log.Info($"Profile name: {modeWindow.ProfileName}, Device: {modeWindow.ModeProfileViewModel.DeviceName}, Button: {modeWindow.ModeProfileViewModel.ActivationButtonId}");
+            Logging.Log.Info($"Profile name: {modeWindow.ProfileName}, Device: {modeWindow.ModeProfileConfigViewModel.DeviceName}, Button: {modeWindow.ModeProfileConfigViewModel.ActivationButtonId}");
 
             _deviceList.ApplyActivationButtonToAllProfiles();
             OnPropertyChanged(nameof(ModeActivationItems));
@@ -434,9 +443,9 @@ namespace SierraHOTAS.ViewModels
             ActionCatalog.Add(item);
         }
 
-        public void lstDevices_OnSelectionChanged(object device)
+        public void lstDevices_OnSelectionChanged(DeviceViewModel device)
         {
-            SelectedDevice = device as DeviceViewModel;
+            SelectedDevice = device;
         }
 
         private void AddHandlers()

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:SierraHOTAS.ViewModels"
+        xmlns:viewModels="clr-namespace:SierraHOTAS.ModeProfileWindow.ViewModels"
         x:Class="SierraHOTAS.MainWindow"
         mc:Ignorable="d"
         Title="Sierra HOTAS" Height="900" Width="1220"
@@ -111,22 +112,23 @@
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.DeleteModeProfileCommand}" ToolTip="Remove mode" ToolTipService.InitialShowDelay="800" Background="Transparent" BorderBrush="Transparent">
+                                    <DataTemplate DataType="viewModels:ModeActivationItem">
+                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.DeleteModeProfileCommand}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="Remove mode" 
+                                                ToolTipService.InitialShowDelay="800" 
+                                                Background="Transparent" 
+                                                BorderBrush="Transparent">
                                             <Image Source="Images/remove_red_26x26.png"/>
                                         </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
-                        <DataGrid.ItemContainerStyle>
-                            <Style TargetType="DataGridRow">
-                                <EventSetter Event="Selected" Handler="ModeActivationGrid_Selected"/>
-                            </Style>
-                        </DataGrid.ItemContainerStyle>
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
                                 <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                <EventSetter Event="Selected" Handler="ModeActivationGrid_Selected"/>
                             </Style>
                         </DataGrid.RowStyle>
                         <DataGrid.CellStyle>

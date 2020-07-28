@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Windows.Input;
 
 namespace SierraHOTAS.ViewModels.Commands
@@ -8,6 +7,11 @@ namespace SierraHOTAS.ViewModels.Commands
     {
         private readonly Action _action;
         private readonly Func<bool> _canExecute;
+
+        public CommandHandler(Action action)
+        {
+            _action = action;
+        }
 
         public CommandHandler(Action action, Func<bool> canExecute)
         {
@@ -28,7 +32,7 @@ namespace SierraHOTAS.ViewModels.Commands
 
         public bool CanExecute(object parameter)
         {
-            return _canExecute.Invoke();
+            return _canExecute?.Invoke() ?? true;
         }
 
         public void Execute(object parameter)

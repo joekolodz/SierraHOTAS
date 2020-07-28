@@ -12,6 +12,8 @@
         <SolidColorBrush x:Key="TextHeaderBrush" Color="#7ac1ff" />
         <SolidColorBrush x:Key="TextBrush" Color="Azure" />
 
+        <SolidColorBrush x:Key="DataGridHighlightBrush" Color="LawnGreen" />
+
         <SolidColorBrush x:Key="HoverBrush" Color="#313f47" />
         <SolidColorBrush x:Key="HoverBorderBrush" Color="#2a7aa1" />
         <SolidColorBrush x:Key="SelectedBrush" Color="#2f4c5a" />
@@ -431,8 +433,6 @@
             <Setter Property="Background" Value="{StaticResource HoverBrush}" />
             <Setter Property="Foreground" Value="{StaticResource TextHeaderBrush}"/>
             <Setter Property="Margin" Value="2"/>
-            <!--<Setter Property="FontSize" Value="14" />
-            <Setter Property="FontFamily" Value="Calibri" />-->
         </Style>
         
         <Style x:Key="DataGridCellStyle" TargetType="{x:Type DataGridCell}">
@@ -440,6 +440,7 @@
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="{x:Null}" />
                     <Setter Property="BorderBrush" Value="{x:Null}" />
+                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -463,6 +464,11 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="BorderBrush" Value="{StaticResource HoverBorderBrush}"/>
                     <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
+                </Trigger>
+
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource SelectedBorderBrush}"/>
+                    <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>

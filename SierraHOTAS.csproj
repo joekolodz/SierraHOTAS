@@ -135,18 +135,21 @@
     <Compile Include="Models\JoystickOffsetValues.cs" />
     <Compile Include="Models\KeystrokeSentEventArgs.cs" />
     <Compile Include="Models\Segment.cs" />
-    <Compile Include="ModeProfileWindow\NewModeProfileWindow.xaml.cs">
-      <DependentUpon>NewModeProfileWindow.xaml</DependentUpon>
+    <Compile Include="ModeProfileWindow\ModeProfileConfigWindow.xaml.cs">
+      <DependentUpon>ModeProfileConfigWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\ModeActivationItem.cs" />
-    <Compile Include="ModeProfileWindow\ViewModels\NewModeProfileWindowViewModel.cs" />
+    <Compile Include="ModeProfileWindow\ModeProfileMessageWindow.xaml.cs">
+      <DependentUpon>ModeProfileMessageWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ModeProfileWindow\ViewModels\ModeProfileConfigWindowViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ViewModels\ActionCatalogViewModel.cs" />
     <Compile Include="ViewModels\AxisChangedViewModelEventArgs.cs" />
     <Compile Include="ViewModels\ButtonActionViewModel.cs" />
     <Compile Include="ViewModels\ButtonPressedViewModelEventArgs.cs" />
     <Compile Include="ViewModels\Commands\CommandHandler.cs" />
-    <Compile Include="ViewModels\Commands\RelayCommandWithParameter.cs" />
+    <Compile Include="ViewModels\Commands\CommandHandlerWithParameter.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\HOTASCollectionViewModel.cs" />
     <Compile Include="ViewModels\IBaseMapViewModel.cs" />
@@ -237,7 +240,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ModeProfileWindow\NewModeProfileWindow.xaml">
+    <Page Include="ModeProfileWindow\ModeProfileConfigWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ModeProfileWindow\ModeProfileMessageWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
