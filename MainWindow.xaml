@@ -59,7 +59,7 @@
                 <Image>
                     <Image.Style>
                         <Style TargetType="{x:Type Image}">
-                            <Setter Property="Source" Value="Images/profile_unset_32x32g.png"/>
+                            <Setter Property="Source" Value="Images/profile_unset_32x32.png"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsQuickProfileSet1}" Value="true">
                                     <Setter Property="Source" Value="Images/profile_set_32x32.png"/>
@@ -73,7 +73,7 @@
                 <Image>
                     <Image.Style>
                         <Style TargetType="{x:Type Image}">
-                            <Setter Property="Source" Value="Images/profile_unset_32x32g.png"/>
+                            <Setter Property="Source" Value="Images/profile_unset_32x32.png"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsQuickProfileSet2}" Value="true">
                                     <Setter Property="Source" Value="Images/profile_set_32x32.png"/>
@@ -87,7 +87,7 @@
                 <Image>
                     <Image.Style>
                         <Style TargetType="{x:Type Image}">
-                            <Setter Property="Source" Value="Images/profile_unset_32x32g.png"/>
+                            <Setter Property="Source" Value="Images/profile_unset_32x32.png"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsQuickProfileSet3}" Value="true">
                                     <Setter Property="Source" Value="Images/profile_set_32x32.png"/>
@@ -101,7 +101,7 @@
                 <Image>
                     <Image.Style>
                         <Style TargetType="{x:Type Image}">
-                            <Setter Property="Source" Value="Images/profile_unset_32x32g.png"/>
+                            <Setter Property="Source" Value="Images/profile_unset_32x32.png"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsQuickProfileSet4}" Value="true">
                                     <Setter Property="Source" Value="Images/profile_set_32x32.png"/>
@@ -115,7 +115,7 @@
                 <Image>
                     <Image.Style>
                         <Style TargetType="{x:Type Image}">
-                            <Setter Property="Source" Value="Images/profile_unset_32x32g.png"/>
+                            <Setter Property="Source" Value="Images/profile_unset_32x32.png"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsQuickProfileSet5}" Value="true">
                                     <Setter Property="Source" Value="Images/profile_set_32x32.png"/>
