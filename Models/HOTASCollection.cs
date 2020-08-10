@@ -1,14 +1,10 @@
 ﻿using Newtonsoft.Json;
 using SharpDX.DirectInput;
+using SierraHOTAS.ModeProfileWindow.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Windows.Threading;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
-using SierraHOTAS.ViewModels;
 
 namespace SierraHOTAS.Models
 {
@@ -31,7 +27,6 @@ namespace SierraHOTAS.Models
 
         [JsonProperty]
         public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
-
 
         public void RemoveDevice(Guid instanceId)
         {

@@ -1,14 +1,45 @@
 ﻿using Newtonsoft.Json;
 using SierraHOTAS.Models;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Forms;
 
 namespace SierraHOTAS
 {
     public class FileSystem
     {
         public static string LastSavedFileName { get; set; }
+
+        public static void SaveQuickProfilesList(Dictionary<int, string> list, string fileName)
+        {
+            Debug.WriteLine($"Saving Quick List as :{fileName}");
+            using (var file = File.CreateText(fileName))
+            {
+                var serializer = new JsonSerializer { Formatting = Formatting.Indented };
+                serializer.Serialize(file, list);
+            }
+        }
+
+        public static Dictionary<int, string> LoadQuickProfilesList(string fileName)
+        {
+            using (var file = File.OpenText(fileName))
+            {
+                var serializer = new JsonSerializer();
+                serializer.Converters.Add(new CustomJsonConverter());
+                try
+                {
+                    var list = (Dictionary<int, string>)serializer.Deserialize(file, typeof(Dictionary<int, string>));
+                    return list;
+                }
+                catch (Exception e)
+                {
+                    Logging.Log.Error($"Could not deserialize {fileName}\nStack:{e}");
+                    throw;
+                }
+            }
+        }
 
         public static void FileSave(HOTASCollection deviceList)
         {
@@ -72,8 +103,19 @@ namespace SierraHOTAS
 
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
-                var xxx = (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
-                return xxx;
+
+                HOTASCollection collection;
+                try
+                {
+                    collection = (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
+                }
+                catch (Exception e)
+                {
+                    Logging.Log.Error($"Could not deserialize {file}\nStack:{e}");
+                    throw;
+                }
+
+                return collection;
             }
         }
 

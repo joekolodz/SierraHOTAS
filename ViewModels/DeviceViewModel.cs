@@ -57,7 +57,6 @@ namespace SierraHOTAS.ViewModels
 
         public void ReInitializeDevice(HOTASDevice newDevice)
         {
-            //TODO newDevice.ButtonMap = _hotasDevice.ButtonMap.ToObservableCollection();
             newDevice.SetButtonMap(_hotasDevice.ButtonMap.ToObservableCollection());
         }
 

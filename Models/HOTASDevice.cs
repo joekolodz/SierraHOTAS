@@ -72,21 +72,19 @@ namespace SierraHOTAS.Models
         public void SetModeProfile(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile)
         {
             ModeProfiles = profile;
-            const int defaultModeKey = 1;
-            SetButtonMap(profile[defaultModeKey].ToObservableCollection());
+            SetButtonMap(profile[ModeProfiles.Keys.Min()].ToObservableCollection());
         }
 
         public int SetupNewModeProfile()
         {
-            var max = ModeProfiles.OrderByDescending(x=>x.Key).First();
-            var newMode = max.Key + 1;
+            var maxKey = ModeProfiles.OrderByDescending(x=>x.Key).First();
+            var newMode = maxKey.Key + 1;
 
             var newButtonMap = new ObservableCollection<IHotasBaseMap>();
             ModeProfiles.Add(newMode, newButtonMap);
 
             //create the button map, but do not switch to it yet
-            CopyButtonMapProfile(ModeProfiles[1], newButtonMap);
-            newButtonMap[0].MapName = $"!!!Mode:{newMode}";
+            CopyButtonMapProfile(ModeProfiles[maxKey.Key], newButtonMap);
 
             return newMode;
         }
