@@ -179,14 +179,13 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Resource Include="icon64x64.ico" />
+    <Resource Include="Images\profile_unset_32x32.png" />
     <Resource Include="Images\refresh_32x32.png" />
     <Resource Include="Images\add_green_22x22.png" />
     <Resource Include="Images\clear_list_22x22.png" />
     <Resource Include="Images\edit_blue_26x26.png" />
     <Resource Include="Images\remove_red_26x26.png" />
     <Resource Include="Images\profile_set_32x32.png" />
-    <Resource Include="Images\profile_unset_32x32.png" />
-    <Resource Include="Images\profile_unset_32x32g.png" />
     <Content Include="Sounds\click01.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
