@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 
 namespace SierraHOTAS
 {
@@ -12,8 +11,17 @@ namespace SierraHOTAS
     {
         public static string LastSavedFileName { get; set; }
 
+        private static string BuildCurrentPath(string fileName)
+        {
+            var path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var folder = Path.GetDirectoryName(path);
+            fileName = Path.Combine(folder, fileName);
+            return fileName;
+        }
+
         public static void SaveQuickProfilesList(Dictionary<int, string> list, string fileName)
         {
+            fileName = BuildCurrentPath(fileName);
             Debug.WriteLine($"Saving Quick List as :{fileName}");
             using (var file = File.CreateText(fileName))
             {
@@ -24,7 +32,11 @@ namespace SierraHOTAS
 
         public static Dictionary<int, string> LoadQuickProfilesList(string fileName)
         {
-            using (var file = File.OpenText(fileName))
+            var path = BuildCurrentPath(fileName);
+
+            if (!File.Exists(path)) return null;
+
+            using (var file = File.OpenText(path))
             {
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
@@ -39,6 +51,19 @@ namespace SierraHOTAS
                     throw;
                 }
             }
+        }
+
+        public static string ChooseHotasProfileForQuickLoad()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                FileName = LastSavedFileName ?? "Document",
+                DefaultExt = ".json",
+                Filter = "Sierra Hotel (.json)|*.json"
+            };
+
+            var result = dlg.ShowDialog();
+            return result != true ? null : dlg.FileName;
         }
 
         public static void FileSave(HOTASCollection deviceList)
@@ -67,8 +92,6 @@ namespace SierraHOTAS
             if (result == true)
             {
                 LastSavedFileName = dlg.FileName;
-                Logging.Log.Info($"Saving profile as :{LastSavedFileName}");
-
                 BaseSave(LastSavedFileName, deviceList);
             }
         }
@@ -83,7 +106,7 @@ namespace SierraHOTAS
             }
         }
 
-        public static HOTASCollection FileOpen()
+        public static HOTASCollection FileOpenDialog()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
@@ -94,8 +117,13 @@ namespace SierraHOTAS
 
             var result = dlg.ShowDialog();
             if (result != true) return null;
+            
+            return FileOpen(dlg.FileName);
+        }
 
-            LastSavedFileName = dlg.FileName;
+        public static HOTASCollection FileOpen(string path)
+        {
+            LastSavedFileName = path;
 
             using (var file = File.OpenText(LastSavedFileName))
             {

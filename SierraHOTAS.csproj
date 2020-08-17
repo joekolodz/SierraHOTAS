@@ -95,6 +95,10 @@
     </Compile>
     <Compile Include="Controls\FileNameConverter.cs" />
     <Compile Include="Controls\NullToVisibilityConverter.cs" />
+    <Compile Include="Controls\QuickProfilePanel.xaml.cs">
+      <DependentUpon>QuickProfilePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EventAggregator.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
     <Compile Include="Models\ModeProfileChangedEventArgs.cs" />
     <Compile Include="Models\ModeProfileSelectedEventArgs.cs" />
@@ -156,6 +160,8 @@
     <Compile Include="ViewModels\AxisMapViewModel.cs" />
     <Compile Include="ViewModels\ButtonMapViewModel.cs" />
     <Compile Include="ViewModels\DataTemplates\MapDataTemplateSelector.cs" />
+    <Compile Include="ViewModels\QuickProfilePanelViewModel.cs" />
+    <Compile Include="ViewModels\QuickProfileSelectedEvent.cs" />
     <Compile Include="Win32\Win32Structures.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -231,6 +237,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\MacroTransport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\QuickProfilePanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

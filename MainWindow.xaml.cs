@@ -39,9 +39,10 @@ namespace SierraHOTAS
             HotasCollectionViewModel.FileOpened += HotasCollectionViewModel_FileOpened;
             HotasCollectionViewModel.ModeProfileChanged += HotasCollectionViewModel_ModeProfileChanged;
 
+            //quickProfilePanel.QuickProfilePanelViewModel;
+
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
-
         }
 
         private void HotasCollectionViewModel_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
@@ -78,7 +79,6 @@ namespace SierraHOTAS
                         }
                         else
                         {
-                            //Dispatcher?.Invoke(() => e.Device.SetAxis(e.AxisId, e.Value));
                             Dispatcher?.Invoke(() => e.Device.SetAxis(map.ButtonId, e.Value));
                         }
                     });
@@ -104,7 +104,7 @@ namespace SierraHOTAS
         {
             HotasCollectionViewModel.Initialize();
             DataContext = HotasCollectionViewModel;
-
+            
             Keyboard.Start();
         }
 

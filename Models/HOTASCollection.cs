@@ -207,7 +207,7 @@ namespace SierraHOTAS.Models
             
             
             
-            //after removing a row, it wants to fire a selected event on the grid that still is referring to the removed row. FIX IT
+            //TODO: after removing a row, it wants to fire a selected event on the grid that still is referring to the removed row. FIX IT
             
             
             

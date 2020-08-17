@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -23,7 +24,6 @@ namespace SierraHOTAS.ViewModels
         public ActionCatalogViewModel ActionCatalog { get; set; }
         public ObservableCollection<ActivityItem> Activity { get; set; }
         public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeProfileActivationButtons.Values.ToObservableCollection();
-        public Dictionary<int, string> QuickProfilesList { get; set; }
 
         private bool? _snapToButton = true;
 
@@ -58,33 +58,6 @@ namespace SierraHOTAS.ViewModels
 
         private HOTASCollection _deviceList;
 
-        //this is global and not part of a device set or profile
-        public bool IsQuickProfileSet1
-        {
-            get => QuickProfilesList.Keys.Contains(1);
-            set { }
-        }
-        public bool IsQuickProfileSet2
-        {
-            get => QuickProfilesList.Keys.Contains(2);
-            set { }
-        }
-        public bool IsQuickProfileSet3
-        {
-            get => QuickProfilesList.Keys.Contains(3);
-            set { }
-        }
-        public bool IsQuickProfileSet4
-        {
-            get => QuickProfilesList.Keys.Contains(4);
-            set { }
-        }
-        public bool IsQuickProfileSet5
-        {
-            get => QuickProfilesList.Keys.Contains(5);
-            set { }
-        }
-
         public DeviceViewModel SelectedDevice { get; set; }
 
         private ICommand _fileSaveCommand;
@@ -97,7 +70,7 @@ namespace SierraHOTAS.ViewModels
 
         private ICommand _fileOpenCommand;
 
-        public ICommand OpenFileCommand => _fileOpenCommand ?? (_fileOpenCommand = new CommandHandler(FileOpen));
+        public ICommand OpenFileCommand => _fileOpenCommand ?? (_fileOpenCommand = new CommandHandler(FileOpenDialog));
 
         private ICommand _selectionChangedCommand;
 
@@ -108,10 +81,6 @@ namespace SierraHOTAS.ViewModels
         public ICommand ClearActiveProfileSetCommand => _clearActiveProfileSetCommand ?? (_clearActiveProfileSetCommand = new CommandHandler(ClearActiveProfileSet));
 
         private ICommand _refreshDeviceListCommand;
-
-        private ICommand _quickProfileSelectedCommand;
-
-        public ICommand QuickProfileSelectedCommand => _quickProfileSelectedCommand ?? (_quickProfileSelectedCommand = new CommandHandlerWithParameter<string>(QuickProfile_Selected));
 
         public ICommand RefreshDeviceListCommand => _refreshDeviceListCommand ?? (_refreshDeviceListCommand = new CommandHandler(RefreshDeviceList));
 
@@ -193,7 +162,13 @@ namespace SierraHOTAS.ViewModels
             _deviceList = new HOTASCollection();
             ActionCatalog = new ActionCatalogViewModel();
             Activity = new ObservableCollection<ActivityItem>();
-            SetupQuickProfiles();
+            EventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
+        }
+
+        private void QuickLoadProfile(QuickProfileSelectedEvent profileInfo)
+        {
+            var hotas = FileSystem.FileOpen(profileInfo.Path);
+            LoadHotas(hotas);
         }
 
         public void Initialize()
@@ -392,11 +367,16 @@ namespace SierraHOTAS.ViewModels
             ProfileSetFileName = FileSystem.LastSavedFileName;
         }
 
-        private void FileOpen()
+        private void FileOpenDialog()
+        {
+            var loadedDeviceList = FileSystem.FileOpenDialog();
+            if (loadedDeviceList == null) return;
+            LoadHotas(loadedDeviceList);
+        }
+
+        private void LoadHotas(HOTASCollection loadedDeviceList)
         {
             _deviceList.Stop();
-            var loadedDeviceList = FileSystem.FileOpen();
-            if (loadedDeviceList == null) return;
 
             BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
             BuildModeProfileActivationListFromLoadedDevices(loadedDeviceList);
@@ -413,15 +393,6 @@ namespace SierraHOTAS.ViewModels
             {
                 Logging.Log.Info($"{d.InstanceId}, {d.Name}");
             }
-        }
-
-        private void SetupQuickProfiles()
-        {
-            //TODO: should this be a model?
-            
-            QuickProfilesList = FileSystem.LoadQuickProfilesList("quick-profile-list.json") ?? new Dictionary<int, string>();
-
-            NotifyQuickProfileChanged();
         }
 
         private void BuildModeProfileActivationListFromLoadedDevices(HOTASCollection loadedDevices)
@@ -486,33 +457,6 @@ namespace SierraHOTAS.ViewModels
         public void lstDevices_OnSelectionChanged(DeviceViewModel device)
         {
             SelectedDevice = device;
-        }
-
-        public void QuickProfile_Selected(string id)
-        {
-            Logging.Log.Debug($"Quick Profile Selected:{id}");
-            if (!int.TryParse(id, out var quickProfileId)) return;
-
-            if (QuickProfilesList.ContainsKey(quickProfileId))
-            {
-                var path = QuickProfilesList[quickProfileId];
-                Logging.Log.Debug($"Found that fucker!:{id} - {path}");
-            }
-            else
-            {
-                QuickProfilesList.Add(quickProfileId, $"assigned quick profile to: {quickProfileId}");
-                FileSystem.SaveQuickProfilesList(QuickProfilesList, "quick-profile-list.json");
-                NotifyQuickProfileChanged();
-            }
-        }
-
-        private void NotifyQuickProfileChanged()
-        {
-            OnPropertyChanged(nameof(IsQuickProfileSet1));
-            OnPropertyChanged(nameof(IsQuickProfileSet2));
-            OnPropertyChanged(nameof(IsQuickProfileSet3));
-            OnPropertyChanged(nameof(IsQuickProfileSet4));
-            OnPropertyChanged(nameof(IsQuickProfileSet5));
         }
 
         private void AddHandlers()
