@@ -4,12 +4,19 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
+using SierraHOTAS.ModeProfileWindow;
 
 namespace SierraHOTAS.ViewModels
 {
     public class QuickProfilePanelViewModel : INotifyPropertyChanged
     {
+        private const string QUICK_PROFILE_LIST_FILE_NAME = "quick-profile-list.json";
+
+        private const string INVALID_JSON_MESSAGE =
+            "Could not load file!!! Is this a SierraHOTAS compatible JSON file?";
+
         public event PropertyChangedEventHandler PropertyChanged;
         public Dictionary<int, string> QuickProfilesList { get; set; }
 
@@ -53,7 +60,7 @@ namespace SierraHOTAS.ViewModels
         {
             //TODO: should QuickProfilesList be a model?
 
-            QuickProfilesList = FileSystem.LoadQuickProfilesList("quick-profile-list.json") ?? new Dictionary<int, string>();
+            QuickProfilesList = FileSystem.LoadQuickProfilesList(QUICK_PROFILE_LIST_FILE_NAME) ?? new Dictionary<int, string>();
 
             NotifyQuickProfileChanged();
         }
@@ -75,8 +82,22 @@ namespace SierraHOTAS.ViewModels
             else
             {
                 var path = FileSystem.ChooseHotasProfileForQuickLoad();
+
+                var hotas = FileSystem.FileOpen(path);
+                if (hotas == null)
+                {
+                    var modeMessageWindow = new ModeProfileMessageWindow(INVALID_JSON_MESSAGE)
+                    {
+                        Owner = Application.Current.MainWindow,
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                    };
+                    modeMessageWindow.ShowDialog();
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(path)) return;
                 QuickProfilesList.Add(quickProfileId, path);
-                FileSystem.SaveQuickProfilesList(QuickProfilesList, "quick-profile-list.json");
+                FileSystem.SaveQuickProfilesList(QuickProfilesList, QUICK_PROFILE_LIST_FILE_NAME);
                 NotifyQuickProfileChanged();
             }
         }

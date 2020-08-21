@@ -7,9 +7,10 @@ namespace SierraHOTAS.ModeProfileWindow
     /// </summary>
     public partial class ModeProfileMessageWindow : Window
     {
-        public ModeProfileMessageWindow()
+        public ModeProfileMessageWindow(string message)
         {
             InitializeComponent();
+            txtMessage.Text = message;
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)

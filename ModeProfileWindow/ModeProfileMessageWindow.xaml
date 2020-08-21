@@ -16,7 +16,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Before creating a new profile, you must first assign an activation button to the existing profile." VerticalAlignment="Center" Style="{StaticResource ModeActivationTextBlock}" HorizontalAlignment="Center"/>
+        <!--<TextBlock Grid.Row="0" Text="Before creating a new profile, you must first assign an activation button to the existing profile." VerticalAlignment="Center" Style="{StaticResource ModeActivationTextBlock}" HorizontalAlignment="Center"/>-->
+        <TextBlock Grid.Row="0" x:Name="txtMessage" VerticalAlignment="Center" Style="{StaticResource ModeActivationTextBlock}" HorizontalAlignment="Center"/>
         <Button Grid.Row="1" Click="ButtonBase_OnClick" Content="Continue" Width="80" Height="24" Command="{Binding SaveNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource HoverBorderBrush}" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
 
     </Grid>

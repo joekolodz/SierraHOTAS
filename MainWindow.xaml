@@ -105,7 +105,12 @@
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.EditModeProfileCommand}" ToolTip="Edit mode" ToolTipService.InitialShowDelay="800" Background="Transparent"  BorderBrush="Transparent">
+                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.EditModeProfileCommand}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="Edit mode" 
+                                                ToolTipService.InitialShowDelay="800" 
+                                                Background="Transparent"  
+                                                BorderBrush="Transparent">
                                             <Image Source="Images/edit_blue_26x26.png"/>
                                         </Button>
                                     </DataTemplate>

@@ -123,11 +123,9 @@ namespace SierraHOTAS
 
         public static HOTASCollection FileOpen(string path)
         {
-            LastSavedFileName = path;
-
-            using (var file = File.OpenText(LastSavedFileName))
+            using (var file = File.OpenText(path))
             {
-                Logging.Log.Info($"Reading profile from :{LastSavedFileName}");
+                Logging.Log.Info($"Reading profile from :{path}");
 
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
@@ -135,14 +133,20 @@ namespace SierraHOTAS
                 HOTASCollection collection;
                 try
                 {
-                    collection = (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
+                    collection = (HOTASCollection) serializer.Deserialize(file, typeof(HOTASCollection));
+                }
+                catch (JsonReaderException readerException)
+                {
+                    Logging.Log.Error($"Could not deserialize {file}\nPlease verify this a SierraHOTAS compatible JSON file.\n\nStack:{readerException}");
+                    return null;
                 }
                 catch (Exception e)
                 {
                     Logging.Log.Error($"Could not deserialize {file}\nStack:{e}");
-                    throw;
+                    return null;
                 }
 
+                LastSavedFileName = path;
                 return collection;
             }
         }

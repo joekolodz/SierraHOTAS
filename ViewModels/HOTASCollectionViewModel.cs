@@ -106,10 +106,11 @@ namespace SierraHOTAS.ViewModels
 
             if (_deviceList.ModeProfileActivationButtons.Count == 0)
             {
-                var modeMessageWindow = new ModeProfileMessageWindow
+                var message = "Before creating a new profile, you must first assign an activation button to the existing profile.";
+                var modeMessageWindow = new ModeProfileMessageWindow(message)
                 {
                     Owner = Application.Current.MainWindow,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 };
                 modeMessageWindow.ShowDialog();
                 AssignActivationButton(defaultMode);
@@ -125,7 +126,7 @@ namespace SierraHOTAS.ViewModels
         {
             Logging.Log.Debug("EDIT!");
             var exists = _deviceList.ModeProfileActivationButtons.ContainsKey(item.Mode);
-            OnPropertyChanged(nameof(ModeActivationItems));
+            //OnPropertyChanged(nameof(ModeActivationItems));
         }
 
         private void DeleteModeProfile(ModeActivationItem item)
@@ -168,6 +169,12 @@ namespace SierraHOTAS.ViewModels
         private void QuickLoadProfile(QuickProfileSelectedEvent profileInfo)
         {
             var hotas = FileSystem.FileOpen(profileInfo.Path);
+            if (hotas == null)
+            {
+                ProfileSetFileName = $"Could not load {profileInfo.Path}!!! Is this a SierraHOTAS compatible JSON file?";
+                return;
+            }
+
             LoadHotas(hotas);
         }
 
