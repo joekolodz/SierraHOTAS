@@ -110,7 +110,7 @@ namespace SierraHOTAS.ViewModels
                 var modeMessageWindow = new ModeProfileMessageWindow(message)
                 {
                     Owner = Application.Current.MainWindow,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
                 };
                 modeMessageWindow.ShowDialog();
                 AssignActivationButton(defaultMode);
@@ -126,7 +126,7 @@ namespace SierraHOTAS.ViewModels
         {
             Logging.Log.Debug("EDIT!");
             var exists = _deviceList.ModeProfileActivationButtons.ContainsKey(item.Mode);
-            //OnPropertyChanged(nameof(ModeActivationItems));
+            OnPropertyChanged(nameof(ModeActivationItems));
         }
 
         private void DeleteModeProfile(ModeActivationItem item)
