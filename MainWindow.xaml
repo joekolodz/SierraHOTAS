@@ -51,11 +51,11 @@
                 <Image Source="Images/cancel_blue_32x32.png"/>
             </Button>
 
-            <controls:QuickProfilePanel x:Name="quickProfilePanel"/>
+            <controls:QuickProfilePanel x:Name="QuickProfilePanel" Margin="20,0,0,0"/>
 
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10,0,0,0" Background="{StaticResource WindowBackgroundBrush}">
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10,10,0,0" Background="{StaticResource WindowBackgroundBrush}">
             <TextBlock Text="Active Profile Set:" VerticalAlignment="Center" Foreground="{StaticResource TextBrush}"/>
             <TextBlock Name="txtLastFile" Text="{Binding ProfileSetFileName}" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextHeaderBrush}"/>
         </StackPanel>

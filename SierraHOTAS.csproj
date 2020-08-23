@@ -95,6 +95,9 @@
     </Compile>
     <Compile Include="Controls\FileNameConverter.cs" />
     <Compile Include="Controls\NullToVisibilityConverter.cs" />
+    <Compile Include="Controls\QuickProfileButton.xaml.cs">
+      <DependentUpon>QuickProfileButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\QuickProfilePanel.xaml.cs">
       <DependentUpon>QuickProfilePanel.xaml</DependentUpon>
     </Compile>
@@ -237,6 +240,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\MacroTransport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\QuickProfileButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
