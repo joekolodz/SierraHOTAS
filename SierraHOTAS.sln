@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SierraHOTAS", "SierraHOTAS.csproj", "{5F2E2862-7836-4512-AA06-5F5EAE943AEE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SierraHOTAS", "src\SierraHOTAS.csproj", "{5F2E2862-7836-4512-AA06-5F5EAE943AEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SierraHOTAS.Tests", "tests\SierraHOTAS.Tests.csproj", "{10E8D154-AADB-4F0D-A8B7-69D22C86D6A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{5F2E2862-7836-4512-AA06-5F5EAE943AEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F2E2862-7836-4512-AA06-5F5EAE943AEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F2E2862-7836-4512-AA06-5F5EAE943AEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10E8D154-AADB-4F0D-A8B7-69D22C86D6A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10E8D154-AADB-4F0D-A8B7-69D22C86D6A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10E8D154-AADB-4F0D-A8B7-69D22C86D6A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10E8D154-AADB-4F0D-A8B7-69D22C86D6A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
