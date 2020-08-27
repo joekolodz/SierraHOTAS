@@ -25,5 +25,5 @@ jobs:
       run: msbuild SierraHOTAS.sln -m /p:Configuration=Release
     
     - name: Test
-      run: packages\xunit.runner.console.2.4.1\tools\net472\xunit.console.exe tests\bin\debug\SierraHOTAS.Tests.dll
+      run: packages\xunit.runner.console.2.4.1\tools\net472\xunit.console.exe tests\bin\Release\SierraHOTAS.Tests.dll
 
