@@ -123,6 +123,8 @@ namespace SierraHOTAS
 
         public static HOTASCollection FileOpen(string path)
         {
+            if (string.IsNullOrWhiteSpace(path)) return null;
+
             using (var file = File.OpenText(path))
             {
                 Logging.Log.Info($"Reading profile from :{path}");

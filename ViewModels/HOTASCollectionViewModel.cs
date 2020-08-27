@@ -168,6 +168,8 @@ namespace SierraHOTAS.ViewModels
 
         private void QuickLoadProfile(QuickProfileSelectedEvent profileInfo)
         {
+            if (string.IsNullOrWhiteSpace(profileInfo.Path)) return;
+
             var hotas = FileSystem.FileOpen(profileInfo.Path);
             if (hotas == null)
             {

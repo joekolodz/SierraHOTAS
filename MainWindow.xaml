@@ -37,7 +37,7 @@
     </Window.Resources>
 
     <DockPanel Width="Auto" Height="Auto" LastChildFill="True" Background="{StaticResource WindowBackgroundBrush}">
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="32" Background="{StaticResource WindowBackgroundBrush}">
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="Auto" Background="{StaticResource WindowBackgroundBrush}">
             <Button Style="{StaticResource MenuButton}" Command="{Binding OpenFileCommand, IsAsync=True}" ToolTip="Open Profile" ToolTipService.InitialShowDelay="800">
                 <Image Source="Images/open_32x32.png"/>
             </Button>
@@ -51,7 +51,7 @@
                 <Image Source="Images/cancel_blue_32x32.png"/>
             </Button>
 
-            <controls:QuickProfilePanel x:Name="QuickProfilePanel" Margin="20,0,0,0"/>
+            <controls:QuickProfilePanel x:Name="QuickProfilePanel" Margin="190,0,0,0"/>
 
         </StackPanel>
 

@@ -7,88 +7,17 @@
              d:DataContext="{d:DesignInstance viewModel:QuickProfilePanelViewModel}"
              xmlns:local="clr-namespace:SierraHOTAS.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="44" d:DesignWidth="375">
+             d:DesignHeight="44" d:DesignWidth="536">
 
-    <StackPanel Orientation="Horizontal" Background="{StaticResource WindowBackgroundBrush}">
+    <StackPanel Name="MainPanel" Orientation="Horizontal" Background="{StaticResource WindowBackgroundBrush}">
     
-        <TextBlock Text="Quick Load Profiles:" Foreground="{StaticResource TextBrush}" TextWrapping="NoWrap" Width="105" TextAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0"/>
+        <TextBlock Text="Quick Load Profiles:" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" Width="60" TextAlignment="Right" VerticalAlignment="Top" Margin="10,0,0,0"/>
 
         <local:QuickProfileButton Margin="15,0,0,0"/>
         <local:QuickProfileButton Margin="15,0,0,0"/>
         <local:QuickProfileButton Margin="15,0,0,0"/>
         <local:QuickProfileButton Margin="15,0,0,0"/>
         <local:QuickProfileButton Margin="15,0,0,0"/>
-
-        <!--<Button  Style="{StaticResource QuickProfileButton}" Command="{Binding QuickProfileSelectedCommand, IsAsync=True}" CommandParameter="1" ToolTip="Quick Profile #1" ToolTipService.InitialShowDelay="800">
-            <Image>
-                <Image.Style>
-                    <Style TargetType="{x:Type Image}">
-                        <Setter Property="Source" Value="../Images/profile_unset_32x32.png"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsQuickProfileSet1}" Value="true">
-                                <Setter Property="Source" Value="../Images/profile_set_32x32.png"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Image.Style>
-            </Image>
-        </Button>
-        <Button  Style="{StaticResource QuickProfileButton}" Command="{Binding QuickProfileSelectedCommand, IsAsync=True}" CommandParameter="2" ToolTip="Quick Profile #2" ToolTipService.InitialShowDelay="800">
-            <Image>
-                <Image.Style>
-                    <Style TargetType="{x:Type Image}">
-                        <Setter Property="Source" Value="../Images/profile_unset_32x32.png"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsQuickProfileSet2}" Value="true">
-                                <Setter Property="Source" Value="../Images/profile_set_32x32.png"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Image.Style>
-            </Image>
-        </Button>
-        <Button  Style="{StaticResource QuickProfileButton}" Command="{Binding QuickProfileSelectedCommand, IsAsync=True}" CommandParameter="3" ToolTip="Quick Profile #3" ToolTipService.InitialShowDelay="800">
-            <Image>
-                <Image.Style>
-                    <Style TargetType="{x:Type Image}">
-                        <Setter Property="Source" Value="../Images/profile_unset_32x32.png"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsQuickProfileSet3}" Value="true">
-                                <Setter Property="Source" Value="../Images/profile_set_32x32.png"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Image.Style>
-            </Image>
-        </Button>
-        <Button  Style="{StaticResource QuickProfileButton}" Command="{Binding QuickProfileSelectedCommand, IsAsync=True}" CommandParameter="4" ToolTip="Quick Profile #4" ToolTipService.InitialShowDelay="800">
-            <Image>
-                <Image.Style>
-                    <Style TargetType="{x:Type Image}">
-                        <Setter Property="Source" Value="../Images/profile_unset_32x32.png"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsQuickProfileSet4}" Value="true">
-                                <Setter Property="Source" Value="../Images/profile_set_32x32.png"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Image.Style>
-            </Image>
-        </Button>
-        <Button  Style="{StaticResource QuickProfileButton}" Command="{Binding QuickProfileSelectedCommand, IsAsync=True}" CommandParameter="5" ToolTip="Quick Profile #5" ToolTipService.InitialShowDelay="800">
-            <Image>
-                <Image.Style>
-                    <Style TargetType="{x:Type Image}">
-                        <Setter Property="Source" Value="../Images/profile_unset_32x32.png"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsQuickProfileSet5}" Value="true">
-                                <Setter Property="Source" Value="../Images/profile_set_32x32.png"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Image.Style>
-            </Image>
-        </Button>-->
 
     </StackPanel>
 </UserControl>
