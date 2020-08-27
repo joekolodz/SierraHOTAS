@@ -23,3 +23,7 @@ jobs:
     
     - name: Build
       run: msbuild SierraHOTAS.sln -m /p:Configuration=Release
+    
+    - name: Run Tests
+      run: dotnet test --verbosity normal
+
