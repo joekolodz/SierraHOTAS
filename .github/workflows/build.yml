@@ -1,4 +1,4 @@
-name: Build
+name: Build and Test
 
 on:
   push:
@@ -17,16 +17,13 @@ jobs:
 
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.2
-
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v1
-              
+             
     - name: Restore NuGet Packages
       run: nuget restore SierraHOTAS.sln
     
     - name: Build
       run: msbuild SierraHOTAS.sln -m /p:Configuration=Release
     
-    - name: Run Tests
-      run: dotnet test --verbosity normal
+    - name: Test
+      run: packages\xunit.runner.console.2.4.1\tools\net472\xunit.console.exe tests\bin\Release\SierraHOTAS.Tests.dll
 
