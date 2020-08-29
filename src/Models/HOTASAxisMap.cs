@@ -17,19 +17,21 @@ namespace SierraHOTAS.Models
         public HOTASButtonMap.ButtonType Type { get; set; }
         public ObservableCollection<HOTASButtonMap> ButtonMap { get; set; }
         public ObservableCollection<HOTASButtonMap> ReverseButtonMap { get; set; }
-        
+
         public bool IsDirectional { get; set; } = true;
         public bool IsMultiAction { get; set; } = false;
         public string SoundFileName { get; set; }
         public double SoundVolume { get; set; }
         public ObservableCollection<Segment> Segments { get; set; }
-        
+
         [JsonIgnore]
         public bool IsSegmentChanged { get; set; }
 
         private int _currentSegment;
-        private int _lastValue;
-        
+        private int _arraySize = 10;
+        private int _lastAvg;
+        private readonly int[] _previousValues;
+
         public AxisDirection Direction { get; private set; }
 
         public HOTASAxisMap()
@@ -38,6 +40,7 @@ namespace SierraHOTAS.Models
             ButtonMap = new ObservableCollection<HOTASButtonMap>();
             ReverseButtonMap = new ObservableCollection<HOTASButtonMap>();
             SoundVolume = 1.0d;
+            _previousValues = new int[_arraySize];
         }
 
         public void SetAxis(int value)
@@ -50,14 +53,14 @@ namespace SierraHOTAS.Models
         {
             if (IsDirectional)
             {
-                Direction = value < _lastValue ? AxisDirection.Backward : AxisDirection.Forward;
+                var avg = JitterDetection.CalculateAveragePosition(_previousValues, _arraySize, value);
+                Direction = avg < _lastAvg ? AxisDirection.Backward : AxisDirection.Forward;
+                _lastAvg = avg;
             }
             else
             {
                 Direction = AxisDirection.Forward;
             }
-
-            _lastValue = value;
 
             OnAxisDirectionChanged?.Invoke(this, new AxisDirectionChangedEventArgs() { NewDirection = Direction });
         }
@@ -67,7 +70,7 @@ namespace SierraHOTAS.Models
             IsSegmentChanged = false;
 
             if (Segments.Count <= 1) return;
-            
+
             var newSegment = GetSegmentFromRawValue(value);
 
             if (newSegment == _currentSegment) return;
@@ -110,7 +113,7 @@ namespace SierraHOTAS.Models
 
         private void AddSegmentBoundaryHandlers()
         {
-            foreach(var item in Segments)
+            foreach (var item in Segments)
             {
                 item.PropertyChanged += Segment_PropertyChanged;
             }
@@ -120,13 +123,13 @@ namespace SierraHOTAS.Models
         {
             //validate segments don't cross each other
             var previous = Segments[0].Value;
-            for(var i = 1; i<Segments.Count; i++)
+            for (var i = 1; i < Segments.Count; i++)
             {
-                if(Segments[i].Value>ushort.MaxValue)
+                if (Segments[i].Value > ushort.MaxValue)
                 {
                     Segments[i].Value = ushort.MaxValue - 655;
                 }
-                if(Segments[i].Value<previous)
+                if (Segments[i].Value < previous)
                 {
                     Segments[i].Value = previous + 655;
                 }

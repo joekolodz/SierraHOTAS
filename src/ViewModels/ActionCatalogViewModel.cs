@@ -1,8 +1,6 @@
-﻿using SierraHOTAS.ViewModels;
+﻿using SierraHOTAS.Models;
 using System.Collections.ObjectModel;
-using System.Data.Common;
 using System.Linq;
-using SierraHOTAS.Models;
 
 namespace SierraHOTAS.ViewModels
 {

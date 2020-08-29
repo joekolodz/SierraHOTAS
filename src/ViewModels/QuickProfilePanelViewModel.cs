@@ -1,13 +1,17 @@
-﻿using SierraHOTAS.ModeProfileWindow;
+﻿using System;
+using SierraHOTAS.ModeProfileWindow;
 using SierraHOTAS.ViewModels.Commands;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using SierraHOTAS.Models;
 
 namespace SierraHOTAS.ViewModels
 {
     public class QuickProfilePanelViewModel
     {
+        private readonly IFileSystem _fileSystem;
+
         private const string QUICK_PROFILE_LIST_FILE_NAME = "quick-profile-list.json";
 
         private const string INVALID_JSON_MESSAGE = "Could not load file! Is this a SierraHOTAS compatible JSON file?";
@@ -21,9 +25,15 @@ namespace SierraHOTAS.ViewModels
         private ICommand _quickProfileClearedCommand;
         public ICommand QuickProfileClearedCommand => _quickProfileClearedCommand ?? (_quickProfileClearedCommand = new CommandHandlerWithParameter<int>(QuickProfile_Cleared));
 
+        [Obsolete("INJECT IFileSystem")]
+        public QuickProfilePanelViewModel()
+        {
+            _fileSystem = new FileSystem(new FileIO());
+        }
+
         public void SetupQuickProfiles()
         {
-            QuickProfilesList = FileSystem.LoadQuickProfilesList(QUICK_PROFILE_LIST_FILE_NAME) ?? new Dictionary<int, string>();
+            QuickProfilesList = _fileSystem.LoadQuickProfilesList(QUICK_PROFILE_LIST_FILE_NAME) ?? new Dictionary<int, string>();
         }
 
         public void QuickProfile_Selected(int quickProfileId)
@@ -40,11 +50,11 @@ namespace SierraHOTAS.ViewModels
             }
             else
             {
-                var path = FileSystem.ChooseHotasProfileForQuickLoad();
+                var path = _fileSystem.ChooseHotasProfileForQuickLoad();
 
                 if (string.IsNullOrWhiteSpace(path)) return;
 
-                var hotas = FileSystem.FileOpen(path);
+                var hotas = _fileSystem.FileOpen(path);
                 if (hotas == null)
                 {
                     var modeMessageWindow = new ModeProfileMessageWindow(INVALID_JSON_MESSAGE)
@@ -57,7 +67,7 @@ namespace SierraHOTAS.ViewModels
                 }
 
                 QuickProfilesList.Add(quickProfileId, path);
-                FileSystem.SaveQuickProfilesList(QuickProfilesList, QUICK_PROFILE_LIST_FILE_NAME);
+                _fileSystem.SaveQuickProfilesList(QuickProfilesList, QUICK_PROFILE_LIST_FILE_NAME);
             }
         }
 
@@ -65,7 +75,7 @@ namespace SierraHOTAS.ViewModels
         {
             if (!QuickProfilesList.ContainsKey(quickProfileId)) return;
             QuickProfilesList.Remove(quickProfileId);
-            FileSystem.SaveQuickProfilesList(QuickProfilesList, QUICK_PROFILE_LIST_FILE_NAME);
+            _fileSystem.SaveQuickProfilesList(QuickProfilesList, QUICK_PROFILE_LIST_FILE_NAME);
         }
     }
 }

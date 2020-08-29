@@ -24,7 +24,14 @@ namespace SierraHOTAS
 
         public HOTASCollectionViewModel HotasCollectionViewModel { get; }
 
-        public MainWindow()
+
+
+        //inject HOTASCollectionViewModel to this consctructor
+        //the ctor for HOTASCollectionViewModel should take parameters for HOTASCollection, ActionCatalogViewModel, and whatever else
+        //figure out how to inject for all the ViewModels
+        //register the VMs in the container in the App Onstart
+
+        public MainWindow(HOTASCollectionViewModel hotasCollectionViewModel)
         {
             //IsDebug = true;
 
@@ -32,7 +39,7 @@ namespace SierraHOTAS
 
             Logging.Log.Info("Startup");
 
-            HotasCollectionViewModel = new HOTASCollectionViewModel();
+            HotasCollectionViewModel = hotasCollectionViewModel;
             HotasCollectionViewModel.AppDispatcher = Dispatcher;
             HotasCollectionViewModel.ButtonPressed += CollectionViewModelButtonPressed;
             HotasCollectionViewModel.AxisChanged += CollectionViewModelAxisChanged;

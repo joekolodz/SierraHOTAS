@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Autofac;
+using SierraHOTAS.ViewModels;
 using System.Windows;
 
 namespace SierraHOTAS
@@ -13,5 +9,17 @@ namespace SierraHOTAS
     /// </summary>
     public partial class App : Application
     {
+        private static IContainer _container;
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            _container = IoCContainer.GetContainer();
+
+            Current.MainWindow = new MainWindow(_container.Resolve<HOTASCollectionViewModel>());
+            Current.MainWindow.Show();
+        }
+
     }
 }

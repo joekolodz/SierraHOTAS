@@ -3,40 +3,46 @@ using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 
 namespace SierraHOTAS
 {
-    public class FileSystem
+    public class FileSystem : IFileSystem
     {
-        public static string LastSavedFileName { get; set; }
+        private IFileIO _fileIO;
 
-        private static string BuildCurrentPath(string fileName)
+        public string LastSavedFileName { get; set; }
+
+        public FileSystem(IFileIO fileIO)
+        {
+            _fileIO = fileIO;
+        }
+
+        private string BuildCurrentPath(string fileName)
         {
             var path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var folder = Path.GetDirectoryName(path);
-            fileName = Path.Combine(folder, fileName);
+            var folder = _fileIO.GetDirectoryName(path);
+            fileName = _fileIO.Combine(folder, fileName);
             return fileName;
         }
 
-        public static void SaveQuickProfilesList(Dictionary<int, string> list, string fileName)
+        public void SaveQuickProfilesList(Dictionary<int, string> list, string fileName)
         {
             fileName = BuildCurrentPath(fileName);
             Debug.WriteLine($"Saving Quick List as :{fileName}");
-            using (var file = File.CreateText(fileName))
+            using (var file = _fileIO.CreateText(fileName))
             {
                 var serializer = new JsonSerializer { Formatting = Formatting.Indented };
                 serializer.Serialize(file, list);
             }
         }
 
-        public static Dictionary<int, string> LoadQuickProfilesList(string fileName)
+        public Dictionary<int, string> LoadQuickProfilesList(string fileName)
         {
             var path = BuildCurrentPath(fileName);
 
-            if (!File.Exists(path)) return null;
+            if (!_fileIO.Exists(path)) return null;
 
-            using (var file = File.OpenText(path))
+            using (var file = _fileIO.OpenText(path))
             {
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
@@ -53,7 +59,7 @@ namespace SierraHOTAS
             }
         }
 
-        public static string ChooseHotasProfileForQuickLoad()
+        public string ChooseHotasProfileForQuickLoad()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
@@ -66,7 +72,7 @@ namespace SierraHOTAS
             return result != true ? null : dlg.FileName;
         }
 
-        public static void FileSave(HOTASCollection deviceList)
+        public void FileSave(HOTASCollection deviceList)
         {
             if (string.IsNullOrWhiteSpace(LastSavedFileName))
             {
@@ -78,7 +84,7 @@ namespace SierraHOTAS
             }
         }
 
-        public static void FileSaveAs(HOTASCollection deviceList)
+        public void FileSaveAs(HOTASCollection deviceList)
         {
             var dlg = new Microsoft.Win32.SaveFileDialog
             {
@@ -96,17 +102,17 @@ namespace SierraHOTAS
             }
         }
 
-        private static void BaseSave(string fileName, HOTASCollection deviceList)
+        private void BaseSave(string fileName, HOTASCollection deviceList)
         {
             Debug.WriteLine($"Saving profile as :{fileName}");
-            using (var file = File.CreateText(fileName))
+            using (var file = _fileIO.CreateText(fileName))
             {
                 var serializer = new JsonSerializer { Formatting = Formatting.Indented };
                 serializer.Serialize(file, deviceList);
             }
         }
 
-        public static HOTASCollection FileOpenDialog()
+        public HOTASCollection FileOpenDialog()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
@@ -121,11 +127,11 @@ namespace SierraHOTAS
             return FileOpen(dlg.FileName);
         }
 
-        public static HOTASCollection FileOpen(string path)
+        public HOTASCollection FileOpen(string path)
         {
             if (string.IsNullOrWhiteSpace(path)) return null;
 
-            using (var file = File.OpenText(path))
+            using (var file = _fileIO.OpenText(path))
             {
                 Logging.Log.Info($"Reading profile from :{path}");
 
@@ -153,7 +159,7 @@ namespace SierraHOTAS
             }
         }
 
-        public static string GetSoundFileName()
+        public string GetSoundFileName()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {

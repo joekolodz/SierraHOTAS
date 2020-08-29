@@ -38,6 +38,12 @@
     <ApplicationIcon>icon64x64.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=5.2.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.5.2.0\lib\net461\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -51,6 +57,7 @@
       <HintPath>..\packages\SharpDX.DirectInput.4.2.0\lib\net45\SharpDX.DirectInput.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.IO.Compression" />
@@ -102,7 +109,11 @@
       <DependentUpon>QuickProfilePanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="EventAggregator.cs" />
+    <Compile Include="IoCContainer.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
+    <Compile Include="Models\FileIO.cs" />
+    <Compile Include="Models\IFileIO.cs" />
+    <Compile Include="Models\IFileSystem.cs" />
     <Compile Include="Models\ModeProfileChangedEventArgs.cs" />
     <Compile Include="Models\ModeProfileSelectedEventArgs.cs" />
     <Compile Include="Models\ActivityItem.cs" />
@@ -125,7 +136,7 @@
     <Compile Include="CustomJsonConverter.cs" />
     <Compile Include="DataProvider.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="FileSystem.cs" />
+    <Compile Include="Models\FileSystem.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="MainWindow.xaml.cs" />
     <Compile Include="Models\HOTASAxisMap.cs" />

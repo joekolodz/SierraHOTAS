@@ -19,6 +19,8 @@ namespace SierraHOTAS.ViewModels
 {
     public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {
+        private readonly IFileSystem _fileSystem;
+
         public Dispatcher AppDispatcher { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ActionCatalogViewModel ActionCatalog { get; set; }
@@ -100,6 +102,15 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand DeleteModeProfileCommand => _deleteModeProfileCommand ?? (_deleteModeProfileCommand = new CommandHandlerWithParameter<ModeActivationItem>(DeleteModeProfile));
 
+        public HOTASCollectionViewModel(IFileSystem fileSystem)
+        {
+            _fileSystem = fileSystem;
+            _deviceList = new HOTASCollection();
+            ActionCatalog = new ActionCatalogViewModel();
+            Activity = new ObservableCollection<ActivityItem>();
+            EventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
+        }
+
         private void CreateNewModeProfile()
         {
             const int defaultMode = 1;
@@ -158,19 +169,11 @@ namespace SierraHOTAS.ViewModels
             OnPropertyChanged(nameof(ModeActivationItems));
         }
 
-        public HOTASCollectionViewModel()
-        {
-            _deviceList = new HOTASCollection();
-            ActionCatalog = new ActionCatalogViewModel();
-            Activity = new ObservableCollection<ActivityItem>();
-            EventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
-        }
-
         private void QuickLoadProfile(QuickProfileSelectedEvent profileInfo)
         {
             if (string.IsNullOrWhiteSpace(profileInfo.Path)) return;
 
-            var hotas = FileSystem.FileOpen(profileInfo.Path);
+            var hotas = _fileSystem.FileOpen(profileInfo.Path);
             if (hotas == null)
             {
                 ProfileSetFileName = $"Could not load {profileInfo.Path}!!! Is this a SierraHOTAS compatible JSON file?";
@@ -359,26 +362,26 @@ namespace SierraHOTAS.ViewModels
             _deviceList.ModeProfileActivationButtons.Clear();
             OnPropertyChanged(nameof(ModeActivationItems));
 
-            FileSystem.LastSavedFileName = "";
-            ProfileSetFileName = FileSystem.LastSavedFileName;
+            _fileSystem.LastSavedFileName = "";
+            ProfileSetFileName = _fileSystem.LastSavedFileName;
         }
 
         private void FileSave()
         {
             _deviceList.ClearUnassignedActions();
-            FileSystem.FileSave(_deviceList);
-            ProfileSetFileName = FileSystem.LastSavedFileName;
+            _fileSystem.FileSave(_deviceList);
+            ProfileSetFileName = _fileSystem.LastSavedFileName;
         }
 
         private void FileSaveAs()
         {
-            FileSystem.FileSaveAs(_deviceList);
-            ProfileSetFileName = FileSystem.LastSavedFileName;
+            _fileSystem.FileSaveAs(_deviceList);
+            ProfileSetFileName = _fileSystem.LastSavedFileName;
         }
 
         private void FileOpenDialog()
         {
-            var loadedDeviceList = FileSystem.FileOpenDialog();
+            var loadedDeviceList = _fileSystem.FileOpenDialog();
             if (loadedDeviceList == null) return;
             LoadHotas(loadedDeviceList);
         }
@@ -391,7 +394,7 @@ namespace SierraHOTAS.ViewModels
             BuildModeProfileActivationListFromLoadedDevices(loadedDeviceList);
             ReBuildActionCatalog();
             AddHandlers();
-            ProfileSetFileName = FileSystem.LastSavedFileName;
+            ProfileSetFileName = _fileSystem.LastSavedFileName;
 
             _deviceList.AutoSetMode();
             _deviceList.ListenToAllDevices();

@@ -1,41 +1,67 @@
-﻿namespace SierraHOTAS.Models
+﻿using System;
+
+namespace SierraHOTAS.Models
 {
     public class JitterDetection
     {
-        private readonly int[] _lastThreeValues;
-        private int _arraySize = 3;
+        private int _threshold = 10;
+        private readonly int[] _previousValues;
+        private readonly int[] _previousAverages;
+        private int _arraySize = 20;
+        private int _arraySizeAverage = 20;
 
         public JitterDetection()
         {
-            _lastThreeValues = new int[_arraySize];
+            _previousValues = new int[_arraySize];
+            _previousAverages = new int[_arraySizeAverage];
         }
 
         public bool IsJitter(int value)
         {
-            if (IsJitterDetected(value))
-            {
-                return true;
-            }
-            PushLatestValue(value);
-            return false;
+            var avg = CalculateAveragePosition(_previousValues, _arraySize, value);
+
+            var movingDelta = CalculateMovingAveragePosition(_previousAverages, _arraySizeAverage, avg);
+
+            return movingDelta <= _threshold;
         }
 
-        private void PushLatestValue(int value)
+        private static int CalculateMovingAveragePosition(int[] list, int listSize, int avg)
         {
-            for (var i = _arraySize - 1; i > 0; i--)
+            PushLatestValue(list, listSize, avg);
+            var sum = 0;
+            for (var i = 0; i < listSize; i++)
             {
-                _lastThreeValues[i] = _lastThreeValues[i - 1];
+                sum += list[i];
             }
-            _lastThreeValues[0] = value;
+
+            var movingAvg = sum / listSize;
+
+            var movingDelta = Math.Abs(movingAvg - avg);
+
+            return movingDelta;
         }
 
-        private bool IsJitterDetected(int value)
+        public static int CalculateAveragePosition(int[] list, int listSize, int value)
         {
-            for (var i = 0; i < _arraySize; i++)
+            PushLatestValue(list, listSize, value);
+
+            var sum = 0;
+            for (var i = 0; i < listSize; i++)
             {
-                if (_lastThreeValues[i] == value) return true;
+                sum += list[i];
             }
-            return false;
+
+            var avg = sum / listSize;
+            return avg;
+        }
+
+        private static void PushLatestValue(int[] list, int listSize, int value)
+        {
+            for (var i = listSize - 1; i > 0; i--)
+            {
+                list[i] = list[i - 1];
+            }
+            list[0] = value;
         }
     }
 }
