@@ -1,5 +1,5 @@
 # SierraHOTAS
-![Build](https://github.com/joekolodz/SierraHOTAS/workflows/Build/badge.svg)
+![Build and Test](https://github.com/joekolodz/SierraHOTAS/workflows/Build%20and%20Test/badge.svg)
 
 Joystick to keyboard mapping windows desktop app.
 
