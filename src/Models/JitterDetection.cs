@@ -4,7 +4,7 @@ namespace SierraHOTAS.Models
 {
     public class JitterDetection
     {
-        private int _threshold = 10;
+        public int Threshold { get; set; }
         private readonly int[] _previousValues;
         private readonly int[] _previousAverages;
         private int _arraySize = 20;
@@ -12,6 +12,7 @@ namespace SierraHOTAS.Models
 
         public JitterDetection()
         {
+            Threshold = 10;
             _previousValues = new int[_arraySize];
             _previousAverages = new int[_arraySizeAverage];
         }
@@ -22,7 +23,7 @@ namespace SierraHOTAS.Models
 
             var movingDelta = CalculateMovingAveragePosition(_previousAverages, _arraySizeAverage, avg);
 
-            return movingDelta <= _threshold;
+            return movingDelta <= Threshold;
         }
 
         private static int CalculateMovingAveragePosition(int[] list, int listSize, int avg)
