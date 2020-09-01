@@ -109,7 +109,7 @@ namespace SierraHOTAS
             _displayKeyNames = new Dictionary<Win32Structures.ScanCodeShort, string>();
             foreach (short code in Enum.GetValues(typeof(Win32Structures.ScanCodeShort)))
             {
-                var scanCode = (Win32Structures.ScanCodeShort) code;
+                var scanCode = (Win32Structures.ScanCodeShort)code;
                 var displayName = Enum.GetName(typeof(Win32Structures.ScanCodeShort), code);
                 displayName = displayName.Replace("KEY_", "");
                 displayName = displayName.Replace("LCONTROL", "LCTRL");
@@ -191,7 +191,7 @@ namespace SierraHOTAS
 
         public static string GetKeyDisplayName(Win32Structures.ScanCodeShort scanCode, int flags)
         {
-            if((flags & (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED) == (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)
+            if ((flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)
             {
                 _displayKeyNamesExtended.TryGetValue(scanCode, out var name);
                 return name;
@@ -232,6 +232,11 @@ namespace SierraHOTAS
                 BuildKeyboardInput(scanCode, flags),
             };
             SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
+        }
+
+        public static void SimulateKeyPressTest(uint scanCode, int flags)
+        {
+            KeyDownEvent?.Invoke(null, new KeystrokeEventArgs(scanCode, (Win32Structures.KBDLLHOOKSTRUCTFlags)flags));
         }
 
         private static Win32Structures.INPUT BuildKeyboardInput(Win32Structures.ScanCodeShort scanCode, int flags)

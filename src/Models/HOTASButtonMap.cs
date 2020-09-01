@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using Newtonsoft.Json;
-using SharpDX.DirectInput;
 
 namespace SierraHOTAS.Models
 {
@@ -103,8 +101,6 @@ namespace SierraHOTAS.Models
 
         private void Keyboard_KeyUpEvent(object sender, Keyboard.KeystrokeEventArgs e)
         {
-            if (!_isRecording) return;
-
             RecordKeypress(e);
 
             Debug.WriteLine($" - ^ KeyUp Event - Code:{e.Code}, Flags:{e.Flags}]");

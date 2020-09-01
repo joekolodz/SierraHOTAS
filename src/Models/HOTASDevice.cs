@@ -224,7 +224,7 @@ namespace SierraHOTAS.Models
             if (Capabilities.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV);
         }
 
-        public void LoadCapabilities()
+        private void LoadCapabilities()
         {
             Debug.WriteLine($"\nLoading device capabilities for ...{Name}");
 
