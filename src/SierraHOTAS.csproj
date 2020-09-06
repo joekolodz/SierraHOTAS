@@ -111,9 +111,8 @@
     <Compile Include="EventAggregator.cs" />
     <Compile Include="IoCContainer.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
-    <Compile Include="Models\FileIO.cs" />
-    <Compile Include="Models\IFileIO.cs" />
     <Compile Include="Models\IFileSystem.cs" />
+    <Compile Include="Models\IHOTASCollection.cs" />
     <Compile Include="Models\ModeProfileChangedEventArgs.cs" />
     <Compile Include="Models\ModeProfileSelectedEventArgs.cs" />
     <Compile Include="Models\ActivityItem.cs" />

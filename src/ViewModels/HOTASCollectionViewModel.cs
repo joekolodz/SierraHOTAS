@@ -4,10 +4,8 @@ using SierraHOTAS.ModeProfileWindow;
 using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels.Commands;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -19,16 +17,16 @@ namespace SierraHOTAS.ViewModels
 {
     public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {
+        private readonly Dispatcher _appDispatcher;
         private readonly IFileSystem _fileSystem;
-
-        public Dispatcher AppDispatcher { get; set; }
-        public ObservableCollection<DeviceViewModel> Devices { get; set; }
-        public ActionCatalogViewModel ActionCatalog { get; set; }
-        public ObservableCollection<ActivityItem> Activity { get; set; }
-        public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeProfileActivationButtons.Values.ToObservableCollection();
-
         private bool? _snapToButton = true;
 
+        public ActionCatalogViewModel ActionCatalog { get; set; }
+        public ObservableCollection<ActivityItem> Activity { get; set; }
+        public ObservableCollection<DeviceViewModel> Devices { get; set; }
+        public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeProfileActivationButtons.Values.ToObservableCollection();
+        
+       
         public bool? SnapToButton
         {
             get => _snapToButton;
@@ -58,7 +56,7 @@ namespace SierraHOTAS.ViewModels
         public event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
         public event EventHandler<EventArgs> FileOpened;
 
-        private HOTASCollection _deviceList;
+        private IHOTASCollection _deviceList;
 
         public DeviceViewModel SelectedDevice { get; set; }
 
@@ -102,11 +100,12 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand DeleteModeProfileCommand => _deleteModeProfileCommand ?? (_deleteModeProfileCommand = new CommandHandlerWithParameter<ModeActivationItem>(DeleteModeProfile));
 
-        public HOTASCollectionViewModel(IFileSystem fileSystem)
+        public HOTASCollectionViewModel(Dispatcher dispatcher, IFileSystem fileSystem, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel)
         {
             _fileSystem = fileSystem;
-            _deviceList = new HOTASCollection();
-            ActionCatalog = new ActionCatalogViewModel();
+            _appDispatcher = dispatcher;
+            _deviceList = hotasCollection;
+            ActionCatalog = actionCatalogViewModel;
             Activity = new ObservableCollection<ActivityItem>();
             EventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
         }
@@ -212,7 +211,7 @@ namespace SierraHOTAS.ViewModels
 
         private void OnModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
         {
-            AppDispatcher.Invoke(RebuildAllButtonMaps); //crossing thread boundaries from HOTASQueue thread to UI thread
+            _appDispatcher.Invoke(RebuildAllButtonMaps); //crossing thread boundaries from HOTASQueue thread to UI thread
             ModeProfileChanged?.Invoke(sender, e);
         }
 
@@ -255,7 +254,7 @@ namespace SierraHOTAS.ViewModels
 
             var activity = new ActivityItem() { Offset = e.Offset, ButtonName = map.MapName, ScanCode = e.Code, Flags = e.Flags, ActionName = actionName, Time = DateTime.Now };
 
-            AppDispatcher?.Invoke(() =>
+            _appDispatcher?.Invoke(() =>
             {
                 Activity.Insert(0, activity);
             });
@@ -276,7 +275,7 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        private void BuildDevicesViewModelFromLoadedDevices(HOTASCollection loadedDevices)
+        private void BuildDevicesViewModelFromLoadedDevices(IHOTASCollection loadedDevices)
         {
             foreach (var ld in loadedDevices.Devices)
             {
@@ -386,7 +385,7 @@ namespace SierraHOTAS.ViewModels
             LoadHotas(loadedDeviceList);
         }
 
-        private void LoadHotas(HOTASCollection loadedDeviceList)
+        private void LoadHotas(IHOTASCollection loadedDeviceList)
         {
             _deviceList.Stop();
 
@@ -407,7 +406,7 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        private void BuildModeProfileActivationListFromLoadedDevices(HOTASCollection loadedDevices)
+        private void BuildModeProfileActivationListFromLoadedDevices(IHOTASCollection loadedDevices)
         {
             foreach (var item in loadedDevices.ModeProfileActivationButtons)
             {

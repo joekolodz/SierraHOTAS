@@ -3,25 +3,19 @@ using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace SierraHOTAS
 {
     public class FileSystem : IFileSystem
     {
-        private IFileIO _fileIO;
-
         public string LastSavedFileName { get; set; }
 
-        public FileSystem(IFileIO fileIO)
-        {
-            _fileIO = fileIO;
-        }
-
-        private string BuildCurrentPath(string fileName)
+        private static string BuildCurrentPath(string fileName)
         {
             var path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var folder = _fileIO.GetDirectoryName(path);
-            fileName = _fileIO.Combine(folder, fileName);
+            var folder = Path.GetDirectoryName(path);
+            fileName = Path.Combine(folder, fileName);
             return fileName;
         }
 
@@ -29,7 +23,7 @@ namespace SierraHOTAS
         {
             fileName = BuildCurrentPath(fileName);
             Debug.WriteLine($"Saving Quick List as :{fileName}");
-            using (var file = _fileIO.CreateText(fileName))
+            using (var file = File.CreateText(fileName))
             {
                 var serializer = new JsonSerializer { Formatting = Formatting.Indented };
                 serializer.Serialize(file, list);
@@ -40,9 +34,9 @@ namespace SierraHOTAS
         {
             var path = BuildCurrentPath(fileName);
 
-            if (!_fileIO.Exists(path)) return null;
+            if (!File.Exists(path)) return null;
 
-            using (var file = _fileIO.OpenText(path))
+            using (var file = File.OpenText(path))
             {
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
@@ -72,7 +66,7 @@ namespace SierraHOTAS
             return result != true ? null : dlg.FileName;
         }
 
-        public void FileSave(HOTASCollection deviceList)
+        public void FileSave(IHOTASCollection deviceList)
         {
             if (string.IsNullOrWhiteSpace(LastSavedFileName))
             {
@@ -84,7 +78,7 @@ namespace SierraHOTAS
             }
         }
 
-        public void FileSaveAs(HOTASCollection deviceList)
+        public void FileSaveAs(IHOTASCollection deviceList)
         {
             var dlg = new Microsoft.Win32.SaveFileDialog
             {
@@ -102,17 +96,17 @@ namespace SierraHOTAS
             }
         }
 
-        private void BaseSave(string fileName, HOTASCollection deviceList)
+        private static void BaseSave(string fileName, IHOTASCollection deviceList)
         {
             Debug.WriteLine($"Saving profile as :{fileName}");
-            using (var file = _fileIO.CreateText(fileName))
+            using (var file = File.CreateText(fileName))
             {
                 var serializer = new JsonSerializer { Formatting = Formatting.Indented };
                 serializer.Serialize(file, deviceList);
             }
         }
 
-        public HOTASCollection FileOpenDialog()
+        public IHOTASCollection FileOpenDialog()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
@@ -127,18 +121,18 @@ namespace SierraHOTAS
             return FileOpen(dlg.FileName);
         }
 
-        public HOTASCollection FileOpen(string path)
+        public IHOTASCollection FileOpen(string path)
         {
             if (string.IsNullOrWhiteSpace(path)) return null;
 
-            using (var file = _fileIO.OpenText(path))
+            using (var file = File.OpenText(path))
             {
                 Logging.Log.Info($"Reading profile from :{path}");
 
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
 
-                HOTASCollection collection;
+                IHOTASCollection collection;
                 try
                 {
                     collection = (HOTASCollection) serializer.Deserialize(file, typeof(HOTASCollection));

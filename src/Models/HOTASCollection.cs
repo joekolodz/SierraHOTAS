@@ -9,7 +9,7 @@ using System.Linq;
 namespace SierraHOTAS.Models
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class HOTASCollection
+    public class HOTASCollection : IHOTASCollection
     {
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;

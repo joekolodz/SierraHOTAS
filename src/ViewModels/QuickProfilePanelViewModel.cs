@@ -10,11 +10,11 @@ namespace SierraHOTAS.ViewModels
 {
     public class QuickProfilePanelViewModel
     {
-        private readonly IFileSystem _fileSystem;
-
         private const string QUICK_PROFILE_LIST_FILE_NAME = "quick-profile-list.json";
 
         private const string INVALID_JSON_MESSAGE = "Could not load file! Is this a SierraHOTAS compatible JSON file?";
+
+        private readonly IFileSystem _fileSystem;
 
         public Dictionary<int, string> QuickProfilesList { get; set; }
 
@@ -25,10 +25,15 @@ namespace SierraHOTAS.ViewModels
         private ICommand _quickProfileClearedCommand;
         public ICommand QuickProfileClearedCommand => _quickProfileClearedCommand ?? (_quickProfileClearedCommand = new CommandHandlerWithParameter<int>(QuickProfile_Cleared));
 
-        [Obsolete("INJECT IFileSystem")]
+        [Obsolete("Inject IFileSystem")]
         public QuickProfilePanelViewModel()
         {
-            _fileSystem = new FileSystem(new FileIO());
+            _fileSystem = new FileSystem();
+        }
+
+        public QuickProfilePanelViewModel(IFileSystem fileSystem)
+        {
+            _fileSystem = fileSystem;
         }
 
         public void SetupQuickProfiles()

@@ -19,7 +19,6 @@ namespace SierraHOTAS.ViewModels
 
     public class AxisMapViewModel : IBaseMapViewModel, INotifyPropertyChanged
     {
-        private readonly IFileSystem _fileSystem;
         private readonly HOTASAxisMap _hotasAxisMap;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -154,10 +153,8 @@ namespace SierraHOTAS.ViewModels
         }
         private readonly MediaPlayer _mediaPlayer;
 
-        [Obsolete("INJECT IFileSystem")]
         public AxisMapViewModel(HOTASAxisMap map)
         {
-            _fileSystem = new FileSystem(new FileIO());
 
             ButtonMap = new ObservableCollection<ButtonMapViewModel>();
             AddHandlersToButtonMapCollection();
@@ -360,8 +357,10 @@ namespace SierraHOTAS.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        [Obsolete("Inject IFileSystem")]
         private void LoadNewSound()
         {
+            var _fileSystem = new FileSystem();
             var soundFileName = _fileSystem.GetSoundFileName();
             if (soundFileName == null) return;
             SoundFileName = soundFileName;

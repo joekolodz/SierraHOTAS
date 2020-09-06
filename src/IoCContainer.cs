@@ -1,6 +1,7 @@
 ﻿using Autofac;
-using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels;
+using System.Windows.Threading;
+using SierraHOTAS.Models;
 
 namespace SierraHOTAS
 {
@@ -9,10 +10,11 @@ namespace SierraHOTAS
         public static IContainer GetContainer()
         {
             var builder = new ContainerBuilder();
-            
-            builder.RegisterType<FileIO>().As<IFileIO>();
+            builder.RegisterType<ActionCatalogViewModel>();
+            builder.RegisterType<HOTASCollection>().As<IHOTASCollection>();
             builder.RegisterType<FileSystem>().As<IFileSystem>();
-            builder.RegisterType<HOTASCollectionViewModel>().As<HOTASCollectionViewModel>();
+            builder.Register(c => Dispatcher.CurrentDispatcher).As<Dispatcher>();
+            builder.RegisterType<HOTASCollectionViewModel>();
 
             return builder.Build();
         }
