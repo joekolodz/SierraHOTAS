@@ -347,6 +347,8 @@ namespace SierraHOTAS.Models
 
         private void OnLostConnectionToDevice(object sender, EventArgs e)
         {
+            Joystick = null;
+            Capabilities = null;
             LostConnectionToDevice?.Invoke(sender, new LostConnectionToDeviceEventArgs(this));
         }
 

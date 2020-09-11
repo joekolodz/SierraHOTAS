@@ -131,8 +131,7 @@ namespace SierraHOTAS.Models
 
         private void Device_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
         {
-            //var device = Devices.FirstOrDefault(d => d.DeviceId == e.HOTASDevice.DeviceId);
-            RemoveDevice(e.HOTASDevice);
+            //RemoveDevice(e.HOTASDevice);
             LostConnectionToDevice?.Invoke(sender, e);
         }
 

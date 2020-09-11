@@ -89,11 +89,9 @@ namespace SierraHOTAS
 
             var result = dlg.ShowDialog();
 
-            if (result == true)
-            {
-                LastSavedFileName = dlg.FileName;
-                BaseSave(LastSavedFileName, deviceList);
-            }
+            if (result != true) return;
+            LastSavedFileName = dlg.FileName;
+            BaseSave(LastSavedFileName, deviceList);
         }
 
         private static void BaseSave(string fileName, IHOTASCollection deviceList)
