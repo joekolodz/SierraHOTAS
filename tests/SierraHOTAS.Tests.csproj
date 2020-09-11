@@ -91,6 +91,7 @@
     <Compile Include="HOTASButtonMapTests.cs" />
     <Compile Include="HOTASCollectionViewModelTests.cs" />
     <Compile Include="HOTASDeviceTests.cs" />
+    <Compile Include="HOTASQueueTests.cs" />
     <Compile Include="JitterDetectionTests.cs" />
     <Compile Include="JoystickOffsetValuesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -96,6 +96,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AutofacContractResolver.cs" />
     <Compile Include="Controls\AxisValueToPercentageConverter.cs" />
     <Compile Include="Controls\ButtonMap.xaml.cs">
       <DependentUpon>ButtonMap.xaml</DependentUpon>
@@ -109,10 +110,19 @@
       <DependentUpon>QuickProfilePanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="EventAggregator.cs" />
+    <Compile Include="Factories\DirectInputFactory.cs" />
+    <Compile Include="Factories\HOTASQueueFactory.cs" />
+    <Compile Include="Factories\JoystickFactory.cs" />
     <Compile Include="IoCContainer.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
+    <Compile Include="Models\DirectInputWrapper.cs" />
+    <Compile Include="Models\IDirectInput.cs" />
     <Compile Include="Models\IFileSystem.cs" />
     <Compile Include="Models\IHOTASCollection.cs" />
+    <Compile Include="Models\IHOTASQueue.cs" />
+    <Compile Include="Models\IJoystick.cs" />
+    <Compile Include="Models\JoystickWrapper.cs" />
+    <Compile Include="Models\LostConnectionToDeviceEventArgs.cs" />
     <Compile Include="Models\ModeProfileChangedEventArgs.cs" />
     <Compile Include="Models\ModeProfileSelectedEventArgs.cs" />
     <Compile Include="Models\ActivityItem.cs" />

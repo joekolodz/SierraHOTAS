@@ -40,13 +40,10 @@ namespace SierraHOTAS
             Logging.Log.Info("Startup");
 
             HotasCollectionViewModel = hotasCollectionViewModel;
-            //HotasCollectionViewModel.AppDispatcher = Dispatcher;
             HotasCollectionViewModel.ButtonPressed += CollectionViewModelButtonPressed;
             HotasCollectionViewModel.AxisChanged += CollectionViewModelAxisChanged;
             HotasCollectionViewModel.FileOpened += HotasCollectionViewModel_FileOpened;
             HotasCollectionViewModel.ModeProfileChanged += HotasCollectionViewModel_ModeProfileChanged;
-
-            //quickProfilePanel.QuickProfilePanelViewModel;
 
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;

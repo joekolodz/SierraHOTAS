@@ -5,18 +5,23 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.Models
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class HOTASCollection : IHOTASCollection
     {
+        private readonly JoystickFactory _joystickFactory;
+        private readonly DirectInputFactory _directInputFactory;
+        private readonly HOTASQueueFactory _hotasQueueFactory;
+
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
         public event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
-
+        public event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
         [JsonProperty]
         public ObservableCollection<HOTASDevice> Devices { get; set; }
@@ -28,25 +33,35 @@ namespace SierraHOTAS.Models
         [JsonProperty]
         public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
 
-        public void RemoveDevice(Guid instanceId)
+        public void AddDevice(HOTASDevice device)
         {
-            HOTASDevice remove = null;
-            foreach (var d in Devices)
-            {
-                if (d.DeviceId == instanceId)
-                {
-                    remove = d;
-                }
-            }
-
-            if (remove != null)
-            {
-                Devices.Remove(remove);
-            }
+            var newDevice = new HOTASDevice(_directInputFactory.CreateDirectInput(), device.DeviceId, device.Name, _hotasQueueFactory.CreateHOTASQueue());
+            RebuildMapForNewDevice(device, newDevice);
         }
 
-        public HOTASCollection()
+        public void ReplaceDevice(HOTASDevice newDevice)
         {
+            var deviceToReplace = Devices.FirstOrDefault(e => e.DeviceId == newDevice.DeviceId);
+            
+            if (deviceToReplace == null) return;
+
+            Devices.Remove(deviceToReplace);
+            RebuildMapForNewDevice(deviceToReplace, newDevice);
+        }
+
+        private void RebuildMapForNewDevice(HOTASDevice device, HOTASDevice newDevice)
+        {
+            newDevice.SetButtonMap(device.ButtonMap.ToObservableCollection());
+            newDevice.SetModeProfile(device.ModeProfiles);
+            Devices.Add(newDevice);
+        }
+
+        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory)
+        {
+            _directInputFactory = directInputFactory;
+            _joystickFactory = joystickFactory;
+            _hotasQueueFactory = hotasQueueFactory;
+
             Devices = new ObservableCollection<HOTASDevice>();
             ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
         }
@@ -61,14 +76,21 @@ namespace SierraHOTAS.Models
         {
             foreach (var device in Devices)
             {
-                device.ButtonPressed -= Device_ButtonPressed;
-                device.AxisChanged -= Device_AxisChanged;
-                device.KeystrokeDownSent -= Device_KeystrokeDownSent;
-                device.KeystrokeUpSent -= Device_KeystrokeUpSent;
-                device.ModeProfileSelected -= Device_ModeProfileSelected;
-
-                device.Stop();
+                StopDevice(device);
             }
+        }
+
+        private void StopDevice(HOTASDevice device)
+        {
+            if (device == null) return;
+
+            device.ButtonPressed -= Device_ButtonPressed;
+            device.AxisChanged -= Device_AxisChanged;
+            device.KeystrokeDownSent -= Device_KeystrokeDownSent;
+            device.KeystrokeUpSent -= Device_KeystrokeUpSent;
+            device.ModeProfileSelected -= Device_ModeProfileSelected;
+
+            device.Stop();
         }
 
         public void ClearButtonMap()
@@ -103,7 +125,22 @@ namespace SierraHOTAS.Models
             device.KeystrokeDownSent += Device_KeystrokeDownSent;
             device.KeystrokeUpSent += Device_KeystrokeUpSent;
             device.ModeProfileSelected += Device_ModeProfileSelected;
+            device.LostConnectionToDevice += Device_LostConnectionToDevice;
             device.ListenAsync();
+        }
+
+        private void Device_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
+        {
+            //var device = Devices.FirstOrDefault(d => d.DeviceId == e.HOTASDevice.DeviceId);
+            RemoveDevice(e.HOTASDevice);
+            LostConnectionToDevice?.Invoke(sender, e);
+        }
+
+        private void RemoveDevice(HOTASDevice device)
+        {
+            if (device == null) return;
+            StopDevice(device);
+            Devices.Remove(device);
         }
 
         public int SetupNewModeProfile()
@@ -155,16 +192,15 @@ namespace SierraHOTAS.Models
             ButtonPressed?.Invoke(sender, e);
         }
 
-        private static ObservableCollection<HOTASDevice> QueryOperatingSystemForDevices()
+        private ObservableCollection<HOTASDevice> QueryOperatingSystemForDevices()
         {
             var deviceList = new ObservableCollection<HOTASDevice>();
-
-            using (var i = new DirectInput())
+            var di = _directInputFactory.CreateDirectInput();
+            
+            foreach (var device in di.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly))
             {
-                foreach (var device in i.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly))
-                {
-                    deviceList.Add(new HOTASDevice(device.InstanceGuid, device.ProductName));
-                }
+                var queue = _hotasQueueFactory.CreateHOTASQueue();
+                deviceList.Add(new HOTASDevice(di, _joystickFactory, device.InstanceGuid, device.ProductName, queue));
             }
             return deviceList;
         }
@@ -189,7 +225,12 @@ namespace SierraHOTAS.Models
 
             foreach (var n in rescannedDevices)
             {
-                if (Devices.Any(d => d.DeviceId == n.DeviceId)) continue;
+                var existingDevice = Devices.FirstOrDefault(d => d.DeviceId == n.DeviceId);
+
+                if (existingDevice != null)
+                {
+                    if (existingDevice.Capabilities != null) continue;
+                }
                 newDevices.Add(n);
             }
 
@@ -202,19 +243,19 @@ namespace SierraHOTAS.Models
         /// <param name="mode"></param>
         public void SetMode(int mode)
         {
-            
-            
-            
-            
-            
+
+
+
+
+
             //TODO: after removing a row, it wants to fire a selected event on the grid that still is referring to the removed row. FIX IT
-            
-            
-            
-            
-            
-            
-            
+
+
+
+
+
+
+
             if (Mode == mode) return;
             Logging.Log.Info($"Mode Profile changed to: {mode}");
             Mode = mode;
@@ -283,16 +324,16 @@ namespace SierraHOTAS.Models
                     switch (map)
                     {
                         case HOTASAxisMap axisMap:
-                        {
-                            //ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ButtonMap);
-                            //ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ReverseButtonMap);
-                            break;
-                        }
+                            {
+                                //ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ButtonMap);
+                                //ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ReverseButtonMap);
+                                break;
+                            }
                         case HOTASButtonMap buttonMap:
-                        {
-                            buttonMap.ShiftModePage = 0;
-                            break;
-                        }
+                            {
+                                buttonMap.ShiftModePage = 0;
+                                break;
+                            }
                     }
                 }
             }

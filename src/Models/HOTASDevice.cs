@@ -5,17 +5,21 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.Models
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class HOTASDevice
     {
+        private readonly JoystickFactory _joystickFactory;
+
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
+        public event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
         [JsonProperty]
         public Guid DeviceId { get; set; }
@@ -25,49 +29,60 @@ namespace SierraHOTAS.Models
 
         public Capabilities Capabilities { get; set; }
 
-        public ObservableCollection<IHotasBaseMap> ButtonMap
-        {
-            get => _buttonMap;
-            private set => _buttonMap = value;
-        }
+        public ObservableCollection<IHotasBaseMap> ButtonMap { get; private set; } = new ObservableCollection<IHotasBaseMap>();
 
 
         [JsonProperty]
         [JsonConverter(typeof(CustomJsonConverter))]
-        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles { get; private set; }
+        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles { get; private set; } = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
 
+        private readonly IDirectInput _directInput;
+        private IJoystick Joystick { get; set; }
+        private IHOTASQueue _hotasQueue;
 
+        //TODO - this should not exist, only used for tests
+        //public HOTASDevice()
+        //{
+        //    InitializeModeProfileDictionary();
+        //}
 
-        private Joystick Joystick { get; set; }
-        private HOTASQueue _hotasQueue;
-        private ObservableCollection<IHotasBaseMap> _buttonMap;
+        public HOTASDevice() {}
 
-
-        public HOTASDevice()
-        {
-            InitializeModeProfileDictionary();
-        }
-
-        public HOTASDevice(Guid deviceId, string name)
+        public HOTASDevice(IDirectInput directInput, Guid deviceId, string name, IHOTASQueue hotasQueue)
         {
             if (deviceId == Guid.Empty || deviceId == null || string.IsNullOrWhiteSpace(name))
             {
                 throw new NullReferenceException("Information about Joystick is unavailable (this should only disable the Save and Load options");
             }
 
+            _directInput = directInput;
+            _hotasQueue = hotasQueue;
+
             DeviceId = deviceId;
             Name = name;
-            InitializeModeProfileDictionary();
-
-            Initialize();
-        }
-
-        private void InitializeModeProfileDictionary()
-        {
-            ModeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
-            ButtonMap = new ObservableCollection<IHotasBaseMap>();
             ModeProfiles.Add(1, ButtonMap);
         }
+
+        public HOTASDevice(IDirectInput directInput, JoystickFactory joystickFactory, Guid deviceId, string name, IHOTASQueue hotasQueue) : this(directInput, deviceId, name, hotasQueue)
+        {
+            if (deviceId == Guid.Empty || deviceId == null || string.IsNullOrWhiteSpace(name))
+            {
+                throw new NullReferenceException("Information about Joystick is unavailable (this should only disable the Save and Load options");
+            }
+
+            _joystickFactory = joystickFactory;
+
+            if (MainWindow.IsDebug) return;
+            AcquireJoystick();
+            LoadCapabilitiesMapping();
+        }
+
+        //private void InitializeModeProfileDictionary()
+        //{
+        //    //ModeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+        //    //ButtonMap = new ObservableCollection<IHotasBaseMap>();
+        //    ModeProfiles.Add(1, ButtonMap);
+        //}
 
         public void SetModeProfile(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile)
         {
@@ -77,7 +92,7 @@ namespace SierraHOTAS.Models
 
         public int SetupNewModeProfile()
         {
-            var maxKey = ModeProfiles.OrderByDescending(x=>x.Key).First();
+            var maxKey = ModeProfiles.OrderByDescending(x => x.Key).First();
             var newMode = maxKey.Key + 1;
 
             var newButtonMap = new ObservableCollection<IHotasBaseMap>();
@@ -152,12 +167,13 @@ namespace SierraHOTAS.Models
             return newMap;
         }
 
-        private void Initialize()
-        {
-            if (MainWindow.IsDebug) return;
-            AcquireJoystick();
-            LoadCapabilitiesMapping();
-        }
+        //TODO: remove
+        //private void Initialize(Guid deviceId, string name)
+        //{
+        //    if (MainWindow.IsDebug) return;
+        //    AcquireJoystick();
+        //    LoadCapabilitiesMapping();
+        //}
 
         public void ReAcquireJoystick()
         {
@@ -168,20 +184,19 @@ namespace SierraHOTAS.Models
 
         private void AcquireJoystick()
         {
-            var i = new DirectInput();
-            Joystick = new Joystick(i, DeviceId);
-            Joystick.Properties.BufferSize = 4096;
+            Joystick = _joystickFactory.CreateJoystick(_directInput, DeviceId);
+            Joystick.BufferSize = 4096;
             Joystick.Acquire();
         }
 
         public void ListenAsync()
         {
-            _hotasQueue = new HOTASQueue();
             _hotasQueue.KeystrokeDownSent += OnKeystrokeDownSent;
             _hotasQueue.KeystrokeUpSent += OnKeystrokeUpSent;
             _hotasQueue.ButtonPressed += OnButtonPress;
             _hotasQueue.AxisChanged += OnAxisChanged;
             _hotasQueue.ModeProfileSelected += OnModeProfileSelected;
+            _hotasQueue.LostConnectionToDevice += OnLostConnectionToDevice;
             _hotasQueue.ListenAsync(Joystick, ButtonMap);
 
             Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
@@ -328,6 +343,11 @@ namespace SierraHOTAS.Models
         private void OnModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
         {
             ModeProfileSelected?.Invoke(this, e);
+        }
+
+        private void OnLostConnectionToDevice(object sender, EventArgs e)
+        {
+            LostConnectionToDevice?.Invoke(sender, new LostConnectionToDeviceEventArgs(this));
         }
 
         public void ClearUnassignedActions()

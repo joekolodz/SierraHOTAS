@@ -13,10 +13,16 @@ namespace SierraHOTAS.Models
         event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         event EventHandler<AxisChangedEventArgs> AxisChanged;
         event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
+        event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
         ObservableCollection<HOTASDevice> Devices { get; set; }
         int Mode { get; set; }
         Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
-        void RemoveDevice(Guid instanceId);
+        void AddDevice(HOTASDevice device);
+        /// <summary>
+        /// device is replaced based on the DeviceId
+        /// </summary>
+        /// <param name="newDevice"></param>
+        void ReplaceDevice(HOTASDevice newDevice);
         void Start();
         void Stop();
         void ClearButtonMap();

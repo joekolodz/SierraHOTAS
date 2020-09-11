@@ -11,7 +11,7 @@ using System.Windows.Documents;
 
 namespace SierraHOTAS.Models
 {
-    public class HOTASQueue
+    public class HOTASQueue : IHOTASQueue
     {
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
@@ -19,6 +19,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
         public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
+        public event EventHandler LostConnectionToDevice;
 
         private Task _deviceListenLoopTask;
         private CancellationTokenSource _tokenSourceListenLoop;
@@ -32,10 +33,10 @@ namespace SierraHOTAS.Models
         private JitterDetection _jitter;
 
 
-        private Joystick Joystick { get; set; }
+        private IJoystick Joystick { get; set; }
         private ObservableCollection<IHotasBaseMap> _buttonMap;
 
-        public void ListenAsync(Joystick joystick, ObservableCollection<IHotasBaseMap> buttonMap)
+        public void ListenAsync(IJoystick joystick, ObservableCollection<IHotasBaseMap> buttonMap)
         {
             Joystick = joystick;
             _buttonMap = buttonMap;
@@ -64,16 +65,11 @@ namespace SierraHOTAS.Models
             _tokenSourceDequeueLoop?.Cancel();
         }
 
-        public static uint TranslatePointOfViewOffset(JoystickOffset offset, int value)
-        {
-            return TranslatePointOfViewOffset(offset, (uint)value);
-        }
-
-        public static uint TranslatePointOfViewOffset(JoystickOffset offset, uint value)
+        public static int TranslatePointOfViewOffset(JoystickOffset offset, int value)
         {
             var translatedOffset = value;
             translatedOffset <<= 8;
-            translatedOffset |= (uint)offset;
+            translatedOffset |= (int)offset;
             return translatedOffset;
         }
 
@@ -95,7 +91,7 @@ namespace SierraHOTAS.Models
 
                 //if exception due to lost device, then break out of loop so the user can refresh the device list and start over
                 Joystick.Poll();
-                JoystickUpdate[] data;
+                JoystickUpdate[] data = { };
                 try
                 {
                      data = Joystick.GetBufferedData();
@@ -104,7 +100,9 @@ namespace SierraHOTAS.Models
                 {
                     //TODO: dispose everything and exit
                     Console.WriteLine(e);
-                    throw;
+                    LostConnectionToDevice?.Invoke(this, EventArgs.Empty);
+                    _tokenSourceListenLoop.Cancel();
+                    //throw;
                 }
 
                 foreach (var state in data)
@@ -126,9 +124,7 @@ namespace SierraHOTAS.Models
                     {
                         Logging.Log.Debug($"Button Press Count: {data.Length}");
                         Logging.Log.Debug($"{state.Offset} - {state.Value}");
-
-                        var translatedOffset = TranslatePointOfViewOffset(offset, (uint)state.Value);
-                        Logging.Log.Debug($"Offset:{state.Offset}, translated:{translatedOffset}, RawOffset:{state.RawOffset}, Seq:{state.Sequence}, Val:{state.Value}");
+                        Logging.Log.Debug($"Offset:{state.Offset}, translated:{TranslatePointOfViewOffset(offset, state.Value)}, RawOffset:{state.RawOffset}, Seq:{state.Sequence}, Val:{state.Value}");
 
                         HandlePovButton(state.Offset, state.Value);
                         continue;
@@ -212,7 +208,7 @@ namespace SierraHOTAS.Models
             }
             else
             {
-                var translatedOffset = (int)TranslatePointOfViewOffset(offset, value);
+                var translatedOffset = TranslatePointOfViewOffset(offset, value);
                 _lastPovButton.TryAdd(offset, translatedOffset);
                 Logging.Log.Debug($"Pressing POV button: {offset} - {value}");
                 if (!(GetMap(translatedOffset) is HOTASButtonMap map)) return;

@@ -25,8 +25,8 @@ namespace SierraHOTAS.ViewModels
         public ObservableCollection<ActivityItem> Activity { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeProfileActivationButtons.Values.ToObservableCollection();
-        
-       
+
+
         public bool? SnapToButton
         {
             get => _snapToButton;
@@ -196,7 +196,8 @@ namespace SierraHOTAS.ViewModels
             _deviceList.ButtonPressed += DeviceList_ButtonPressed;
             _deviceList.KeystrokeDownSent += DeviceList_KeystrokeDownSent;
             _deviceList.KeystrokeUpSent += DeviceList_KeystrokeUpSent;
-            _deviceList.ModeProfileChanged += DeviceList_ModeProfileChanged;
+            _deviceList.ModeProfileChanged += OnModeProfileChanged;
+            _deviceList.LostConnectionToDevice += DeviceList_LostConnectionToDevice;
 
             _deviceList.Start();
 
@@ -204,9 +205,11 @@ namespace SierraHOTAS.ViewModels
             AddHandlers();
         }
 
-        private void DeviceList_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
+        private void DeviceList_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
         {
-            OnModeProfileChanged(sender, e);
+            var deviceVm = Devices.FirstOrDefault(h => h.InstanceId == e.HOTASDevice.DeviceId);
+            if (deviceVm == null) return;
+            _appDispatcher.Invoke(() => Devices.Remove(deviceVm));
         }
 
         private void OnModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
@@ -217,17 +220,16 @@ namespace SierraHOTAS.ViewModels
 
         private void DeviceList_KeystrokeUpSent(object sender, KeystrokeSentEventArgs e)
         {
-            AddActivity(sender as HOTASQueue, e);
+            AddActivity((sender as HOTASQueue)?.GetMap(e.Offset), e);
         }
 
         private void DeviceList_KeystrokeDownSent(object sender, KeystrokeSentEventArgs e)
         {
-            AddActivity(sender as HOTASQueue, e);
+            AddActivity((sender as HOTASQueue)?.GetMap(e.Offset), e);
         }
 
-        private void AddActivity(HOTASQueue queue, KeystrokeSentEventArgs e)
+        private void AddActivity(IHotasBaseMap map, KeystrokeSentEventArgs e)
         {
-            var map = queue.GetMap(e.Offset);
             string actionName;
 
             if (map.Type == HOTASButtonMap.ButtonType.Button || map.Type == HOTASButtonMap.ButtonType.POV)
@@ -279,21 +281,24 @@ namespace SierraHOTAS.ViewModels
         {
             foreach (var ld in loadedDevices.Devices)
             {
+                HOTASDevice d;
                 var deviceVm = Devices.FirstOrDefault(vm => vm.InstanceId == ld.DeviceId);
 
                 if (deviceVm == null)
                 {
                     Logging.Log.Warn($"Loaded mappings for {ld.Name}, but could not find the device attached!");
                     Logging.Log.Warn($"Mappings will be displayed, but they will not function");
-                    Devices.Add(new DeviceViewModel(ld));
-                    continue;
+                    deviceVm = new DeviceViewModel(ld);
+                    Devices.Add(deviceVm);
+                    _deviceList.AddDevice(ld);
+                    d = ld;
                 }
-
-                var d = _deviceList.GetDevice(ld.DeviceId);
-                if (d == null) continue;
-
+                else
+                {
+                    d = _deviceList.GetDevice(ld.DeviceId);
+                    if (d == null) continue;
+                }
                 d.SetModeProfile(ld.ModeProfiles);
-
                 deviceVm.RebuildMap(d.ButtonMap);
             }
         }
@@ -328,8 +333,9 @@ namespace SierraHOTAS.ViewModels
                 if (newDevice == null) continue;
 
                 newDevices.Remove(newDevice);
-                deviceViewModel.ReInitializeDevice(newDevice);
-                _deviceList.Devices.Add(newDevice);
+                deviceViewModel.ReplaceDevice(newDevice);
+                
+                _deviceList.ReplaceDevice(newDevice);
                 _deviceList.ListenToDevice(newDevice);
             }
 
@@ -397,6 +403,7 @@ namespace SierraHOTAS.ViewModels
 
             _deviceList.AutoSetMode();
             _deviceList.ListenToAllDevices();
+
             FileOpened?.Invoke(this, new EventArgs());
 
             Logging.Log.Info($"Loaded a device set...");
@@ -408,6 +415,7 @@ namespace SierraHOTAS.ViewModels
 
         private void BuildModeProfileActivationListFromLoadedDevices(IHOTASCollection loadedDevices)
         {
+            _deviceList.ModeProfileActivationButtons.Clear();
             foreach (var item in loadedDevices.ModeProfileActivationButtons)
             {
                 _deviceList.ModeProfileActivationButtons.Add(item.Key, item.Value);

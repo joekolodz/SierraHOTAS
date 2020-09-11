@@ -39,25 +39,20 @@ namespace SierraHOTAS.ViewModels
             RebuildMap();
         }
 
-        public void ReplaceDeviceWithDefaultMap(HOTASDevice newDevice)
+        public void ReplaceDevice(HOTASDevice newDevice)
         {
             _hotasDevice = newDevice;
             InstanceId = _hotasDevice.DeviceId;
             Name = _hotasDevice.Name;
 
-            ButtonMap = new ObservableCollection<IBaseMapViewModel>();
-            RebuildMap();
+            //RebuildMap();
+            //how about replacing the modes and buttons just like during LoadeHotas
         }
 
         public void ClearButtonMap()
         {
             RemoveAllButtonMapHandlers();
             _hotasDevice.ClearUnassignedActions();
-        }
-
-        public void ReInitializeDevice(HOTASDevice newDevice)
-        {
-            newDevice.SetButtonMap(_hotasDevice.ButtonMap.ToObservableCollection());
         }
 
         public void RebuildMap()
