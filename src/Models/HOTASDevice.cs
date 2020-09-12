@@ -40,21 +40,15 @@ namespace SierraHOTAS.Models
         private IJoystick Joystick { get; set; }
         private IHOTASQueue _hotasQueue;
 
-        //TODO - this should not exist, only used for tests
-        //public HOTASDevice()
-        //{
-        //    InitializeModeProfileDictionary();
-        //}
-
         public HOTASDevice() {}
 
         public HOTASDevice(IDirectInput directInput, Guid deviceId, string name, IHOTASQueue hotasQueue)
         {
-            if (deviceId == Guid.Empty || deviceId == null || string.IsNullOrWhiteSpace(name))
-            {
-                throw new NullReferenceException("Information about Joystick is unavailable (this should only disable the Save and Load options");
-            }
-
+            if (directInput == null) throw new ArgumentNullException(nameof(directInput));
+            if (hotasQueue == null) throw new ArgumentNullException(nameof(hotasQueue));
+            if (deviceId == Guid.Empty) throw new ArgumentNullException(nameof(deviceId));
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+            
             _directInput = directInput;
             _hotasQueue = hotasQueue;
 
@@ -65,10 +59,11 @@ namespace SierraHOTAS.Models
 
         public HOTASDevice(IDirectInput directInput, JoystickFactory joystickFactory, Guid deviceId, string name, IHOTASQueue hotasQueue) : this(directInput, deviceId, name, hotasQueue)
         {
-            if (deviceId == Guid.Empty || deviceId == null || string.IsNullOrWhiteSpace(name))
-            {
-                throw new NullReferenceException("Information about Joystick is unavailable (this should only disable the Save and Load options");
-            }
+            if (directInput == null) throw new ArgumentNullException(nameof(directInput));
+            if (joystickFactory == null) throw new ArgumentNullException(nameof(joystickFactory));
+            if (hotasQueue == null) throw new ArgumentNullException(nameof(hotasQueue));
+            if (deviceId == Guid.Empty) throw new ArgumentNullException(nameof(deviceId));
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
             _joystickFactory = joystickFactory;
 
@@ -76,13 +71,6 @@ namespace SierraHOTAS.Models
             AcquireJoystick();
             LoadCapabilitiesMapping();
         }
-
-        //private void InitializeModeProfileDictionary()
-        //{
-        //    //ModeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
-        //    //ButtonMap = new ObservableCollection<IHotasBaseMap>();
-        //    ModeProfiles.Add(1, ButtonMap);
-        //}
 
         public void SetModeProfile(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile)
         {
@@ -166,14 +154,6 @@ namespace SierraHOTAS.Models
             };
             return newMap;
         }
-
-        //TODO: remove
-        //private void Initialize(Guid deviceId, string name)
-        //{
-        //    if (MainWindow.IsDebug) return;
-        //    AcquireJoystick();
-        //    LoadCapabilitiesMapping();
-        //}
 
         public void ReAcquireJoystick()
         {

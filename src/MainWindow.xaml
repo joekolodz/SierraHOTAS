@@ -70,7 +70,8 @@
                         </Button.Content>
                     </Button>
                 </StackPanel>
-                <ListBox x:Name="lstDevices" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" Height="150" FontSize="13" Background="Transparent" Foreground="{StaticResource TextBrush}" BorderBrush="SlateGray" SelectionChanged="LstDevices_OnSelectionChanged"/>
+                <ListBox x:Name="lstDevices" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" ItemContainerStyle="{StaticResource DeviceListBoxStyle}" Height="150" FontSize="13" Background="Transparent" BorderBrush="SlateGray" SelectionChanged="LstDevices_OnSelectionChanged">
+                </ListBox>
             </StackPanel>
 
             <StackPanel DockPanel.Dock="Top">

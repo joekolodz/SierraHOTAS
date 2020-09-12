@@ -98,11 +98,9 @@ namespace SierraHOTAS.Models
                 }
                 catch (Exception e)
                 {
-                    //TODO: dispose everything and exit
                     Console.WriteLine(e);
                     LostConnectionToDevice?.Invoke(this, EventArgs.Empty);
                     _tokenSourceListenLoop.Cancel();
-                    //throw;
                 }
 
                 foreach (var state in data)

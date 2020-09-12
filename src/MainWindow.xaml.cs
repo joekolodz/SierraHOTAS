@@ -4,6 +4,8 @@ using SierraHOTAS.ViewModels;
 using SierraHOTAS.Win32;
 using System;
 using System.Linq;
+using System.Management;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -20,6 +22,7 @@ namespace SierraHOTAS
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string WQL_EVENT_QUERY = "SELECT * FROM Win32_DeviceChangeEvent WHERE EventType = 2";
         public static bool IsDebug { get; set; }
 
         public HOTASCollectionViewModel HotasCollectionViewModel { get; }
@@ -108,14 +111,35 @@ namespace SierraHOTAS
         {
             HotasCollectionViewModel.Initialize();
             DataContext = HotasCollectionViewModel;
-            
+
+            SetupUsbDeviceWatcher();
+
             Keyboard.Start();
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
+            _watcher.EventArrived -= Watcher_EventArrived;
+            _watcher.Stop();
+            _watcher.Dispose();
             HotasCollectionViewModel.Dispose();
             Keyboard.Stop();
+        }
+
+        private ManagementEventWatcher _watcher;
+        private void SetupUsbDeviceWatcher()
+        {
+            _watcher = new ManagementEventWatcher();
+
+            var query = new WqlEventQuery(WQL_EVENT_QUERY);
+            _watcher.EventArrived += Watcher_EventArrived;
+            _watcher.Query = query;
+            _watcher.Start();
+        }
+
+        private void Watcher_EventArrived(object sender, EventArrivedEventArgs e)
+        {
+            HotasCollectionViewModel.RefreshDeviceListCommand.Execute(null);
         }
 
 

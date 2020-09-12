@@ -209,11 +209,7 @@ namespace SierraHOTAS.ViewModels
         {
             var deviceVm = Devices.FirstOrDefault(h => h.InstanceId == e.HOTASDevice.DeviceId);
             if (deviceVm == null) return;
-            
-            //TODO - instead of removing the device (and thus making the map unusable) change the color and leave the map displayable.
-            //if it's reconnected, it can work again
             //_appDispatcher.Invoke(() => Devices.Remove(deviceVm));
-            
         }
 
         private void OnModeProfileChanged(object sender, ModeProfileChangedEventArgs e)

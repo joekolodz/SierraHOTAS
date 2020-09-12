@@ -154,6 +154,18 @@
             </Setter>
         </Style>
 
+        <!-- style for device listbox -->
+        <Style x:Key="DeviceListBoxStyle" TargetType="ListBoxItem">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsDeviceLoaded}" Value="false">
+                    <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsDeviceLoaded}" Value="true">
+                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <DataTemplate x:Key="ButtonMapTemplate">
             <WrapPanel>
                 <controls:ButtonMap Margin="1"/>

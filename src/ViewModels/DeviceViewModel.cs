@@ -34,19 +34,24 @@ namespace SierraHOTAS.ViewModels
             _hotasDevice = device;
             InstanceId = _hotasDevice.DeviceId;
             Name = _hotasDevice.Name;
-
+            _hotasDevice.LostConnectionToDevice += _hotasDevice_LostConnectionToDevice;
             ButtonMap = new ObservableCollection<IBaseMapViewModel>();
             RebuildMap();
         }
 
+        private void _hotasDevice_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
+        {
+            OnPropertyChanged(nameof(IsDeviceLoaded));
+        }
+
         public void ReplaceDevice(HOTASDevice newDevice)
         {
+            _hotasDevice.LostConnectionToDevice -= _hotasDevice_LostConnectionToDevice;
             _hotasDevice = newDevice;
             InstanceId = _hotasDevice.DeviceId;
             Name = _hotasDevice.Name;
-
-            //RebuildMap();
-            //how about replacing the modes and buttons just like during LoadeHotas
+            _hotasDevice.LostConnectionToDevice += _hotasDevice_LostConnectionToDevice;
+            OnPropertyChanged(nameof(IsDeviceLoaded));
         }
 
         public void ClearButtonMap()

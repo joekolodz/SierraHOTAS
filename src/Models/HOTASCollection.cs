@@ -131,10 +131,10 @@ namespace SierraHOTAS.Models
 
         private void Device_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
         {
-            //RemoveDevice(e.HOTASDevice);
             LostConnectionToDevice?.Invoke(sender, e);
         }
 
+        //TODO - make this public and add the ability to remove a connected device from the UI
         private void RemoveDevice(HOTASDevice device)
         {
             if (device == null) return;

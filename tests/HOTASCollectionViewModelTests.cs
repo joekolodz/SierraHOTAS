@@ -336,6 +336,7 @@ namespace SierraHOTAS.Tests
 
             subHotasCollection.Received().RescanDevices();
             //subHotasCollection.ListenToDevice
+            
         }
     }
 }
