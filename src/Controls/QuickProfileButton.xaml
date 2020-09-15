@@ -5,13 +5,43 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SierraHOTAS.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="44" d:DesignWidth="80">
+             d:DesignHeight="44" d:DesignWidth="110">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
     </UserControl.Resources>
 
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Style="{StaticResource QuickProfileButton}" 
+                Click="QuickLoadButton_OnClick"
+                HorizontalAlignment="Left"
+                ToolTip="{Binding FileToolTip}" 
+                ToolTipService.InitialShowDelay="800">
+                <Image>
+                    <Image.Style>
+                        <Style TargetType="{x:Type Image}">
+                            <Setter Property="Source" Value="../Images/profile_unset_32x32.png"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsQuickProfileSet}" Value="true">
+                                    <Setter Property="Source" Value="../Images/profile_set_32x32.png"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Button>
+
+            <Button Name="ClearButton" Style="{StaticResource ClearQuickProfileButton}" Click="ClearQuickLoadButton_OnClick" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-3,0,0,0" ToolTip="Clear Quick Profile" ToolTipService.InitialShowDelay="800"
+                 Visibility="{Binding IsQuickProfileSet, Converter={StaticResource BoolToVisibility}}">
+                <Image Source="/Images/cancel_blue_32x32.png"/>
+            </Button>
+        </StackPanel>
+
+        <TextBlock FontSize="10" Foreground="{StaticResource TextBrush}" TextAlignment="Center" Text="{Binding NickName}" Width="110"/>
+
+    </StackPanel>
+    <!--<Grid Background="{StaticResource WindowBackgroundBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*" />
@@ -23,7 +53,7 @@
 
         <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource QuickProfileButton}" 
              Click="QuickLoadButton_OnClick"
-             HorizontalAlignment="Right"
+             HorizontalAlignment="Left"
              ToolTip="{Binding FileToolTip}" 
              ToolTipService.InitialShowDelay="800">
             <Image>
@@ -40,12 +70,13 @@
             </Image>
         </Button>
 
-        <Button  Grid.Row="0" Grid.Column="1" Style="{StaticResource ClearQuickProfileButton}" Click="ClearQuickLoadButton_OnClick" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-3,0,0,0" ToolTip="Clear Quick Profile" ToolTipService.InitialShowDelay="800"
+        <Button  Grid.Row="0" Grid.Column="1" Name="ClearButton" Style="{StaticResource ClearQuickProfileButton}" Click="ClearQuickLoadButton_OnClick" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-3,0,0,0" ToolTip="Clear Quick Profile" ToolTipService.InitialShowDelay="800"
                  Visibility="{Binding IsQuickProfileSet, Converter={StaticResource BoolToVisibility}}">
             <Image Source="/Images/cancel_blue_32x32.png"/>
         </Button>
 
         <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontSize="10" Foreground="{StaticResource TextBrush}" TextAlignment="Center" Text="{Binding NickName}" Width="110"/>
 
-    </Grid>
+    </Grid>-->
+
 </UserControl>

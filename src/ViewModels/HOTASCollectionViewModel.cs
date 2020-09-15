@@ -21,6 +21,7 @@ namespace SierraHOTAS.ViewModels
         private readonly IFileSystem _fileSystem;
         private bool? _snapToButton = true;
 
+        public QuickProfilePanelViewModel QuickProfilePanelViewModel { get; set; }
         public ActionCatalogViewModel ActionCatalog { get; set; }
         public ObservableCollection<ActivityItem> Activity { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
@@ -107,6 +108,7 @@ namespace SierraHOTAS.ViewModels
             _deviceList = hotasCollection;
             ActionCatalog = actionCatalogViewModel;
             Activity = new ObservableCollection<ActivityItem>();
+            QuickProfilePanelViewModel = new QuickProfilePanelViewModel(fileSystem);
             EventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
         }
 

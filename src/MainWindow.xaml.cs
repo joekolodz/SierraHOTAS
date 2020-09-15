@@ -1,15 +1,16 @@
-﻿using SierraHOTAS.Models;
+﻿using Hardcodet.Wpf.TaskbarNotification;
+using SierraHOTAS.Models;
 using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels;
 using SierraHOTAS.Win32;
 using System;
 using System.Linq;
 using System.Management;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using SierraHOTAS.Controls;
 
 //https://www.pinvoke.net/default.aspx/user32/SendInput.html
 //https://cboard.cprogramming.com/windows-programming/170043-how-use-sendmessage-wm_keyup.html
@@ -23,6 +24,8 @@ namespace SierraHOTAS
     public partial class MainWindow : Window
     {
         private const string WQL_EVENT_QUERY = "SELECT * FROM Win32_DeviceChangeEvent WHERE EventType = 2";
+
+        private TaskbarIcon _taskbarIcon;
         public static bool IsDebug { get; set; }
 
         public HOTASCollectionViewModel HotasCollectionViewModel { get; }
@@ -39,8 +42,11 @@ namespace SierraHOTAS
             //IsDebug = true;
 
             InitializeComponent();
+            
+            Logging.Log.Info("Starting up");
 
-            Logging.Log.Info("Startup");
+            _taskbarIcon = (TaskbarIcon)FindResource("NotifyIcon");
+            _taskbarIcon.DataContext = hotasCollectionViewModel.QuickProfilePanelViewModel;
 
             HotasCollectionViewModel = hotasCollectionViewModel;
             HotasCollectionViewModel.ButtonPressed += CollectionViewModelButtonPressed;
@@ -124,6 +130,7 @@ namespace SierraHOTAS
             _watcher.Dispose();
             HotasCollectionViewModel.Dispose();
             Keyboard.Stop();
+            _taskbarIcon.Dispose();
         }
 
         private ManagementEventWatcher _watcher;
@@ -238,8 +245,6 @@ namespace SierraHOTAS
                 HotasCollectionViewModel.SetMode(item.Mode);
                 break;
             }
-
-
         }
     }
 }

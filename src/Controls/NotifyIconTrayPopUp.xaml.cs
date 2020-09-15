@@ -4,11 +4,14 @@ using System.Windows.Controls;
 
 namespace SierraHOTAS.Controls
 {
-    public partial class QuickProfilePanel : UserControl
+    /// <summary>
+    /// Interaction logic for NotifyIconTrayPopUp.xaml
+    /// </summary>
+    public partial class NotifyIconTrayPopUp : UserControl
     {
         public QuickProfilePanelViewModel QuickProfilePanelViewModel { get; set; }
 
-        public QuickProfilePanel()
+        public NotifyIconTrayPopUp()
         {
             InitializeComponent();
             DataContextChanged += QuickProfilePanel_DataContextChanged;
@@ -25,6 +28,13 @@ namespace SierraHOTAS.Controls
         private void Initialize()
         {
             QuickProfilePanelViewModel.SetupQuickProfiles();
+            QuickProfilePanelViewModel.PropertyChanged += QuickProfilePanelViewModel_PropertyChanged;
+            BuildQuickLoadButtons();
+        }
+
+        private void QuickProfilePanelViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(QuickProfilePanelViewModel.QuickProfilesList)) return;
             BuildQuickLoadButtons();
         }
 
@@ -39,20 +49,18 @@ namespace SierraHOTAS.Controls
                     {
                         var fileName = QuickProfilePanelViewModel.QuickProfilesList[profileIdCount];
                         quickButton.SetFileName(fileName);
+                        quickButton.ProfileId = profileIdCount;
+                        quickButton.QuickLoadButtonClicked += QuickButton_QuickLoadButtonClicked;
+                        quickButton.HideClearButton = true;
+                        quickButton.Visibility = Visibility.Visible;
                     }
-                    quickButton.ProfileId = profileIdCount++;
-                    quickButton.QuickLoadButtonClicked += QuickButton_QuickLoadButtonClicked;
-                    quickButton.QuickLoadButtonCleared += QuickButton_QuickLoadButtonCleared;
+                    else
+                    {
+                        quickButton.Visibility = Visibility.Collapsed;
+                    }
+                    profileIdCount++;
                 }
             }
-        }
-
-        private void QuickButton_QuickLoadButtonCleared(object sender, System.EventArgs e)
-        {
-            if (!(sender is QuickProfileButton quickButton)) return;
-
-            QuickProfilePanelViewModel.QuickProfileClearedCommand.Execute(quickButton.ProfileId);
-            quickButton.Reset();
         }
 
         private void QuickButton_QuickLoadButtonClicked(object sender, System.EventArgs e)
@@ -62,13 +70,6 @@ namespace SierraHOTAS.Controls
             if (QuickProfilePanelViewModel.QuickProfilesList.ContainsKey(quickButton.ProfileId))
             {
                 QuickProfilePanelViewModel.QuickProfileSelectedCommand.Execute(quickButton?.ProfileId);
-            }
-            else
-            {
-                QuickProfilePanelViewModel.QuickProfileRequestedCommand.Execute(quickButton?.ProfileId);
-                if(!QuickProfilePanelViewModel.QuickProfilesList.ContainsKey(quickButton.ProfileId)) return;
-                var fileName = QuickProfilePanelViewModel.QuickProfilesList[quickButton.ProfileId];
-                quickButton.SetFileName(fileName);
             }
         }
     }

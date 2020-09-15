@@ -63,6 +63,7 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Management" />
     <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
@@ -106,6 +107,9 @@
       <DependentUpon>ButtonMap.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\FileNameConverter.cs" />
+    <Compile Include="Controls\NotifyIconTrayPopUp.xaml.cs">
+      <DependentUpon>NotifyIconTrayPopUp.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\NullToVisibilityConverter.cs" />
     <Compile Include="Controls\QuickProfileButton.xaml.cs">
       <DependentUpon>QuickProfileButton.xaml</DependentUpon>
@@ -219,6 +223,7 @@
     <Resource Include="Images\edit_blue_26x26.png" />
     <Resource Include="Images\remove_red_26x26.png" />
     <Resource Include="Images\profile_set_32x32.png" />
+    <Resource Include="Images\icon64x64.ico" />
     <Content Include="Sounds\click01.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -264,6 +269,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\MacroTransport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\NotifyIconTrayPopUp.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
