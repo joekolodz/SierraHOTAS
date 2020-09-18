@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Net.Mime;
 using System.Security.Permissions;
 using System.Windows.Threading;
@@ -310,7 +311,7 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
-        public void refresh_device_list_command()
+        public void refresh_device_list_command_rescan_existing()
         {
             var deviceGuid = Guid.NewGuid();
             var ignoreGuid = Guid.NewGuid();
@@ -320,23 +321,96 @@ namespace SierraHOTAS.Tests
 
             var existingDevice = subHotasCollection.Devices[0];
             existingDevice.DeviceId = deviceGuid;
-            existingDevice.Name = "existing device";
+            existingDevice.Name = "existing device 1";
             AddHotasButtonMap(existingDevice.ButtonMap, existingButtonMapId, HOTASButtonMap.ButtonType.Button, "existing button");
 
-            var rescannedDevice = new HOTASDevice { DeviceId = deviceGuid, Name = "rescanned device" };
+            var rescannedDevice = new HOTASDevice { DeviceId = deviceGuid, Name = "rescanned device 1" };
             AddHotasButtonMap(rescannedDevice.ButtonMap, existingButtonMapId, HOTASButtonMap.ButtonType.Button, "rescanned button");
             subHotasCollection.RescanDevices().Returns(new ObservableCollection<HOTASDevice>() { rescannedDevice });
-
-            var ignoreDevice = new HOTASDevice { DeviceId = ignoreGuid, Name = "ignore device" };
-            AddHotasButtonMap(ignoreDevice.ButtonMap, existingButtonMapId, HOTASButtonMap.ButtonType.Button, "ignore button");
-            subHotasCollection.RescanDevices().Returns(new ObservableCollection<HOTASDevice>() { rescannedDevice, ignoreDevice });
 
             hotasVm.Initialize();
             hotasVm.RefreshDeviceListCommand.Execute(default);
 
+            Assert.Single(hotasVm.Devices);
+            Assert.Equal(hotasVm.Devices[0].Name, rescannedDevice.Name);
             subHotasCollection.Received().RescanDevices();
-            //subHotasCollection.ListenToDevice
-            
+            subHotasCollection.Received().ListenToDevice(rescannedDevice);
+            subHotasCollection.Received().ReplaceDevice(rescannedDevice);
         }
+        [Fact]
+        public void refresh_device_list_command_new_device()
+        {
+            var deviceGuid = Guid.NewGuid();
+            var ignoreGuid = Guid.NewGuid();
+            const int existingButtonMapId = 4300;
+
+            var hotasVm = CreateHotasCollectionViewModel(out var subHotasCollection, out _, out _, out _);
+
+            var existingDevice = subHotasCollection.Devices[0];
+            existingDevice.DeviceId = deviceGuid;
+            existingDevice.Name = "existing device 1";
+            AddHotasButtonMap(existingDevice.ButtonMap, existingButtonMapId, HOTASButtonMap.ButtonType.Button, "existing button");
+
+            var newDevice = new HOTASDevice { DeviceId = ignoreGuid, Name = "new device 1" };
+            AddHotasButtonMap(newDevice.ButtonMap, existingButtonMapId, HOTASButtonMap.ButtonType.Button, "ignore button");
+            subHotasCollection.RescanDevices().Returns(new ObservableCollection<HOTASDevice>() { newDevice });
+
+            hotasVm.Initialize();
+            hotasVm.RefreshDeviceListCommand.Execute(default);
+
+
+            Assert.Equal(2, hotasVm.Devices.Count);
+            Assert.Single(hotasVm.Devices.Where(d => d.Name == newDevice.Name));
+            subHotasCollection.Received().RescanDevices();
+            subHotasCollection.Received().RescanDevices();
+            subHotasCollection.Received().ListenToDevice(newDevice);
+            subHotasCollection.DidNotReceive().ReplaceDevice(newDevice);
+
+        }
+
+        [Fact]
+        public void clear_activity_list_command_new_device()
+        {
+            var hotasVm = CreateHotasCollectionViewModel(out _, out _, out _, out _);
+            hotasVm.Activity.Add(new ActivityItem());
+            hotasVm.Activity.Add(new ActivityItem());
+
+            hotasVm.Initialize();
+            hotasVm.ClearActivityListCommand.Execute(default);
+
+            Assert.Empty(hotasVm.Activity);
+        }
+
+//        [Fact]
+        public void create_new_mode_profile_command_no_modes()
+        {
+            var deviceGuid = Guid.NewGuid();
+            const int modeActivationButtonId = 1000;
+
+            var hotasVm = CreateHotasCollectionViewModel(out var subHotasCollection, out _, out _, out _);
+
+
+            hotasVm.Initialize();
+            hotasVm.CreateNewModeProfileCommand.Execute(default);
+
+            Assert.Empty(hotasVm.Activity);
+        }
+
+        [Fact]
+        public void create_new_mode_profile_command_existing_modes()
+        {
+            var deviceGuid = Guid.NewGuid();
+            const int modeActivationButtonId = 1000;
+
+            var hotasVm = CreateHotasCollectionViewModel(out var subHotasCollection, out _, out _, out _);
+            subHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
+
+
+            hotasVm.Initialize();
+            hotasVm.ClearActivityListCommand.Execute(default);
+
+            Assert.Empty(hotasVm.Activity);
+        }
+
     }
 }
