@@ -14,7 +14,8 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
     public class ModeProfileConfigWindowViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler<EventArgs> NewModeSavedEventHandler;
+        public event EventHandler<EventArgs> NewProfileSaved;
+        public event EventHandler<EventArgs> SaveCancelled;
 
         public string ProfileName { get; set; }
         public string DeviceName { get; set; }
@@ -32,6 +33,9 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
 
         private CommandHandler _createNewModeProfileCommand;
         public ICommand SaveNewModeProfileCommand => _createNewModeProfileCommand ?? (_createNewModeProfileCommand = new CommandHandler(SaveNewModeProfile, CanExecuteSaveNewMode));
+
+        private CommandHandler _cancelCommand;
+        public ICommand CancelCommand => _cancelCommand ?? (_cancelCommand = new CommandHandler(Cancel));
 
         public ModeProfileConfigWindowViewModel()
         {
@@ -83,8 +87,14 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
             };
             _activationButtonList.Add(_mode, _activationItem);
 
-            NewModeSavedEventHandler?.Invoke(this, new EventArgs());
             Logging.Log.Info($"Profile name: {ProfileName}, Device: {DeviceName}, Button: {_activationButtonId}");
+
+            NewProfileSaved?.Invoke(this, new EventArgs());
+        }
+
+        private void Cancel()
+        {
+            SaveCancelled?.Invoke(this, new EventArgs());
         }
 
         private void ValidateActivationButton()

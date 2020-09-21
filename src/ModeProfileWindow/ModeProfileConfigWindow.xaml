@@ -40,9 +40,15 @@
             <TextBlock Grid.Row="3" Grid.Column="1" Text="(Press button on joystick to select)" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Foreground="{StaticResource TextBrush}" FontSize="12"/>
             <TextBlock Grid.Row="4" Grid.Column="1" Text="This button is already assigned to a mode" Visibility="{Binding Path=IsActivationErrorVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Foreground="Red" FontSize="12"/>
 
-            <Button Grid.Row="5" Grid.Column="1" Style="{StaticResource MenuButton}" Command="{Binding SaveNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{StaticResource WindowBackgroundBrush}" ToolTip="Save this new mode activation assignment" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
-                <Image Source="../Images/save_blue_32x32.png"/>
-            </Button>
+            <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Grid.Row="5" Grid.Column="1" Style="{StaticResource MenuButton}" Command="{Binding CancelCommand, IsAsync=True}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{StaticResource WindowBackgroundBrush}" ToolTip="Cancel" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
+                    <Image Source="../Images/cancel_blue_32x32.png"/>
+                </Button>
+
+                <Button Grid.Row="5" Grid.Column="1" Style="{StaticResource MenuButton}" Command="{Binding SaveNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{StaticResource WindowBackgroundBrush}" ToolTip="Save this new mode activation assignment" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
+                    <Image Source="../Images/save_blue_32x32.png"/>
+                </Button>
+            </StackPanel>
         </Grid>
     </Grid>
 

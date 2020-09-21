@@ -118,6 +118,7 @@ namespace SierraHOTAS.ViewModels
         private void CreateNewModeProfile()
         {
             const int defaultMode = 1;
+            bool isAssigned = false;
 
             if (_deviceList.ModeProfileActivationButtons.Count == 0)
             {
@@ -128,10 +129,11 @@ namespace SierraHOTAS.ViewModels
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 };
 
-                //_eventAggregator instead
+                //_eventAggregator sync instead of showdialog
                 modeMessageWindow.ShowDialog();
 
-                AssignActivationButton(defaultMode);
+                isAssigned = AssignActivationButton(defaultMode);
+                if (!isAssigned) return;
             }
 
             var mode = _deviceList.SetupNewModeProfile();
@@ -161,17 +163,21 @@ namespace SierraHOTAS.ViewModels
             OnModeProfileChanged(this, new ModeProfileChangedEventArgs() { Mode = _deviceList.Mode });
         }
 
-        private void AssignActivationButton(int mode)
+        private bool AssignActivationButton(int mode)
         {
+            bool? isCancelled = false;
             var modeWindow = new ModeProfileConfigWindow(mode, _deviceList.ModeProfileActivationButtons);
             modeWindow.Owner = Application.Current.MainWindow;
             modeWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             _deviceList.ButtonPressed += modeWindow.ModeProfileConfigViewModel.DeviceList_ButtonPressed;
-            modeWindow.ShowDialog();
+            isCancelled =  modeWindow.ShowDialog();
             _deviceList.ButtonPressed -= modeWindow.ModeProfileConfigViewModel.DeviceList_ButtonPressed;
+
+            if (isCancelled.HasValue && isCancelled.Value == false) return false;
 
             _deviceList.ApplyActivationButtonToAllProfiles();
             OnPropertyChanged(nameof(ModeActivationItems));
+            return true;
         }
 
         private void QuickLoadProfile(QuickProfileSelectedEvent profileInfo)
