@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using SierraHOTAS.Services;
 using Application = System.Windows.Application;
 
 namespace SierraHOTAS.ViewModels
@@ -21,6 +20,7 @@ namespace SierraHOTAS.ViewModels
         private readonly Dispatcher _appDispatcher;
         private readonly IFileSystem _fileSystem;
         private bool? _snapToButton = true;
+        private readonly IEventAggregator _eventAggregator;
 
         public QuickProfilePanelViewModel QuickProfilePanelViewModel { get; set; }
         public ActionCatalogViewModel ActionCatalog { get; set; }
@@ -102,15 +102,17 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand DeleteModeProfileCommand => _deleteModeProfileCommand ?? (_deleteModeProfileCommand = new CommandHandlerWithParameter<ModeActivationItem>(DeleteModeProfile));
 
-        public HOTASCollectionViewModel(Dispatcher dispatcher, IFileSystem fileSystem, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel)
+        public HOTASCollectionViewModel(Dispatcher dispatcher, IEventAggregator eventAggregator, IFileSystem fileSystem, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel)
         {
             _fileSystem = fileSystem;
             _appDispatcher = dispatcher;
             _deviceList = hotasCollection;
             ActionCatalog = actionCatalogViewModel;
             Activity = new ObservableCollection<ActivityItem>();
-            QuickProfilePanelViewModel = new QuickProfilePanelViewModel(fileSystem);
-            EventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
+            QuickProfilePanelViewModel = new QuickProfilePanelViewModel(eventAggregator, fileSystem);
+
+            _eventAggregator = eventAggregator;
+            _eventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
         }
 
         private void CreateNewModeProfile()
@@ -125,7 +127,10 @@ namespace SierraHOTAS.ViewModels
                     Owner = Application.Current.MainWindow,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 };
+
+                //_eventAggregator instead
                 modeMessageWindow.ShowDialog();
+
                 AssignActivationButton(defaultMode);
             }
 

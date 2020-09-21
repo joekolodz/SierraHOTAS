@@ -1,12 +1,11 @@
 ﻿using System.Windows;
-using SierraHOTAS.Services;
 
 namespace SierraHOTAS.ModeProfileWindow
 {
     /// <summary>
     /// Interaction logic for MessageWindow.xaml
     /// </summary>
-    public partial class MessageWindow : Window, IDialogWindow
+    public partial class MessageWindow : Window
     {
         public MessageWindow(string message)
         {

@@ -13,14 +13,19 @@ namespace SierraHOTAS
         public static IContainer GetContainer()
         {
             var builder = new ContainerBuilder();
+
+            builder.Register(c => Dispatcher.CurrentDispatcher).As<Dispatcher>();
+
+            builder.RegisterType<EventAggregator>().As<IEventAggregator>();
+
+            builder.RegisterType<DirectInputFactory>();
+            builder.RegisterType<JoystickFactory>();
+
             builder.RegisterType<ActionCatalogViewModel>();
             builder.RegisterType<HOTASCollection>().As<IHOTASCollection>();
             builder.RegisterType<HOTASQueue>().As<IHOTASQueue>();
-            builder.RegisterType<DirectInputFactory>();
-            builder.RegisterType<JoystickFactory>();
             builder.RegisterType<HOTASQueueFactory>();
             builder.RegisterType<FileSystem>().As<IFileSystem>();
-            builder.Register(c => Dispatcher.CurrentDispatcher).As<Dispatcher>();
             builder.RegisterType<HOTASCollectionViewModel>();
 
             var container =  builder.Build();

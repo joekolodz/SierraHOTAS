@@ -121,6 +121,7 @@
     <Compile Include="Factories\DirectInputFactory.cs" />
     <Compile Include="Factories\HOTASQueueFactory.cs" />
     <Compile Include="Factories\JoystickFactory.cs" />
+    <Compile Include="IEventAggregator.cs" />
     <Compile Include="IoCContainer.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
     <Compile Include="Models\DirectInputWrapper.cs" />

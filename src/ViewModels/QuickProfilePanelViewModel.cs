@@ -12,10 +12,9 @@ namespace SierraHOTAS.ViewModels
     public class QuickProfilePanelViewModel : DependencyObject, INotifyPropertyChanged
     {
         private const string QUICK_PROFILE_LIST_FILE_NAME = "quick-profile-list.json";
-
         private const string INVALID_JSON_MESSAGE = "Could not load file! Is this a SierraHOTAS compatible JSON file?";
-
         private readonly IFileSystem _fileSystem;
+        private readonly IEventAggregator _eventAggregator;
 
         public Dictionary<int, string> QuickProfilesList { get; set; }
 
@@ -28,8 +27,9 @@ namespace SierraHOTAS.ViewModels
         private ICommand _quickProfileClearedCommand;
         public ICommand QuickProfileClearedCommand => _quickProfileClearedCommand ?? (_quickProfileClearedCommand = new CommandHandlerWithParameter<int>(QuickProfile_Cleared));
 
-        public QuickProfilePanelViewModel(IFileSystem fileSystem)
+        public QuickProfilePanelViewModel(IEventAggregator eventAggregator, IFileSystem fileSystem)
         {
+            _eventAggregator = eventAggregator;
             _fileSystem = fileSystem;
         }
 
@@ -72,7 +72,7 @@ namespace SierraHOTAS.ViewModels
                 Id = quickProfileId,
                 Path = path
             };
-            EventAggregator.Publish(profileEvent);
+            _eventAggregator.Publish<QuickProfileSelectedEvent>(profileEvent);
         }
 
         public void QuickProfile_Cleared(int quickProfileId)

@@ -5,50 +5,51 @@ using System.Threading;
 
 namespace SierraHOTAS
 {
-    public static class EventAggregator
+    public class EventAggregator : IEventAggregator
     {
-        private static readonly SynchronizationContext synchronizationContext;
-        private static readonly List<Delegate> subscribers = new List<Delegate>();
+        private readonly SynchronizationContext _synchronizationContext;
+        private readonly List<Delegate> _subscribers;
 
-        static EventAggregator()
+        public EventAggregator()
         {
-            synchronizationContext = SynchronizationContext.Current;
+            _synchronizationContext = SynchronizationContext.Current;
+            _subscribers = new List<Delegate>();
         }
 
-        public static void Subscribe<T>(Action<T> subscriber)
-        {
-            if (subscriber == null)
-            {
-                throw new ArgumentNullException(nameof(subscriber));
-            }
-
-            subscribers.Add(subscriber);
-        }
-        public static void Unsubscribe<T>(Action<T> subscriber)
+        public void Subscribe<T>(Action<T> subscriber)
         {
             if (subscriber == null)
             {
                 throw new ArgumentNullException(nameof(subscriber));
             }
 
-            subscribers.Remove(subscriber);
+            _subscribers.Add(subscriber);
+        }
+        public void Unsubscribe<T>(Action<T> subscriber)
+        {
+            if (subscriber == null)
+            {
+                throw new ArgumentNullException(nameof(subscriber));
+            }
+
+            _subscribers.Remove(subscriber);
         }
 
-        public static void Publish<T>(T message)
+        public void Publish<T>(T message)
         {
             if (message == null) return;
 
-            synchronizationContext.Post(m=>Dispatcher((T)m), message);
+            _synchronizationContext.Post(m=>Dispatcher((T)m), message);
         }
 
-        private static void Dispatcher<T>(T message)
+        private void Dispatcher<T>(T message)
         {
             if (message == null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
 
-            var handlers = subscribers.OfType<Action<T>>().ToList();
+            var handlers = _subscribers.OfType<Action<T>>().ToList();
             foreach (var handler in handlers)
             {
                 handler(message);
