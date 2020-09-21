@@ -36,7 +36,7 @@ namespace SierraHOTAS.Models
 
         public void Stop()
         {
-            if (MainWindow.IsDebug) return;
+            if (App.IsDebug) return;
             if (_tokenSourceListenLoop == null) return;
 
             _tokenSourceListenLoop.Cancel();

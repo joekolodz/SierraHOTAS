@@ -196,7 +196,7 @@ namespace SierraHOTAS.ViewModels
 
         public void Initialize()
         {
-            if (MainWindow.IsDebug)
+            if (App.IsDebug)
             {
                 _deviceList.Devices = DataProvider.GetDeviceList();
             }

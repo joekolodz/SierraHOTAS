@@ -106,7 +106,7 @@ namespace SierraHOTAS.Models
         /// </summary>
         private void LoadAllDevices()
         {
-            if (MainWindow.IsDebug) return;
+            if (App.IsDebug) return;
             Devices = QueryOperatingSystemForDevices();
         }
 

@@ -8,7 +8,7 @@
         xmlns:controls="clr-namespace:SierraHOTAS.Controls"
         xmlns:tb="http://www.hardcodet.net/taskbar"
         d:DataContext="{d:DesignInstance viewModel:HOTASCollectionViewModel}"
-        x:Class="SierraHOTAS.MainWindow"
+        x:Class="SierraHOTAS.Views.MainWindow"
         mc:Ignorable="d"
         Title="Sierra HOTAS" Height="900" Width="1220"
         KeyDown="Window_KeyDown">

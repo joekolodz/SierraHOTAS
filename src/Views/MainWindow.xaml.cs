@@ -16,7 +16,7 @@ using SierraHOTAS.Controls;
 //https://cboard.cprogramming.com/windows-programming/170043-how-use-sendmessage-wm_keyup.html
 //free icon: https://www.axialis.com/free/icons/
 
-namespace SierraHOTAS
+namespace SierraHOTAS.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -26,7 +26,6 @@ namespace SierraHOTAS
         private const string WQL_EVENT_QUERY = "SELECT * FROM Win32_DeviceChangeEvent WHERE EventType = 2";
 
         private TaskbarIcon _taskbarIcon;
-        public static bool IsDebug { get; set; }
 
         public HOTASCollectionViewModel HotasCollectionViewModel { get; }
 
@@ -39,10 +38,8 @@ namespace SierraHOTAS
 
         public MainWindow(HOTASCollectionViewModel hotasCollectionViewModel)
         {
-            //IsDebug = true;
-
             InitializeComponent();
-            
+
             Logging.Log.Info("Starting up");
 
             _taskbarIcon = (TaskbarIcon)FindResource("NotifyIcon");
@@ -221,7 +218,7 @@ namespace SierraHOTAS
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             //if there are no devices connected to trigger button events, use debug mode on and send a DOWN event for Button0 with left shift and button UP event for Button0 with left control
-            if (!IsDebug) return;
+            if (!App.IsDebug) return;
             if (e.Key == Key.LeftShift)
             {
                 _currentlySelectedDeviceVm.ForceButtonPress(SharpDX.DirectInput.JoystickOffset.Buttons0, true);

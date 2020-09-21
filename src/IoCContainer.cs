@@ -16,7 +16,7 @@ namespace SierraHOTAS
 
             builder.Register(c => Dispatcher.CurrentDispatcher).As<Dispatcher>();
 
-            builder.RegisterType<EventAggregator>().As<IEventAggregator>();
+            builder.RegisterType<EventAggregator>().As<IEventAggregator>().SingleInstance();
 
             builder.RegisterType<DirectInputFactory>();
             builder.RegisterType<JoystickFactory>();

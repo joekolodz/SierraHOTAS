@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using SierraHOTAS.Views;
 using SierraHOTAS.ViewModels;
 using System.Windows;
 
@@ -9,6 +10,8 @@ namespace SierraHOTAS
     /// </summary>
     public partial class App : Application
     {
+        public static bool IsDebug { get; set; }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);

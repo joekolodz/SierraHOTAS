@@ -67,7 +67,7 @@ namespace SierraHOTAS.Models
 
             _joystickFactory = joystickFactory;
 
-            if (MainWindow.IsDebug) return;
+            if (App.IsDebug) return;
             AcquireJoystick();
             LoadCapabilitiesMapping();
         }
@@ -343,7 +343,7 @@ namespace SierraHOTAS.Models
         public void ClearButtonMap()
         {
             ButtonMap.Clear();
-            if (MainWindow.IsDebug) return;
+            if (App.IsDebug) return;
             LoadCapabilitiesMapping();
         }
 

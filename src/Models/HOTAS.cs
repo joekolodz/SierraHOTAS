@@ -37,7 +37,7 @@ namespace SierraHOTAS.Models
 
         public void Stop()
         {
-            if (MainWindow.IsDebug) return;
+            if (App.IsDebug) return;
 
             _disposableSubscription?.Dispose();
             if (_tokenSourceListenLoop == null) return;
