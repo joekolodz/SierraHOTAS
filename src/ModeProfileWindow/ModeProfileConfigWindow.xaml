@@ -31,10 +31,10 @@
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Profile Name" VerticalAlignment="Center" Style="{StaticResource ModeActivationTextBlock}" HorizontalAlignment="Right" Margin="5,0,5,0"/>
             <TextBox Grid.Row="0" Grid.Column="1" x:Name="ProfileName" Text="{Binding ProfileName}" Style="{StaticResource ModeActivationTextBox}" Margin="0,0,4,0"  HorizontalAlignment="Stretch" VerticalContentAlignment="Top" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Width="Auto" FontSize="14" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
 
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="Controller" Style="{StaticResource ModeActivationTextBlock}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,5,5,0" Foreground="{StaticResource TextBrush}"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Controller" Style="{StaticResource ModeActivationTextBlock}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,5,5,0"/>
             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DeviceName}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,5,0" Foreground="DeepSkyBlue"/>
 
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="Activation Button" Style="{StaticResource ModeActivationTextBlock}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,5,5,0" Foreground="{StaticResource TextBrush}"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Activation Button" Style="{StaticResource ModeActivationTextBlock}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,5,5,0"/>
             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ActivationButtonName}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,5,0" Foreground="DeepSkyBlue"/>
 
             <TextBlock Grid.Row="3" Grid.Column="1" Text="(Press button on joystick to select)" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Foreground="{StaticResource TextBrush}" FontSize="12"/>

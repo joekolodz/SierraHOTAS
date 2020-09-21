@@ -47,7 +47,7 @@ namespace SierraHOTAS.ViewModels
             var hotas = _fileSystem.FileOpen(path);
             if (hotas == null)
             {
-                var modeMessageWindow = new ModeProfileMessageWindow(INVALID_JSON_MESSAGE)
+                var modeMessageWindow = new MessageWindow(INVALID_JSON_MESSAGE)
                 {
                     Owner = Application.Current.MainWindow,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,

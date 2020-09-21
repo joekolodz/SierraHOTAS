@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using SierraHOTAS.ViewModels;
 using System.Windows;
+using SierraHOTAS.Services;
 
 namespace SierraHOTAS
 {
@@ -9,15 +10,15 @@ namespace SierraHOTAS
     /// </summary>
     public partial class App : Application
     {
-        private static IContainer _container;
-
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            _container = IoCContainer.GetContainer();
+            var container = IoCContainer.GetContainer();
+            
+            var dialogService = new DialogService(container);
 
-            Current.MainWindow = new MainWindow(_container.Resolve<HOTASCollectionViewModel>());
+            Current.MainWindow = new MainWindow(container.Resolve<HOTASCollectionViewModel>());
             Current.MainWindow.Show();
         }
 

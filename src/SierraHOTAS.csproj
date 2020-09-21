@@ -174,8 +174,8 @@
       <DependentUpon>ModeProfileConfigWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\ModeActivationItem.cs" />
-    <Compile Include="ModeProfileWindow\ModeProfileMessageWindow.xaml.cs">
-      <DependentUpon>ModeProfileMessageWindow.xaml</DependentUpon>
+    <Compile Include="ModeProfileWindow\MessageWindow.xaml.cs">
+      <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ModeProfileWindow\ViewModels\ModeProfileConfigWindowViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
@@ -296,7 +296,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ModeProfileWindow\ModeProfileMessageWindow.xaml">
+    <Page Include="ModeProfileWindow\MessageWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
