@@ -41,16 +41,16 @@
         <StackPanel Name="HeaderPanel" Orientation="Horizontal" DockPanel.Dock="Top" Margin="2,4,2,4" Height="Auto" Background="{StaticResource WindowBackgroundBrush}">
 
             <Button Style="{StaticResource MenuButton}" Command="{Binding OpenFileCommand, IsAsync=True}" ToolTip="Open Profile" ToolTipService.InitialShowDelay="800">
-                <Image Source="Images/open_32x32.png"/>
+                <Image Source="../Images/open_32x32.png"/>
             </Button>
             <Button  Style="{StaticResource MenuButton}" Command="{Binding SaveFileCommand, IsAsync=True}" ToolTip="Save" ToolTipService.InitialShowDelay="800">
-                <Image Source="Images/save_blue_32x32.png"/>
+                <Image Source="../Images/save_blue_32x32.png"/>
             </Button>
             <Button  Style="{StaticResource MenuButton}" Command="{Binding SaveFileAsCommand, IsAsync=True}" ToolTip="Save As..." ToolTipService.InitialShowDelay="800">
-                <Image Source="Images/saveas_blue_32x32.png"/>
+                <Image Source="../Images/saveas_blue_32x32.png"/>
             </Button>
             <Button  Style="{StaticResource MenuButton}" Command="{Binding ClearActiveProfileSetCommand, IsAsync=True}" ToolTip="Clear Active Profile Set" ToolTipService.InitialShowDelay="800">
-                <Image Source="Images/cancel_blue_32x32.png"/>
+                <Image Source="../Images/cancel_blue_32x32.png"/>
             </Button>
 
             <controls:QuickProfilePanel DataContext="{Binding QuickProfilePanelViewModel}" Margin="190,0,0,0"/>
@@ -68,7 +68,7 @@
                     <TextBlock Text="Devices" FontSize="15" Foreground="{StaticResource TextHeaderBrush}" VerticalAlignment="Bottom"/>
                     <Button Style="{StaticResource RefreshButton}" Command="{Binding RefreshDeviceListCommand, IsAsync=True}" Margin="2,0,0,0" ToolTip="Rescan for devices" ToolTipService.InitialShowDelay="800">
                         <Button.Content>
-                            <Image Source="Images/refresh_32x32.png"/>
+                            <Image Source="../Images/refresh_32x32.png"/>
                         </Button.Content>
                     </Button>
                 </StackPanel>
@@ -82,7 +82,7 @@
                         <TextBlock Text="Mode Profiles" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
                         <Button Style="{StaticResource AddButton}" Command="{Binding CreateNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" Margin="2,0,0,0" ToolTip="Create a new mode" ToolTipService.InitialShowDelay="800">
                             <Button.Content>
-                                <Image Source="Images/add_green_22x22.png"/>
+                                <Image Source="../Images/add_green_22x22.png"/>
                             </Button.Content>
                         </Button>
                     </StackPanel>
@@ -114,7 +114,7 @@
                                                 ToolTipService.InitialShowDelay="800" 
                                                 Background="Transparent"  
                                                 BorderBrush="Transparent">
-                                            <Image Source="Images/edit_blue_26x26.png"/>
+                                            <Image Source="../Images/edit_blue_26x26.png"/>
                                         </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -128,7 +128,7 @@
                                                 ToolTipService.InitialShowDelay="800" 
                                                 Background="Transparent" 
                                                 BorderBrush="Transparent">
-                                            <Image Source="Images/remove_red_26x26.png"/>
+                                            <Image Source="../Images/remove_red_26x26.png"/>
                                         </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -157,7 +157,7 @@
                     <TextBlock Text="Activity" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
                     <Button Style="{StaticResource ClearListButton}" Command="{Binding ClearActivityListCommand, IsAsync=True}" Margin="2,10,0,0" ToolTip="Clear Activity" ToolTipService.InitialShowDelay="800">
                         <Button.Content>
-                            <Image Source="Images/clear_list_22x22.png"/>
+                            <Image Source="../Images/clear_list_22x22.png"/>
                         </Button.Content>
                     </Button>
                 </StackPanel>
@@ -185,10 +185,10 @@
                                                 <Style TargetType="{x:Type Image}">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsKeyUp}" Value="False">
-                                                            <Setter Property="Source" Value="Images/down_azure_32x32.png"/>
+                                                            <Setter Property="Source" Value="../Images/down_azure_32x32.png"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsKeyUp}" Value="True">
-                                                            <Setter Property="Source" Value="Images/up_azure_32x32.png"/>
+                                                            <Setter Property="Source" Value="../Images/up_azure_32x32.png"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>

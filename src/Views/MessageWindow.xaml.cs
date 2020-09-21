@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 
-namespace SierraHOTAS.ModeProfileWindow
+namespace SierraHOTAS.Views
 {
     /// <summary>
     /// Interaction logic for MessageWindow.xaml

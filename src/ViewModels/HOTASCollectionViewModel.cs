@@ -123,14 +123,16 @@ namespace SierraHOTAS.ViewModels
             if (_deviceList.ModeProfileActivationButtons.Count == 0)
             {
                 const string message = "Before creating a new profile, you must first assign an activation button to the existing profile.";
-                var modeMessageWindow = new MessageWindow(message)
-                {
-                    Owner = Application.Current.MainWindow,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
-                };
+                _eventAggregator.Publish<ShowMessageWindowEvent>(new ShowMessageWindowEvent() { Message = message });
 
-                //_eventAggregator sync instead of showdialog
-                modeMessageWindow.ShowDialog();
+                //var modeMessageWindow = new MessageWindow(message)
+                //{
+                //    Owner = Application.Current.MainWindow,
+                //    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                //};
+
+                ////_eventAggregator sync instead of showdialog
+                //modeMessageWindow.ShowDialog();
 
                 isAssigned = AssignActivationButton(defaultMode);
                 if (!isAssigned) return;

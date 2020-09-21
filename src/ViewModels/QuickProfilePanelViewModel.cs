@@ -45,16 +45,16 @@ namespace SierraHOTAS.ViewModels
             if (string.IsNullOrWhiteSpace(path)) return;
 
             var hotas = _fileSystem.FileOpen(path);
-            if (hotas == null)
-            {
-                var modeMessageWindow = new MessageWindow(INVALID_JSON_MESSAGE)
-                {
-                    Owner = Application.Current.MainWindow,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                };
-                modeMessageWindow.ShowDialog();
-                return;
-            }
+            //if (hotas == null)
+            //{
+            //    var modeMessageWindow = new MessageWindow(INVALID_JSON_MESSAGE)
+            //    {
+            //        Owner = Application.Current.MainWindow,
+            //        WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            //    };
+            //    modeMessageWindow.ShowDialog();
+            //    return;
+            //}
 
             QuickProfilesList.Add(quickProfileId, path);
             OnPropertyChanged(nameof(QuickProfilesList));

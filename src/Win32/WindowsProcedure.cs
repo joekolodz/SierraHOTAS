@@ -8,7 +8,7 @@ namespace SierraHOTAS.Win32
     public class WindowsProcedure
     {
         //https://stackoverflow.com/questions/624367/how-to-handle-wndproc-messages-in-wpf
-        public static void Initialize(MainWindow main)
+        public static void Initialize(Views.MainWindow main)
         {
             if(!(PresentationSource.FromVisual(main) is HwndSource source))
                 throw new ArgumentNullException(nameof(main), @"Can't found a handle to the main window. Application stopping.");

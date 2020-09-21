@@ -39,7 +39,8 @@ namespace SierraHOTAS
         {
             if (message == null) return;
 
-            _synchronizationContext.Post(m=>Dispatcher((T)m), message);
+            _synchronizationContext.Send(m=>Dispatcher((T)m), message);
+            //Dispatcher(message);
         }
 
         private void Dispatcher<T>(T message)

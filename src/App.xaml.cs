@@ -17,8 +17,10 @@ namespace SierraHOTAS
             base.OnStartup(e);
 
             var container = IoCContainer.GetContainer();
-            
+
             Current.MainWindow = new MainWindow(container.Resolve<HOTASCollectionViewModel>());
+            _ = new ViewService(Current.MainWindow, container.Resolve<IEventAggregator>());
+
             Current.MainWindow.Show();
         }
 
