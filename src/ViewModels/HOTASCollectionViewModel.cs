@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using SierraHOTAS.Views;
 using Application = System.Windows.Application;
 
 namespace SierraHOTAS.ViewModels

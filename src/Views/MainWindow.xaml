@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:SierraHOTAS.ViewModels"
-        xmlns:profileViewModel="clr-namespace:SierraHOTAS.ModeProfileWindow.ViewModels"
+        xmlns:profileViewModel="clr-namespace:SierraHOTAS.ViewModels"
         xmlns:controls="clr-namespace:SierraHOTAS.Controls"
         xmlns:tb="http://www.hardcodet.net/taskbar"
         d:DataContext="{d:DesignInstance viewModel:HOTASCollectionViewModel}"

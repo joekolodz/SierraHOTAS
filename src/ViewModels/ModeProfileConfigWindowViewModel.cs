@@ -1,15 +1,16 @@
-﻿using SierraHOTAS.Annotations;
-using SierraHOTAS.Models;
-using SierraHOTAS.ViewModels.Commands;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Threading;
+using SierraHOTAS.Annotations;
+using SierraHOTAS.Models;
+using SierraHOTAS.ModeProfileWindow.ViewModels;
+using SierraHOTAS.ViewModels.Commands;
 
-namespace SierraHOTAS.ModeProfileWindow.ViewModels
+namespace SierraHOTAS.ViewModels
 {
     public class ModeProfileConfigWindowViewModel : INotifyPropertyChanged
     {

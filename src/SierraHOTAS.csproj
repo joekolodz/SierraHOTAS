@@ -172,14 +172,14 @@
     <Compile Include="Models\JoystickOffsetValues.cs" />
     <Compile Include="Models\KeystrokeSentEventArgs.cs" />
     <Compile Include="Models\Segment.cs" />
-    <Compile Include="ModeProfileWindow\ModeProfileConfigWindow.xaml.cs">
+    <Compile Include="Views\ModeProfileConfigWindow.xaml.cs">
       <DependentUpon>ModeProfileConfigWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\ModeActivationItem.cs" />
     <Compile Include="Views\MessageWindow.xaml.cs">
       <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ModeProfileWindow\ViewModels\ModeProfileConfigWindowViewModel.cs" />
+    <Compile Include="ViewModels\ModeProfileConfigWindowViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ViewModels\ActionCatalogViewModel.cs" />
     <Compile Include="ViewModels\AxisChangedViewModelEventArgs.cs" />
@@ -295,7 +295,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ModeProfileWindow\ModeProfileConfigWindow.xaml">
+    <Page Include="Views\ModeProfileConfigWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -354,6 +354,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="ModeProfileWindow\ViewModels\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

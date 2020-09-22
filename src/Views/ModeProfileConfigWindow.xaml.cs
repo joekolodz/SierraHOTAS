@@ -1,10 +1,11 @@
-﻿using SierraHOTAS.ModeProfileWindow.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using SierraHOTAS.ModeProfileWindow.ViewModels;
+using SierraHOTAS.ViewModels;
 
-namespace SierraHOTAS.ModeProfileWindow
+namespace SierraHOTAS.Views
 {
     /// <summary>
     /// Interaction logic for ModeProfileConfigWindow.xaml
