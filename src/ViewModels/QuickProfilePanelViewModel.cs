@@ -51,18 +51,6 @@ namespace SierraHOTAS.ViewModels
                 return;
             }
 
-            //todo: show message window
-            //if (hotas == null)
-            //{
-            //    var modeMessageWindow = new MessageWindow(INVALID_JSON_MESSAGE)
-            //    {
-            //        Owner = Application.Current.MainWindow,
-            //        WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            //    };
-            //    modeMessageWindow.ShowDialog();
-            //    return;
-            //}
-
             QuickProfilesList.Add(quickProfileId, path);
             OnPropertyChanged(nameof(QuickProfilesList));
 
