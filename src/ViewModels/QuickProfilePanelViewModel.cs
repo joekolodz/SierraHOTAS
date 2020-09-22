@@ -45,6 +45,13 @@ namespace SierraHOTAS.ViewModels
             if (string.IsNullOrWhiteSpace(path)) return;
 
             var hotas = _fileSystem.FileOpen(path);
+            if (hotas == null)
+            {
+                _eventAggregator.Publish(new ShowMessageWindowEvent() { Message = INVALID_JSON_MESSAGE });
+                return;
+            }
+
+            //todo: show message window
             //if (hotas == null)
             //{
             //    var modeMessageWindow = new MessageWindow(INVALID_JSON_MESSAGE)
@@ -72,7 +79,7 @@ namespace SierraHOTAS.ViewModels
                 Id = quickProfileId,
                 Path = path
             };
-            _eventAggregator.Publish<QuickProfileSelectedEvent>(profileEvent);
+            _eventAggregator.Publish(profileEvent);
         }
 
         public void QuickProfile_Cleared(int quickProfileId)

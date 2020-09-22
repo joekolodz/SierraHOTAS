@@ -18,6 +18,8 @@ namespace SierraHOTAS.ViewModels
 {
     public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {
+        private const string ASSIGN_FIRST_PROFILE_MESSAGE = "Before creating a new profile, you must first assign an activation button to the existing profile.";
+
         private readonly Dispatcher _appDispatcher;
         private readonly IFileSystem _fileSystem;
         private bool? _snapToButton = true;
@@ -119,11 +121,9 @@ namespace SierraHOTAS.ViewModels
         private void CreateNewModeProfile()
         {
             const int defaultMode = 1;
-
             if (_deviceList.ModeProfileActivationButtons.Count == 0)
             {
-                const string message = "Before creating a new profile, you must first assign an activation button to the existing profile.";
-                _eventAggregator.Publish(new ShowMessageWindowEvent() { Message = message });
+                _eventAggregator.Publish(new ShowMessageWindowEvent() { Message = ASSIGN_FIRST_PROFILE_MESSAGE });
 
                 var isAssigned = AssignActivationButton(defaultMode);
                 if (!isAssigned) return;
