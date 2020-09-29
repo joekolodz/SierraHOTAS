@@ -12,6 +12,7 @@ namespace SierraHOTAS.Views
             _mainWindow = mainWindow;
             eventAggregator.Subscribe<ShowMessageWindowEvent>(ShowMessageWindow);
             eventAggregator.Subscribe<ShowModeProfileConfigWindowEvent>(ShowModeProfileConfigWindow);
+            eventAggregator.Subscribe<ShowInputGraphWindowEvent>(ShowInputGraphWindow);
         }
 
         private void ShowMessageWindow(ShowMessageWindowEvent eventMessage)
@@ -30,6 +31,11 @@ namespace SierraHOTAS.Views
             {
                 eventMessage.CancelCallback.Invoke();
             }
+        }
+
+        private void ShowInputGraphWindow(ShowInputGraphWindowEvent eventMessage)
+        {
+            new InputGraphWindow(eventMessage.AxisChangedHandler, eventMessage.CancelCallbackRemoveHandler) { Owner = _mainWindow }.Show();
         }
     }
 }

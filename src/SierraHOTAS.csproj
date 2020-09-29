@@ -130,6 +130,7 @@
     <Compile Include="Models\IHOTASCollection.cs" />
     <Compile Include="Models\IHOTASQueue.cs" />
     <Compile Include="Models\IJoystick.cs" />
+    <Compile Include="Models\InputGraphNode.cs" />
     <Compile Include="Models\JoystickWrapper.cs" />
     <Compile Include="Models\LostConnectionToDeviceEventArgs.cs" />
     <Compile Include="Models\ModeProfileChangedEventArgs.cs" />
@@ -156,8 +157,13 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Models\FileSystem.cs" />
     <Compile Include="Logging.cs" />
+    <Compile Include="ViewModels\InputGraphWindowViewModel.cs" />
+    <Compile Include="ViewModels\ShowInputGraphWindowEvent.cs" />
     <Compile Include="ViewModels\ShowMessageWindowEvent.cs" />
     <Compile Include="ViewModels\ShowModeProfileConfigWindowEvent.cs" />
+    <Compile Include="Views\InputGraphWindow.xaml.cs">
+      <DependentUpon>InputGraphWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MainWindow.xaml.cs" />
     <Compile Include="Models\HOTASAxisMap.cs" />
     <Compile Include="Models\IHotasBaseMap.cs" />
@@ -289,6 +295,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\RadialAxisMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InputGraphWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

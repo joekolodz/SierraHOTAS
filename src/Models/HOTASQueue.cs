@@ -30,7 +30,7 @@ namespace SierraHOTAS.Models
         private CancellationToken _tokenDequeueLoop;
         private BlockingCollection<ActionJobItem> _actionJobs;
 
-        private JitterDetection _jitter;
+        private Dictionary<int, JitterDetection> _jitterDetectionDictionary;
 
 
         private IJoystick Joystick { get; set; }
@@ -40,7 +40,7 @@ namespace SierraHOTAS.Models
         {
             Joystick = joystick;
             _buttonMap = buttonMap;
-            _jitter = new JitterDetection();
+            _jitterDetectionDictionary = new Dictionary<int, JitterDetection>();
 
             _actionJobs = new BlockingCollection<ActionJobItem>();
 
@@ -94,7 +94,7 @@ namespace SierraHOTAS.Models
                 JoystickUpdate[] data = { };
                 try
                 {
-                     data = Joystick.GetBufferedData();
+                    data = Joystick.GetBufferedData();
                 }
                 catch (Exception e)
                 {
@@ -135,9 +135,12 @@ namespace SierraHOTAS.Models
                         offset == JoystickOffset.RotationY ||
                         offset == JoystickOffset.RotationZ)
                     {
-                        if (_jitter.IsJitter(state.Value)) continue;
 
-                        //Debug.WriteLine($"{Joystick.Properties.ProductName} - Offset:{offset} - Value:{state.Value}");
+                        if (!_jitterDetectionDictionary.ContainsKey(state.RawOffset))
+                        {
+                            _jitterDetectionDictionary.Add(state.RawOffset, new JitterDetection());
+                        }
+                        if (_jitterDetectionDictionary[state.RawOffset].IsJitter(state.Value)) continue;
 
                         HandleAxis(state);
                         OnAxisChanged(state);

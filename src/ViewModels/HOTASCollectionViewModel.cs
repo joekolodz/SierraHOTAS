@@ -105,6 +105,9 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand DeleteModeProfileCommand => _deleteModeProfileCommand ?? (_deleteModeProfileCommand = new CommandHandlerWithParameter<ModeActivationItem>(DeleteModeProfile));
 
+        private ICommand _showInputGraphWindowCommand;
+
+        public ICommand ShowInputGraphWindowCommand => _showInputGraphWindowCommand ?? (_showInputGraphWindowCommand = new CommandHandler(ShowInputGraphWindow));
         public HOTASCollectionViewModel(Dispatcher dispatcher, IEventAggregator eventAggregator, IFileSystem fileSystem, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel)
         {
             _fileSystem = fileSystem;
@@ -133,6 +136,11 @@ namespace SierraHOTAS.ViewModels
             _deviceList.SetMode(mode);
             AssignActivationButton(mode);
             OnModeProfileChanged(this, new ModeProfileChangedEventArgs() { Mode = _deviceList.Mode });
+        }
+
+        private void ShowInputGraphWindow()
+        {
+            _eventAggregator.Publish(new ShowInputGraphWindowEvent(h => _deviceList.AxisChanged += h, h => _deviceList.AxisChanged -= h));
         }
 
         private void EditModeProfile(ModeActivationItem item)

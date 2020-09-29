@@ -171,15 +171,32 @@ namespace SierraHOTAS.Models
 
         public void ListenAsync()
         {
+            RemoveQueueHandlers();
+            AddQueueHandlers();
+
+            _hotasQueue.ListenAsync(Joystick, ButtonMap);
+
+            Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
+        }
+
+        private void AddQueueHandlers()
+        {
             _hotasQueue.KeystrokeDownSent += OnKeystrokeDownSent;
             _hotasQueue.KeystrokeUpSent += OnKeystrokeUpSent;
             _hotasQueue.ButtonPressed += OnButtonPress;
             _hotasQueue.AxisChanged += OnAxisChanged;
             _hotasQueue.ModeProfileSelected += OnModeProfileSelected;
             _hotasQueue.LostConnectionToDevice += OnLostConnectionToDevice;
-            _hotasQueue.ListenAsync(Joystick, ButtonMap);
+        }
 
-            Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
+        private void RemoveQueueHandlers()
+        {
+            _hotasQueue.KeystrokeDownSent -= OnKeystrokeDownSent;
+            _hotasQueue.KeystrokeUpSent -= OnKeystrokeUpSent;
+            _hotasQueue.ButtonPressed -= OnButtonPress;
+            _hotasQueue.AxisChanged -= OnAxisChanged;
+            _hotasQueue.ModeProfileSelected -= OnModeProfileSelected;
+            _hotasQueue.LostConnectionToDevice -= OnLostConnectionToDevice;
         }
 
         public void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap)

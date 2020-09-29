@@ -89,8 +89,11 @@ namespace SierraHOTAS.Models
             device.KeystrokeDownSent -= Device_KeystrokeDownSent;
             device.KeystrokeUpSent -= Device_KeystrokeUpSent;
             device.ModeProfileSelected -= Device_ModeProfileSelected;
+            device.LostConnectionToDevice -= Device_LostConnectionToDevice;
 
             device.Stop();
+            device.ListenAsync();
+
         }
 
         public void ClearButtonMap()

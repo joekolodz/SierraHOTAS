@@ -1,0 +1,35 @@
+﻿<Window x:Class="SierraHOTAS.Views.InputGraphWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SierraHOTAS.Views"
+        xmlns:models="clr-namespace:SierraHOTAS.Models"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        SizeChanged="InputGraphWindow_OnSizeChanged"
+        Title="Input Graph" Height="450" Width="800">
+
+    <Border BorderBrush="{StaticResource GroupBorderBrush}" BorderThickness="1">
+        <Grid>
+            <Canvas Name="LineGraphCanvas" Background="{StaticResource WindowBackgroundBrush}"/>
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                <Button Name="StartCapture" Content="Start Capture" Click="StartCapture_OnClick"/>
+                <Button Name="StopCapture" Content="Stop Capture" Click="StopCapture_OnClick"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Label Content="Deviation" Foreground="{StaticResource TextHeaderBrush}" Width="60"/>
+                    <TextBlock Text="{Binding Deviation}" Foreground="{StaticResource TextBrush}" Width="50"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Label Content="Min/max" Foreground="{StaticResource TextHeaderBrush}"  Width="60"/>
+                    <TextBlock Text="{Binding Min}" Foreground="{StaticResource TextBrush}" Width="40"/>
+                    <Label Content="/" Foreground="{StaticResource TextHeaderBrush}"  Width="15"/>
+                    <TextBlock Text="{Binding Max}" Foreground="{StaticResource TextBrush}" Width="40"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+
+</Window>
