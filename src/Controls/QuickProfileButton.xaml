@@ -14,15 +14,14 @@
     <StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
-            <!-- TODO: favorite button -->
-            <Button Name="FavoriteButton" Style="{StaticResource ClearQuickProfileButton}" Click="ClearQuickLoadButton_OnClick" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-3,0,0,0" ToolTip="Automatically load this profile on startup" ToolTipService.InitialShowDelay="800"
+            <Button Name="AutoLoadButton" Style="{StaticResource ClearQuickProfileButton}" Click="AutoLoadButton_OnClick" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-3,0,0,0" ToolTip="Automatically load this profile on startup" ToolTipService.InitialShowDelay="800"
                     Visibility="{Binding IsQuickProfileSet, Converter={StaticResource BoolToVisibility}}">
                 <Image>
                     <Image.Style>
                         <Style TargetType="{x:Type Image}">
                             <Setter Property="Source" Value="../Images/unfavorite_23x22.png"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsQuickProfileSet}" Value="true">
+                                <DataTrigger Binding="{Binding AutoLoad}" Value="true">
                                     <Setter Property="Source" Value="../Images/favorite_23x22.png"/>
                                 </DataTrigger>
                             </Style.Triggers>

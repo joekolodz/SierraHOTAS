@@ -48,11 +48,12 @@ namespace SierraHOTAS.Controls
                 {
                     if (QuickProfilePanelViewModel.QuickProfilesList.ContainsKey(profileIdCount))
                     {
-                        var fileName = QuickProfilePanelViewModel.QuickProfilesList[profileIdCount];
-                        quickButton.SetFileName(fileName);
+                        var profileItem = QuickProfilePanelViewModel.QuickProfilesList[profileIdCount];
+                        quickButton.SetFileName(profileItem.Path);
+                        quickButton.AutoLoad = profileItem.AutoLoad;
                         quickButton.ProfileId = profileIdCount;
                         quickButton.QuickLoadButtonClicked += QuickButton_QuickLoadButtonClicked;
-                        quickButton.HideClearButton = true;
+                        quickButton.HideButtons = true;
                         quickButton.Visibility = Visibility.Visible;
                     }
                     else

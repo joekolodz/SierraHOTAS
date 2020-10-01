@@ -19,7 +19,7 @@ namespace SierraHOTAS
             return fileName;
         }
 
-        public void SaveQuickProfilesList(Dictionary<int, string> list, string fileName)
+        public void SaveQuickProfilesList(Dictionary<int, QuickProfileItem> list, string fileName)
         {
             fileName = BuildCurrentPath(fileName);
             Debug.WriteLine($"Saving Quick List as :{fileName}");
@@ -30,7 +30,7 @@ namespace SierraHOTAS
             }
         }
 
-        public Dictionary<int, string> LoadQuickProfilesList(string fileName)
+        public Dictionary<int, QuickProfileItem> LoadQuickProfilesList(string fileName)
         {
             var path = BuildCurrentPath(fileName);
 
@@ -42,7 +42,7 @@ namespace SierraHOTAS
                 serializer.Converters.Add(new CustomJsonConverter());
                 try
                 {
-                    var list = (Dictionary<int, string>)serializer.Deserialize(file, typeof(Dictionary<int, string>));
+                    var list = (Dictionary<int, QuickProfileItem>)serializer.Deserialize(file, typeof(Dictionary<int, QuickProfileItem>));
                     return list;
                 }
                 catch (Exception e)

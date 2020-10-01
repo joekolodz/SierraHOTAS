@@ -12,20 +12,21 @@ namespace SierraHOTAS.Controls
         private const string FILE_TOOL_TIP = "Click to select a profile to quick load";
         public event EventHandler<EventArgs> QuickLoadButtonClicked;
         public event EventHandler<EventArgs> QuickLoadButtonCleared;
+        public event EventHandler<EventArgs> AutoLoadSelected;
 
         public static DependencyProperty ProfileIdProperty = DependencyProperty.Register(nameof(ProfileId), typeof(int), typeof(QuickProfileButton), new PropertyMetadata(0));
         public static DependencyProperty FileNameProperty = DependencyProperty.Register(nameof(FileName), typeof(string), typeof(QuickProfileButton), new FrameworkPropertyMetadata(FILE_TOOL_TIP, OnFileNameChanged));
         public static DependencyProperty NickNameProperty = DependencyProperty.Register(nameof(NickName), typeof(string), typeof(QuickProfileButton));
         public static DependencyProperty FileToolTipProperty = DependencyProperty.Register(nameof(FileToolTip), typeof(string), typeof(QuickProfileButton), new PropertyMetadata(FILE_TOOL_TIP));
+        public static DependencyProperty IsQuickProfileSetProperty = DependencyProperty.Register(nameof(IsQuickProfileSet), typeof(bool), typeof(QuickProfileButton), new PropertyMetadata(false));
+        public static DependencyProperty HideButtonsProperty = DependencyProperty.Register(nameof(HideButtons), typeof(bool), typeof(QuickProfileButton), new PropertyMetadata(false));
+        public static DependencyProperty AutoLoadProperty = DependencyProperty.Register(nameof(AutoLoad), typeof(bool), typeof(QuickProfileButton), new PropertyMetadata(false));
 
         private static void OnFileNameChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             if (!(sender is QuickProfileButton prop)) return;
             prop.OnPropertyChanged(nameof(IsQuickProfileSet));
         }
-
-        public static DependencyProperty IsQuickProfileSetProperty = DependencyProperty.Register(nameof(IsQuickProfileSet), typeof(bool), typeof(QuickProfileButton), new PropertyMetadata(false));
-        public static DependencyProperty HideClearButtonProperty = DependencyProperty.Register(nameof(HideClearButton), typeof(bool), typeof(QuickProfileButton), new PropertyMetadata(false));
 
         public int ProfileId
         {
@@ -61,13 +62,20 @@ namespace SierraHOTAS.Controls
             set => SetValue(IsQuickProfileSetProperty, value);
         }
 
-        public bool HideClearButton
+        public bool AutoLoad
         {
-            get => (bool)GetValue(HideClearButtonProperty);
+            get => (bool)GetValue(AutoLoadProperty);
+            set => SetValue(AutoLoadProperty, value);
+        }
+
+        public bool HideButtons
+        {
+            get => (bool)GetValue(HideButtonsProperty);
             set
             {
-                SetValue(HideClearButtonProperty, value);
-                ClearButton.Visibility = HideClearButton ? Visibility.Collapsed:Visibility.Visible;
+                SetValue(HideButtonsProperty, value);
+                ClearButton.Visibility = HideButtons ? Visibility.Collapsed:Visibility.Visible;
+                AutoLoadButton.Visibility = HideButtons ? Visibility.Collapsed:Visibility.Visible;
             }
         }
 
@@ -94,6 +102,12 @@ namespace SierraHOTAS.Controls
         private void QuickLoadButton_OnClick(object sender, RoutedEventArgs e)
         {
             QuickLoadButtonClicked?.Invoke(this, new EventArgs());
+        }
+
+        private void AutoLoadButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            AutoLoad = !AutoLoad;
+            AutoLoadSelected?.Invoke(this, new EventArgs());
         }
 
         private void ClearQuickLoadButton_OnClick(object sender, RoutedEventArgs e)

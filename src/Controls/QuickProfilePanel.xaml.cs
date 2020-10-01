@@ -37,12 +37,14 @@ namespace SierraHOTAS.Controls
                 {
                     if (QuickProfilePanelViewModel.QuickProfilesList.ContainsKey(profileIdCount))
                     {
-                        var fileName = QuickProfilePanelViewModel.QuickProfilesList[profileIdCount];
-                        quickButton.SetFileName(fileName);
+                        var profileItem = QuickProfilePanelViewModel.QuickProfilesList[profileIdCount];
+                        quickButton.SetFileName(profileItem.Path);
+                        quickButton.AutoLoad = profileItem.AutoLoad;
                     }
                     quickButton.ProfileId = profileIdCount++;
                     quickButton.QuickLoadButtonClicked += QuickButton_QuickLoadButtonClicked;
                     quickButton.QuickLoadButtonCleared += QuickButton_QuickLoadButtonCleared;
+                    quickButton.AutoLoadSelected += QuickButtonAutoLoadSelected;
                 }
             }
         }
@@ -67,9 +69,34 @@ namespace SierraHOTAS.Controls
             {
                 QuickProfilePanelViewModel.QuickProfileRequestedCommand.Execute(quickButton?.ProfileId);
                 if(!QuickProfilePanelViewModel.QuickProfilesList.ContainsKey(quickButton.ProfileId)) return;
-                var fileName = QuickProfilePanelViewModel.QuickProfilesList[quickButton.ProfileId];
-                quickButton.SetFileName(fileName);
+                var profileItem = QuickProfilePanelViewModel.QuickProfilesList[quickButton.ProfileId];
+                quickButton.SetFileName(profileItem.Path);
             }
         }
+        private void QuickButtonAutoLoadSelected(object sender, System.EventArgs e)
+        {
+            if (!(sender is QuickProfileButton quickButton)) return;
+            QuickProfilePanelViewModel.AutoLoadSelectedCommand.Execute(quickButton?.ProfileId);
+            ResetAutoLoadButton();
+        }
+
+        private void ResetAutoLoadButton()
+        {
+            var profileIdCount = 0;
+            foreach (var child in MainPanel.Children)
+            {
+                if (child is QuickProfileButton quickButton)
+                {
+                    if (QuickProfilePanelViewModel.QuickProfilesList.ContainsKey(profileIdCount))
+                    {
+                        var profileItem = QuickProfilePanelViewModel.QuickProfilesList[profileIdCount];
+                        quickButton.AutoLoad = profileItem.AutoLoad;
+                    }
+                    quickButton.ProfileId = profileIdCount++;
+                }
+            }
+
+        }
+
     }
 }

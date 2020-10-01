@@ -4,6 +4,7 @@ using SierraHOTAS.ModeProfileWindow;
 using SierraHOTAS.ViewModels.Commands;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -18,7 +19,7 @@ namespace SierraHOTAS.ViewModels
         private readonly IEventAggregator _eventAggregator;
         public event EventHandler<EventArgs> ShowMainWindow;
 
-        public Dictionary<int, string> QuickProfilesList { get; set; }
+        public Dictionary<int, QuickProfileItem> QuickProfilesList { get; set; }
 
         private ICommand _quickProfileSelectedCommand;
         public ICommand QuickProfileSelectedCommand => _quickProfileSelectedCommand ?? (_quickProfileSelectedCommand = new CommandHandlerWithParameter<int>(QuickProfile_Selected));
@@ -29,6 +30,9 @@ namespace SierraHOTAS.ViewModels
         private ICommand _quickProfileClearedCommand;
         public ICommand QuickProfileClearedCommand => _quickProfileClearedCommand ?? (_quickProfileClearedCommand = new CommandHandlerWithParameter<int>(QuickProfile_Cleared));
 
+        private ICommand _autoLoadSelectedCommand;
+        public ICommand AutoLoadSelectedCommand => _autoLoadSelectedCommand ?? (_autoLoadSelectedCommand = new CommandHandlerWithParameter<int>(QuickProfile_AutoLoadSelected));
+
         public QuickProfilePanelViewModel(IEventAggregator eventAggregator, IFileSystem fileSystem)
         {
             _eventAggregator = eventAggregator;
@@ -37,7 +41,7 @@ namespace SierraHOTAS.ViewModels
 
         public void SetupQuickProfiles()
         {
-            QuickProfilesList = _fileSystem.LoadQuickProfilesList(QUICK_PROFILE_LIST_FILE_NAME) ?? new Dictionary<int, string>();
+            QuickProfilesList = _fileSystem.LoadQuickProfilesList(QUICK_PROFILE_LIST_FILE_NAME) ?? new Dictionary<int, QuickProfileItem>();
         }
 
         public void QuickProfile_Requested(int quickProfileId)
@@ -53,7 +57,8 @@ namespace SierraHOTAS.ViewModels
                 return;
             }
 
-            QuickProfilesList.Add(quickProfileId, path);
+            QuickProfilesList.Add(quickProfileId, new QuickProfileItem(){Path = path, AutoLoad = false});
+            
             OnPropertyChanged(nameof(QuickProfilesList));
 
             _fileSystem.SaveQuickProfilesList(QuickProfilesList, QUICK_PROFILE_LIST_FILE_NAME);
@@ -63,11 +68,11 @@ namespace SierraHOTAS.ViewModels
         {
             if (!QuickProfilesList.ContainsKey(quickProfileId)) return;
 
-            var path = QuickProfilesList[quickProfileId];
+            var profileItem = QuickProfilesList[quickProfileId];
             var profileEvent = new QuickProfileSelectedEvent()
             {
                 Id = quickProfileId,
-                Path = path
+                Path = profileItem.Path
             };
             _eventAggregator.Publish(profileEvent);
         }
@@ -78,6 +83,21 @@ namespace SierraHOTAS.ViewModels
             QuickProfilesList.Remove(quickProfileId);
             OnPropertyChanged(nameof(QuickProfilesList));
 
+            _fileSystem.SaveQuickProfilesList(QuickProfilesList, QUICK_PROFILE_LIST_FILE_NAME);
+        }
+
+        private void QuickProfile_AutoLoadSelected(int quickProfileId)
+        {
+            if (!QuickProfilesList.ContainsKey(quickProfileId)) return;
+            var profileItem = QuickProfilesList[quickProfileId];
+            var previousValue = profileItem.AutoLoad;
+
+            foreach (var item in QuickProfilesList)
+            {
+                item.Value.AutoLoad = false;
+            }
+
+            profileItem.AutoLoad = !previousValue;
             _fileSystem.SaveQuickProfilesList(QuickProfilesList, QUICK_PROFILE_LIST_FILE_NAME);
         }
 
