@@ -46,7 +46,7 @@ namespace SierraHOTAS.Models
         {
             if (directInput == null) throw new ArgumentNullException(nameof(directInput));
             if (hotasQueue == null) throw new ArgumentNullException(nameof(hotasQueue));
-            if (deviceId == Guid.Empty) throw new ArgumentNullException(nameof(deviceId));
+            if (deviceId == Guid.Empty) return; //throw new ArgumentNullException(nameof(deviceId));
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             
             _directInput = directInput;

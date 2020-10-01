@@ -5,6 +5,7 @@ using SierraHOTAS.ViewModels.Commands;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -41,6 +42,7 @@ namespace SierraHOTAS.ViewModels
 
         public void SetupQuickProfiles()
         {
+            if (QuickProfilesList != null) return;
             QuickProfilesList = _fileSystem.LoadQuickProfilesList(QUICK_PROFILE_LIST_FILE_NAME) ?? new Dictionary<int, QuickProfileItem>();
         }
 
@@ -111,6 +113,11 @@ namespace SierraHOTAS.ViewModels
         public void ShowWindow()
         {
             ShowMainWindow?.Invoke(this, new EventArgs());
+        }
+
+        public string GetAutoLoadPath()
+        {
+            return QuickProfilesList.Where(item => item.Value.AutoLoad).Select(item => item.Value.Path).FirstOrDefault();
         }
     }
 }

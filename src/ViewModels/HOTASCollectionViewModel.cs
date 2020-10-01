@@ -62,7 +62,7 @@ namespace SierraHOTAS.ViewModels
         public event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
         public event EventHandler<EventArgs> FileOpened;
 
-        private IHOTASCollection _deviceList;
+        private readonly IHOTASCollection _deviceList;
 
         public DeviceViewModel SelectedDevice { get; set; }
 
@@ -184,14 +184,33 @@ namespace SierraHOTAS.ViewModels
             return true;
         }
 
+        private void AutoLoadProfile()
+        {
+            var path = QuickProfilePanelViewModel.GetAutoLoadPath();
+            LoadProfile(path);
+        }
+
         private void QuickLoadProfile(QuickProfileSelectedEvent profileInfo)
         {
             if (string.IsNullOrWhiteSpace(profileInfo.Path)) return;
 
-            var hotas = _fileSystem.FileOpen(profileInfo.Path);
+            LoadProfile(profileInfo.Path);
+        }
+
+        private void LoadProfile(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return;
+
+            var hotas = _fileSystem.FileOpen(path);
             if (hotas == null)
             {
-                ProfileSetFileName = $"Could not load {profileInfo.Path}!!! Is this a SierraHOTAS compatible JSON file?";
+                ProfileSetFileName = $"Could not load {path}!!! Is this a SierraHOTAS compatible JSON file?";
+                return;
+            }
+
+            if(hotas.Devices.Any(d=>d.DeviceId == Guid.Empty))
+            {
+                ProfileSetFileName = $"Could not load a device.";
                 return;
             }
 
@@ -219,6 +238,8 @@ namespace SierraHOTAS.ViewModels
 
             BuildDevicesViewModel();
             AddHandlers();
+
+            AutoLoadProfile();
         }
 
         private void DeviceList_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
