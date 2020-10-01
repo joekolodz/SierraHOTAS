@@ -65,6 +65,7 @@ namespace SierraHOTAS.Views
         public InputGraphWindow(Action<EventHandler<AxisChangedEventArgs>> handler, Action<EventHandler<AxisChangedEventArgs>> callBackRemoveHandler)
         {
             InitializeComponent();
+
             DataContext = this;
 
             _pointsDictionary = new Dictionary<int, Collection<int>>();
@@ -76,6 +77,8 @@ namespace SierraHOTAS.Views
             _callBackRemoveHandler = callBackRemoveHandler;
 
             _graphScale = (int)Width;
+
+            SizeChanged += InputGraphWindow_OnSizeChanged;
         }
 
         private void InputGraphWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)

@@ -11,8 +11,7 @@
         d:DataContext="{d:DesignInstance viewModel:HOTASCollectionViewModel}"
         x:Class="SierraHOTAS.Views.MainWindow"
         mc:Ignorable="d"
-        Title="Sierra HOTAS" Height="900" Width="1220"
-        KeyDown="Window_KeyDown">
+        Title="Sierra HOTAS" Height="900" Width="1220">
 
     <Window.Resources>
         <Style  x:Key="RoundLabelStyle" TargetType="Label">
@@ -151,16 +150,15 @@
             </StackPanel>
 
             <StackPanel DockPanel.Dock="Top">
-                <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
 
-
-
-                <Button Style="{StaticResource AddButton}" Command="{Binding ShowInputGraphWindowCommand, IsAsync=True}" VerticalAlignment="Bottom" Margin="2,0,0,0" ToolTip="Create a new mode" ToolTipService.InitialShowDelay="800">
-                    <Button.Content>
-                        <Image Source="../Images/add_green_22x22.png"/>
-                    </Button.Content>
-                </Button>
-
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Test" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
+                    <Button Style="{StaticResource AddButton}" Command="{Binding ShowInputGraphWindowCommand, IsAsync=True}" VerticalAlignment="Bottom" Margin="2,0,0,0" ToolTip="Show device input graph window" ToolTipService.InitialShowDelay="800">
+                        <Button.Content>
+                            <Image Source="../Images/graph_22x22.png"/>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
 
                 <TextBox x:Name="txtTestBox" Height="100" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}" FontSize="14"></TextBox>
 

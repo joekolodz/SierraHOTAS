@@ -1,4 +1,5 @@
-﻿using SierraHOTAS.Models;
+﻿using System;
+using SierraHOTAS.Models;
 using SierraHOTAS.ModeProfileWindow;
 using SierraHOTAS.ViewModels.Commands;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace SierraHOTAS.ViewModels
         private const string INVALID_JSON_MESSAGE = "Could not load file! Is this a SierraHOTAS compatible JSON file?";
         private readonly IFileSystem _fileSystem;
         private readonly IEventAggregator _eventAggregator;
+        public event EventHandler<EventArgs> ShowMainWindow;
 
         public Dictionary<int, string> QuickProfilesList { get; set; }
 
@@ -84,6 +86,11 @@ namespace SierraHOTAS.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void ShowWindow()
+        {
+            ShowMainWindow?.Invoke(this, new EventArgs());
         }
     }
 }

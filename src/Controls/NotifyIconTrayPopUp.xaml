@@ -6,10 +6,9 @@
              xmlns:viewModel="clr-namespace:SierraHOTAS.ViewModels"
              d:DataContext="{d:DesignInstance viewModel:QuickProfilePanelViewModel}"
              xmlns:local="clr-namespace:SierraHOTAS.Controls"
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="125">
+             mc:Ignorable="d">
     
-    <Grid Height="300" Width="125">
+    <Grid >
         <Border BorderThickness="1" BorderBrush="{StaticResource AxisForwardBrush}">
             
             <StackPanel Name="MainPanel" Orientation="Vertical" Background="{StaticResource WindowBackgroundBrush}">
@@ -21,7 +20,7 @@
                 <local:QuickProfileButton Margin="0,0,0,8"/>
                 <local:QuickProfileButton Margin="0,0,0,8"/>
                 <local:QuickProfileButton Margin="0,0,0,8"/>
-
+                <Button Click="ButtonBase_OnClick" Content="Show Window"  Background="{StaticResource DisabledBorderBrush}" Foreground="{StaticResource TextHeaderBrush}" Margin="0,5,0,2"/>
             </StackPanel>
         </Border>
     </Grid>

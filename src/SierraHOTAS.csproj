@@ -234,6 +234,9 @@
     <Resource Include="Images\remove_red_26x26.png" />
     <Resource Include="Images\profile_set_32x32.png" />
     <Resource Include="Images\icon64x64.ico" />
+    <Resource Include="Images\graph_22x22.png" />
+    <Resource Include="Images\favorite_23x22.png" />
+    <Resource Include="Images\unfavorite_23x22.png" />
     <Content Include="Sounds\click01.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

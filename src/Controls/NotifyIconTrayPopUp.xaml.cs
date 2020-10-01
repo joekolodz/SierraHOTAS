@@ -1,4 +1,5 @@
-﻿using SierraHOTAS.ViewModels;
+﻿using System;
+using SierraHOTAS.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -71,6 +72,11 @@ namespace SierraHOTAS.Controls
             {
                 QuickProfilePanelViewModel.QuickProfileSelectedCommand.Execute(quickButton?.ProfileId);
             }
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            QuickProfilePanelViewModel.ShowWindow();
         }
     }
 }

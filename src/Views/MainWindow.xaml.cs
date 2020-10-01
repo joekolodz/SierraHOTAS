@@ -10,7 +10,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
-using SierraHOTAS.Controls;
 
 //https://www.pinvoke.net/default.aspx/user32/SendInput.html
 //https://cboard.cprogramming.com/windows-programming/170043-how-use-sendmessage-wm_keyup.html
@@ -50,9 +49,26 @@ namespace SierraHOTAS.Views
             HotasCollectionViewModel.AxisChanged += CollectionViewModelAxisChanged;
             HotasCollectionViewModel.FileOpened += HotasCollectionViewModel_FileOpened;
             HotasCollectionViewModel.ModeProfileChanged += HotasCollectionViewModel_ModeProfileChanged;
+            HotasCollectionViewModel.ShowMainWindow += HotasCollectionViewModel_ShowMainWindow;
 
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
+            StateChanged += MainWindow_StateChanged;
+            KeyDown += Window_KeyDown;
+        }
+
+        private void HotasCollectionViewModel_ShowMainWindow(object sender, EventArgs e)
+        {
+            Show();
+            WindowState = WindowState.Normal;
+        }
+
+        private void MainWindow_StateChanged(object sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                Visibility = Visibility.Hidden;
+            }
         }
 
         private void HotasCollectionViewModel_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)

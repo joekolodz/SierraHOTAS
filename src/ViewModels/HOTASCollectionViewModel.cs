@@ -24,6 +24,7 @@ namespace SierraHOTAS.ViewModels
         private readonly IFileSystem _fileSystem;
         private bool? _snapToButton = true;
         private readonly IEventAggregator _eventAggregator;
+        public event EventHandler<EventArgs> ShowMainWindow;
 
         public QuickProfilePanelViewModel QuickProfilePanelViewModel { get; set; }
         public ActionCatalogViewModel ActionCatalog { get; set; }
@@ -117,8 +118,14 @@ namespace SierraHOTAS.ViewModels
             Activity = new ObservableCollection<ActivityItem>();
             QuickProfilePanelViewModel = new QuickProfilePanelViewModel(eventAggregator, fileSystem);
 
+            QuickProfilePanelViewModel.ShowMainWindow += QuickProfilePanelViewModel_ShowMainWindow;
             _eventAggregator = eventAggregator;
             _eventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
+        }
+
+        private void QuickProfilePanelViewModel_ShowMainWindow(object sender, EventArgs e)
+        {
+            ShowMainWindow?.Invoke(this, new EventArgs());
         }
 
         private void CreateNewModeProfile()
