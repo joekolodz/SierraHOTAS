@@ -289,7 +289,6 @@ namespace SierraHOTAS.Tests
             existingDevice.Name = "existing device";
             AddHotasButtonMap(existingDevice.ButtonMap, existingButtonMapId);
             AddHotasButtonMap(existingDevice.ButtonMap, 0, HOTASButtonMap.ButtonType.Button, "Button2 - remove my actions", "<No Action>", 1);
-
             
             subHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
 

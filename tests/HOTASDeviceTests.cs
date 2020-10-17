@@ -42,7 +42,7 @@ namespace SierraHOTAS.Tests
             var deviceId = Guid.NewGuid();
             const string name = "test";
 
-            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, Guid.Empty, name, queue));
+            Assert.NotNull(new HOTASDevice(di, Guid.Empty, name, queue));
             Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, deviceId, string.Empty, queue));
             Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, deviceId, null, queue));
             Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(null, deviceId, name, queue));
