@@ -117,6 +117,7 @@ namespace SierraHOTAS.ViewModels
 
         public string GetAutoLoadPath()
         {
+            if (QuickProfilesList == null) return string.Empty;
             return QuickProfilesList.Where(item => item.Value.AutoLoad).Select(item => item.Value.Path).FirstOrDefault();
         }
     }

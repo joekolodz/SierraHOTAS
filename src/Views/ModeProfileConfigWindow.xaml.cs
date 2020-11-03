@@ -1,10 +1,10 @@
-﻿using System;
+﻿using SierraHOTAS.Models;
+using SierraHOTAS.ModeProfileWindow.ViewModels;
+using SierraHOTAS.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
-using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
-using SierraHOTAS.ViewModels;
 
 namespace SierraHOTAS.Views
 {
@@ -15,19 +15,21 @@ namespace SierraHOTAS.Views
     {
         public ModeProfileConfigWindowViewModel ModeProfileConfigViewModel { get; }
 
-        private Action _cancelCallback;
+        private readonly Action _cancelCallback;
+        private readonly Action<EventHandler<ButtonPressedEventArgs>> _removePressedHandler;
 
-        public ModeProfileConfigWindow(int mode, Dictionary<int, ModeActivationItem> activationButtonList, Action<EventHandler<ButtonPressedEventArgs>> pressedHandler, Action cancelCallback)
+        public ModeProfileConfigWindow(IEventAggregator eventAggregator, int mode, Dictionary<int, ModeActivationItem> activationButtonList, Action<EventHandler<ButtonPressedEventArgs>> pressedHandler, Action<EventHandler<ButtonPressedEventArgs>> removePressedHandler, Action cancelCallback)
         {
             InitializeComponent();
-            ModeProfileConfigViewModel = new ModeProfileConfigWindowViewModel(mode, activationButtonList);
+            ModeProfileConfigViewModel = new ModeProfileConfigWindowViewModel(eventAggregator, mode, activationButtonList);
             ModeProfileConfigViewModel.AppDispatcher = Dispatcher;
             ModeProfileConfigViewModel.SaveCancelled += SaveCancelled;
             ModeProfileConfigViewModel.NewProfileSaved += NewProfileSaved;
+            Closed += OnClosed;
             DataContext = ModeProfileConfigViewModel;
             pressedHandler(PressedHandler);
+            _removePressedHandler = removePressedHandler;
             _cancelCallback = cancelCallback;
-            Closed += ModeProfileConfigWindow_Closed;
         }
 
         private void PressedHandler(object sender, ButtonPressedEventArgs e)
@@ -38,20 +40,21 @@ namespace SierraHOTAS.Views
         private void NewProfileSaved(object sender, EventArgs e)
         {
             DialogResult = true;
-            CloseInternal();
         }
 
         private void SaveCancelled(object sender, EventArgs e)
         {
-            DialogResult = false;
             _cancelCallback.Invoke();
-            CloseInternal();
+            DialogResult = false;
         }
 
-        private void ModeProfileConfigWindow_Closed(object sender, EventArgs e)
+        private void RemoveHandlers()
         {
+            Closed -= SaveCancelled;
             ModeProfileConfigViewModel.AppDispatcher = null;
             ModeProfileConfigViewModel.SaveCancelled -= SaveCancelled;
+            ModeProfileConfigViewModel.NewProfileSaved -= NewProfileSaved;
+            _removePressedHandler(PressedHandler);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -60,8 +63,9 @@ namespace SierraHOTAS.Views
             if (e.Key == Key.Escape) SaveCancelled(null, null);
         }
 
-        private void CloseInternal()
+        private void OnClosed(object sender, EventArgs e)
         {
+            RemoveHandlers();
             Close();
         }
     }

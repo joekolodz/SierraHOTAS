@@ -158,6 +158,7 @@
     <Compile Include="Models\FileSystem.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="Models\QuickProfileItem.cs" />
+    <Compile Include="ViewModels\DeleteModeProfileEvent.cs" />
     <Compile Include="ViewModels\InputGraphWindowViewModel.cs" />
     <Compile Include="ViewModels\ShowInputGraphWindowEvent.cs" />
     <Compile Include="ViewModels\ShowMessageWindowEvent.cs" />

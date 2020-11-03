@@ -121,6 +121,7 @@ namespace SierraHOTAS.ViewModels
             QuickProfilePanelViewModel.ShowMainWindow += QuickProfilePanelViewModel_ShowMainWindow;
             _eventAggregator = eventAggregator;
             _eventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
+            _eventAggregator.Subscribe<DeleteModeProfileEvent>(DeleteModeProfile);
         }
 
         private void QuickProfilePanelViewModel_ShowMainWindow(object sender, EventArgs e)
@@ -152,11 +153,28 @@ namespace SierraHOTAS.ViewModels
 
         private void EditModeProfile(ModeActivationItem item)
         {
-            Logging.Log.Debug("EDIT!");
-            var exists = _deviceList.ModeProfileActivationButtons.ContainsKey(item.Mode);
+            var exists = _deviceList.ModeProfileActivationButtons.TryGetValue(item.Mode, out item);
+            if (!exists) return;
+
+            Logging.Log.Debug($"EDIT! {item.ProfileName} - {item.ButtonName}");
+            //show edit screen with item
+
+
+            var isCancelled = false;
+            var args = new ShowModeProfileConfigWindowEvent(item.Mode, _deviceList.ModeProfileActivationButtons, h => _deviceList.ButtonPressed += h, h => _deviceList.ButtonPressed -= h, () => isCancelled = true);
+            _eventAggregator.Publish(args);
+
+            if (isCancelled) return;
+
+            _deviceList.ApplyActivationButtonToAllProfiles();
+
             OnPropertyChanged(nameof(ModeActivationItems));
         }
 
+        private void DeleteModeProfile(DeleteModeProfileEvent item)
+        {
+            DeleteModeProfile(item.ActivationItem);
+        }
         private void DeleteModeProfile(ModeActivationItem item)
         {
             if (_deviceList.RemoveModeProfile(item))
@@ -167,6 +185,8 @@ namespace SierraHOTAS.ViewModels
 
         public void SetMode(int mode)
         {
+            if (_deviceList.Mode == mode) return;
+
             _deviceList.SetMode(mode);
             OnModeProfileChanged(this, new ModeProfileChangedEventArgs() { Mode = _deviceList.Mode });
         }
@@ -174,7 +194,7 @@ namespace SierraHOTAS.ViewModels
         private bool AssignActivationButton(int mode)
         {
             var isCancelled = false;
-            var args = new ShowModeProfileConfigWindowEvent(mode, _deviceList.ModeProfileActivationButtons, h => _deviceList.ButtonPressed += h, () => isCancelled = true);
+            var args = new ShowModeProfileConfigWindowEvent(mode, _deviceList.ModeProfileActivationButtons, h => _deviceList.ButtonPressed += h, h => _deviceList.ButtonPressed -= h, () => isCancelled = true);
             _eventAggregator.Publish(args);
 
             if (isCancelled) return false;
@@ -208,7 +228,7 @@ namespace SierraHOTAS.ViewModels
                 return;
             }
 
-            if(hotas.Devices.Any(d=>d.DeviceId == Guid.Empty))
+            if (hotas.Devices.Any(d => d.DeviceId == Guid.Empty))
             {
                 ProfileSetFileName = $"Could not load a device.";
                 return;
@@ -432,6 +452,8 @@ namespace SierraHOTAS.ViewModels
         {
             _deviceList.Stop();
 
+            RemoveUnconnectedDevices();
+
             BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
             BuildModeProfileActivationListFromLoadedDevices(loadedDeviceList);
             ReBuildActionCatalog();
@@ -447,6 +469,16 @@ namespace SierraHOTAS.ViewModels
             foreach (var d in Devices)
             {
                 Logging.Log.Info($"{d.InstanceId}, {d.Name}");
+            }
+        }
+
+        private void RemoveUnconnectedDevices()
+        {
+            //remove devices from the profile that are not actually connected at the moment. since these may only exist for that profile, when loading a new profile we don't want to show them
+            for (var i = Devices.Count - 1; i >= 0; i--)
+            {
+                if (Devices[i].IsDeviceLoaded) continue;
+                Devices.RemoveAt(i);
             }
         }
 

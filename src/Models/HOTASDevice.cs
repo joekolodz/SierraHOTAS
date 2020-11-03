@@ -40,15 +40,15 @@ namespace SierraHOTAS.Models
         private IJoystick Joystick { get; set; }
         private IHOTASQueue _hotasQueue;
 
-        public HOTASDevice() {}
+        public HOTASDevice() { }
 
         public HOTASDevice(IDirectInput directInput, Guid deviceId, string name, IHOTASQueue hotasQueue)
         {
             if (directInput == null) throw new ArgumentNullException(nameof(directInput));
             if (hotasQueue == null) throw new ArgumentNullException(nameof(hotasQueue));
-            if (deviceId == Guid.Empty) return; //throw new ArgumentNullException(nameof(deviceId));
+            if (deviceId == Guid.Empty) return; //can occur when loading an unsupported json format and the device id isn't deserialized correctly
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-            
+
             _directInput = directInput;
             _hotasQueue = hotasQueue;
 
@@ -75,6 +75,7 @@ namespace SierraHOTAS.Models
         public void SetModeProfile(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile)
         {
             ModeProfiles = profile;
+            if (ModeProfiles.Count < 1) return;
             SetButtonMap(profile[ModeProfiles.Keys.Min()].ToObservableCollection());
         }
 

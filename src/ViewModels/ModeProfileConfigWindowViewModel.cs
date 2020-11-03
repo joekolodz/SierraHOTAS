@@ -31,9 +31,10 @@ namespace SierraHOTAS.ViewModels
         private readonly int _mode;
         private readonly Dictionary<int, ModeActivationItem> _activationButtonList;
         private HOTASButtonMap _buttonMap;
+        private IEventAggregator _eventAggregator;
 
-        private CommandHandler _createNewModeProfileCommand;
-        public ICommand SaveNewModeProfileCommand => _createNewModeProfileCommand ?? (_createNewModeProfileCommand = new CommandHandler(SaveNewModeProfile, CanExecuteSaveNewMode));
+        private CommandHandler _saveModeProfileCommand;
+        public ICommand SaveModeProfileCommand => _saveModeProfileCommand ?? (_saveModeProfileCommand = new CommandHandler(SaveModeProfile, CanExecuteSaveMode));
 
         private CommandHandler _cancelCommand;
         public ICommand CancelCommand => _cancelCommand ?? (_cancelCommand = new CommandHandler(Cancel));
@@ -42,10 +43,24 @@ namespace SierraHOTAS.ViewModels
         {
         }
 
-        public ModeProfileConfigWindowViewModel(int mode, Dictionary<int, ModeActivationItem> activationButtonList)
+        public ModeProfileConfigWindowViewModel(IEventAggregator eventAggregator, int mode, Dictionary<int, ModeActivationItem> activationButtonList)
         {
+            _eventAggregator = eventAggregator;
             _mode = mode;
             _activationButtonList = activationButtonList;
+
+            if (_activationButtonList.TryGetValue(_mode, out _activationItem))
+            {
+                ProfileName = _activationItem.ProfileName;
+                DeviceName = _activationItem.DeviceName;
+                ActivationButtonName = _activationItem.ButtonName;
+
+                AppDispatcher?.Invoke(() =>
+                {
+                    OnPropertyChanged(nameof(DeviceName));
+                    OnPropertyChanged(nameof(ActivationButtonName));
+                });
+            }
         }
 
         public void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -70,12 +85,21 @@ namespace SierraHOTAS.ViewModels
                 OnPropertyChanged(nameof(DeviceName));
                 OnPropertyChanged(nameof(ActivationButtonName));
                 OnPropertyChanged(nameof(IsActivationErrorVisible));
-                _createNewModeProfileCommand.ForceCanExecuteChanged();
+                _saveModeProfileCommand.ForceCanExecuteChanged();
             });
         }
 
-        private void SaveNewModeProfile()
+        private void SaveModeProfile()
         {
+            if (_activationButtonList.ContainsKey(_mode))
+            {
+                var isRemoved = _activationButtonList.Remove(_mode);
+                if (isRemoved)
+                {
+                    _eventAggregator.Publish(new DeleteModeProfileEvent(_activationItem));
+                }
+            }
+
             _buttonMap.ShiftModePage = _mode;
             _activationItem = new ModeActivationItem()
             {
@@ -86,6 +110,7 @@ namespace SierraHOTAS.ViewModels
                 ButtonName = ActivationButtonName,
                 ButtonId = _activationButtonId
             };
+
             _activationButtonList.Add(_mode, _activationItem);
 
             Logging.Log.Info($"Profile name: {ProfileName}, Device: {DeviceName}, Button: {_activationButtonId}");
@@ -106,6 +131,7 @@ namespace SierraHOTAS.ViewModels
 
             foreach (var mapId in _activationButtonList)
             {
+                if (mapId.Value == _activationItem) continue;
                 if (mapId.Value.DeviceId != _deviceId || mapId.Value.ButtonId != _activationButtonId) continue;
                 _isActivationButtonValid = false;
                 break;
@@ -113,7 +139,7 @@ namespace SierraHOTAS.ViewModels
 
             IsActivationErrorVisible = !_isActivationButtonValid;
         }
-        private bool CanExecuteSaveNewMode()
+        private bool CanExecuteSaveMode()
         {
             return _isActivationButtonValid;
         }

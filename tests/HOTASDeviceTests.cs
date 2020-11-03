@@ -42,11 +42,22 @@ namespace SierraHOTAS.Tests
             var deviceId = Guid.NewGuid();
             const string name = "test";
 
-            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, Guid.Empty, name, queue));
             Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, deviceId, string.Empty, queue));
             Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, deviceId, null, queue));
             Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(null, deviceId, name, queue));
             Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, deviceId, name, null));
+        }
+
+        [Fact]
+        public void initialize_device_partial_constructor_empty_guid_ok()
+        {
+            var di = Substitute.For<IDirectInput>();
+            var queue = Substitute.For<IHOTASQueue>();
+            const string name = "test";
+
+            var obj = new HOTASDevice(di, Guid.Empty, name, queue);
+            Assert.NotNull(obj);
+            Assert.Equal(obj.DeviceId, Guid.Empty);
         }
 
         [Fact]

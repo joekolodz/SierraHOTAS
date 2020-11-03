@@ -45,7 +45,7 @@
                     <Image Source="../Images/cancel_blue_32x32.png"/>
                 </Button>
 
-                <Button Style="{StaticResource MenuButton}" Command="{Binding SaveNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{StaticResource WindowBackgroundBrush}" ToolTip="Save this new mode activation assignment" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
+                <Button Style="{StaticResource MenuButton}" Command="{Binding SaveModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{StaticResource WindowBackgroundBrush}" ToolTip="Save this new mode activation assignment" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                     <Image Source="../Images/save_blue_32x32.png"/>
                 </Button>
             </StackPanel>

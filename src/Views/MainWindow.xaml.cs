@@ -73,8 +73,6 @@ namespace SierraHOTAS.Views
 
         private void HotasCollectionViewModel_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
         {
-            Logging.Log.Debug($"Main window Mode changed event for mode:{e.Mode}");
-
             Dispatcher?.Invoke(() =>
             {
                 var selectedProfile = HotasCollectionViewModel.ModeActivationItems.FirstOrDefault<ModeActivationItem>(x => x.Mode == e.Mode);
@@ -248,8 +246,6 @@ namespace SierraHOTAS.Views
         private void ModeActivationGrid_Selected(object sender, RoutedEventArgs e)
         {
             if (!(ModeActivationGrid.CurrentItem is ModeActivationItem item)) return;
-
-            Logging.Log.Info($"datagrid select: {item.ProfileName}");
 
             foreach (var device in HotasCollectionViewModel.Devices)
             {

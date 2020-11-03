@@ -383,10 +383,10 @@ namespace SierraHOTAS.Tests
             Assert.Empty(hotasVm.Activity);
         }
 
-//        [Fact]
+        [Fact]
         public void create_new_mode_profile_command_no_modes()
         {
-            var hotasVm = CreateHotasCollectionViewModel(out _, out var subHotasCollection, out _, out _, out _);
+            var hotasVm = CreateHotasCollectionViewModel(out _, out _, out _, out _, out _);
 
             hotasVm.Initialize();
             hotasVm.CreateNewModeProfileCommand.Execute(default);
@@ -406,6 +406,33 @@ namespace SierraHOTAS.Tests
 
             hotasVm.Initialize();
             hotasVm.ClearActivityListCommand.Execute(default);
+
+            Assert.Empty(hotasVm.Activity);
+        }
+
+        [Fact]
+        public void edit_mode_profile_command()
+        {
+            var deviceGuid = Guid.NewGuid();
+            const int modeActivationButtonId = 1000;
+
+            var hotasVm = CreateHotasCollectionViewModel(out _, out var subHotasCollection, out _, out _, out _);
+            subHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
+
+
+            hotasVm.Initialize();
+            hotasVm.EditModeProfileCommand.Execute(default);
+
+            Assert.Empty(hotasVm.Activity);
+        }
+
+        [Fact]
+        public void edit_mode_profile_command_no_modes()
+        {
+            var hotasVm = CreateHotasCollectionViewModel(out _, out _, out _, out _, out _);
+
+            hotasVm.Initialize();
+            hotasVm.EditModeProfileCommand.Execute(default);
 
             Assert.Empty(hotasVm.Activity);
         }

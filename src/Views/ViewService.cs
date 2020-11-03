@@ -6,13 +6,16 @@ namespace SierraHOTAS.Views
     public class ViewService
     {
         private readonly Window _mainWindow;
+        private IEventAggregator _eventAggregator;
 
         public ViewService(Window mainWindow, IEventAggregator eventAggregator)
         {
             _mainWindow = mainWindow;
-            eventAggregator.Subscribe<ShowMessageWindowEvent>(ShowMessageWindow);
-            eventAggregator.Subscribe<ShowModeProfileConfigWindowEvent>(ShowModeProfileConfigWindow);
-            eventAggregator.Subscribe<ShowInputGraphWindowEvent>(ShowInputGraphWindow);
+            _eventAggregator = eventAggregator;
+
+            _eventAggregator.Subscribe<ShowMessageWindowEvent>(ShowMessageWindow);
+            _eventAggregator.Subscribe<ShowModeProfileConfigWindowEvent>(ShowModeProfileConfigWindow);
+            _eventAggregator.Subscribe<ShowInputGraphWindowEvent>(ShowInputGraphWindow);
         }
 
         private void ShowMessageWindow(ShowMessageWindowEvent eventMessage)
@@ -23,7 +26,7 @@ namespace SierraHOTAS.Views
 
         private void ShowModeProfileConfigWindow(ShowModeProfileConfigWindowEvent eventMessage)
         {
-            var modeMessageWindow = new ModeProfileConfigWindow(eventMessage.Mode, eventMessage.ActivationButtonList, eventMessage.PressedHandler, eventMessage.CancelCallback);
+            var modeMessageWindow = new ModeProfileConfigWindow(_eventAggregator, eventMessage.Mode, eventMessage.ActivationButtonList, eventMessage.PressedHandler, eventMessage.RemovePressedHandler, eventMessage.CancelCallback);
             modeMessageWindow.Owner = _mainWindow;
             
             var result = modeMessageWindow.ShowDialog();

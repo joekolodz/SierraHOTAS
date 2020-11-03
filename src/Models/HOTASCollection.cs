@@ -12,6 +12,7 @@ namespace SierraHOTAS.Models
     [JsonObject(MemberSerialization.OptIn)]
     public class HOTASCollection : IHOTASCollection
     {
+        private const string CURRENT_FORMAT_VERSION = "1.0";
         private readonly JoystickFactory _joystickFactory;
         private readonly DirectInputFactory _directInputFactory;
         private readonly HOTASQueueFactory _hotasQueueFactory;
@@ -22,6 +23,9 @@ namespace SierraHOTAS.Models
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
         public event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
         public event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
+
+        [JsonProperty]
+        public string JsonFormatVersion { get; } = CURRENT_FORMAT_VERSION;
 
         [JsonProperty]
         public ObservableCollection<HOTASDevice> Devices { get; set; }
@@ -42,7 +46,7 @@ namespace SierraHOTAS.Models
         public void ReplaceDevice(HOTASDevice newDevice)
         {
             var deviceToReplace = Devices.FirstOrDefault(e => e.DeviceId == newDevice.DeviceId);
-            
+
             if (deviceToReplace == null) return;
 
             Devices.Remove(deviceToReplace);
@@ -92,8 +96,6 @@ namespace SierraHOTAS.Models
             device.LostConnectionToDevice -= Device_LostConnectionToDevice;
 
             device.Stop();
-            device.ListenAsync();
-
         }
 
         public void ClearButtonMap()
@@ -198,7 +200,7 @@ namespace SierraHOTAS.Models
         {
             var deviceList = new ObservableCollection<HOTASDevice>();
             var di = _directInputFactory.CreateDirectInput();
-            
+
             foreach (var device in di.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly))
             {
                 var queue = _hotasQueueFactory.CreateHOTASQueue();
@@ -245,19 +247,6 @@ namespace SierraHOTAS.Models
         /// <param name="mode"></param>
         public void SetMode(int mode)
         {
-
-
-
-
-
-            //TODO: after removing a row, it wants to fire a selected event on the grid that still is referring to the removed row. FIX IT
-
-
-
-
-
-
-
             if (Mode == mode) return;
             Logging.Log.Info($"Mode Profile changed to: {mode}");
             Mode = mode;
@@ -292,9 +281,11 @@ namespace SierraHOTAS.Models
 
         public bool RemoveModeProfile(ModeActivationItem item)
         {
-            if (ModeProfileActivationButtons.Remove(item.Mode))
+            if (ModeProfileActivationButtons.ContainsValue(item))
             {
                 RemoveActivationButtonModeFromAllProfiles(item);
+                ModeProfileActivationButtons.Remove(item.Mode);
+
                 foreach (var d in Devices)
                 {
                     d.ModeProfiles.Remove(item.Mode);

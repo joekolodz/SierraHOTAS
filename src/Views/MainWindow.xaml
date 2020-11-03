@@ -137,7 +137,8 @@
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
                                 <Setter Property="SnapsToDevicePixels" Value="True"/>
-                                <EventSetter Event="Selected" Handler="ModeActivationGrid_Selected"/>
+                                <!-- Allowing the profile to change out of sync with a physical device is just kinda weird-->
+                                <!--<EventSetter Event="Selected" Handler="ModeActivationGrid_Selected"/>-->
                             </Style>
                         </DataGrid.RowStyle>
                         <DataGrid.CellStyle>
