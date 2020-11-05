@@ -55,10 +55,13 @@ namespace SierraHOTAS.ViewModels
                 DeviceName = _activationItem.DeviceName;
                 ActivationButtonName = _activationItem.ButtonName;
 
+                _isActivationButtonValid = true;
+
                 AppDispatcher?.Invoke(() =>
                 {
                     OnPropertyChanged(nameof(DeviceName));
                     OnPropertyChanged(nameof(ActivationButtonName));
+                    _saveModeProfileCommand.ForceCanExecuteChanged();
                 });
             }
         }
@@ -100,7 +103,11 @@ namespace SierraHOTAS.ViewModels
                 }
             }
 
-            _buttonMap.ShiftModePage = _mode;
+            if (_buttonMap != null)
+            {
+                _buttonMap.ShiftModePage = _mode;
+            }
+
             _activationItem = new ModeActivationItem()
             {
                 Mode = _mode,

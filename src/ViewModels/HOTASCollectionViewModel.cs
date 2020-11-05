@@ -1,6 +1,5 @@
 ﻿using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow;
 using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels.Commands;
 using System;
@@ -8,11 +7,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using SierraHOTAS.Views;
-using Application = System.Windows.Application;
 
 namespace SierraHOTAS.ViewModels
 {
@@ -156,10 +152,6 @@ namespace SierraHOTAS.ViewModels
             var exists = _deviceList.ModeProfileActivationButtons.TryGetValue(item.Mode, out item);
             if (!exists) return;
 
-            Logging.Log.Debug($"EDIT! {item.ProfileName} - {item.ButtonName}");
-            //show edit screen with item
-
-
             var isCancelled = false;
             var args = new ShowModeProfileConfigWindowEvent(item.Mode, _deviceList.ModeProfileActivationButtons, h => _deviceList.ButtonPressed += h, h => _deviceList.ButtonPressed -= h, () => isCancelled = true);
             _eventAggregator.Publish(args);
@@ -175,6 +167,7 @@ namespace SierraHOTAS.ViewModels
         {
             DeleteModeProfile(item.ActivationItem);
         }
+
         private void DeleteModeProfile(ModeActivationItem item)
         {
             if (_deviceList.RemoveModeProfile(item))
@@ -264,8 +257,8 @@ namespace SierraHOTAS.ViewModels
 
         private void DeviceList_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
         {
-            var deviceVm = Devices.FirstOrDefault(h => h.InstanceId == e.HOTASDevice.DeviceId);
-            if (deviceVm == null) return;
+            //var deviceVm = Devices.FirstOrDefault(h => h.InstanceId == e.HOTASDevice.DeviceId);
+            //if (deviceVm == null) return;
             //_appDispatcher.Invoke(() => Devices.Remove(deviceVm));
         }
 
