@@ -20,7 +20,7 @@ namespace SierraHOTAS.ViewModels
         private readonly IEventAggregator _eventAggregator;
         public event EventHandler<EventArgs> ShowMainWindow;
 
-        public Dictionary<int, QuickProfileItem> QuickProfilesList { get; set; }
+        public Dictionary<int, QuickProfileItem> QuickProfilesList { get; set; } = new Dictionary<int, QuickProfileItem>();
 
         private ICommand _quickProfileSelectedCommand;
         public ICommand QuickProfileSelectedCommand => _quickProfileSelectedCommand ?? (_quickProfileSelectedCommand = new CommandHandlerWithParameter<int>(QuickProfile_Selected));
@@ -42,7 +42,8 @@ namespace SierraHOTAS.ViewModels
 
         public void SetupQuickProfiles()
         {
-            if (QuickProfilesList != null) return;
+            if (QuickProfilesList != null && QuickProfilesList.Count > 0) return;
+
             QuickProfilesList = _fileSystem.LoadQuickProfilesList(QUICK_PROFILE_LIST_FILE_NAME) ?? new Dictionary<int, QuickProfileItem>();
         }
 

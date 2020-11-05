@@ -46,7 +46,7 @@ namespace SierraHOTAS.Models
         {
             if (directInput == null) throw new ArgumentNullException(nameof(directInput));
             if (hotasQueue == null) throw new ArgumentNullException(nameof(hotasQueue));
-            if (deviceId == Guid.Empty) return; //can occur when loading an unsupported json format and the device id isn't deserialized correctly
+            if (deviceId == Guid.Empty) return; //can occur when loading an unsupported json format and the device id isn't deserialized correctly or a non-connected device that was previously saved
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
             _directInput = directInput;
