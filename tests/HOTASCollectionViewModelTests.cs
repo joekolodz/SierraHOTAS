@@ -147,7 +147,7 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
-        public void set_mode()
+        public void set_mode_without_rebuild_map()
         {
             const int expectedMode = 43;
 
@@ -165,6 +165,31 @@ namespace SierraHOTAS.Tests
 
             Assert.Single(receivedEvents);
             subDeviceList.Received().SetMode(expectedMode);
+        }
+
+        [Fact]
+        public void set_mode_with_rebuild_map()
+        {
+            const int expectedMode = 43;
+            const string firstExpectedButtonName = "original";
+            const string secondExpectedButtonName = "edited";
+
+            var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out _, out _, out _);
+            var device = subDeviceList.Devices[0];
+            subDeviceList.GetDevice(default).ReturnsForAnyArgs(device);
+
+            var buttonMap = new HOTASButtonMap() {Type = HOTASButtonMap.ButtonType.Button, MapName = firstExpectedButtonName};
+            subDeviceList.Devices[0].ButtonMap.Add(buttonMap);
+
+            hotasVm.Initialize();
+
+            Assert.Equal(firstExpectedButtonName, hotasVm.Devices[0].ButtonMap[0].ButtonName);
+
+            buttonMap.MapName = secondExpectedButtonName;
+
+            hotasVm.SetMode(expectedMode);
+
+            Assert.Equal(secondExpectedButtonName, hotasVm.Devices[0].ButtonMap[0].ButtonName);
         }
 
         [Fact]
@@ -289,6 +314,78 @@ namespace SierraHOTAS.Tests
             //one device vm will have been created
             Assert.Single(hotasVm.Devices);
             Assert.Equal(deviceGuid, hotasVm.Devices[0].InstanceId);
+
+            //check action catalog is rebuilt with the button loaded from file
+            Assert.Equal(4, hotasVm.ActionCatalog.Catalog.Count);
+            Assert.Equal("<No Action>", hotasVm.ActionCatalog.Catalog[0].ActionName);
+            Assert.Equal("Release", hotasVm.ActionCatalog.Catalog[1].ActionName);
+
+            subDeviceList.Received().Stop();
+            subFileSystem.Received().FileOpenDialog();
+            subDeviceList.Received().AutoSetMode();
+            subDeviceList.Received().ListenToAllDevices();
+        }
+
+        [Fact]
+        public void file_open_command_valid_file_existing_device()
+        {
+            //mainly for code coverage of BuildDevicesViewModelFromLoadedDevices
+
+            var existingDeviceId = Guid.NewGuid();
+            var loadedDeviceId = Guid.NewGuid();
+            const int existingButtonMapId = 4300;
+            const int loadedButtonMapId = 2700;
+            const int modeActivationButtonId = 1000;
+
+            var subDirectInputFactory = Substitute.For<DirectInputFactory>();
+            var subDirectInput = Substitute.For<IDirectInput>();
+            subDirectInputFactory.CreateDirectInput().Returns(subDirectInput);
+
+            var subJoystick = Substitute.For<IJoystick>();
+            subJoystick.Capabilities.Returns(new Capabilities());
+            var subJoystickFactory = Substitute.For<JoystickFactory>();
+            subJoystickFactory.CreateJoystick(default, default).ReturnsForAnyArgs(subJoystick);
+
+            var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
+            var subHotasQueue = Substitute.For<IHOTASQueue>();
+            subHotasQueueFactory.CreateHOTASQueue().Returns(subHotasQueue);
+
+            var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory);
+            loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, existingDeviceId, "loaded device", subHotasQueue));
+            AddHotasButtonMap(loadedHotasCollection.Devices[0].ButtonMap, loadedButtonMapId, HOTASButtonMap.ButtonType.Button, "Button1", "Release");
+            AddHotasAxisMap(loadedHotasCollection.Devices[0].ButtonMap, loadedButtonMapId + 1, HOTASButtonMap.ButtonType.AxisLinear, "Axis Linear 1", "test 1");
+            AddHotasAxisMap(loadedHotasCollection.Devices[0].ButtonMap, loadedButtonMapId + 2, HOTASButtonMap.ButtonType.AxisRadial, "Axis Radial 1", "test 2");
+
+            loadedHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = loadedDeviceId });
+
+            var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out var subFileSystem, out _, out _);
+
+            var existingDevice = subDeviceList.Devices[0];
+            existingDevice.DeviceId = existingDeviceId;
+            existingDevice.Name = "existing device";
+            existingDevice.Capabilities = new Capabilities();
+
+
+            AddHotasButtonMap(existingDevice.ButtonMap, existingButtonMapId);
+
+            subDeviceList.GetDevice(existingDeviceId).Returns(existingDevice);
+
+            subFileSystem.FileOpenDialog().Returns(loadedHotasCollection);
+
+            hotasVm.Initialize();
+
+            hotasVm.OpenFileCommand.Execute(default);
+
+
+            //check that the in-memory button (existing) is replaced by the one loaded from the file
+            Assert.Equal(loadedButtonMapId, hotasVm.Devices[0].ButtonMap[0].ButtonId);
+
+            //mode profiles should be loaded
+            Assert.Equal(modeActivationButtonId, subDeviceList.ModeProfileActivationButtons[1].ButtonId);
+
+            //one device vm will have been created
+            Assert.Single(hotasVm.Devices);
+            Assert.Equal(existingDeviceId, hotasVm.Devices[0].InstanceId);
 
             //check action catalog is rebuilt with the button loaded from file
             Assert.Equal(4, hotasVm.ActionCatalog.Catalog.Count);
@@ -452,7 +549,7 @@ namespace SierraHOTAS.Tests
         public void create_new_mode_profile_command_no_modes()
         {
             var hotasVm = CreateHotasCollectionViewModel(out var subEventAggregator, out var subDeviceList, out _, out _, out _);
-           
+
             var activationButtons = new Dictionary<int, ModeActivationItem>();
             subDeviceList.ModeProfileActivationButtons.Returns(activationButtons);
 
@@ -467,7 +564,7 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
-        public void create_new_mode_profile_command_existing_modes()
+        public void create_new_mode_profile_command_existing_modes_no_device()
         {
             var deviceGuid = Guid.NewGuid();
             const int modeActivationButtonId = 1000;
@@ -547,7 +644,7 @@ namespace SierraHOTAS.Tests
 
             hotasVm.Initialize();
             hotasVm.ShowInputGraphWindowCommand.Execute(default);
-            
+
             subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowInputGraphWindowEvent(null, null));
         }
 
