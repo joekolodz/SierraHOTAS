@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:SierraHOTAS.ViewModels"
         mc:Ignorable="d"
-        Title="Mode Profile Configuration" Height="190" Width="450"
+        Title="Mode Profile Configuration" Height="200" Width="450"
         WindowStartupLocation="CenterOwner">
 
     <Window.DataContext>
@@ -25,22 +25,26 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Profile Name" VerticalAlignment="Center" Style="{StaticResource ModeActivationTextBlock}" HorizontalAlignment="Right" Margin="5,0,5,0"/>
             <TextBox Grid.Row="0" Grid.Column="1" x:Name="ProfileName" Text="{Binding ProfileName}" Style="{StaticResource ModeActivationTextBox}" Margin="0,0,4,0"  HorizontalAlignment="Stretch" VerticalContentAlignment="Top" CaretBrush="{StaticResource TextBrush}" Width="Auto" FontSize="14" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
 
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="Controller" Style="{StaticResource ModeActivationTextBlock}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,5,5,0"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Controller" Style="{StaticResource ModeActivationTextBlock}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,5,0"/>
             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DeviceName}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,5,0" Foreground="DeepSkyBlue"/>
 
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="Activation Button" Style="{StaticResource ModeActivationTextBlock}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,5,5,0"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Activation Button" Style="{StaticResource ModeActivationTextBlock}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,5,0"/>
             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ActivationButtonName}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,5,0" Foreground="DeepSkyBlue"/>
 
             <TextBlock Grid.Row="3" Grid.Column="1" Text="(Press button on joystick to select)" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Foreground="{StaticResource TextBrush}" FontSize="12"/>
             <TextBlock Grid.Row="4" Grid.Column="1" Text="This button is already assigned to a mode" Visibility="{Binding Path=IsActivationErrorVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Foreground="Red" FontSize="12"/>
 
-            <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Grid.Row="5" Grid.Column="0" Text="Shift" Style="{StaticResource ModeActivationTextBlock}" Visibility="{Binding Path=IsShiftVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,10,5,0"/>
+            <CheckBox Grid.Row="5" Grid.Column="1" IsChecked="{Binding IsShift}" Visibility="{Binding Path=IsShiftVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,13,5,0"/>
+
+            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Style="{StaticResource MenuButton}" Command="{Binding CancelCommand, IsAsync=True}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{StaticResource WindowBackgroundBrush}" ToolTip="Cancel" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                     <Image Source="../Images/cancel_blue_32x32.png"/>
                 </Button>

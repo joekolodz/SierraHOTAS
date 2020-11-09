@@ -21,6 +21,7 @@ namespace SierraHOTAS.Models
         public ButtonType Type { get; set; }
 
         public int ShiftModePage { get; set; }
+        public bool IsShift { get; set; }
 
         [JsonIgnore]
         public string ActionName
@@ -77,6 +78,12 @@ namespace SierraHOTAS.Models
             {
                 ActionCatalogItem.Actions.Add(a);
             }
+        }
+
+        public void ResetShift()
+        {
+            IsShift = false;
+            ShiftModePage = 0;
         }
 
         private void AddKeyboardHandlers()

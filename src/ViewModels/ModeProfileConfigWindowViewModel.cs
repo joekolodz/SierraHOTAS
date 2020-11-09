@@ -22,6 +22,9 @@ namespace SierraHOTAS.ViewModels
         public string DeviceName { get; set; }
         public string ActivationButtonName { get; set; }
         public bool IsActivationErrorVisible { get; set; }
+        public bool IsShift { get; set; }
+        public bool IsShiftVisible => _mode != 1;
+
         public Dispatcher AppDispatcher { get; set; }
 
         private int _activationButtonId;
@@ -49,21 +52,21 @@ namespace SierraHOTAS.ViewModels
             _mode = mode;
             _activationButtonList = activationButtonList;
 
-            if (_activationButtonList.TryGetValue(_mode, out _activationItem))
+            if (!_activationButtonList.TryGetValue(_mode, out _activationItem)) return;
+
+            ProfileName = _activationItem.ProfileName;
+            DeviceName = _activationItem.DeviceName;
+            ActivationButtonName = _activationItem.ButtonName;
+            IsShift = _activationItem.IsShift;
+
+            _isActivationButtonValid = true;
+
+            AppDispatcher?.Invoke(() =>
             {
-                ProfileName = _activationItem.ProfileName;
-                DeviceName = _activationItem.DeviceName;
-                ActivationButtonName = _activationItem.ButtonName;
-
-                _isActivationButtonValid = true;
-
-                AppDispatcher?.Invoke(() =>
-                {
-                    OnPropertyChanged(nameof(DeviceName));
-                    OnPropertyChanged(nameof(ActivationButtonName));
-                    _saveModeProfileCommand.ForceCanExecuteChanged();
-                });
-            }
+                OnPropertyChanged(nameof(DeviceName));
+                OnPropertyChanged(nameof(ActivationButtonName));
+                _saveModeProfileCommand.ForceCanExecuteChanged();
+            });
         }
 
         public void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -74,19 +77,21 @@ namespace SierraHOTAS.ViewModels
                 return;
             }
 
-            Logging.Log.Info($"{e.ButtonId} from {e.Device.Name} - {sender}; ShiftMode:{map.ShiftModePage}");
+            Logging.Log.Info($"{e.ButtonId} from {e.Device.Name} - {sender}; ShiftMode:{map.ShiftModePage}; IsShift:{map.IsShift}");
 
             _buttonMap = map;
             DeviceName = e.Device.Name;
             _deviceId = e.Device.DeviceId;
             ActivationButtonName = map.MapName;
             _activationButtonId = map.MapId;
+            IsShift = map.IsShift;
             ValidateActivationButton();
 
             AppDispatcher?.Invoke(() =>
             {
                 OnPropertyChanged(nameof(DeviceName));
                 OnPropertyChanged(nameof(ActivationButtonName));
+                OnPropertyChanged(nameof(IsShift));
                 OnPropertyChanged(nameof(IsActivationErrorVisible));
                 _saveModeProfileCommand.ForceCanExecuteChanged();
             });
@@ -111,6 +116,7 @@ namespace SierraHOTAS.ViewModels
             _activationItem = new ModeActivationItem()
             {
                 Mode = _mode,
+                IsShift = IsShift,
                 ProfileName = ProfileName,
                 DeviceName = DeviceName,
                 DeviceId = _deviceId,

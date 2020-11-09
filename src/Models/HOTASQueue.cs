@@ -19,6 +19,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
         public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
+        public event EventHandler ShiftReleased;
         public event EventHandler LostConnectionToDevice;
 
         private Task _deviceListenLoopTask;
@@ -202,17 +203,23 @@ namespace SierraHOTAS.Models
             if (_lastPovButton.ContainsKey(offset) || value == -1)
             {
                 Logging.Log.Debug($"POV button release: {offset} - {value}");
+                
                 var success = _lastPovButton.TryRemove(offset, out var translatedOffset);
+
                 if (!success) return;
-                HandleButtonReleased(translatedOffset);
+                if (!(GetMap(translatedOffset) is HOTASButtonMap map)) return;
+                HandleButtonReleased(map, translatedOffset);
                 OnButtonRelease(translatedOffset);
             }
             else
             {
                 var translatedOffset = TranslatePointOfViewOffset(offset, value);
+
                 _lastPovButton.TryAdd(offset, translatedOffset);
                 Logging.Log.Debug($"Pressing POV button: {offset} - {value}");
+                
                 if (!(GetMap(translatedOffset) is HOTASButtonMap map)) return;
+
                 HandleButtonPressed(map, translatedOffset);
                 OnButtonPress(translatedOffset);
             }
@@ -222,19 +229,20 @@ namespace SierraHOTAS.Models
         private static readonly ConcurrentDictionary<int, Task> _activeButtons = new ConcurrentDictionary<int, Task>();
         private void HandleStandardButton(int offset, int value)
         {
+            var map = GetMap(offset) as HOTASButtonMap;
             if (IsButtonDown(value))
             {
-                if (GetMap(offset) is HOTASButtonMap map && (map.ActionCatalogItem.Actions.Count > 0 || map.ShiftModePage > 0))
+                if (map != null && (map.ActionCatalogItem.Actions.Count > 0 || map.ShiftModePage > 0))
                 {
                     //if action list has a timer in it, then it is a macro and executes on another thread independently. does not interrupt other buttons
                     HandleButtonPressed(map, offset);
                 }
-                OnButtonPress((int)offset);
+                OnButtonPress(offset);
             }
             else
             {
-                HandleButtonReleased(offset);
-                OnButtonRelease((int)offset);
+                HandleButtonReleased(map, offset);
+                OnButtonRelease(offset);
             }
         }
 
@@ -250,7 +258,7 @@ namespace SierraHOTAS.Models
 
             if (buttonMap.ShiftModePage > 0)
             {
-                HandleShiftMode(buttonMap.ShiftModePage);
+                HandleShiftMode(buttonMap.ShiftModePage, buttonMap.IsShift);
                 if (buttonMap.ActionCatalogItem.Actions.Count == 0) return;
             }
 
@@ -259,7 +267,7 @@ namespace SierraHOTAS.Models
 
         private void HandleMacro(HOTASButtonMap buttonMap, int offset)
         {
-            if (_activeMacros.TryGetValue(offset, out var exists))
+            if (_activeMacros.TryGetValue(offset, out _))
             {
                 //prevent a given macro from running more than once
                 return;
@@ -269,9 +277,9 @@ namespace SierraHOTAS.Models
             Task.Run(() => PlayMacroOnce(offset, buttonMap.ActionCatalogItem.Actions));
         }
 
-        private void HandleShiftMode(int mode)
+        private void HandleShiftMode(int mode, bool isShift)
         {
-            ModeProfileSelected?.Invoke(this, new ModeProfileSelectedEventArgs() { Mode = mode });
+            ModeProfileSelected?.Invoke(this, new ModeProfileSelectedEventArgs() { Mode = mode, IsShift = isShift });
         }
 
         private async Task PlayMacroOnce(int offset, ObservableCollection<ButtonAction> actions)
@@ -300,16 +308,23 @@ namespace SierraHOTAS.Models
                     KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
                 }
             }
-            _activeMacros.TryRemove(offset, out var ignore);
+            _activeMacros.TryRemove(offset, out _);
         }
 
-        private void HandleButtonReleased(int offset)
+        private void HandleButtonReleased(HOTASButtonMap buttonMap, int offset)
         {
-            HandleButtonReleased(0, offset);
-        }
+            if (buttonMap == null) return;
+            
+            var mapId = buttonMap.MapId;
 
-        private void HandleButtonReleased(int mapId, int offset)
-        {
+            if (buttonMap.IsShift)
+            {
+                //todo
+                //raise new shift event
+                Logging.Log.Info($"Raise Shift Event - {buttonMap.MapName} - {buttonMap.IsShift}");
+                ShiftReleased?.Invoke(this, new EventArgs());
+            }
+
             _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = mapId, Actions = null }, _tokenDequeueLoop);
         }
 
@@ -325,7 +340,7 @@ namespace SierraHOTAS.Models
 
             var map = axis.GetButtonMapFromRawValue(state.Value);
             HandleButtonPressed(map, offset);
-            HandleButtonReleased(map.MapId, offset);
+            HandleButtonReleased(map, offset);
         }
 
         private void OnAxisChanged(JoystickUpdate state)

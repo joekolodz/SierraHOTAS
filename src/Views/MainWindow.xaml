@@ -137,6 +137,7 @@
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
                                 <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                <EventSetter Event="MouseUp" Handler="ModeActivationGrid_Selected"/>
                             </Style>
                         </DataGrid.RowStyle>
                         <DataGrid.CellStyle>

@@ -12,6 +12,7 @@ namespace SierraHOTAS.Models
         event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         event EventHandler<AxisChangedEventArgs> AxisChanged;
         event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
+        event EventHandler ShiftReleased;
         event EventHandler LostConnectionToDevice;
         void ListenAsync(IJoystick joystick, ObservableCollection<IHotasBaseMap> buttonMap);
         void ForceButtonPress(JoystickOffset offset, bool isDown);

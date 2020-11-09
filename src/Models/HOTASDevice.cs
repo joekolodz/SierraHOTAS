@@ -18,6 +18,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
+        public event EventHandler ShiftReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
         public event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
@@ -187,6 +188,7 @@ namespace SierraHOTAS.Models
             _hotasQueue.ButtonPressed += OnButtonPress;
             _hotasQueue.AxisChanged += OnAxisChanged;
             _hotasQueue.ModeProfileSelected += OnModeProfileSelected;
+            _hotasQueue.ShiftReleased += OnShiftReleased;
             _hotasQueue.LostConnectionToDevice += OnLostConnectionToDevice;
         }
 
@@ -197,6 +199,7 @@ namespace SierraHOTAS.Models
             _hotasQueue.ButtonPressed -= OnButtonPress;
             _hotasQueue.AxisChanged -= OnAxisChanged;
             _hotasQueue.ModeProfileSelected -= OnModeProfileSelected;
+            _hotasQueue.ShiftReleased -= OnShiftReleased;
             _hotasQueue.LostConnectionToDevice -= OnLostConnectionToDevice;
         }
 
@@ -341,6 +344,11 @@ namespace SierraHOTAS.Models
         private void OnModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
         {
             ModeProfileSelected?.Invoke(this, e);
+        }
+
+        private void OnShiftReleased(object sender, EventArgs e)
+        {
+            ShiftReleased?.Invoke(sender, e);
         }
 
         private void OnLostConnectionToDevice(object sender, EventArgs e)

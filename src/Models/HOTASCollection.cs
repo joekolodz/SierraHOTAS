@@ -16,6 +16,8 @@ namespace SierraHOTAS.Models
         private readonly JoystickFactory _joystickFactory;
         private readonly DirectInputFactory _directInputFactory;
         private readonly HOTASQueueFactory _hotasQueueFactory;
+        private bool _isShiftStateActive;
+        private int _previousMode;
 
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
@@ -93,6 +95,7 @@ namespace SierraHOTAS.Models
             device.KeystrokeDownSent -= Device_KeystrokeDownSent;
             device.KeystrokeUpSent -= Device_KeystrokeUpSent;
             device.ModeProfileSelected -= Device_ModeProfileSelected;
+            device.ShiftReleased -= Device_ShiftReleased;
             device.LostConnectionToDevice -= Device_LostConnectionToDevice;
 
             device.Stop();
@@ -130,6 +133,7 @@ namespace SierraHOTAS.Models
             device.KeystrokeDownSent += Device_KeystrokeDownSent;
             device.KeystrokeUpSent += Device_KeystrokeUpSent;
             device.ModeProfileSelected += Device_ModeProfileSelected;
+            device.ShiftReleased += Device_ShiftReleased;
             device.LostConnectionToDevice += Device_LostConnectionToDevice;
             device.ListenAsync();
         }
@@ -158,10 +162,26 @@ namespace SierraHOTAS.Models
             return newMode;
         }
 
+
         private void Device_ModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
         {
-            if (!(sender is HOTASDevice device)) return;
+            if (!(sender is HOTASDevice)) return;
+            
+            if (e.IsShift)
+            {
+                //don't set state to false if IsShift is false because a mode change could take place after shift button is pressed
+                _isShiftStateActive = true;
+                _previousMode = Mode;
+            }
+            
             SetMode(e.Mode);
+        }
+
+        private void Device_ShiftReleased(object sender, EventArgs e)
+        {
+            if (!_isShiftStateActive) return;
+            _isShiftStateActive = false;
+            SetMode(_previousMode);
         }
 
         private void Device_KeystrokeDownSent(object sender, KeystrokeSentEventArgs e)
@@ -324,7 +344,7 @@ namespace SierraHOTAS.Models
                             }
                         case HOTASButtonMap buttonMap:
                             {
-                                buttonMap.ShiftModePage = 0;
+                                buttonMap.ResetShift();
                                 break;
                             }
                     }
@@ -340,24 +360,29 @@ namespace SierraHOTAS.Models
             //new profiles, wont have the link to previous profiles, so we iterate the entire dictionary to sync them all 
             foreach (var item in ModeProfileActivationButtons)
             {
-                var device = Devices.FirstOrDefault(d => d.DeviceId == item.Value.DeviceId);
+                var buttonId = item.Value.ButtonId;
+                var isShift = item.Value.IsShift;
+                var key = item.Key;
+                var deviceId = item.Value.DeviceId;
+
+                var device = Devices.FirstOrDefault(d => d.DeviceId == deviceId);
                 if (device == null) continue;
 
                 foreach (var profile in device.ModeProfiles)
                 {
-                    var map = profile.Value.FirstOrDefault(m => m.MapId == item.Value.ButtonId);
+                    var map = profile.Value.FirstOrDefault(m => m.MapId == buttonId);
 
                     switch (map)
                     {
                         case HOTASAxisMap axisMap:
                             {
-                                ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ButtonMap);
-                                ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ReverseButtonMap);
+                                ApplyShiftModePage(key, buttonId, axisMap.ButtonMap);
+                                ApplyShiftModePage(key, buttonId, axisMap.ReverseButtonMap);
                                 break;
                             }
                         case HOTASButtonMap buttonMap:
                             {
-                                ApplyShiftModePage(item.Key, item.Value.ButtonId, buttonMap);
+                                ApplyShiftModePage(key, buttonId, isShift, buttonMap);
                                 break;
                             }
                     }
@@ -373,12 +398,12 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private static void ApplyShiftModePage(int mode, int activationButtonId, HOTASButtonMap buttonMap)
+        private static void ApplyShiftModePage(int mode, int activationButtonId, bool isShift, HOTASButtonMap buttonMap)
         {
-            if (buttonMap.MapId == activationButtonId)
-            {
-                buttonMap.ShiftModePage = mode;
-            }
+            if (buttonMap.MapId != activationButtonId) return;
+
+            buttonMap.ShiftModePage = mode;
+            buttonMap.IsShift = isShift;
         }
     }
 }
