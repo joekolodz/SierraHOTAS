@@ -2,12 +2,12 @@
 using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels.Commands;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
+using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.ViewModels
 {
@@ -20,6 +20,9 @@ namespace SierraHOTAS.ViewModels
     public class AxisMapViewModel : IBaseMapViewModel, INotifyPropertyChanged
     {
         private readonly HOTASAxisMap _hotasAxisMap;
+        private readonly IFileSystem _fileSystem;
+        private readonly MediaPlayerFactory _mediaPlayerFactory;
+        private IMediaPlayer _mediaPlayer;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<int> OnAxisValueChanged;
@@ -151,11 +154,11 @@ namespace SierraHOTAS.ViewModels
                 AddHandlersToReverseButtonMapCollection();
             }
         }
-        private readonly MediaPlayer _mediaPlayer;
 
-        public AxisMapViewModel(HOTASAxisMap map)
+        public AxisMapViewModel(MediaPlayerFactory mediaPlayerFactory, IFileSystem fileSystem, HOTASAxisMap map)
         {
-
+            _mediaPlayerFactory = mediaPlayerFactory;
+            _fileSystem = fileSystem;
             ButtonMap = new ObservableCollection<ButtonMapViewModel>();
             AddHandlersToButtonMapCollection();
 
@@ -168,7 +171,8 @@ namespace SierraHOTAS.ViewModels
             _hotasAxisMap.OnAxisDirectionChanged += OnAxisDirectionChanged;
             _hotasAxisMap.OnAxisSegmentChanged += OnAxisSegmentChanged;
 
-            _mediaPlayer = new MediaPlayer { Volume = 0f };
+            _mediaPlayer = mediaPlayerFactory.CreateMediaPlayer();
+            _mediaPlayer.Volume = 0f;
 
             if (string.IsNullOrWhiteSpace(SoundFileName))
             {
@@ -357,12 +361,10 @@ namespace SierraHOTAS.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        [Obsolete("Inject IFileSystem")]
         private void LoadNewSound()
         {
-            var _fileSystem = new FileSystem();
             var soundFileName = _fileSystem.GetSoundFileName();
-            if (soundFileName == null) return;
+            if (string.IsNullOrWhiteSpace(soundFileName)) return;
             SoundFileName = soundFileName;
             _mediaPlayer.Close();
             _mediaPlayer.Open(new Uri(SoundFileName, UriKind.Relative));

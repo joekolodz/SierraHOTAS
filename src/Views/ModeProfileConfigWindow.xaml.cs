@@ -4,6 +4,7 @@ using SierraHOTAS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace SierraHOTAS.Views
@@ -24,7 +25,7 @@ namespace SierraHOTAS.Views
             ModeProfileConfigViewModel = new ModeProfileConfigWindowViewModel(eventAggregator, mode, activationButtonList);
             ModeProfileConfigViewModel.AppDispatcher = Dispatcher;
             ModeProfileConfigViewModel.SaveCancelled += SaveCancelled;
-            ModeProfileConfigViewModel.NewProfileSaved += NewProfileSaved;
+            ModeProfileConfigViewModel.NewModeProfileSaved += NewModeProfileSaved;
             Closed += OnClosed;
             DataContext = ModeProfileConfigViewModel;
             pressedHandler(PressedHandler);
@@ -37,7 +38,7 @@ namespace SierraHOTAS.Views
             ModeProfileConfigViewModel.DeviceList_ButtonPressed(sender, e);
         }
 
-        private void NewProfileSaved(object sender, EventArgs e)
+        private void NewModeProfileSaved(object sender, EventArgs e)
         {
             DialogResult = true;
         }
@@ -53,7 +54,7 @@ namespace SierraHOTAS.Views
             Closed -= SaveCancelled;
             ModeProfileConfigViewModel.AppDispatcher = null;
             ModeProfileConfigViewModel.SaveCancelled -= SaveCancelled;
-            ModeProfileConfigViewModel.NewProfileSaved -= NewProfileSaved;
+            ModeProfileConfigViewModel.NewModeProfileSaved -= NewModeProfileSaved;
             _removePressedHandler(PressedHandler);
         }
 
@@ -67,6 +68,11 @@ namespace SierraHOTAS.Views
         {
             RemoveHandlers();
             Close();
+        }
+
+        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ModeProfileConfigViewModel.TemplateModeSelected(sender, e);
         }
     }
 }

@@ -7,12 +7,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.ViewModels
 {
     public class DeviceViewModel : INotifyPropertyChanged
     {
         private HOTASDevice _hotasDevice = null;
+        private readonly IFileSystem _fileSystem;
+        private readonly MediaPlayerFactory _mediaPlayerFactory;
 
         public event EventHandler RecordingStopped;
 
@@ -29,8 +32,10 @@ namespace SierraHOTAS.ViewModels
         {
         }
 
-        public DeviceViewModel(HOTASDevice device)
+        public DeviceViewModel(IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, HOTASDevice device)
         {
+            _fileSystem = fileSystem;
+            _mediaPlayerFactory = mediaPlayerFactory;
             _hotasDevice = device;
             InstanceId = _hotasDevice.DeviceId;
             Name = _hotasDevice.Name;
@@ -77,14 +82,14 @@ namespace SierraHOTAS.ViewModels
                 {
                     case HOTASButtonMap.ButtonType.AxisLinear:
                         var linearMap = baseMap as HOTASAxisMap;
-                        var lmVm = new AxisMapViewModel(linearMap);
+                        var lmVm = new AxisMapViewModel(_mediaPlayerFactory, _fileSystem, linearMap);
                         AddAxisMapHandlers(lmVm);
                         ButtonMap.Add(lmVm);
                         break;
 
                     case HOTASButtonMap.ButtonType.AxisRadial:
                         var radialMap = baseMap as HOTASAxisMap;
-                        var rmVm = new AxisMapViewModel(radialMap);
+                        var rmVm = new AxisMapViewModel(_mediaPlayerFactory, _fileSystem, radialMap);
                         AddAxisMapHandlers(rmVm);
                         ButtonMap.Add(rmVm);
                         break;

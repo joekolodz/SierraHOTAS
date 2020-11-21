@@ -1,9 +1,5 @@
-﻿using System;
+﻿using SharpDX.DirectInput;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SharpDX.DirectInput;
 
 namespace SierraHOTAS.Models
 {

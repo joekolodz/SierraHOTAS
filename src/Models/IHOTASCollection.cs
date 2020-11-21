@@ -29,6 +29,7 @@ namespace SierraHOTAS.Models
         void ListenToAllDevices();
         void ListenToDevice(HOTASDevice device);
         int SetupNewModeProfile();
+        void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode);
         void ForceButtonPress(HOTASDevice device, JoystickOffset offset, bool isDown);
         HOTASDevice GetDevice(Guid instanceId);
         void ClearUnassignedActions();

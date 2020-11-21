@@ -15,6 +15,7 @@ namespace SierraHOTAS.Models
         private const string CURRENT_FORMAT_VERSION = "1.0";
         private readonly JoystickFactory _joystickFactory;
         private readonly DirectInputFactory _directInputFactory;
+        private readonly MediaPlayerFactory _mediaPlayerFactory;
         private readonly HOTASQueueFactory _hotasQueueFactory;
         private bool _isShiftStateActive;
         private int _previousMode;
@@ -62,11 +63,12 @@ namespace SierraHOTAS.Models
             Devices.Add(newDevice);
         }
 
-        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory)
+        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, MediaPlayerFactory mediaPlayerFactory)
         {
             _directInputFactory = directInputFactory;
             _joystickFactory = joystickFactory;
             _hotasQueueFactory = hotasQueueFactory;
+            _mediaPlayerFactory = mediaPlayerFactory;
 
             Devices = new ObservableCollection<HOTASDevice>();
             ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
@@ -160,6 +162,14 @@ namespace SierraHOTAS.Models
             }
 
             return newMode;
+        }
+
+        public void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode)
+        {
+            foreach (var d in Devices)
+            {
+                d.CopyModeProfileFromTemplate(templateModeSource,destinationMode);
+            }
         }
 
 

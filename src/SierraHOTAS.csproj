@@ -121,6 +121,7 @@
     <Compile Include="Factories\DirectInputFactory.cs" />
     <Compile Include="Factories\HOTASQueueFactory.cs" />
     <Compile Include="Factories\JoystickFactory.cs" />
+    <Compile Include="Factories\MediaPlayerFactory.cs" />
     <Compile Include="IEventAggregator.cs" />
     <Compile Include="IoCContainer.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
@@ -130,9 +131,11 @@
     <Compile Include="Models\IHOTASCollection.cs" />
     <Compile Include="Models\IHOTASQueue.cs" />
     <Compile Include="Models\IJoystick.cs" />
+    <Compile Include="Models\IMediaPlayer.cs" />
     <Compile Include="Models\InputGraphNode.cs" />
     <Compile Include="Models\JoystickWrapper.cs" />
     <Compile Include="Models\LostConnectionToDeviceEventArgs.cs" />
+    <Compile Include="Models\MediaPlayerWrapper.cs" />
     <Compile Include="Models\ModeProfileChangedEventArgs.cs" />
     <Compile Include="Models\ModeProfileSelectedEventArgs.cs" />
     <Compile Include="Models\ActivityItem.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace SierraHOTAS.ModeProfileWindow.ViewModels
 {
@@ -11,5 +12,7 @@ namespace SierraHOTAS.ModeProfileWindow.ViewModels
         public Guid DeviceId { get; set; }
         public string ButtonName { get; set; }
         public int ButtonId { get; set; }
+        [JsonIgnore]
+        public int TemplateMode { get; set; }
     }
 }

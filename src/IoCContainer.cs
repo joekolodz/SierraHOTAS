@@ -20,12 +20,14 @@ namespace SierraHOTAS
 
             builder.RegisterType<DirectInputFactory>();
             builder.RegisterType<JoystickFactory>();
+            builder.RegisterType<MediaPlayerFactory>();
 
             builder.RegisterType<ActionCatalogViewModel>();
             builder.RegisterType<HOTASCollection>().As<IHOTASCollection>();
             builder.RegisterType<HOTASQueue>().As<IHOTASQueue>();
             builder.RegisterType<HOTASQueueFactory>();
             builder.RegisterType<FileSystem>().As<IFileSystem>();
+            
             builder.RegisterType<HOTASCollectionViewModel>();
 
             var container =  builder.Build();

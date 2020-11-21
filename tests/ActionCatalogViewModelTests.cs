@@ -4,7 +4,7 @@ using Xunit;
 
 namespace SierraHOTAS.Tests
 {
-    public class ActionCatalogTests
+    public class ActionCatalogViewModelTests
     {
         [Fact]
         public void new_catalog_then_noActionItem_exists()

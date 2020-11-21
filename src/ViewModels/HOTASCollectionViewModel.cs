@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Threading;
+using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.ViewModels
 {
@@ -18,6 +19,7 @@ namespace SierraHOTAS.ViewModels
 
         private readonly Dispatcher _appDispatcher;
         private readonly IFileSystem _fileSystem;
+        private readonly MediaPlayerFactory _mediaPlayerFactory;
         private bool? _snapToButton = true;
         private readonly IEventAggregator _eventAggregator;
         public event EventHandler<EventArgs> ShowMainWindow;
@@ -105,9 +107,10 @@ namespace SierraHOTAS.ViewModels
         private ICommand _showInputGraphWindowCommand;
 
         public ICommand ShowInputGraphWindowCommand => _showInputGraphWindowCommand ?? (_showInputGraphWindowCommand = new CommandHandler(ShowInputGraphWindow));
-        public HOTASCollectionViewModel(Dispatcher dispatcher, IEventAggregator eventAggregator, IFileSystem fileSystem, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel)
+        public HOTASCollectionViewModel(Dispatcher dispatcher, IEventAggregator eventAggregator, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel)
         {
             _fileSystem = fileSystem;
+            _mediaPlayerFactory = mediaPlayerFactory;
             _appDispatcher = dispatcher;
             _deviceList = hotasCollection;
             ActionCatalog = actionCatalogViewModel;
@@ -191,6 +194,16 @@ namespace SierraHOTAS.ViewModels
             _eventAggregator.Publish(args);
 
             if (isCancelled) return false;
+
+            if (_deviceList.ModeProfileActivationButtons.Count > 1)
+            {
+                //need to populate the buttons from the template before assigning the activation button
+                _deviceList.ModeProfileActivationButtons.TryGetValue(mode, out var newActivationItem);
+                if (newActivationItem != null && newActivationItem.TemplateMode > 0)
+                {
+                    _deviceList.CopyModeProfileFromTemplate(newActivationItem.TemplateMode, mode);
+                }
+            }
 
             _deviceList.ApplyActivationButtonToAllProfiles();
             OnPropertyChanged(nameof(ModeActivationItems));
@@ -338,7 +351,7 @@ namespace SierraHOTAS.ViewModels
                 {
                     Logging.Log.Warn($"Loaded mappings for {ld.Name}, but could not find the device attached!");
                     Logging.Log.Warn($"Mappings will be displayed, but they will not function");
-                    deviceVm = new DeviceViewModel(ld);
+                    deviceVm = new DeviceViewModel(_fileSystem, _mediaPlayerFactory, ld);
                     Devices.Add(deviceVm);
                     _deviceList.AddDevice(ld);
                     d = ld;
@@ -356,7 +369,7 @@ namespace SierraHOTAS.ViewModels
         private void BuildDevicesViewModel()
         {
             RemoveAllHandlers();
-            Devices = _deviceList.Devices.Select(device => new DeviceViewModel(device)).ToObservableCollection();
+            Devices = _deviceList.Devices.Select(device => new DeviceViewModel(_fileSystem, _mediaPlayerFactory, device)).ToObservableCollection();
         }
 
         private void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -392,7 +405,7 @@ namespace SierraHOTAS.ViewModels
             //remaining devices here do not have a mapping loaded, so assign a default mapping
             foreach (var n in newDevices)
             {
-                var vm = new DeviceViewModel(n);
+                var vm = new DeviceViewModel(_fileSystem, _mediaPlayerFactory, n);
                 Devices.Add(vm);
                 _deviceList.Devices.Add(n);
                 _deviceList.ListenToDevice(n);

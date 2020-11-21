@@ -11,6 +11,7 @@
 
         <SolidColorBrush x:Key="TextHeaderBrush" Color="#7ac1ff" />
         <SolidColorBrush x:Key="TextBrush" Color="Azure" />
+        <SolidColorBrush x:Key="TextBrushError" Color="Red" />
 
         <SolidColorBrush x:Key="DataGridHighlightBrush" Color="LawnGreen" />
 
@@ -44,8 +45,18 @@
             <Setter Property="FontSize" Value="15"/>
         </Style>
 
+        <Style TargetType="TextBlock" x:Key="ModeActivationTextBlockData">
+            <Setter Property="Foreground" Value="{StaticResource TextHeaderBrush}"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+
+        <Style TargetType="TextBlock" x:Key="ModeActivationTextBlockError">
+            <Setter Property="Foreground" Value="{StaticResource TextBrushError}"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+
         <Style TargetType="TextBox" x:Key="ModeActivationTextBox">
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextHeaderBrush}"/>
             <Setter Property="FontSize" Value="15"/>
         </Style>
 
