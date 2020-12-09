@@ -9,21 +9,23 @@ jobs:
 
     runs-on: [windows-latest]
 
-    steps:
-    - name: ACTIONS_ALLOW_UNSECURE_COMMANDS
-      id: ACTIONS_ALLOW_UNSECURE_COMMANDS
-      run: echo 'ACTIONS_ALLOW_UNSECURE_COMMANDS=true' >> $GITHUB_ENV
-    
+    steps:   
     - uses: actions/checkout@v2
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.2
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
              
     - name: Restore NuGet Packages
       run: nuget restore SierraHOTAS.sln
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     
     - name: Build
       run: msbuild SierraHOTAS.sln -m /p:Configuration=Release
