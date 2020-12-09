@@ -85,7 +85,7 @@ namespace SierraHOTAS.Controls
 
         private void _axisVm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(_axisVm.SegmentCount))
+            if (e.PropertyName == nameof(_axisVm.SegmentCount) || e.PropertyName == nameof(_axisVm.IsMultiAction))
             {
                 OnSegmentsChanged();
             }

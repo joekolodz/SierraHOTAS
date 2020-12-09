@@ -99,16 +99,21 @@ namespace SierraHOTAS.Models
 
             CreateSegments(segments);
 
+            CreateActionMapList();
+
+            AddSegmentBoundaryHandlers();
+        }
+
+        public void CreateActionMapList()
+        {
             if (IsMultiAction)
             {
-                CreateMultiActionButtonMapList(segments);
+                CreateMultiActionButtonMapList(Segments.Count);
             }
             else
             {
                 CreateSingleActionButtonMapList();
             }
-
-            AddSegmentBoundaryHandlers();
         }
 
         private void AddSegmentBoundaryHandlers()

@@ -115,12 +115,14 @@ namespace SierraHOTAS
 
             var result = dlg.ShowDialog();
             if (result != true) return null;
-            
+
             return FileOpen(dlg.FileName);
         }
 
         public IHOTASCollection FileOpen(string path)
         {
+            _ = GetFileVersion(path);
+
             if (string.IsNullOrWhiteSpace(path)) return null;
 
             using (var file = File.OpenText(path))
@@ -133,7 +135,7 @@ namespace SierraHOTAS
                 IHOTASCollection collection;
                 try
                 {
-                    collection = (HOTASCollection) serializer.Deserialize(file, typeof(HOTASCollection));
+                    collection = (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
                 }
                 catch (JsonReaderException readerException)
                 {
@@ -149,6 +151,23 @@ namespace SierraHOTAS
                 LastSavedFileName = path;
                 return collection;
             }
+        }
+
+        private static string GetFileVersion(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return string.Empty;
+
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                fs.Seek(6, SeekOrigin.Begin);
+
+                var b = new byte[17];
+                fs.Read(b, 0, 17);
+
+                var s = System.Text.Encoding.UTF8.GetString(b);
+            }
+
+            return "1.0";
         }
 
         public string GetSoundFileName()

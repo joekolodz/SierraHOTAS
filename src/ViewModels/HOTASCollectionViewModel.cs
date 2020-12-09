@@ -345,7 +345,7 @@ namespace SierraHOTAS.ViewModels
             foreach (var ld in loadedDevices.Devices)
             {
                 HOTASDevice d;
-                var deviceVm = Devices.FirstOrDefault(vm => vm.InstanceId == ld.DeviceId);
+                var deviceVm = Devices.FirstOrDefault(vm => vm.InstanceId == ld.DeviceId && ld.DeviceId != Guid.Empty);
 
                 if (deviceVm == null)
                 {

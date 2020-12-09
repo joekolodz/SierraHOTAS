@@ -88,7 +88,7 @@ namespace SierraHOTAS.Models
                 }
 
                 if (Joystick == null) return;
-                Thread.Sleep(1);//give CPU back
+                Thread.Sleep(10);//give CPU back
 
                 //if exception due to lost device, then break out of loop so the user can refresh the device list and start over
                 Joystick.Poll();
@@ -99,7 +99,7 @@ namespace SierraHOTAS.Models
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Logging.Log.Info(e);
                     LostConnectionToDevice?.Invoke(this, EventArgs.Empty);
                     _tokenSourceListenLoop.Cancel();
                 }
@@ -109,10 +109,8 @@ namespace SierraHOTAS.Models
                     var offset = state.Offset;
                     if (offset >= JoystickOffset.Buttons0 && offset <= JoystickOffset.Buttons127)
                     {
-                        Logging.Log.Debug($"Offset:{offset} - Value:{state.Value}");
-                        Logging.Log.Debug($"Offset:{offset}, Raw Offset:{state.RawOffset}, Seq:{state.Sequence}, Val:{state.Value}");
+                        Logging.Log.Debug($"Offset:{offset}({state.RawOffset}), Seq:{state.Sequence}, Value:{state.Value}");
                         HandleStandardButton((int)offset, state.Value);
-                        Logging.Log.Debug($"button:{(int)offset} - {state.Value}");
                         continue;
                     }
 
@@ -121,10 +119,7 @@ namespace SierraHOTAS.Models
                         offset == JoystickOffset.PointOfViewControllers2 ||
                         offset == JoystickOffset.PointOfViewControllers3)
                     {
-                        Logging.Log.Debug($"Button Press Count: {data.Length}");
-                        Logging.Log.Debug($"{state.Offset} - {state.Value}");
-                        Logging.Log.Debug($"Offset:{state.Offset}, translated:{TranslatePointOfViewOffset(offset, state.Value)}, RawOffset:{state.RawOffset}, Seq:{state.Sequence}, Val:{state.Value}");
-
+                        Logging.Log.Debug($"Offset:{offset}({state.RawOffset}), POV:{TranslatePointOfViewOffset(offset, state.Value)}, Seq:{state.Sequence}, Value:{state.Value}");
                         HandlePovButton(state.Offset, state.Value);
                         continue;
                     }
@@ -155,7 +150,7 @@ namespace SierraHOTAS.Models
         {
             var keyUpList = new List<Tuple<int, ButtonAction>>();
 
-            Logging.Log.Info("Dequeue loop started");
+            Logging.Log.Debug("Dequeue loop started");
 
             foreach (var job in _actionJobs.GetConsumingEnumerable(_tokenDequeueLoop))
             {
@@ -189,7 +184,7 @@ namespace SierraHOTAS.Models
                 }
             }
 
-            Logging.Log.Info("Dequeue loop stopped");
+            Logging.Log.Debug("Dequeue loop stopped");
         }
 
         private bool IsButtonDown(int value)
@@ -319,9 +314,6 @@ namespace SierraHOTAS.Models
 
             if (buttonMap.IsShift)
             {
-                //todo
-                //raise new shift event
-                Logging.Log.Info($"Raise Shift Event - {buttonMap.MapName} - {buttonMap.IsShift}");
                 ShiftReleased?.Invoke(this, new EventArgs());
             }
 

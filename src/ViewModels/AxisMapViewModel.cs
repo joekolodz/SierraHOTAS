@@ -89,7 +89,8 @@ namespace SierraHOTAS.ViewModels
             {
                 if (_hotasAxisMap.IsMultiAction == value) return;
                 _hotasAxisMap.IsMultiAction = value;
-                SegmentsCountChanged();
+                MultiActionChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -101,7 +102,8 @@ namespace SierraHOTAS.ViewModels
                 if (_hotasAxisMap.IsDirectional == value) return;
                 _hotasAxisMap.IsDirectional = value;
                 if (!_hotasAxisMap.IsDirectional) Direction = AxisDirection.Forward;
-                SegmentsCountChanged();
+                DirectionChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -121,7 +123,7 @@ namespace SierraHOTAS.ViewModels
             get => _hotasAxisMap.SoundVolume;
             set
             {
-                if (_hotasAxisMap.SoundVolume == value) return;
+                if (Math.Abs(_hotasAxisMap.SoundVolume - value) < 1) return;
                 _hotasAxisMap.SoundVolume = value;
                 OnPropertyChanged();
             }
@@ -182,7 +184,7 @@ namespace SierraHOTAS.ViewModels
             {
                 _mediaPlayer.Open(new Uri(map.SoundFileName, UriKind.Relative));
             }
-            RebuildButtonMapViewModels();
+            RebuildAllButtonMapViewModels();
         }
 
         private void AddHandlersToButtonMapCollection()
@@ -228,16 +230,47 @@ namespace SierraHOTAS.ViewModels
             _hotasAxisMap.CalculateSegmentRange(_segmentCount);
             AddSegmentHandlers();
 
-            RemoveButtonMapHandlers();
+            RemoveAllButtonMapHandlers();
             ButtonMap.Clear();
             ReverseButtonMap.Clear();
 
             if (_segmentCount == 1) return;
 
-            RebuildButtonMapViewModels();
+            RebuildAllButtonMapViewModels();
         }
 
-        private void RebuildButtonMapViewModels()
+        private void DirectionChanged()
+        {
+            RemoveReverseButtonMapHandlers();
+            ReverseButtonMap.Clear();
+            _hotasAxisMap.ReverseButtonMap.Clear();
+            _hotasAxisMap.CreateActionMapList();
+
+            if (_segmentCount == 1) return;
+
+            RebuildReverseButtonMapViewModels();
+        }
+
+        private void MultiActionChanged()
+        {
+            if (_segmentCount == 1) return;
+
+            RemoveAllButtonMapHandlers();
+            ButtonMap.Clear();
+            ReverseButtonMap.Clear();
+
+            _hotasAxisMap.CreateActionMapList();
+
+            RebuildAllButtonMapViewModels();
+        }
+
+        private void RebuildAllButtonMapViewModels()
+        {
+            RebuildForwardButtonMapViewModels();
+            RebuildReverseButtonMapViewModels();
+        }
+
+        private void RebuildForwardButtonMapViewModels()
         {
             foreach (var map in _hotasAxisMap.ButtonMap)
             {
@@ -245,7 +278,10 @@ namespace SierraHOTAS.ViewModels
                 AddButtonMapHandlers(vm);
                 ButtonMap.Add(vm);
             }
+        }
 
+        private void RebuildReverseButtonMapViewModels()
+        {
             foreach (var map in _hotasAxisMap.ReverseButtonMap)
             {
                 var vm = new ButtonMapViewModel(map);
@@ -312,9 +348,27 @@ namespace SierraHOTAS.ViewModels
             mapViewModel.RecordingCancelled += MapViewModel_RecordingCancelled;
         }
 
-        private void RemoveButtonMapHandlers()
+        private void RemoveAllButtonMapHandlers()
+        {
+            RemoveForwardButtonMapHandlers();
+            RemoveReverseButtonMapHandlers();
+        }
+
+        private void RemoveForwardButtonMapHandlers()
         {
             foreach (var mapViewModel in ButtonMap)
+            {
+                if (mapViewModel is ButtonMapViewModel)
+                {
+                    ((ButtonMapViewModel)mapViewModel).RecordingStarted -= MapViewModel_RecordingStarted;
+                    ((ButtonMapViewModel)mapViewModel).RecordingStopped -= MapViewModel_RecordingStopped;
+                    ((ButtonMapViewModel)mapViewModel).RecordingCancelled -= MapViewModel_RecordingCancelled;
+                }
+            }
+        }
+        private void RemoveReverseButtonMapHandlers()
+        {
+            foreach (var mapViewModel in ReverseButtonMap)
             {
                 if (mapViewModel is ButtonMapViewModel)
                 {

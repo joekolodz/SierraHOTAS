@@ -109,5 +109,40 @@ namespace SierraHOTAS.Tests
             Assert.NotNull(mapVm.SoundFileName);
         }
 
+        [Fact]
+        public void assign_segment_filter()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(subMediaPlayerFactory, subFileSystem, map);
+
+            var segmentLess = new Segment(1, 4000);
+            var segmentEqual = new Segment(1, ushort.MaxValue);
+            
+            Assert.True(mapVm.SegmentFilter(segmentLess));
+            Assert.False(mapVm.SegmentFilter(segmentEqual));
+        }
+
+        [Fact]
+        public void segment_count_changed()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.SegmentCount = 1;
+
+        }
+
     }
 }

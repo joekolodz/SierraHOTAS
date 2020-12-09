@@ -635,6 +635,23 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
+        public void create_new_mode_profile_command_from_template()
+        {
+            var hotasVm = CreateHotasCollectionViewModel(out var subEventAggregator, out var subDeviceList, out _, out _, out _, out _);
+
+            var activationButtons = new Dictionary<int, ModeActivationItem>();
+            activationButtons.Add(1, new ModeActivationItem(){Mode = 1, ButtonName = "bob", ProfileName = "bobs profile"});
+            activationButtons.Add(2, new ModeActivationItem(){Mode = 2, ButtonName = "sponge", ProfileName = "sponges profile", TemplateMode = 1});
+            subDeviceList.ModeProfileActivationButtons.Returns(activationButtons);
+
+            subDeviceList.SetupNewModeProfile().Returns(2);
+            hotasVm.Initialize();
+            hotasVm.CreateNewModeProfileCommand.Execute(default);
+
+            subDeviceList.Received().CopyModeProfileFromTemplate(1, 2);
+        }
+
+        [Fact]
         public void show_input_graph()
         {
             var hotasVm = CreateHotasCollectionViewModel(out var subEventAggregator, out _, out _, out _, out _, out _);
