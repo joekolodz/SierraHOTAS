@@ -9,17 +9,23 @@ jobs:
 
     runs-on: [windows-latest]
 
-    steps:
+    steps:   
     - uses: actions/checkout@v2
 
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.0.1
+      uses: microsoft/setup-msbuild@v1.0.2
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.2
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
              
     - name: Restore NuGet Packages
       run: nuget restore SierraHOTAS.sln
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     
     - name: Build
       run: msbuild SierraHOTAS.sln -m /p:Configuration=Release
