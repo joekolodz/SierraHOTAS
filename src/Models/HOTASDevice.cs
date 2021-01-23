@@ -186,7 +186,7 @@ namespace SierraHOTAS.Models
             RemoveQueueHandlers();
             AddQueueHandlers();
 
-            _hotasQueue.ListenAsync(Joystick, ButtonMap);
+            _hotasQueue.Listen(Joystick, ButtonMap);
 
             Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
         }

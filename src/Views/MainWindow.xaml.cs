@@ -157,7 +157,7 @@ namespace SierraHOTAS.Views
 
         private void Watcher_EventArrived(object sender, EventArrivedEventArgs e)
         {
-            HotasCollectionViewModel.RefreshDeviceListCommand.Execute(null);
+            Dispatcher.Invoke(() => HotasCollectionViewModel.RefreshDeviceListCommand.Execute(null));
         }
 
 

@@ -3,11 +3,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 
 namespace SierraHOTAS.Models
 {
@@ -22,13 +20,8 @@ namespace SierraHOTAS.Models
         public event EventHandler ShiftReleased;
         public event EventHandler LostConnectionToDevice;
 
-        private Task _deviceListenLoopTask;
-        private CancellationTokenSource _tokenSourceListenLoop;
-        private CancellationToken _tokenListenLoop;
+        private bool _isStopRequested;
 
-        private Task _deviceDequeueLoopTask;
-        private CancellationTokenSource _tokenSourceDequeueLoop;
-        private CancellationToken _tokenDequeueLoop;
         private BlockingCollection<ActionJobItem> _actionJobs;
 
         private Dictionary<int, JitterDetection> _jitterDetectionDictionary;
@@ -37,7 +30,7 @@ namespace SierraHOTAS.Models
         private IJoystick Joystick { get; set; }
         private ObservableCollection<IHotasBaseMap> _buttonMap;
 
-        public void ListenAsync(IJoystick joystick, ObservableCollection<IHotasBaseMap> buttonMap)
+        public void Listen(IJoystick joystick, ObservableCollection<IHotasBaseMap> buttonMap)
         {
             Joystick = joystick;
             _buttonMap = buttonMap;
@@ -45,13 +38,9 @@ namespace SierraHOTAS.Models
 
             _actionJobs = new BlockingCollection<ActionJobItem>();
 
-            _tokenSourceListenLoop = new CancellationTokenSource();
-            _tokenListenLoop = _tokenSourceListenLoop.Token;
-            _deviceListenLoopTask = Task.Factory.StartNew(ListenLoop, _tokenListenLoop, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-
-            _tokenSourceDequeueLoop = new CancellationTokenSource();
-            _tokenDequeueLoop = _tokenSourceDequeueLoop.Token;
-            _deviceDequeueLoopTask = Task.Factory.StartNew(DequeueLoop, _tokenDequeueLoop, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            _isStopRequested = false;
+            Task.Factory.StartNew(ListenLoop, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(DequeueLoop, TaskCreationOptions.LongRunning);
         }
 
         public void ForceButtonPress(JoystickOffset offset, bool isDown)
@@ -62,8 +51,8 @@ namespace SierraHOTAS.Models
         public void Stop()
         {
             if (App.IsDebug) return;
-            _tokenSourceListenLoop?.Cancel();
-            _tokenSourceDequeueLoop?.Cancel();
+            _actionJobs.CompleteAdding();
+            _isStopRequested = true;
         }
 
         public static int TranslatePointOfViewOffset(JoystickOffset offset, int value)
@@ -76,17 +65,8 @@ namespace SierraHOTAS.Models
 
         private void ListenLoop()
         {
-            while (true)
+            while (!_isStopRequested)
             {
-                try
-                {
-                    _tokenListenLoop.ThrowIfCancellationRequested();
-                }
-                catch (OperationCanceledException)
-                {
-                    return;
-                }
-
                 if (Joystick == null) return;
                 Thread.Sleep(10);//give CPU back
 
@@ -100,8 +80,9 @@ namespace SierraHOTAS.Models
                 catch (Exception e)
                 {
                     Logging.Log.Info(e);
+                    _actionJobs.CompleteAdding();
+                    _isStopRequested = true;
                     LostConnectionToDevice?.Invoke(this, EventArgs.Empty);
-                    _tokenSourceListenLoop.Cancel();
                 }
 
                 foreach (var state in data)
@@ -152,7 +133,7 @@ namespace SierraHOTAS.Models
 
             Logging.Log.Debug("Dequeue loop started");
 
-            foreach (var job in _actionJobs.GetConsumingEnumerable(_tokenDequeueLoop))
+            foreach (var job in _actionJobs.GetConsumingEnumerable())
             {
                 if (keyUpList.Count > 0)
                 {
@@ -198,7 +179,7 @@ namespace SierraHOTAS.Models
             if (_lastPovButton.ContainsKey(offset) || value == -1)
             {
                 Logging.Log.Debug($"POV button release: {offset} - {value}");
-                
+
                 var success = _lastPovButton.TryRemove(offset, out var translatedOffset);
 
                 if (!success) return;
@@ -212,7 +193,7 @@ namespace SierraHOTAS.Models
 
                 _lastPovButton.TryAdd(offset, translatedOffset);
                 Logging.Log.Debug($"Pressing POV button: {offset} - {value}");
-                
+
                 if (!(GetMap(translatedOffset) is HOTASButtonMap map)) return;
 
                 HandleButtonPressed(map, translatedOffset);
@@ -257,7 +238,7 @@ namespace SierraHOTAS.Models
                 if (buttonMap.ActionCatalogItem.Actions.Count == 0) return;
             }
 
-            _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = buttonMap.MapId, Actions = buttonMap.ActionCatalogItem.Actions }, _tokenDequeueLoop);
+            _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = buttonMap.MapId, Actions = buttonMap.ActionCatalogItem.Actions });
         }
 
         private void HandleMacro(HOTASButtonMap buttonMap, int offset)
@@ -309,7 +290,7 @@ namespace SierraHOTAS.Models
         private void HandleButtonReleased(HOTASButtonMap buttonMap, int offset)
         {
             if (buttonMap == null) return;
-            
+
             var mapId = buttonMap.MapId;
 
             if (buttonMap.IsShift)
@@ -317,7 +298,7 @@ namespace SierraHOTAS.Models
                 ShiftReleased?.Invoke(this, new EventArgs());
             }
 
-            _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = mapId, Actions = null }, _tokenDequeueLoop);
+            _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = mapId, Actions = null });
         }
 
         private void HandleAxis(JoystickUpdate state)
