@@ -139,6 +139,8 @@ namespace SierraHOTAS.ViewModels
             DeviceName = _activationItem.DeviceName;
             ActivationButtonName = _activationItem.ButtonName;
             IsShift = _activationItem.IsShift;
+            _deviceId = _activationItem.DeviceId;
+            _activationButtonId = _activationItem.ButtonId;
 
             _isActivationButtonValid = true;
             IsTemplateModeVisible = false;

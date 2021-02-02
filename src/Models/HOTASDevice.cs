@@ -99,7 +99,22 @@ namespace SierraHOTAS.Models
         public void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode)
         {
             var sourceMap = ModeProfiles[templateModeSource];
-            var destinationMap = ModeProfiles[destinationMode];
+
+
+            var isDestinationMapFound = ModeProfiles.TryGetValue(destinationMode, out var destinationMap);
+            if (!isDestinationMapFound)
+            {
+                //if a mode is expected to be there but isn't. rebuild its profile list from the first entry (mode=1)
+                var firstMap = ModeProfiles[1];
+                var modeCount = ModeProfiles.Count;
+                var missingMapCount = destinationMode - modeCount;
+                for (var i = 1; i <= missingMapCount; i++)
+                {
+                    ModeProfiles.Add(i + modeCount, firstMap.ToObservableCollection());
+                }
+                destinationMap = ModeProfiles[destinationMode];
+            }
+
             destinationMap.Clear();
             CopyButtonMapProfile(sourceMap, destinationMap);
         }
