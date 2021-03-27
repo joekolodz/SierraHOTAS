@@ -245,7 +245,7 @@ namespace SierraHOTAS.Models
         public ObservableCollection<HOTASDevice> GetHOTASDevices()
         {
             var rescannedDevices = _directInput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
-            
+
             var newDevices = new ObservableCollection<HOTASDevice>();
 
             foreach (var n in rescannedDevices)
@@ -289,7 +289,7 @@ namespace SierraHOTAS.Models
         /// </summary>
         public void AutoSetMode()
         {
-            foreach (var d in Devices)
+            foreach (var d in Devices.Where(m => m.IsDeviceLoaded))
             {
                 foreach (var map in d.ButtonMap)
                 {

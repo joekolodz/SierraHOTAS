@@ -66,6 +66,13 @@ namespace SierraHOTAS.Tests
 
         private static HOTASButtonMap AddHotasButtonMap(ObservableCollection<IHotasBaseMap> buttons, int existingButtonMapId = 1, HOTASButtonMap.ButtonType type = HOTASButtonMap.ButtonType.Button, string mapName = "Button1", string actionName = "Fire", int scanCode = 43)
         {
+            var map = CreateHotasButtonMap(existingButtonMapId, type, mapName, actionName, scanCode);
+            buttons.Add(map);
+            return map;
+        }
+
+        private static HOTASButtonMap CreateHotasButtonMap(int existingButtonMapId = 1, HOTASButtonMap.ButtonType type = HOTASButtonMap.ButtonType.Button, string mapName = "Button1", string actionName = "Fire", int scanCode = 43)
+        {
             var map = new HOTASButtonMap()
             {
                 MapId = existingButtonMapId,
@@ -82,7 +89,6 @@ namespace SierraHOTAS.Tests
                     }
                 }
             };
-            buttons.Add(map);
             return map;
         }
 
@@ -258,8 +264,9 @@ namespace SierraHOTAS.Tests
         public void file_open_command_valid_file()
         {
             var deviceGuid = Guid.NewGuid();
-            const int existingButtonMapId = 4300;
-            const int loadedButtonMapId = 2700;
+            const int existingButtonMapId = 48;
+            const string expectedActionName = "Release";
+            const int loadedButtonMapId = 48;
             const int modeActivationButtonId = 1000;
 
             var subDirectInputFactory = Substitute.For<DirectInputFactory>();
@@ -267,7 +274,7 @@ namespace SierraHOTAS.Tests
             subDirectInputFactory.CreateDirectInput().Returns(subDirectInput);
 
             var subJoystick = Substitute.For<IJoystick>();
-            subJoystick.Capabilities.Returns(new Capabilities());
+            subJoystick.Capabilities.Returns(new Capabilities(){AxeCount = 2, ButtonCount = 1});
             var subJoystickFactory = Substitute.For<JoystickFactory>();
             subJoystickFactory.CreateJoystick(default, default).ReturnsForAnyArgs(subJoystick);
 
@@ -278,9 +285,12 @@ namespace SierraHOTAS.Tests
 
             var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory);
             loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, deviceGuid, "loaded device", subHotasQueue));
-            AddHotasButtonMap(loadedHotasCollection.Devices[0].ButtonMap, loadedButtonMapId, HOTASButtonMap.ButtonType.Button, "Button1", "Release");
-            AddHotasAxisMap(loadedHotasCollection.Devices[0].ButtonMap, loadedButtonMapId + 1, HOTASButtonMap.ButtonType.AxisLinear, "Axis Linear 1", "test 1");
-            AddHotasAxisMap(loadedHotasCollection.Devices[0].ButtonMap, loadedButtonMapId + 2, HOTASButtonMap.ButtonType.AxisRadial, "Axis Radial 1", "test 2");
+
+            var testMap = loadedHotasCollection.Devices[0].ButtonMap.First(m => m.MapId == 48) as HOTASButtonMap;
+            Assert.NotNull(testMap);
+            var i = loadedHotasCollection.Devices[0].ButtonMap.IndexOf(testMap);
+            loadedHotasCollection.Devices[0].ButtonMap[i] = CreateHotasButtonMap(testMap.MapId, HOTASButtonMap.ButtonType.Button, "Button1", "Release");
+            testMap.ActionName = expectedActionName;
 
             loadedHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
 
@@ -295,14 +305,14 @@ namespace SierraHOTAS.Tests
 
             subFileSystem.FileOpenDialog().Returns(loadedHotasCollection);
 
-
-
             hotasVm.Initialize();
             hotasVm.OpenFileCommand.Execute(default);
 
 
             //check that the in-memory button (existing) is replaced by the one loaded from the file
-            Assert.Equal(loadedButtonMapId, hotasVm.Devices[0].ButtonMap[0].ButtonId);
+            var actualMap = hotasVm.Devices[0].ButtonMap.First(m => m.ButtonId == loadedButtonMapId) as ButtonMapViewModel;
+            Assert.NotNull(actualMap);
+            Assert.Equal(expectedActionName, actualMap.ActionName);
 
             //mode profiles should be loaded
             Assert.Equal(modeActivationButtonId, subDeviceList.ModeProfileActivationButtons[1].ButtonId);
@@ -312,9 +322,9 @@ namespace SierraHOTAS.Tests
             Assert.Equal(deviceGuid, hotasVm.Devices[0].InstanceId);
 
             //check action catalog is rebuilt with the button loaded from file
-            Assert.Equal(4, hotasVm.ActionCatalog.Catalog.Count);
-            Assert.Equal("<No Action>", hotasVm.ActionCatalog.Catalog[0].ActionName);
-            Assert.Equal("Release", hotasVm.ActionCatalog.Catalog[1].ActionName);
+            Assert.Equal(2, hotasVm.ActionCatalog.Catalog.Count);
+            Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == "<No Action>");
+            Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == "Release");
 
             subDeviceList.Received().Stop();
             subFileSystem.Received().FileOpenDialog();
@@ -329,8 +339,10 @@ namespace SierraHOTAS.Tests
 
             var existingDeviceId = Guid.NewGuid();
             var loadedDeviceId = Guid.NewGuid();
-            const int existingButtonMapId = 4300;
-            const int loadedButtonMapId = 2700;
+
+            const int existingButtonMapId = 48;
+            const string expectedActionName = "Release";
+            const int loadedButtonMapId = 48;
             const int modeActivationButtonId = 1000;
 
             var subDirectInputFactory = Substitute.For<DirectInputFactory>();
@@ -338,7 +350,7 @@ namespace SierraHOTAS.Tests
             subDirectInputFactory.CreateDirectInput().Returns(subDirectInput);
 
             var subJoystick = Substitute.For<IJoystick>();
-            subJoystick.Capabilities.Returns(new Capabilities());
+            subJoystick.Capabilities.Returns(new Capabilities() { AxeCount = 2, ButtonCount = 1 });
             var subJoystickFactory = Substitute.For<JoystickFactory>();
             subJoystickFactory.CreateJoystick(default, default).ReturnsForAnyArgs(subJoystick);
 
@@ -349,9 +361,12 @@ namespace SierraHOTAS.Tests
 
             var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory);
             loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, existingDeviceId, "loaded device", subHotasQueue));
-            AddHotasButtonMap(loadedHotasCollection.Devices[0].ButtonMap, loadedButtonMapId, HOTASButtonMap.ButtonType.Button, "Button1", "Release");
-            AddHotasAxisMap(loadedHotasCollection.Devices[0].ButtonMap, loadedButtonMapId + 1, HOTASButtonMap.ButtonType.AxisLinear, "Axis Linear 1", "test 1");
-            AddHotasAxisMap(loadedHotasCollection.Devices[0].ButtonMap, loadedButtonMapId + 2, HOTASButtonMap.ButtonType.AxisRadial, "Axis Radial 1", "test 2");
+
+            var testMap = loadedHotasCollection.Devices[0].ButtonMap.First(m => m.MapId == 48) as HOTASButtonMap;
+            Assert.NotNull(testMap);
+            var i = loadedHotasCollection.Devices[0].ButtonMap.IndexOf(testMap);
+            loadedHotasCollection.Devices[0].ButtonMap[i] = CreateHotasButtonMap(testMap.MapId, HOTASButtonMap.ButtonType.Button, "Button1", "Release");
+            testMap.ActionName = expectedActionName;
 
             loadedHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = loadedDeviceId });
 
@@ -360,7 +375,7 @@ namespace SierraHOTAS.Tests
             var existingDevice = subDeviceList.Devices[0];
             existingDevice.DeviceId = existingDeviceId;
             existingDevice.Name = "existing device";
-            existingDevice.Capabilities = new Capabilities();
+            existingDevice.Capabilities = new Capabilities() { AxeCount = 2, ButtonCount = 1 };
 
 
             AddHotasButtonMap(existingDevice.ButtonMap, existingButtonMapId);
@@ -375,7 +390,9 @@ namespace SierraHOTAS.Tests
 
 
             //check that the in-memory button (existing) is replaced by the one loaded from the file
-            Assert.Equal(loadedButtonMapId, hotasVm.Devices[0].ButtonMap[0].ButtonId);
+            var actualMap = hotasVm.Devices[0].ButtonMap.First(m => m.ButtonId == loadedButtonMapId) as ButtonMapViewModel;
+            Assert.NotNull(actualMap);
+            Assert.Equal(expectedActionName, actualMap.ActionName);
 
             //mode profiles should be loaded
             Assert.Equal(modeActivationButtonId, subDeviceList.ModeProfileActivationButtons[1].ButtonId);
@@ -385,9 +402,9 @@ namespace SierraHOTAS.Tests
             Assert.Equal(existingDeviceId, hotasVm.Devices[0].InstanceId);
 
             //check action catalog is rebuilt with the button loaded from file
-            Assert.Equal(4, hotasVm.ActionCatalog.Catalog.Count);
-            Assert.Equal("<No Action>", hotasVm.ActionCatalog.Catalog[0].ActionName);
-            Assert.Equal("Release", hotasVm.ActionCatalog.Catalog[1].ActionName);
+            Assert.Equal(2, hotasVm.ActionCatalog.Catalog.Count);
+            Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == "<No Action>");
+            Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == "Release");
 
             subDeviceList.Received().Stop();
             subFileSystem.Received().FileOpenDialog();

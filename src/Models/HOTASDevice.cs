@@ -30,6 +30,8 @@ namespace SierraHOTAS.Models
         public string Name { get; set; }
 
         public Capabilities Capabilities { get; set; }
+        
+        public bool IsDeviceLoaded => Capabilities != null;
 
         public ObservableCollection<IHotasBaseMap> ButtonMap { get; private set; } = new ObservableCollection<IHotasBaseMap>();
 
@@ -231,6 +233,17 @@ namespace SierraHOTAS.Models
         public void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap)
         {
             ButtonMap = buttonMap;
+            //var newButtonMap = new ObservableCollection<IHotasBaseMap>();
+            ButtonMap = new ObservableCollection<IHotasBaseMap>();
+            BuildButtonMapProfile(ButtonMap);
+            foreach (var source in buttonMap)
+            {
+                var i = ButtonMap.FirstOrDefault(b => b.MapId == source.MapId);
+                if(i==null) continue;
+                
+                var index = ButtonMap.IndexOf(i);
+                ButtonMap[index] = source;
+            }
         }
 
         public void SetMode(int mode)
