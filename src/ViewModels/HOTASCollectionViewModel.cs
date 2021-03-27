@@ -23,6 +23,7 @@ namespace SierraHOTAS.ViewModels
         private bool? _snapToButton = true;
         private readonly IEventAggregator _eventAggregator;
         public event EventHandler<EventArgs> ShowMainWindow;
+        public event EventHandler<EventArgs> Close;
 
         public QuickProfilePanelViewModel QuickProfilePanelViewModel { get; set; }
         public ActionCatalogViewModel ActionCatalog { get; set; }
@@ -118,14 +119,20 @@ namespace SierraHOTAS.ViewModels
             QuickProfilePanelViewModel = new QuickProfilePanelViewModel(eventAggregator, fileSystem);
 
             QuickProfilePanelViewModel.ShowMainWindow += QuickProfilePanelViewModel_ShowMainWindow;
+            QuickProfilePanelViewModel.Close += QuickProfilePanelViewModel_Close;
             _eventAggregator = eventAggregator;
             _eventAggregator.Subscribe<QuickProfileSelectedEvent>(QuickLoadProfile);
             _eventAggregator.Subscribe<DeleteModeProfileEvent>(DeleteModeProfile);
         }
 
+        private void QuickProfilePanelViewModel_Close(object sender, EventArgs e)
+        {
+            Close?.Invoke(this, e);
+        }
+
         private void QuickProfilePanelViewModel_ShowMainWindow(object sender, EventArgs e)
         {
-            ShowMainWindow?.Invoke(this, new EventArgs());
+            ShowMainWindow?.Invoke(this, e);
         }
 
         private void CreateNewModeProfile()
@@ -270,6 +277,8 @@ namespace SierraHOTAS.ViewModels
 
         private void DeviceList_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
         {
+            //DeviceViewModel is already handling this behavior. Don't really need to do anything here.
+            
             //var deviceVm = Devices.FirstOrDefault(h => h.InstanceId == e.HOTASDevice.DeviceId);
             //if (deviceVm == null) return;
             //_appDispatcher.Invoke(() => Devices.Remove(deviceVm));
@@ -387,7 +396,7 @@ namespace SierraHOTAS.ViewModels
 
         private void RefreshDeviceList()
         {
-            var newDevices = _deviceList.RescanDevices();
+            var newDevices = _deviceList.GetHOTASDevices();
 
             //if the device has a mapping already loaded, then assign this device to that mapping
             foreach (var deviceViewModel in Devices)

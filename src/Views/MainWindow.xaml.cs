@@ -24,7 +24,7 @@ namespace SierraHOTAS.Views
     {
         private const string WQL_EVENT_QUERY = "SELECT * FROM Win32_DeviceChangeEvent WHERE EventType = 2";
 
-        private TaskbarIcon _taskbarIcon;
+        private readonly TaskbarIcon _taskbarIcon;
 
         public HOTASCollectionViewModel HotasCollectionViewModel { get; }
 
@@ -50,6 +50,7 @@ namespace SierraHOTAS.Views
             HotasCollectionViewModel.FileOpened += HotasCollectionViewModel_FileOpened;
             HotasCollectionViewModel.ModeProfileChanged += HotasCollectionViewModel_ModeProfileChanged;
             HotasCollectionViewModel.ShowMainWindow += HotasCollectionViewModel_ShowMainWindow;
+            HotasCollectionViewModel.Close += HotasCollectionViewModel_Close;
 
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
@@ -57,10 +58,16 @@ namespace SierraHOTAS.Views
             KeyDown += Window_KeyDown;
         }
 
+        private void HotasCollectionViewModel_Close(object sender, EventArgs e)
+        {
+            Close();
+        }
+
         private void HotasCollectionViewModel_ShowMainWindow(object sender, EventArgs e)
         {
             Show();
             WindowState = WindowState.Normal;
+            Focus();
         }
 
         private void MainWindow_StateChanged(object sender, EventArgs e)
@@ -157,9 +164,10 @@ namespace SierraHOTAS.Views
 
         private void Watcher_EventArrived(object sender, EventArrivedEventArgs e)
         {
+            //TODO remove log
+            Logging.Log.Info($"Watcher_EventArrived {e}");
             Dispatcher.Invoke(() => HotasCollectionViewModel.RefreshDeviceListCommand.Execute(null));
         }
-
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         static extern IntPtr GetForegroundWindow();

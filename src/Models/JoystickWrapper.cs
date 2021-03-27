@@ -21,6 +21,8 @@ namespace SierraHOTAS.Models
        
         public void Acquire()
         {
+
+            //TODO z[this does not return after the computer wakes from sleep
             _joystick.Acquire();
         }
 

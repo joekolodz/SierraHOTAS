@@ -15,6 +15,7 @@ namespace SierraHOTAS.Models
         private const string CURRENT_FORMAT_VERSION = "1.0";
         private readonly JoystickFactory _joystickFactory;
         private readonly DirectInputFactory _directInputFactory;
+        private readonly IDirectInput _directInput;
         private readonly MediaPlayerFactory _mediaPlayerFactory;
         private readonly HOTASQueueFactory _hotasQueueFactory;
         private bool _isShiftStateActive;
@@ -42,7 +43,7 @@ namespace SierraHOTAS.Models
 
         public void AddDevice(HOTASDevice device)
         {
-            var newDevice = new HOTASDevice(_directInputFactory.CreateDirectInput(), device.DeviceId, device.Name, _hotasQueueFactory.CreateHOTASQueue());
+            var newDevice = new HOTASDevice(_directInput, device.DeviceId, device.Name, _hotasQueueFactory.CreateHOTASQueue());
             RebuildMapForNewDevice(device, newDevice);
         }
 
@@ -72,6 +73,8 @@ namespace SierraHOTAS.Models
 
             Devices = new ObservableCollection<HOTASDevice>();
             ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
+            _directInput = _directInputFactory?.CreateDirectInput();
+
         }
 
         public void Start()
@@ -117,7 +120,7 @@ namespace SierraHOTAS.Models
         private void LoadAllDevices()
         {
             if (App.IsDebug) return;
-            Devices = QueryOperatingSystemForDevices();
+            Devices = GetHOTASDevices();
         }
 
         public void ListenToAllDevices()
@@ -168,7 +171,7 @@ namespace SierraHOTAS.Models
         {
             foreach (var d in Devices)
             {
-                d.CopyModeProfileFromTemplate(templateModeSource,destinationMode);
+                d.CopyModeProfileFromTemplate(templateModeSource, destinationMode);
             }
         }
 
@@ -176,14 +179,14 @@ namespace SierraHOTAS.Models
         private void Device_ModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
         {
             if (!(sender is HOTASDevice)) return;
-            
+
             if (e.IsShift)
             {
                 //don't set state to false if IsShift is false because a mode change could take place after shift button is pressed
                 _isShiftStateActive = true;
                 _previousMode = Mode;
             }
-            
+
             SetMode(e.Mode);
         }
 
@@ -226,19 +229,6 @@ namespace SierraHOTAS.Models
             ButtonPressed?.Invoke(sender, e);
         }
 
-        private ObservableCollection<HOTASDevice> QueryOperatingSystemForDevices()
-        {
-            var deviceList = new ObservableCollection<HOTASDevice>();
-            var di = _directInputFactory.CreateDirectInput();
-
-            foreach (var device in di.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly))
-            {
-                var queue = _hotasQueueFactory.CreateHOTASQueue();
-                deviceList.Add(new HOTASDevice(di, _joystickFactory, device.InstanceGuid, device.ProductName, queue));
-            }
-            return deviceList;
-        }
-
         public HOTASDevice GetDevice(Guid instanceId)
         {
             return Devices.FirstOrDefault(d => d.DeviceId == instanceId);
@@ -252,20 +242,26 @@ namespace SierraHOTAS.Models
             }
         }
 
-        public ObservableCollection<HOTASDevice> RescanDevices()
+        public ObservableCollection<HOTASDevice> GetHOTASDevices()
         {
-            var rescannedDevices = QueryOperatingSystemForDevices();
+            var rescannedDevices = _directInput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
+            
             var newDevices = new ObservableCollection<HOTASDevice>();
 
             foreach (var n in rescannedDevices)
             {
-                var existingDevice = Devices.FirstOrDefault(d => d.DeviceId == n.DeviceId);
+                var existingDevice = Devices.FirstOrDefault(d => d.DeviceId == n.InstanceGuid);
 
                 if (existingDevice != null)
                 {
                     if (existingDevice.Capabilities != null) continue;
                 }
-                newDevices.Add(n);
+
+                //TODO remove log
+                Logging.Log.Info("adding a device");
+
+                var queue = _hotasQueueFactory.CreateHOTASQueue();
+                newDevices.Add(new HOTASDevice(_directInput, _joystickFactory, n.InstanceGuid, n.ProductName, queue));
             }
 
             return newDevices;

@@ -19,6 +19,7 @@ namespace SierraHOTAS.ViewModels
         private readonly IFileSystem _fileSystem;
         private readonly IEventAggregator _eventAggregator;
         public event EventHandler<EventArgs> ShowMainWindow;
+        public event EventHandler<EventArgs> Close;
 
         public Dictionary<int, QuickProfileItem> QuickProfilesList { get; set; } = new Dictionary<int, QuickProfileItem>();
 
@@ -121,5 +122,12 @@ namespace SierraHOTAS.ViewModels
             if (QuickProfilesList == null) return string.Empty;
             return QuickProfilesList.Where(item => item.Value.AutoLoad).Select(item => item.Value.Path).FirstOrDefault();
         }
+        
+        public void CloseApp()
+        {
+            Close?.Invoke(this, new EventArgs());
+        }
+
+
     }
 }

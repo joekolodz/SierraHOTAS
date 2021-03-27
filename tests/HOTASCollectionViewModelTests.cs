@@ -487,14 +487,14 @@ namespace SierraHOTAS.Tests
 
             var rescannedDevice = new HOTASDevice { DeviceId = deviceGuid, Name = "rescanned device 1" };
             AddHotasButtonMap(rescannedDevice.ButtonMap, existingButtonMapId, HOTASButtonMap.ButtonType.Button, "rescanned button");
-            subDeviceList.RescanDevices().Returns(new ObservableCollection<HOTASDevice>() { rescannedDevice });
+            subDeviceList.GetHOTASDevices().Returns(new ObservableCollection<HOTASDevice>() { rescannedDevice });
 
             hotasVm.Initialize();
             hotasVm.RefreshDeviceListCommand.Execute(default);
 
             Assert.Single(hotasVm.Devices);
             Assert.Equal(hotasVm.Devices[0].Name, rescannedDevice.Name);
-            subDeviceList.Received().RescanDevices();
+            subDeviceList.Received().GetHOTASDevices();
             subDeviceList.Received().ListenToDevice(rescannedDevice);
             subDeviceList.Received().ReplaceDevice(rescannedDevice);
         }
@@ -514,7 +514,7 @@ namespace SierraHOTAS.Tests
 
             var newDevice = new HOTASDevice { DeviceId = ignoreGuid, Name = "new device 1" };
             AddHotasButtonMap(newDevice.ButtonMap, existingButtonMapId, HOTASButtonMap.ButtonType.Button, "ignore button");
-            subDeviceList.RescanDevices().Returns(new ObservableCollection<HOTASDevice>() { newDevice });
+            subDeviceList.GetHOTASDevices().Returns(new ObservableCollection<HOTASDevice>() { newDevice });
 
             hotasVm.Initialize();
             hotasVm.RefreshDeviceListCommand.Execute(default);
@@ -522,8 +522,8 @@ namespace SierraHOTAS.Tests
 
             Assert.Equal(2, hotasVm.Devices.Count);
             Assert.Single(hotasVm.Devices.Where(d => d.Name == newDevice.Name));
-            subDeviceList.Received().RescanDevices();
-            subDeviceList.Received().RescanDevices();
+            subDeviceList.Received().GetHOTASDevices();
+            subDeviceList.Received().GetHOTASDevices();
             subDeviceList.Received().ListenToDevice(newDevice);
             subDeviceList.DidNotReceive().ReplaceDevice(newDevice);
 

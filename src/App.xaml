@@ -517,6 +517,10 @@
             </Style.Triggers>
         </Style>
 
+        <!--
+        http://www.hardcodet.net/wpf-notifyicon
+        https://www.codeproject.com/Articles/36468/WPF-NotifyIcon-2#closing
+        -->
         <tb:TaskbarIcon x:Key="NotifyIcon"
             IconSource="{StaticResource SierraHOTASIcon}" 
             Visibility="Visible"

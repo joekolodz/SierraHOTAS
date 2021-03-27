@@ -33,7 +33,7 @@ namespace SierraHOTAS.Models
         void ForceButtonPress(HOTASDevice device, JoystickOffset offset, bool isDown);
         HOTASDevice GetDevice(Guid instanceId);
         void ClearUnassignedActions();
-        ObservableCollection<HOTASDevice> RescanDevices();
+        ObservableCollection<HOTASDevice> GetHOTASDevices();
 
         /// <summary>
         /// Activate the profile for the given Mode

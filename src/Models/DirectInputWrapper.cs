@@ -21,5 +21,10 @@ namespace SierraHOTAS.Models
         {
             return _directInput.GetDevices(deviceClass, flags);
         }
+
+        public void Dispose()
+        {
+            _directInput.Dispose();
+        }
     }
 }

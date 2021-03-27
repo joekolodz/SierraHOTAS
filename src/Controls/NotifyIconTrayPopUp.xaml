@@ -20,7 +20,8 @@
                 <local:QuickProfileButton Margin="0,0,0,8"/>
                 <local:QuickProfileButton Margin="0,0,0,8"/>
                 <local:QuickProfileButton Margin="0,0,0,8"/>
-                <Button Click="ButtonBase_OnClick" Content="Show Window"  Background="{StaticResource DisabledBorderBrush}" Foreground="{StaticResource TextHeaderBrush}" Margin="0,5,0,2"/>
+                <Button Click="ShowWindow_OnClick" Content="Show Window"  Background="{StaticResource DisabledBorderBrush}" Foreground="{StaticResource TextHeaderBrush}" Margin="0,5,0,2"/>
+                <Button Content="Close SierraHOTAS"  Background="{StaticResource DisabledBorderBrush}" Foreground="{StaticResource TextHeaderBrush}" Margin="0,5,0,2" Click="Close_OnClick"/>
             </StackPanel>
         </Border>
     </Grid>

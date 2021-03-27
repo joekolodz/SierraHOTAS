@@ -75,9 +75,14 @@ namespace SierraHOTAS.Controls
             }
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        private void ShowWindow_OnClick(object sender, RoutedEventArgs e)
         {
             QuickProfilePanelViewModel.ShowWindow();
+        }
+
+        private void Close_OnClick(object sender, RoutedEventArgs e)
+        {
+            QuickProfilePanelViewModel.CloseApp();
         }
     }
 }
