@@ -405,10 +405,12 @@ namespace SierraHOTAS.ViewModels
                 if (newDevice == null) continue;
 
                 newDevices.Remove(newDevice);
-                deviceViewModel.ReplaceDevice(newDevice);
 
                 _deviceList.ReplaceDevice(newDevice);
                 _deviceList.ListenToDevice(newDevice);
+
+                deviceViewModel.ReplaceDevice(newDevice);
+                deviceViewModel.RebuildMap();
             }
 
             //remaining devices here do not have a mapping loaded, so assign a default mapping

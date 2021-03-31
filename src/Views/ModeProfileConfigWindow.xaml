@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:SierraHOTAS.ViewModels"
         mc:Ignorable="d"
-        Title="Mode Profile Configuration" Height="240" Width="470"
+        Title="Mode Profile Configuration" 
+        Height="240" 
+        Width="470"
         WindowStartupLocation="CenterOwner">
 
     <Window.DataContext>

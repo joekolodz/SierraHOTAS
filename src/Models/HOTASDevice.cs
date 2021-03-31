@@ -30,7 +30,7 @@ namespace SierraHOTAS.Models
         public string Name { get; set; }
 
         public Capabilities Capabilities { get; set; }
-        
+
         public bool IsDeviceLoaded => Capabilities != null;
 
         public ObservableCollection<IHotasBaseMap> ButtonMap { get; private set; } = new ObservableCollection<IHotasBaseMap>();
@@ -232,17 +232,25 @@ namespace SierraHOTAS.Models
 
         public void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap)
         {
-            ButtonMap = buttonMap;
-            //var newButtonMap = new ObservableCollection<IHotasBaseMap>();
-            ButtonMap = new ObservableCollection<IHotasBaseMap>();
-            BuildButtonMapProfile(ButtonMap);
-            foreach (var source in buttonMap)
+            if (IsDeviceLoaded)
             {
-                var i = ButtonMap.FirstOrDefault(b => b.MapId == source.MapId);
-                if(i==null) continue;
-                
-                var index = ButtonMap.IndexOf(i);
-                ButtonMap[index] = source;
+                //rebuild the button map in this manner, because additional buttons may be recognized at a later time
+                //for instance, the virpil side cars can be linked to an existing device which makes that original device look like it has more buttons.
+                ButtonMap = new ObservableCollection<IHotasBaseMap>();
+                BuildButtonMapProfile(ButtonMap);
+                foreach (var source in buttonMap)
+                {
+                    var i = ButtonMap.FirstOrDefault(b => b.MapId == source.MapId);
+                    if (i == null) continue;
+
+                    var index = ButtonMap.IndexOf(i);
+                    ButtonMap[index] = source;
+                }
+            }
+            else
+            {
+                //if the device isn't loaded, then copy from the profile directly
+                ButtonMap = buttonMap;
             }
         }
 
@@ -283,9 +291,9 @@ namespace SierraHOTAS.Models
 
         private void BuildButtonMapProfile(ObservableCollection<IHotasBaseMap> buttonMap)
         {
-            if (Capabilities.AxeCount > 0) SeedAxisMap(JoystickOffset.X, 6, buttonMap);
-            if (Capabilities.ButtonCount > 0) SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button, buttonMap);
-            if (Capabilities.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV, buttonMap);
+            if (Capabilities?.AxeCount > 0) SeedAxisMap(JoystickOffset.X, 6, buttonMap);
+            if (Capabilities?.ButtonCount > 0) SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button, buttonMap);
+            if (Capabilities?.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV, buttonMap);
         }
 
         private void LoadCapabilities()

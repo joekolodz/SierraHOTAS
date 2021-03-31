@@ -254,10 +254,11 @@ namespace SierraHOTAS.Views
         private void ModeActivationGrid_Selected(object sender, RoutedEventArgs e)
         {
             if (!(ModeActivationGrid.CurrentItem is ModeActivationItem item)) return;
+            if (!(lstDevices.SelectedItem is DeviceViewModel vmDevice)) return;
 
             foreach (var device in HotasCollectionViewModel.Devices)
             {
-                if (device.InstanceId != item.DeviceId) continue;
+                if (device.InstanceId != vmDevice.InstanceId) continue;
                 SelectDevice(device);
                 HotasCollectionViewModel.SetMode(item.Mode);
                 break;

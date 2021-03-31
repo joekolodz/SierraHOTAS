@@ -11,7 +11,10 @@
         d:DataContext="{d:DesignInstance viewModel:HOTASCollectionViewModel}"
         x:Class="SierraHOTAS.Views.MainWindow"
         mc:Ignorable="d"
-        Title="Sierra HOTAS" Height="900" Width="1220">
+        Title="Sierra HOTAS" 
+        Height="900" 
+        Width="1220"
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <Style  x:Key="RoundLabelStyle" TargetType="Label">
