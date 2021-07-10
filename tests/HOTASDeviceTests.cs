@@ -22,10 +22,11 @@ namespace SierraHOTAS.Tests
         {
             var di = Substitute.For<IDirectInput>();
             var queue = Substitute.For<IHOTASQueue>();
+            var productId = Guid.NewGuid();
             var deviceId = Guid.NewGuid();
             const string name = "test device name";
 
-            var device = new HOTASDevice(di, deviceId, name, queue);
+            var device = new HOTASDevice(di, productId, deviceId, name, queue);
 
             Assert.Equal(deviceId, device.DeviceId);
             Assert.Equal(name, device.Name);
@@ -39,14 +40,15 @@ namespace SierraHOTAS.Tests
         {
             var di = Substitute.For<IDirectInput>();
             var queue = Substitute.For<IHOTASQueue>();
+            var productId = Guid.NewGuid();
             var deviceId = Guid.NewGuid();
             const string name = "test";
 
-            Assert.NotNull(new HOTASDevice(di, Guid.Empty, name, queue));
-            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, deviceId, string.Empty, queue));
-            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, deviceId, null, queue));
-            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(null, deviceId, name, queue));
-            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, deviceId, name, null));
+            Assert.NotNull(new HOTASDevice(di, productId, Guid.Empty, name, queue));
+            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, productId, deviceId, string.Empty, queue));
+            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, productId, deviceId, null, queue));
+            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(null, productId, deviceId, name, queue));
+            Assert.Throws<ArgumentNullException>(()=>new HOTASDevice(di, productId, deviceId, name, null));
         }
 
         [Fact]
@@ -56,7 +58,7 @@ namespace SierraHOTAS.Tests
             var queue = Substitute.For<IHOTASQueue>();
             const string name = "test";
 
-            var obj = new HOTASDevice(di, Guid.Empty, name, queue);
+            var obj = new HOTASDevice(di, Guid.NewGuid(), Guid.Empty, name, queue);
             Assert.NotNull(obj);
             Assert.Equal(obj.DeviceId, Guid.Empty);
         }
@@ -66,6 +68,7 @@ namespace SierraHOTAS.Tests
         {
             var di = Substitute.For<IDirectInput>();
             var queue = Substitute.For<IHOTASQueue>();
+            var productId = Guid.NewGuid();
             var deviceId = Guid.NewGuid();
             const string name = "test device name";
 
@@ -74,7 +77,7 @@ namespace SierraHOTAS.Tests
             var subJoystickFactory = Substitute.For<JoystickFactory>();
             subJoystickFactory.CreateJoystick(default, default).ReturnsForAnyArgs(subJoystick);
 
-            var device = new HOTASDevice(di, subJoystickFactory, deviceId, name, queue);
+            var device = new HOTASDevice(di, subJoystickFactory, productId, deviceId, name, queue);
 
 
             Assert.Equal(deviceId, device.DeviceId);

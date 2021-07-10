@@ -1,5 +1,4 @@
-﻿using SharpDX.DirectInput;
-using SierraHOTAS.Models;
+﻿using SierraHOTAS.Models;
 using Xunit;
 
 namespace SierraHOTAS.Tests
@@ -26,7 +25,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_offset()
         {
-            Assert.Equal(JoystickOffset.Buttons0, JoystickOffsetValues.GetOffset(12));
+            Assert.Equal(JoystickOffset.Button1, JoystickOffsetValues.GetOffset(12));
             Assert.Equal(JoystickOffset.ForceSliders1, JoystickOffsetValues.GetOffset(163));
             Assert.Equal(JoystickOffset.X, JoystickOffsetValues.GetOffset(-1));
             Assert.Equal(JoystickOffset.X, JoystickOffsetValues.GetOffset(164));
@@ -35,18 +34,18 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_name_enum()
         {
-            Assert.Equal("RotationY", JoystickOffsetValues.GetName(JoystickOffset.RotationY));
+            Assert.Equal("RY", JoystickOffsetValues.GetName(JoystickOffset.RY));
             Assert.Equal("Z", JoystickOffsetValues.GetName(JoystickOffset.Z));
-            Assert.Equal("Buttons0", JoystickOffsetValues.GetName(JoystickOffset.Buttons0));
+            Assert.Equal("Button1", JoystickOffsetValues.GetName(JoystickOffset.Button1));
             Assert.Equal("AccelerationSliders1", JoystickOffsetValues.GetName(JoystickOffset.AccelerationSliders1));
         }
 
         [Fact]
         public void get_name_index()
         {
-            Assert.Equal("RotationY", JoystickOffsetValues.GetName(16));
+            Assert.Equal("RY", JoystickOffsetValues.GetName(16));
             Assert.Equal("Z", JoystickOffsetValues.GetName(8));
-            Assert.Equal("Buttons0", JoystickOffsetValues.GetName(48));
+            Assert.Equal("Button1", JoystickOffsetValues.GetName(48));
             Assert.Equal("AccelerationSliders1", JoystickOffsetValues.GetName(236));
         }
     }
