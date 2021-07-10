@@ -243,11 +243,11 @@ namespace SierraHOTAS.Views
             if (!App.IsDebug) return;
             if (e.Key == Key.LeftShift)
             {
-                _currentlySelectedDeviceVm.ForceButtonPress(SharpDX.DirectInput.JoystickOffset.Buttons0, true);
+                _currentlySelectedDeviceVm.ForceButtonPress(JoystickOffset.Button1, true);
             }
             if (e.Key == Key.LeftCtrl)
             {
-                _currentlySelectedDeviceVm.ForceButtonPress(SharpDX.DirectInput.JoystickOffset.Buttons0, false);
+                _currentlySelectedDeviceVm.ForceButtonPress(JoystickOffset.Button1, false);
             }
         }
 

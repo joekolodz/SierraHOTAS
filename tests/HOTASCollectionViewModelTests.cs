@@ -264,6 +264,7 @@ namespace SierraHOTAS.Tests
         public void file_open_command_valid_file()
         {
             var deviceGuid = Guid.NewGuid();
+            var productGuid = Guid.NewGuid();
             const int existingButtonMapId = 48;
             const string expectedActionName = "Release";
             const int loadedButtonMapId = 48;
@@ -284,7 +285,7 @@ namespace SierraHOTAS.Tests
             subHotasQueueFactory.CreateHOTASQueue().Returns(subHotasQueue);
 
             var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory);
-            loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, deviceGuid, "loaded device", subHotasQueue));
+            loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, productGuid, deviceGuid, "loaded device", subHotasQueue));
 
             var testMap = loadedHotasCollection.Devices[0].ButtonMap.First(m => m.MapId == 48) as HOTASButtonMap;
             Assert.NotNull(testMap);
@@ -339,6 +340,7 @@ namespace SierraHOTAS.Tests
 
             var existingDeviceId = Guid.NewGuid();
             var loadedDeviceId = Guid.NewGuid();
+            var productGuid = Guid.NewGuid();
 
             const int existingButtonMapId = 48;
             const string expectedActionName = "Release";
@@ -360,7 +362,7 @@ namespace SierraHOTAS.Tests
             subHotasQueueFactory.CreateHOTASQueue().Returns(subHotasQueue);
 
             var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory);
-            loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, existingDeviceId, "loaded device", subHotasQueue));
+            loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, productGuid, existingDeviceId, "loaded device", subHotasQueue));
 
             var testMap = loadedHotasCollection.Devices[0].ButtonMap.First(m => m.MapId == 48) as HOTASButtonMap;
             Assert.NotNull(testMap);

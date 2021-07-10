@@ -43,7 +43,7 @@ namespace SierraHOTAS.Models
 
         public void AddDevice(HOTASDevice device)
         {
-            var newDevice = new HOTASDevice(_directInput, device.DeviceId, device.Name, _hotasQueueFactory.CreateHOTASQueue());
+            var newDevice = new HOTASDevice(_directInput, device.ProductId, device.DeviceId, device.Name, _hotasQueueFactory.CreateHOTASQueue());
             RebuildMapForNewDevice(device, newDevice);
         }
 
@@ -261,7 +261,7 @@ namespace SierraHOTAS.Models
                 Logging.Log.Info("adding a device");
 
                 var queue = _hotasQueueFactory.CreateHOTASQueue();
-                newDevices.Add(new HOTASDevice(_directInput, _joystickFactory, n.InstanceGuid, n.ProductName, queue));
+                newDevices.Add(new HOTASDevice(_directInput, _joystickFactory, n.ProductGuid, n.InstanceGuid, n.ProductName, queue));
             }
 
             return newDevices;

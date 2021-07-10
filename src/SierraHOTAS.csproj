@@ -130,6 +130,7 @@
     <Compile Include="Models\IJoystick.cs" />
     <Compile Include="Models\IMediaPlayer.cs" />
     <Compile Include="Models\InputGraphNode.cs" />
+    <Compile Include="Models\JoystickOffset.cs" />
     <Compile Include="Models\JoystickWrapper.cs" />
     <Compile Include="Models\LostConnectionToDeviceEventArgs.cs" />
     <Compile Include="Models\MediaPlayerWrapper.cs" />
@@ -173,8 +174,6 @@
     <Compile Include="Models\AxisChangedEventArgs.cs" />
     <Compile Include="Models\ButtonAction.cs" />
     <Compile Include="Models\ButtonPressedEventArgs.cs" />
-    <Compile Include="Models\HOTAS.cs" />
-    <Compile Include="Models\HOTASAsync.cs" />
     <Compile Include="Models\HOTASCollection.cs" />
     <Compile Include="Models\HOTASDevice.cs" />
     <Compile Include="Models\HOTASButtonMap.cs" />

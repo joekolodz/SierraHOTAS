@@ -28,7 +28,7 @@ namespace SierraHOTAS.Models
             POVNorthWest = 31500
         }
 
-        private const int ButtonStartOffset = (int)JoystickOffset.Buttons0;
+        private const int ButtonStartOffset = (int)JoystickOffset.Button1;
 
         //DirectX enum for joystick offset names restructured into a dictionary to use as a lookup
         private static Dictionary<int, JoystickOffset> OffsetLookup { get; set; }
@@ -41,7 +41,6 @@ namespace SierraHOTAS.Models
         static JoystickOffsetValues()
         {
             Offsets = (JoystickOffset[])Enum.GetValues(typeof(JoystickOffset));
-            PopulateCleanOffsetNameLookup();
             PopulateOffsetIndexLookup();
             PopulateOffsetNameLookup();
         }
@@ -64,22 +63,6 @@ namespace SierraHOTAS.Models
             {
                 IndexLookup.Add(names[i], i);
             }
-        }
-
-        //longs names renamed to shorter names
-        private static Dictionary<JoystickOffset, string> _cleanOffsetNames;
-        private static void PopulateCleanOffsetNameLookup()
-        {
-            _cleanOffsetNames = new Dictionary<JoystickOffset, string>
-            {
-                {JoystickOffset.RotationX, "RX"},
-                {JoystickOffset.RotationY, "RY"},
-                {JoystickOffset.RotationZ, "RZ"},
-                {JoystickOffset.PointOfViewControllers0, "POV1"},
-                {JoystickOffset.PointOfViewControllers1, "POV2"},
-                {JoystickOffset.PointOfViewControllers2, "POV3"},
-                {JoystickOffset.PointOfViewControllers3, "POV4"}
-            };
         }
 
         /// <summary>
@@ -105,7 +88,7 @@ namespace SierraHOTAS.Models
         public static int GetButtonIndexForJoystickState(int mapId)
         {
             if (mapId < ButtonStartOffset) return 0;
-            if (mapId > (int)JoystickOffset.Buttons127) return 127;
+            if (mapId > (int)JoystickOffset.Button128) return 127;
 
             return mapId - ButtonStartOffset;
         }

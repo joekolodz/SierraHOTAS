@@ -27,6 +27,9 @@ namespace SierraHOTAS.Models
         public Guid DeviceId { get; set; }
 
         [JsonProperty]
+        public Guid ProductId { get; set; }
+
+        [JsonProperty]
         public string Name { get; set; }
 
         public Capabilities Capabilities { get; set; }
@@ -46,22 +49,21 @@ namespace SierraHOTAS.Models
 
         public HOTASDevice() { }
 
-        public HOTASDevice(IDirectInput directInput, Guid deviceId, string name, IHOTASQueue hotasQueue)
+        public HOTASDevice(IDirectInput directInput, Guid productGuid, Guid deviceId, string name, IHOTASQueue hotasQueue)
         {
-            if (directInput == null) throw new ArgumentNullException(nameof(directInput));
-            if (hotasQueue == null) throw new ArgumentNullException(nameof(hotasQueue));
+            _directInput = directInput ?? throw new ArgumentNullException(nameof(directInput));
+            _hotasQueue = hotasQueue ?? throw new ArgumentNullException(nameof(hotasQueue));
+
             if (deviceId == Guid.Empty) return; //can occur when loading an unsupported json format and the device id isn't deserialized correctly or a non-connected device that was previously saved
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
-            _directInput = directInput;
-            _hotasQueue = hotasQueue;
-
             DeviceId = deviceId;
+            ProductId = productGuid;
             Name = name;
             ModeProfiles.Add(1, ButtonMap);
         }
 
-        public HOTASDevice(IDirectInput directInput, JoystickFactory joystickFactory, Guid deviceId, string name, IHOTASQueue hotasQueue) : this(directInput, deviceId, name, hotasQueue)
+        public HOTASDevice(IDirectInput directInput, JoystickFactory joystickFactory, Guid productGuid, Guid deviceId, string name, IHOTASQueue hotasQueue) : this(directInput, productGuid, deviceId, name, hotasQueue)
         {
             if (directInput == null) throw new ArgumentNullException(nameof(directInput));
             if (joystickFactory == null) throw new ArgumentNullException(nameof(joystickFactory));
@@ -292,8 +294,10 @@ namespace SierraHOTAS.Models
         private void BuildButtonMapProfile(ObservableCollection<IHotasBaseMap> buttonMap)
         {
             if (Capabilities?.AxeCount > 0) SeedAxisMap(JoystickOffset.X, 6, buttonMap);
-            if (Capabilities?.ButtonCount > 0) SeedButtonMap(JoystickOffset.Buttons0, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button, buttonMap);
-            if (Capabilities?.PovCount > 0) SeedPointOfViewMap(JoystickOffset.PointOfViewControllers0, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV, buttonMap);
+            SeedAxisMap(JoystickOffset.Slider1, 1, buttonMap);
+            SeedAxisMap(JoystickOffset.Slider2, 1, buttonMap);
+            if (Capabilities?.ButtonCount > 0) SeedButtonMap(JoystickOffset.Button1, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button, buttonMap);
+            if (Capabilities?.PovCount > 0) SeedPointOfViewMap(JoystickOffset.POV1, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV, buttonMap);
         }
 
         private void LoadCapabilities()
@@ -322,7 +326,7 @@ namespace SierraHOTAS.Models
                 //so POV2 Offset is 0x00000024 and the value of the SOUTH EAST position = 0x34BC then assign translated offset of 0x34BC0024
                 for (uint position = 0; position < 8; position++)
                 {
-                    var translatedOffset = HOTAS.TranslatePointOfViewOffset(offset, 4500 * position);
+                    var translatedOffset = HOTASQueue.TranslatePointOfViewOffset(offset, 4500 * (int)position);
 
                     buttonMap.Add(new HOTASButtonMap()
                     {
@@ -342,9 +346,9 @@ namespace SierraHOTAS.Models
                 var offset = JoystickOffsetValues.GetOffset(count);
                 var axisType = HOTASButtonMap.ButtonType.AxisLinear;
 
-                if (offset == JoystickOffset.RotationX ||
-                    offset == JoystickOffset.RotationY ||
-                    offset == JoystickOffset.RotationZ)
+                if (offset == JoystickOffset.RX ||
+                    offset == JoystickOffset.RY ||
+                    offset == JoystickOffset.RZ)
                 {
                     axisType = HOTASButtonMap.ButtonType.AxisRadial;
                 }

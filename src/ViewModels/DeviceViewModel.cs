@@ -1,5 +1,4 @@
-﻿using SharpDX.DirectInput;
-using SierraHOTAS.Annotations;
+﻿using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
@@ -22,6 +21,12 @@ namespace SierraHOTAS.ViewModels
         public Guid InstanceId { get; set; }
 
         public string Name { get; set; }
+
+        public string PID => _hotasDevice.ProductId.ToString().Substring(0, 4).ToUpper();
+        public string VID => _hotasDevice.ProductId.ToString().Substring(4, 4).ToUpper();
+
+        public string NameWithIds => string.Format($"VID:{VID} PID:{PID} {Name}");
+
 
         public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
         public Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles => _hotasDevice.ModeProfiles;

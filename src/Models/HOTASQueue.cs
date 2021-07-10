@@ -87,30 +87,33 @@ namespace SierraHOTAS.Models
 
                 foreach (var state in data)
                 {
-                    var offset = state.Offset;
-                    if (offset >= JoystickOffset.Buttons0 && offset <= JoystickOffset.Buttons127)
+                    var offset = (JoystickOffset)state.Offset;
+                    if (offset >= JoystickOffset.Button1 && offset <= JoystickOffset.Button128)
                     {
                         Logging.Log.Debug($"Offset:{offset}({state.RawOffset}), Seq:{state.Sequence}, Value:{state.Value}");
                         HandleStandardButton((int)offset, state.Value);
                         continue;
                     }
 
-                    if (offset == JoystickOffset.PointOfViewControllers0 ||
-                        offset == JoystickOffset.PointOfViewControllers1 ||
-                        offset == JoystickOffset.PointOfViewControllers2 ||
-                        offset == JoystickOffset.PointOfViewControllers3)
+                    if (offset == JoystickOffset.POV1 ||
+                        offset == JoystickOffset.POV2||
+                        offset == JoystickOffset.POV3||
+                        offset == JoystickOffset.POV4)
                     {
                         Logging.Log.Debug($"Offset:{offset}({state.RawOffset}), POV:{TranslatePointOfViewOffset(offset, state.Value)}, Seq:{state.Sequence}, Value:{state.Value}");
-                        HandlePovButton(state.Offset, state.Value);
+                        HandlePovButton((JoystickOffset)state.Offset, state.Value);
                         continue;
                     }
 
                     if (offset == JoystickOffset.X ||
                         offset == JoystickOffset.Y ||
                         offset == JoystickOffset.Z ||
-                        offset == JoystickOffset.RotationX ||
-                        offset == JoystickOffset.RotationY ||
-                        offset == JoystickOffset.RotationZ)
+                        offset == JoystickOffset.RX ||
+                        offset == JoystickOffset.RY ||
+                        offset == JoystickOffset.RZ ||
+                        offset == JoystickOffset.Slider1 ||
+                        offset == JoystickOffset.Slider2
+                        )
                     {
 
                         if (!_jitterDetectionDictionary.ContainsKey(state.RawOffset))

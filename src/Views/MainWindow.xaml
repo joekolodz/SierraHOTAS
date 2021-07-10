@@ -75,7 +75,7 @@
                         </Button.Content>
                     </Button>
                 </StackPanel>
-                <ListBox x:Name="lstDevices" DisplayMemberPath="Name" ItemsSource="{Binding Devices}" ItemContainerStyle="{StaticResource DeviceListBoxStyle}" Height="150" FontSize="13" Background="Transparent" BorderBrush="SlateGray" SelectionChanged="LstDevices_OnSelectionChanged">
+                <ListBox x:Name="lstDevices" DisplayMemberPath="NameWithIds" ItemsSource="{Binding Devices}" ItemContainerStyle="{StaticResource DeviceListBoxStyle}" Height="150" FontSize="13" Background="Transparent" BorderBrush="SlateGray" SelectionChanged="LstDevices_OnSelectionChanged">
                 </ListBox>
             </StackPanel>
 
@@ -166,7 +166,7 @@
                 <TextBox x:Name="txtTestBox" Height="100" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Background="Transparent" BorderBrush="{StaticResource GroupBorderBrush}" FontSize="14"></TextBox>
 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Activity" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
+                    <TextBlock Text="Button Activity" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
                     <Button Style="{StaticResource ClearListButton}" Command="{Binding ClearActivityListCommand, IsAsync=True}" Margin="2,10,0,0" ToolTip="Clear Activity" ToolTipService.InitialShowDelay="800">
                         <Button.Content>
                             <Image Source="../Images/clear_list_22x22.png"/>
