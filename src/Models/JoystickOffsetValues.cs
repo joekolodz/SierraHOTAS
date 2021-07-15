@@ -1,8 +1,5 @@
-﻿using SharpDX.DirectInput;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SierraHOTAS.Models
@@ -52,7 +49,6 @@ namespace SierraHOTAS.Models
             OffsetLookup = Offsets.ToDictionary(name => index++);
         }
 
-        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
         private static void PopulateOffsetIndexLookup()
         {
             //build map of offset indexes and the offset's string name to get them by
@@ -102,7 +98,7 @@ namespace SierraHOTAS.Models
         {
             if (!OffsetLookup.ContainsKey(index))
             {
-                Debug.WriteLine($"JoystickOffset does not contain a value at index: {index}.");
+                Logging.Log.Debug($"JoystickOffset does not contain a value at index: {index}.");
                 return OffsetLookup[0];
             }
 

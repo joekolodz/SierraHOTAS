@@ -3,9 +3,7 @@ using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Windows.Forms;
 using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.Models
@@ -206,8 +204,6 @@ namespace SierraHOTAS.Models
             AddQueueHandlers();
 
             _hotasQueue.Listen(Joystick, ButtonMap);
-
-            Debug.WriteLine($"\n\nListening for joystick events ({Name})...!");
         }
 
         private void AddQueueHandlers()
@@ -275,9 +271,6 @@ namespace SierraHOTAS.Models
         private void LoadCapabilitiesMapping()
         {
             LoadCapabilities();
-
-            Debug.WriteLine("\nBuilding button maps...");
-
             BuildButtonMapProfile();
         }
 
@@ -304,14 +297,14 @@ namespace SierraHOTAS.Models
         {
             if (Joystick == null) return;
 
-            Debug.WriteLine($"\nLoading device capabilities for ...{Name}");
+            Logging.Log.Debug($"\nLoading device capabilities for ...{Name}");
 
             Capabilities = Joystick.Capabilities;
 
-            Debug.WriteLine("AxeCount {0}", Capabilities.AxeCount);
-            Debug.WriteLine("ButtonCount {0}", Capabilities.ButtonCount);
-            Debug.WriteLine("PovCount {0}", Capabilities.PovCount);
-            Debug.WriteLine("Flags {0}", Capabilities.Flags);
+            Logging.Log.Debug("AxeCount {0}", Capabilities.AxeCount);
+            Logging.Log.Debug("ButtonCount {0}", Capabilities.ButtonCount);
+            Logging.Log.Debug("PovCount {0}", Capabilities.PovCount);
+            Logging.Log.Debug("Flags {0}", Capabilities.Flags);
         }
 
         private void SeedPointOfViewMap(JoystickOffset startFrom, int length, HOTASButtonMap.ButtonType type, ObservableCollection<IHotasBaseMap> buttonMap)

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SierraHOTAS.Annotations;
+using SierraHOTAS.Models;
+using SierraHOTAS.ViewModels.Commands;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Windows.Forms;
 using System.Windows.Input;
-using SierraHOTAS.Annotations;
-using SierraHOTAS.ViewModels.Commands;
-using SharpDX.DirectInput;
-using SierraHOTAS.Models;
 
 namespace SierraHOTAS.ViewModels
 {
@@ -183,7 +179,6 @@ namespace SierraHOTAS.ViewModels
             _hotasButtonMap.Record();
 
             IsRecording = true;
-            Debug.WriteLine($"RECORDING {ButtonName}...");
             RecordingStarted?.Invoke(this, EventArgs.Empty);
         }
 
@@ -202,7 +197,6 @@ namespace SierraHOTAS.ViewModels
             ReBuildButtonActionViewModel();
 
             IsRecording = false;
-            Debug.WriteLine($"STOPPED - Recorded==>{_hotasButtonMap}");
             RecordingStopped?.Invoke(this, EventArgs.Empty);
         }
 
@@ -220,7 +214,6 @@ namespace SierraHOTAS.ViewModels
             ReBuildButtonActionViewModel();
 
             IsRecording = false;
-            Debug.WriteLine("CANCELLED");
             RecordingCancelled?.Invoke(this, EventArgs.Empty);
         }
 

@@ -2,7 +2,6 @@
 using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 namespace SierraHOTAS
@@ -22,7 +21,7 @@ namespace SierraHOTAS
         public void SaveQuickProfilesList(Dictionary<int, QuickProfileItem> list, string fileName)
         {
             fileName = BuildCurrentPath(fileName);
-            Debug.WriteLine($"Saving Quick List as :{fileName}");
+            Logging.Log.Debug($"Saving Quick List as :{fileName}");
             using (var file = File.CreateText(fileName))
             {
                 var serializer = new JsonSerializer { Formatting = Formatting.Indented };
@@ -96,7 +95,7 @@ namespace SierraHOTAS
 
         private static void BaseSave(string fileName, IHOTASCollection deviceList)
         {
-            Debug.WriteLine($"Saving profile as :{fileName}");
+            Logging.Log.Debug($"Saving profile as :{fileName}");
             using (var file = File.CreateText(fileName))
             {
                 var serializer = new JsonSerializer { Formatting = Formatting.Indented };

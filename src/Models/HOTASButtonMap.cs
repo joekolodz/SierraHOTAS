@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 
 namespace SierraHOTAS.Models
@@ -101,17 +100,11 @@ namespace SierraHOTAS.Models
         private void Keyboard_KeyDownEvent(object sender, Keyboard.KeystrokeEventArgs e)
         {
             RecordKeypress(e);
-
-            Debug.WriteLine($" - v KeyDown Event - Code:{e.Code}, Flags:{e.Flags}]");
-            Debug.WriteLine("");
         }
 
         private void Keyboard_KeyUpEvent(object sender, Keyboard.KeystrokeEventArgs e)
         {
             RecordKeypress(e);
-
-            Debug.WriteLine($" - ^ KeyUp Event - Code:{e.Code}, Flags:{e.Flags}]");
-            Debug.WriteLine("");
         }
 
         private void RecordKeypress(Keyboard.KeystrokeEventArgs e)
@@ -119,8 +112,6 @@ namespace SierraHOTAS.Models
             if (!_isRecording) return;
 
             ActionCatalogItem.Actions.Add(new ButtonAction() { Flags = e.Flags, ScanCode = e.Code, TimeInMilliseconds = 0 });
-
-            Debug.Write($"[Recording: {Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)e.Code, e.Flags)}");
         }
 
         public void ClearUnassignedActions()

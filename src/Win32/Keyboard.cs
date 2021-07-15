@@ -179,12 +179,6 @@ namespace SierraHOTAS
                         displayName = "BREAK";
                         break;
                 }
-
-                if (_displayKeyNames.ContainsKey(scanCode))
-                {
-                    Debug.WriteLine("Wait");
-                }
-
                 _displayKeyNames.Add(scanCode, displayName);
             }
         }
@@ -221,7 +215,6 @@ namespace SierraHOTAS
             {
                 BuildKeyboardInput((Win32Structures.ScanCodeShort)scanCode, flags),
             };
-            //Debug.WriteLine($"SendInput:{scanCode} - {flags}");
             SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
         }
 

@@ -1,10 +1,8 @@
 ﻿using System;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow;
 using SierraHOTAS.ViewModels.Commands;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
