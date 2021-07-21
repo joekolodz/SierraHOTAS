@@ -134,6 +134,7 @@
     </Compile>
     <Compile Include="EventAggregator.cs" />
     <Compile Include="Factories\DirectInputFactory.cs" />
+    <Compile Include="Factories\HOTASDeviceFactory.cs" />
     <Compile Include="Factories\HOTASQueueFactory.cs" />
     <Compile Include="Factories\JoystickFactory.cs" />
     <Compile Include="Factories\MediaPlayerFactory.cs" />
@@ -142,8 +143,10 @@
     <Compile Include="Models\ActionJobItem.cs" />
     <Compile Include="Models\DirectInputWrapper.cs" />
     <Compile Include="Models\IDirectInput.cs" />
+    <Compile Include="Models\IDispatcher.cs" />
     <Compile Include="Models\IFileSystem.cs" />
     <Compile Include="Models\IHOTASCollection.cs" />
+    <Compile Include="Models\IHOTASDevice.cs" />
     <Compile Include="Models\IHOTASQueue.cs" />
     <Compile Include="Models\IJoystick.cs" />
     <Compile Include="Models\IMediaPlayer.cs" />

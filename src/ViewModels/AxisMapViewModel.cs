@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.ViewModels
@@ -21,13 +22,12 @@ namespace SierraHOTAS.ViewModels
     {
         private readonly HOTASAxisMap _hotasAxisMap;
         private readonly IFileSystem _fileSystem;
-        private readonly MediaPlayerFactory _mediaPlayerFactory;
         private IMediaPlayer _mediaPlayer;
-
+        private readonly Dispatcher _appDispatcher;
         public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler<int> OnAxisValueChanged;
+        public event EventHandler<AxisChangedViewModelEventArgs> OnAxisValueChanged;
         public event EventHandler RecordingStopped;
-        public event EventHandler SegmentBoundaryChanged;
+        public event EventHandler<EventArgs> SegmentBoundaryChanged;
 
         public bool IsDisabledForced { get; set; }
         public bool IsRecording { get; set; }
@@ -123,7 +123,7 @@ namespace SierraHOTAS.ViewModels
             get => _hotasAxisMap.SoundVolume;
             set
             {
-                if (Math.Abs(_hotasAxisMap.SoundVolume - value) < 1) return;
+                if (Math.Abs(_hotasAxisMap.SoundVolume - value) < 0.05d) return;
                 _hotasAxisMap.SoundVolume = value;
                 OnPropertyChanged();
             }
@@ -157,9 +157,9 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        public AxisMapViewModel(MediaPlayerFactory mediaPlayerFactory, IFileSystem fileSystem, HOTASAxisMap map)
+        public AxisMapViewModel(Dispatcher dispatcher, MediaPlayerFactory mediaPlayerFactory, IFileSystem fileSystem, HOTASAxisMap map)
         {
-            _mediaPlayerFactory = mediaPlayerFactory;
+            _appDispatcher = dispatcher;
             _fileSystem = fileSystem;
             ButtonMap = new ObservableCollection<ButtonMapViewModel>();
             AddHandlersToButtonMapCollection();
@@ -317,9 +317,16 @@ namespace SierraHOTAS.ViewModels
             SegmentBoundaryChanged?.Invoke(this, new EventArgs());
         }
 
+        /// <summary>
+        /// The deviceVM was notified by the device that its axis has changed. This method is used to update the UI
+        /// </summary>
+        /// <param name="value"></param>
         public void SetAxis(int value)
         {
-            OnAxisValueChanged?.Invoke(this, value);
+            _appDispatcher?.Invoke(()=>
+            {
+                OnAxisValueChanged?.Invoke(this, new AxisChangedViewModelEventArgs(){Value = value});
+            });
         }
 
         private void OnAxisDirectionChanged(object sender, AxisDirectionChangedEventArgs e)
@@ -332,7 +339,7 @@ namespace SierraHOTAS.ViewModels
             if (string.IsNullOrWhiteSpace(SoundFileName)) return;
             if (sender is HOTASAxisMap axisMap)
             {
-                _mediaPlayer.Dispatcher?.Invoke(() =>
+                _appDispatcher?.Invoke(() =>
                 {
                     _mediaPlayer.Volume = axisMap.SoundVolume;
                     _mediaPlayer.Play();

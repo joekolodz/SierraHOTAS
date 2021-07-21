@@ -45,7 +45,7 @@
                             <Image Source="../Images/cancel_blue_32x32.png"/>
                         </Button>
                     </StackPanel>
-                    <Slider Name="volumeSlider" Margin="-5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Minimum="0" Maximum="1" Value="{Binding SoundVolume}" Width="168" TickPlacement="BottomRight" TickFrequency=".05" IsSnapToTickEnabled="True"/>
+                    <Slider Name="volumeSlider" Margin="-5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Minimum="0" Maximum="1.05" Value="{Binding SoundVolume}" Width="168" TickPlacement="BottomRight" TickFrequency=".05" IsSnapToTickEnabled="True"/>
                 </StackPanel>
             </GroupBox>
 

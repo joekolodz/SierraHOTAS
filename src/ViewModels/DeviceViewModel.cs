@@ -6,15 +6,17 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Threading;
 using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.ViewModels
 {
     public class DeviceViewModel : INotifyPropertyChanged
     {
-        private HOTASDevice _hotasDevice = null;
+        private IHOTASDevice _hotasDevice = null;
         private readonly IFileSystem _fileSystem;
         private readonly MediaPlayerFactory _mediaPlayerFactory;
+        private readonly Dispatcher _appDispatcher;
 
         public event EventHandler RecordingStopped;
 
@@ -37,16 +39,25 @@ namespace SierraHOTAS.ViewModels
         {
         }
 
-        public DeviceViewModel(IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, HOTASDevice device)
+        public DeviceViewModel(Dispatcher dispatcher, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASDevice device)
         {
+            _appDispatcher = dispatcher;
             _fileSystem = fileSystem;
             _mediaPlayerFactory = mediaPlayerFactory;
             _hotasDevice = device;
             InstanceId = _hotasDevice.DeviceId;
             Name = _hotasDevice.Name;
             _hotasDevice.LostConnectionToDevice += _hotasDevice_LostConnectionToDevice;
+            _hotasDevice.AxisChanged += _hotasDevice_AxisChanged;
+
             ButtonMap = new ObservableCollection<IBaseMapViewModel>();
             RebuildMap();
+        }
+
+        private void _hotasDevice_AxisChanged(object sender, AxisChangedEventArgs e)
+        {
+            var map = ButtonMap.FirstOrDefault(axis => axis.ButtonId == e.AxisId);
+            map?.SetAxis(e.Value);
         }
 
         private void _hotasDevice_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
@@ -54,7 +65,7 @@ namespace SierraHOTAS.ViewModels
             OnPropertyChanged(nameof(IsDeviceLoaded));
         }
 
-        public void ReplaceDevice(HOTASDevice newDevice)
+        public void ReplaceDevice(IHOTASDevice newDevice)
         {
             _hotasDevice.LostConnectionToDevice -= _hotasDevice_LostConnectionToDevice;
             _hotasDevice = newDevice;
@@ -87,14 +98,14 @@ namespace SierraHOTAS.ViewModels
                 {
                     case HOTASButtonMap.ButtonType.AxisLinear:
                         var linearMap = baseMap as HOTASAxisMap;
-                        var lmVm = new AxisMapViewModel(_mediaPlayerFactory, _fileSystem, linearMap);
+                        var lmVm = new AxisMapViewModel(_appDispatcher, _mediaPlayerFactory, _fileSystem, linearMap);
                         AddAxisMapHandlers(lmVm);
                         ButtonMap.Add(lmVm);
                         break;
 
                     case HOTASButtonMap.ButtonType.AxisRadial:
                         var radialMap = baseMap as HOTASAxisMap;
-                        var rmVm = new AxisMapViewModel(_mediaPlayerFactory, _fileSystem, radialMap);
+                        var rmVm = new AxisMapViewModel(_appDispatcher, _mediaPlayerFactory, _fileSystem, radialMap);
                         AddAxisMapHandlers(rmVm);
                         ButtonMap.Add(rmVm);
                         break;
@@ -165,12 +176,6 @@ namespace SierraHOTAS.ViewModels
         private void MapViewModel_RecordingCancelled(object sender, EventArgs e)
         {
             ForceDisableAllOtherMaps(sender, false);
-        }
-
-        public void SetAxis(int buttonId, int value)
-        {
-            var map = ButtonMap.FirstOrDefault(axis => axis.ButtonId == buttonId);
-            map?.SetAxis(value);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

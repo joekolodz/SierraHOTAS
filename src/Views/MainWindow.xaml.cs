@@ -98,23 +98,17 @@ namespace SierraHOTAS.Views
 
             foreach (var map in e.Device.ButtonMap)
             {
-                if (map.ButtonId == e.AxisId)
+                if (map.ButtonId != e.AxisId) continue;
+                Dispatcher?.Invoke(() =>
                 {
-                    Dispatcher?.Invoke(() =>
+                    if (map.Type == HOTASButtonMap.ButtonType.Button ||
+                        map.Type == HOTASButtonMap.ButtonType.POV)
                     {
-                        if (map.Type == HOTASButtonMap.ButtonType.Button ||
-                            map.Type == HOTASButtonMap.ButtonType.POV)
-                        {
-                            gridMap.SelectedItem = map;
-                            gridMap.ScrollIntoView(map);
-                        }
-                        else
-                        {
-                            Dispatcher?.Invoke(() => e.Device.SetAxis(map.ButtonId, e.Value));
-                        }
-                    });
-                    break;
-                }
+                        gridMap.SelectedItem = map;
+                        gridMap.ScrollIntoView(map);
+                    }
+                });
+                break;
             }
         }
 

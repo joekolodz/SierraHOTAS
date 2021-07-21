@@ -14,26 +14,26 @@ namespace SierraHOTAS.Models
         event EventHandler<AxisChangedEventArgs> AxisChanged;
         event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
         event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
-        ObservableCollection<HOTASDevice> Devices { get; set; }
+        ObservableCollection<IHOTASDevice> Devices { get; set; }
         int Mode { get; set; }
         Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
-        void AddDevice(HOTASDevice device);
+        void AddDevice(IHOTASDevice device);
         /// <summary>
         /// device is replaced based on the DeviceId
         /// </summary>
         /// <param name="newDevice"></param>
-        void ReplaceDevice(HOTASDevice newDevice);
+        void ReplaceDevice(IHOTASDevice newDevice);
         void Start();
         void Stop();
         void ClearButtonMap();
         void ListenToAllDevices();
-        void ListenToDevice(HOTASDevice device);
+        void ListenToDevice(IHOTASDevice device);
         int SetupNewModeProfile();
         void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode);
-        void ForceButtonPress(HOTASDevice device, JoystickOffset offset, bool isDown);
-        HOTASDevice GetDevice(Guid instanceId);
+        void ForceButtonPress(IHOTASDevice device, JoystickOffset offset, bool isDown);
+        IHOTASDevice GetDevice(Guid instanceId);
         void ClearUnassignedActions();
-        ObservableCollection<HOTASDevice> GetHOTASDevices();
+        ObservableCollection<IHOTASDevice> GetHOTASDevices();
 
         /// <summary>
         /// Activate the profile for the given Mode

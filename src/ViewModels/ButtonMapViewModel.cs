@@ -21,9 +21,9 @@ namespace SierraHOTAS.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public event EventHandler RecordingStarted;
-        public event EventHandler RecordingStopped;
-        public event EventHandler RecordingCancelled;
+        public event EventHandler<EventArgs> RecordingStarted;
+        public event EventHandler<EventArgs> RecordingStopped;
+        public event EventHandler<EventArgs> RecordingCancelled;
 
         public int ButtonId
         {
@@ -231,7 +231,7 @@ namespace SierraHOTAS.ViewModels
 
         public void SetAxis(int value)
         {
-            return;
+            return;//not implemented for normal button maps, only radial and linear
         }
     }
 }

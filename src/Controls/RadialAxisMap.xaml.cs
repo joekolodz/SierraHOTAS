@@ -35,9 +35,9 @@ namespace SierraHOTAS.Controls
             return _axisVm.SegmentFilter(segment);
         }
 
-        private void _axisVm_OnAxisValueChanged(object sender, int axisValue)
+        private void _axisVm_OnAxisValueChanged(object sender, AxisChangedViewModelEventArgs e)
         {
-            DrawCircle(axisValue);
+            DrawCircle(e.Value);
         }
 
         private void AxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)

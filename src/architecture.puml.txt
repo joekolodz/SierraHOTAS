@@ -1,0 +1,89 @@
+@startuml
+'!include https://raw.githubusercontent.com/bschwarz/puml-themes/master/themes/bluegray/puml-theme-bluegray.puml
+'!theme bluegray
+
+skinparam rectangle {
+	roundCorner 8
+}
+
+sprite $aComponent jar:archimate/application-component
+
+class HOTASCollectionVM #lightblue
+class "ButtonMap (IHOTASBaseMap)" as ButtonMap ##[dashed]blue
+class "Joystick\n(DirectInput)" as Joystick
+class "HOTASButtonMap\n(IHOTASBaseMap)" as HOTASButtonMap
+class "HOTASButtonMap\n(Reverse\nButtonMap)" as HOTASReverseButtonMap
+diamond HardwareJoystick
+
+class HOTASDevice {
+--**Events**--
++KeystrokeDownSent
++KeystrokeUpSent
++ButtonPressed
++AxisChanged
++ModeProfileSelected
++ShiftReleased
+}
+
+class  "HOTASAxisMap\n(IHOTASBaseMap)" as HOTASAxisMap {
+--**Events**--
++AxisDirectionChanged
++AxisSegmentChanged
+}
+
+class "Hardware Keyboard Events" as Keyboard {
+--**Events**--
++KeystrokeDown
++KeystrokeUp
+}
+
+class ButtonAction {
++scancode
++flags
++etc
+}
+
+
+class HOTASCollection {
+-- **Events** --
++KeystrokeDownSent
++KeystrokeUpSent
++ButtonPressed
++AxisChanged
++ModeProfileChanged
+}
+
+class HOTASQueue {
+--**Events**--
++KeystrokeDownSent
++KeystrokeUpSent
++ButtonPressed
++ButtonReleased
++AxisChanged
++ModeProfileSelected
++ShiftReleased
+--
+ReadLoop()
+}
+
+
+HOTASCollectionVM ..> HOTASCollection
+HOTASCollection --> HOTASDevice
+
+HOTASDevice --> ButtonMap
+HOTASDevice --> Joystick
+HOTASDevice --> HOTASQueue
+
+HOTASQueue <-- HardwareJoystick : joystick
+
+ButtonMap --> HOTASAxisMap : or
+ButtonMap --> HOTASButtonMap : or
+
+HOTASAxisMap --> HOTASReverseButtonMap
+HOTASAxisMap --> HOTASButtonMap
+HOTASAxisMap --> Segment
+
+HOTASButtonMap --> ActionCatalogItem
+ActionCatalogItem --> ButtonAction
+HOTASButtonMap --> Keyboard
+@enduml

@@ -1,9 +1,10 @@
-﻿using SierraHOTAS.Factories;
-
-namespace SierraHOTAS.Tests
+﻿namespace SierraHOTAS.Tests
 {
-    using Newtonsoft.Json;
     using NSubstitute;
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Windows.Threading;
+    using SierraHOTAS.Factories;
     using SierraHOTAS.Models;
     using SierraHOTAS.ViewModels;
     using Xunit;
@@ -25,8 +26,13 @@ namespace SierraHOTAS.Tests
             map.ReverseButtonMap.Add(new HOTASButtonMap() { MapId = 3, MapName = "test 3", Type = HOTASButtonMap.ButtonType.AxisLinear });
             map.ReverseButtonMap.Add(new HOTASButtonMap() { MapId = 4, MapName = "test 4", Type = HOTASButtonMap.ButtonType.AxisRadial });
 
-            var mapVm = new AxisMapViewModel(subMediaPlayerFactory, subFileSystem, map);
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
 
+            mapVm.ButtonName = "new name";
+            Assert.NotEmpty(map.MapName);
+
+            map.Type = HOTASButtonMap.ButtonType.Button;
+            Assert.Equal(mapVm.Type, map.Type);
 
             Assert.Equal(2, mapVm.ButtonMap.Count);
             Assert.Equal(2, mapVm.ReverseButtonMap.Count);
@@ -48,10 +54,10 @@ namespace SierraHOTAS.Tests
             var subMediaPlayer = Substitute.For<IMediaPlayer>();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
-            
+
 
             var map = new HOTASAxisMap();
-            _ = new AxisMapViewModel(subMediaPlayerFactory, subFileSystem, map);
+            _ = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
 
             Assert.True(subMediaPlayer.IsMuted);
             Assert.Equal(0, subMediaPlayer.Volume);
@@ -67,7 +73,7 @@ namespace SierraHOTAS.Tests
 
             var map = new HOTASAxisMap();
             map.SoundFileName = "file name";
-            var mapVm = new AxisMapViewModel(subMediaPlayerFactory, subFileSystem, map) { SoundFileName = "bob" };
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map) { SoundFileName = "bob" };
 
 
             Assert.False(subMediaPlayer.IsMuted);
@@ -84,7 +90,7 @@ namespace SierraHOTAS.Tests
             subFileSystem.GetSoundFileName().Returns(string.Empty);
 
             var map = new HOTASAxisMap();
-            var mapVm = new AxisMapViewModel(subMediaPlayerFactory, subFileSystem, map);
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
 
             mapVm.OpenFileCommand.Execute(default);
 
@@ -102,7 +108,7 @@ namespace SierraHOTAS.Tests
 
             var map = new HOTASAxisMap();
 
-            var mapVm = new AxisMapViewModel(subMediaPlayerFactory, subFileSystem, map);
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
 
             mapVm.OpenFileCommand.Execute(default);
 
@@ -119,11 +125,11 @@ namespace SierraHOTAS.Tests
             subFileSystem.GetSoundFileName().Returns("some file");
 
             var map = new HOTASAxisMap();
-            var mapVm = new AxisMapViewModel(subMediaPlayerFactory, subFileSystem, map);
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
 
             var segmentLess = new Segment(1, 4000);
             var segmentEqual = new Segment(1, ushort.MaxValue);
-            
+
             Assert.True(mapVm.SegmentFilter(segmentLess));
             Assert.False(mapVm.SegmentFilter(segmentEqual));
         }
@@ -138,11 +144,436 @@ namespace SierraHOTAS.Tests
             subFileSystem.GetSoundFileName().Returns("some file");
 
             var map = new HOTASAxisMap();
-            var mapVm = new AxisMapViewModel(subMediaPlayerFactory, subFileSystem, map);
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.IsDirectional = true;
+            mapVm.IsMultiAction = false;
 
             mapVm.SegmentCount = 1;
+            Assert.Empty(mapVm.ButtonMap);
 
+            mapVm.SegmentCount = 2;
+            Assert.Single(mapVm.ButtonMap);
+            Assert.Single(mapVm.ReverseButtonMap);
+            Assert.Equal("Axis Button 1", mapVm.ButtonMap[0].ButtonName);
+            Assert.Equal("Reverse Axis Button 1", mapVm.ReverseButtonMap[0].ButtonName);
+            Assert.Equal(2, mapVm.Segments.Count);
+            Assert.Equal(32767, mapVm.Segments[0].Value);
+            Assert.Equal(ushort.MaxValue, mapVm.Segments[1].Value);
+
+            mapVm.SegmentCount = 4;
+            var boundaryIncrement = ushort.MaxValue / mapVm.SegmentCount;
+            Assert.Equal(4, mapVm.Segments.Count);
+            Assert.Equal(boundaryIncrement, mapVm.Segments[0].Value);
+            Assert.Equal(boundaryIncrement * 2, mapVm.Segments[1].Value);
+            Assert.Equal(boundaryIncrement * 3, mapVm.Segments[2].Value);
+            Assert.Equal(ushort.MaxValue, mapVm.Segments[3].Value);
+            Assert.Equal(4, mapVm.Segments.Count);
+
+            mapVm.SegmentCount = 0;
+            Assert.Empty(mapVm.Segments);
+            Assert.Empty(mapVm.ButtonMap);
+            Assert.Empty(mapVm.ReverseButtonMap);
+            Assert.Empty(mapVm.Segments);
+
+            //todo test property changed?
+            //todo test boundary changed?
         }
 
+        [Fact]
+        public void reset_segment_count()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.SegmentCount = 4;
+            Assert.Equal(4, mapVm.Segments.Count);
+            mapVm.ResetSegments();
+            Assert.Empty(mapVm.Segments);
+        }
+
+        [Fact]
+        public void segment_directional_changed()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.IsDirectional = true;
+            mapVm.IsMultiAction = false;
+
+            mapVm.SegmentCount = 2;
+            Assert.Single(mapVm.ButtonMap);
+            Assert.Single(mapVm.ReverseButtonMap);
+            Assert.Equal(2, mapVm.Segments.Count);
+
+            mapVm.IsDirectional = false;
+            mapVm.SegmentCount = 2;
+            Assert.Single(mapVm.ButtonMap);
+            Assert.Empty(mapVm.ReverseButtonMap);
+            Assert.Equal("Axis Button 1", mapVm.ButtonMap[0].ButtonName);
+            Assert.Equal(2, mapVm.Segments.Count);
+
+            mapVm.SegmentCount = 4;
+            Assert.Equal(4, mapVm.Segments.Count);
+            Assert.Single(mapVm.ButtonMap);
+            Assert.Empty(mapVm.ReverseButtonMap);
+            Assert.Equal("Axis Button 1", mapVm.ButtonMap[0].ButtonName);
+            Assert.Equal(4, mapVm.Segments.Count);
+        }
+
+        [Fact]
+        public void segment_multiaction_changed()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.IsDirectional = false;
+            mapVm.IsMultiAction = true;
+
+            mapVm.SegmentCount = 4;
+            Assert.Equal(4, mapVm.ButtonMap.Count);
+            Assert.Empty(mapVm.ReverseButtonMap);
+            Assert.Equal("Axis Button 1", mapVm.ButtonMap[0].ButtonName);
+            Assert.Equal("Axis Button 2", mapVm.ButtonMap[1].ButtonName);
+            Assert.Equal("Axis Button 3", mapVm.ButtonMap[2].ButtonName);
+            Assert.Equal("Axis Button 4", mapVm.ButtonMap[3].ButtonName);
+        }
+
+        [Fact]
+        public void segment_directional_and_multiaction_changed()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.IsDirectional = true;
+            mapVm.IsMultiAction = true;
+
+            mapVm.SegmentCount = 4;
+            Assert.Equal(4, mapVm.Segments.Count);
+            Assert.Equal(4, mapVm.ButtonMap.Count);
+            Assert.Equal(4, mapVm.ReverseButtonMap.Count);
+            Assert.Equal("Axis Button 1", mapVm.ButtonMap[0].ButtonName);
+            Assert.Equal("Axis Button 2", mapVm.ButtonMap[1].ButtonName);
+            Assert.Equal("Axis Button 3", mapVm.ButtonMap[2].ButtonName);
+            Assert.Equal("Axis Button 4", mapVm.ButtonMap[3].ButtonName);
+            Assert.Equal("Reverse Axis Button 1", mapVm.ReverseButtonMap[0].ButtonName);
+            Assert.Equal("Reverse Axis Button 2", mapVm.ReverseButtonMap[1].ButtonName);
+            Assert.Equal("Reverse Axis Button 3", mapVm.ReverseButtonMap[2].ButtonName);
+            Assert.Equal("Reverse Axis Button 4", mapVm.ReverseButtonMap[3].ButtonName);
+
+            mapVm.IsMultiAction = false;
+            Assert.Equal(4, mapVm.Segments.Count);
+            Assert.Single(mapVm.ButtonMap);
+            Assert.Single(mapVm.ReverseButtonMap);
+            Assert.Equal("Axis Button 1", mapVm.ButtonMap[0].ButtonName);
+            Assert.Equal("Reverse Axis Button 1", mapVm.ReverseButtonMap[0].ButtonName);
+
+            mapVm.IsMultiAction = true;
+            Assert.Equal(4, mapVm.Segments.Count);
+            Assert.Equal(4, mapVm.ButtonMap.Count);
+            Assert.Equal(4, mapVm.ReverseButtonMap.Count);
+            Assert.Equal("Axis Button 1", mapVm.ButtonMap[0].ButtonName);
+            Assert.Equal("Axis Button 2", mapVm.ButtonMap[1].ButtonName);
+            Assert.Equal("Axis Button 3", mapVm.ButtonMap[2].ButtonName);
+            Assert.Equal("Axis Button 4", mapVm.ButtonMap[3].ButtonName);
+            Assert.Equal("Reverse Axis Button 1", mapVm.ReverseButtonMap[0].ButtonName);
+            Assert.Equal("Reverse Axis Button 2", mapVm.ReverseButtonMap[1].ButtonName);
+            Assert.Equal("Reverse Axis Button 3", mapVm.ReverseButtonMap[2].ButtonName);
+            Assert.Equal("Reverse Axis Button 4", mapVm.ReverseButtonMap[3].ButtonName);
+
+            mapVm.IsDirectional = false;
+            Assert.Equal(4, mapVm.Segments.Count);
+            Assert.Equal(4, mapVm.ButtonMap.Count);
+            Assert.Empty(mapVm.ReverseButtonMap);
+            Assert.Equal("Axis Button 1", mapVm.ButtonMap[0].ButtonName);
+            Assert.Equal("Axis Button 2", mapVm.ButtonMap[1].ButtonName);
+            Assert.Equal("Axis Button 3", mapVm.ButtonMap[2].ButtonName);
+            Assert.Equal("Axis Button 4", mapVm.ButtonMap[3].ButtonName);
+
+            mapVm.IsMultiAction = false;
+            Assert.Equal(4, mapVm.Segments.Count);
+            Assert.Single(mapVm.ButtonMap);
+            Assert.Empty(mapVm.ReverseButtonMap);
+            Assert.Equal("Axis Button 1", mapVm.ButtonMap[0].ButtonName);
+        }
+
+        [Fact]
+        public void sound_volume_tolerance()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            Assert.Equal(1.0d, mapVm.SoundVolume);
+            mapVm.SoundVolume = 0.15d;
+            Assert.Equal(0.15d, mapVm.SoundVolume);
+            mapVm.SoundVolume = 0.1501d;
+            Assert.Equal(0.15d, mapVm.SoundVolume);
+            mapVm.SoundVolume = 0.16d;
+            Assert.Equal(0.15d, mapVm.SoundVolume);
+            mapVm.SoundVolume = 0.199d;
+            Assert.Equal(0.15d, mapVm.SoundVolume);
+            mapVm.SoundVolume = 0.20d;
+            Assert.Equal(0.20d, mapVm.SoundVolume);
+        }
+
+        [Fact]
+        public void direction_changed()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            Assert.True(mapVm.Direction == AxisDirection.Forward);
+            map.SetAxis(800);
+            map.SetAxis(800);
+            map.SetAxis(800);
+            map.SetAxis(800);
+            map.SetAxis(800);
+            map.SetAxis(800);
+            map.SetAxis(800);
+            map.SetAxis(800);
+            map.SetAxis(800);
+            map.SetAxis(800);
+            Assert.True(mapVm.Direction == AxisDirection.Forward);
+            map.SetAxis(700);
+            Assert.True(mapVm.Direction == AxisDirection.Backward);
+        }
+
+        [Fact]
+        public void media_player_played()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+
+            mapVm.SoundFileName = "not empty";
+            mapVm.SegmentCount = 4;
+            var boundaryIncrement = ushort.MaxValue / mapVm.SegmentCount;
+
+            Assert.Equal(4, mapVm.Segments.Count);
+            Assert.True(mapVm.Direction == AxisDirection.Forward);
+
+            map.SetAxis(0);
+            map.SetAxis(boundaryIncrement);
+
+            subMediaPlayer.Received().Play();
+        }
+
+        [Fact]
+        public void set_axis()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            Assert.Raises<AxisChangedViewModelEventArgs>(a => mapVm.OnAxisValueChanged += a, a => mapVm.OnAxisValueChanged -= a, () => mapVm.SetAxis(0));
+        }
+
+        [Fact]
+        public void record_macro_start_command_forward()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.IsMultiAction = true;
+            mapVm.IsDirectional = true;
+            mapVm.SegmentCount = 4;
+            mapVm.ButtonMap[0].RecordMacroStartCommand.Execute(default);
+            Assert.True(mapVm.ButtonMap[0].IsRecording);
+            Assert.True(mapVm.ButtonMap[1].IsDisabledForced);
+            Assert.True(mapVm.ButtonMap[2].IsDisabledForced);
+
+            Assert.False(mapVm.ButtonMap[0].IsDisabledForced);
+            Assert.False(mapVm.ButtonMap[1].IsRecording);
+            Assert.False(mapVm.ButtonMap[2].IsRecording);
+
+            Assert.True(mapVm.ReverseButtonMap[0].IsDisabledForced);
+            Assert.True(mapVm.ReverseButtonMap[1].IsDisabledForced);
+            Assert.True(mapVm.ReverseButtonMap[2].IsDisabledForced);
+
+            Assert.False(mapVm.ReverseButtonMap[0].IsRecording);
+            Assert.False(mapVm.ReverseButtonMap[1].IsRecording);
+            Assert.False(mapVm.ReverseButtonMap[2].IsRecording);
+        }
+
+        [Fact]
+        public void record_macro_stop_command_forward()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.IsMultiAction = true;
+            mapVm.IsDirectional = true;
+            mapVm.SegmentCount = 4;
+            mapVm.ButtonMap[0].RecordMacroStartCommand.Execute(default);
+
+            mapVm.ButtonMap[0].AssignActions(new ActionCatalogItem() { ActionName = "fire", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() { ScanCode = 1 } } });
+            Assert.NotEmpty(mapVm.ButtonMap[0].Actions);
+
+            mapVm.ButtonMap[0].RecordMacroStopCommand.Execute(default);
+            Assert.NotEmpty(mapVm.ButtonMap[0].Actions);
+
+            Assert.False(mapVm.ButtonMap[0].IsDisabledForced);
+            Assert.False(mapVm.ButtonMap[1].IsDisabledForced);
+            Assert.False(mapVm.ButtonMap[2].IsDisabledForced);
+
+            Assert.False(mapVm.ButtonMap[0].IsRecording);
+            Assert.False(mapVm.ButtonMap[1].IsRecording);
+            Assert.False(mapVm.ButtonMap[2].IsRecording);
+
+            Assert.False(mapVm.ReverseButtonMap[0].IsDisabledForced);
+            Assert.False(mapVm.ReverseButtonMap[1].IsDisabledForced);
+            Assert.False(mapVm.ReverseButtonMap[2].IsDisabledForced);
+
+            Assert.False(mapVm.ReverseButtonMap[0].IsRecording);
+            Assert.False(mapVm.ReverseButtonMap[1].IsRecording);
+            Assert.False(mapVm.ReverseButtonMap[2].IsRecording);
+
+        }
+        [Fact]
+        public void record_macro_cancel_command_forward()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.IsMultiAction = true;
+            mapVm.IsDirectional = true;
+            mapVm.SegmentCount = 4;
+            mapVm.ButtonMap[0].RecordMacroStartCommand.Execute(default);
+
+            mapVm.ButtonMap[0].AssignActions(new ActionCatalogItem() { ActionName = "fire", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() { ScanCode = 1 } } });
+            Assert.NotEmpty(mapVm.ButtonMap[0].Actions);
+
+            mapVm.ButtonMap[0].RecordMacroCancelCommand.Execute(default);
+
+            Assert.Empty(mapVm.ButtonMap[0].Actions);
+
+            Assert.False(mapVm.ButtonMap[0].IsDisabledForced);
+            Assert.False(mapVm.ButtonMap[1].IsDisabledForced);
+            Assert.False(mapVm.ButtonMap[2].IsDisabledForced);
+
+            Assert.False(mapVm.ButtonMap[0].IsRecording);
+            Assert.False(mapVm.ButtonMap[1].IsRecording);
+            Assert.False(mapVm.ButtonMap[2].IsRecording);
+
+            Assert.False(mapVm.ReverseButtonMap[0].IsDisabledForced);
+            Assert.False(mapVm.ReverseButtonMap[1].IsDisabledForced);
+            Assert.False(mapVm.ReverseButtonMap[2].IsDisabledForced);
+
+            Assert.False(mapVm.ReverseButtonMap[0].IsRecording);
+            Assert.False(mapVm.ReverseButtonMap[1].IsRecording);
+            Assert.False(mapVm.ReverseButtonMap[2].IsRecording);
+        }
+
+        [Fact]
+        public void open_file_command()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.OpenFileCommand.Execute(default);
+            Assert.NotEmpty(mapVm.SoundFileName);
+            Assert.False(subMediaPlayer.IsMuted);
+        }
+
+        [Fact]
+        public void close_file_command()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+
+            mapVm.OpenFileCommand.Execute(default);
+            mapVm.RemoveSoundCommand.Execute(default);
+            Assert.Empty(mapVm.SoundFileName);
+            Assert.True(subMediaPlayer.IsMuted);
+        }
+
+        [Fact]
+        public void segments_property_changed()
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayer = Substitute.For<IMediaPlayer>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
+            subFileSystem.GetSoundFileName().Returns("some file");
+
+            var map = new HOTASAxisMap();
+            var mapVm = new AxisMapViewModel(Dispatcher.CurrentDispatcher, subMediaPlayerFactory, subFileSystem, map);
+            mapVm.SegmentCount = 4;
+            Assert.Raises<EventArgs>(a => mapVm.SegmentBoundaryChanged += a, a => mapVm.SegmentBoundaryChanged -= a, () => mapVm.Segments[0].Value = 1);
+
+        }
     }
 }

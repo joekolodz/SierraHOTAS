@@ -51,7 +51,7 @@ namespace SierraHOTAS.Tests
             subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
 
             subHotasCollection = Substitute.For<IHOTASCollection>();
-            subHotasCollection.Devices = new ObservableCollection<HOTASDevice>() { new HOTASDevice() };
+            subHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() };
 
             subModeProfileButtons = new Dictionary<int, ModeActivationItem>();
             subHotasCollection.ModeProfileActivationButtons.Returns(subModeProfileButtons);
@@ -284,7 +284,9 @@ namespace SierraHOTAS.Tests
             var subHotasQueue = Substitute.For<IHOTASQueue>();
             subHotasQueueFactory.CreateHOTASQueue().Returns(subHotasQueue);
 
-            var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory);
+            var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
+
+            var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory, subHotasDeviceFactory);
             loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, productGuid, deviceGuid, "loaded device", subHotasQueue));
 
             var testMap = loadedHotasCollection.Devices[0].ButtonMap.First(m => m.MapId == 48) as HOTASButtonMap;
@@ -361,7 +363,9 @@ namespace SierraHOTAS.Tests
             var subHotasQueue = Substitute.For<IHOTASQueue>();
             subHotasQueueFactory.CreateHOTASQueue().Returns(subHotasQueue);
 
-            var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory);
+            var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
+
+            var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory, subHotasDeviceFactory);
             loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, productGuid, existingDeviceId, "loaded device", subHotasQueue));
 
             var testMap = loadedHotasCollection.Devices[0].ButtonMap.First(m => m.MapId == 48) as HOTASButtonMap;
@@ -506,7 +510,7 @@ namespace SierraHOTAS.Tests
 
             var rescannedDevice = new HOTASDevice { DeviceId = deviceGuid, Name = "rescanned device 1" };
             AddHotasButtonMap(rescannedDevice.ButtonMap, existingButtonMapId, HOTASButtonMap.ButtonType.Button, "rescanned button");
-            subDeviceList.GetHOTASDevices().Returns(new ObservableCollection<HOTASDevice>() { rescannedDevice });
+            subDeviceList.GetHOTASDevices().Returns(new ObservableCollection<IHOTASDevice>() { rescannedDevice });
 
             hotasVm.Initialize();
             hotasVm.RefreshDeviceListCommand.Execute(default);
@@ -533,7 +537,7 @@ namespace SierraHOTAS.Tests
 
             var newDevice = new HOTASDevice { DeviceId = ignoreGuid, Name = "new device 1" };
             AddHotasButtonMap(newDevice.ButtonMap, existingButtonMapId, HOTASButtonMap.ButtonType.Button, "ignore button");
-            subDeviceList.GetHOTASDevices().Returns(new ObservableCollection<HOTASDevice>() { newDevice });
+            subDeviceList.GetHOTASDevices().Returns(new ObservableCollection<IHOTASDevice>() { newDevice });
 
             hotasVm.Initialize();
             hotasVm.RefreshDeviceListCommand.Execute(default);
@@ -815,6 +819,7 @@ namespace SierraHOTAS.Tests
             axisMap.SetAxis(800);
             axisMap.SetAxis(800);
             axisMap.SetAxis(800);
+            Assert.True(axisMap.Direction == AxisDirection.Forward);
             axisMap.SetAxis(700);
 
             Assert.True(axisMap.Direction == AxisDirection.Backward);

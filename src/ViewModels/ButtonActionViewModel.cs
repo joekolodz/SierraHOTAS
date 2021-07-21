@@ -1,11 +1,8 @@
-﻿using SierraHOTAS.Annotations;
-using SierraHOTAS.Models;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using SierraHOTAS.Models;
 
 namespace SierraHOTAS.ViewModels
 {
-    public class ButtonActionViewModel : INotifyPropertyChanged
+    public class ButtonActionViewModel
     {
         public string ScanCode => GetScanCodeDisplay();
 
@@ -32,14 +29,6 @@ namespace SierraHOTAS.ViewModels
         private string GetScanCodeDisplay()
         {
             return Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)_action.ScanCode, _action.Flags);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

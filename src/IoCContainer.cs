@@ -21,6 +21,7 @@ namespace SierraHOTAS
             builder.RegisterType<DirectInputFactory>();
             builder.RegisterType<JoystickFactory>();
             builder.RegisterType<MediaPlayerFactory>();
+            builder.RegisterType<HOTASDeviceFactory>();
 
             builder.RegisterType<ActionCatalogViewModel>();
             builder.RegisterType<HOTASCollection>().As<IHOTASCollection>();

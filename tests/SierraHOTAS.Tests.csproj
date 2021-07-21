@@ -93,6 +93,9 @@
   <ItemGroup>
     <Compile Include="ActionCatalogViewModelTests.cs" />
     <Compile Include="AxisMapViewModelTests.cs" />
+    <Compile Include="ButtonActionViewModelTests.cs" />
+    <Compile Include="ButtonMapViewModelTests.cs" />
+    <Compile Include="DeviceViewModelTests.cs" />
     <Compile Include="HOTASButtonMapTests.cs" />
     <Compile Include="HOTASCollectionViewModelTests.cs" />
     <Compile Include="HOTASDeviceTests.cs" />

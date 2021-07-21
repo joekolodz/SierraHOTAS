@@ -8,13 +8,13 @@ namespace SierraHOTAS
 {
     public static class DataProvider
     {
-        public static ObservableCollection<HOTASDevice> GetDeviceList()
+        public static ObservableCollection<IHOTASDevice> GetDeviceList()
         {
             Guid.TryParse("b0350ff4-8f66-4cdd-ab69-bca2ee7f3907", out var productGuid);
             Guid.TryParse("f0c05a72-8f66-4cdd-ab69-bca2ee7f3907", out var throttleGuid);
             Guid.TryParse("d67c807f-98fd-4443-94ab-b2724e44f805", out var stickGuid);
             var di = new DirectInputWrapper(new DirectInput());
-            var devices = new ObservableCollection<HOTASDevice>()
+            var devices = new ObservableCollection<IHOTASDevice>()
             {
                 new HOTASDevice(di, new JoystickFactory(), productGuid, throttleGuid, "Joe's Test Throttle", new HOTASQueue()),
                 new HOTASDevice(di, new JoystickFactory(), productGuid,stickGuid, "Joe's Test Stick", new HOTASQueue())

@@ -9,7 +9,7 @@ using SierraHOTAS.Factories;
 namespace SierraHOTAS.Models
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class HOTASDevice
+    public class HOTASDevice : IHOTASDevice
     {
         private readonly JoystickFactory _joystickFactory;
 
@@ -184,12 +184,12 @@ namespace SierraHOTAS.Models
             return newMap;
         }
 
-        public void ReAcquireJoystick()
-        {
-            Joystick?.Unacquire();
-            Joystick?.Dispose();
-            AcquireJoystick();
-        }
+        //public void ReAcquireJoystick()
+        //{
+        //    Joystick?.Unacquire();
+        //    Joystick?.Dispose();
+        //    AcquireJoystick();
+        //}
 
         private void AcquireJoystick()
         {

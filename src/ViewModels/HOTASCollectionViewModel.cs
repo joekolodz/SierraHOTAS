@@ -353,14 +353,14 @@ namespace SierraHOTAS.ViewModels
         {
             foreach (var ld in loadedDevices.Devices)
             {
-                HOTASDevice d;
+                IHOTASDevice d;
                 var deviceVm = Devices.FirstOrDefault(vm => vm.InstanceId == ld.DeviceId && ld.DeviceId != Guid.Empty);
 
                 if (deviceVm == null)
                 {
                     Logging.Log.Warn($"Loaded mappings for {ld.Name}, but could not find the device attached!");
                     Logging.Log.Warn($"Mappings will be displayed, but they will not function");
-                    deviceVm = new DeviceViewModel(_fileSystem, _mediaPlayerFactory, ld);
+                    deviceVm = new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, ld);
                     Devices.Add(deviceVm);
                     _deviceList.AddDevice(ld);
                     d = ld;
@@ -378,7 +378,7 @@ namespace SierraHOTAS.ViewModels
         private void BuildDevicesViewModel()
         {
             RemoveAllHandlers();
-            Devices = _deviceList.Devices.Select(device => new DeviceViewModel(_fileSystem, _mediaPlayerFactory, device)).ToObservableCollection();
+            Devices = _deviceList.Devices.Select(device => new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, device)).ToObservableCollection();
         }
 
         private void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -416,7 +416,7 @@ namespace SierraHOTAS.ViewModels
             //remaining devices here do not have a mapping loaded, so assign a default mapping
             foreach (var n in newDevices)
             {
-                var vm = new DeviceViewModel(_fileSystem, _mediaPlayerFactory, n);
+                var vm = new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, n);
                 Devices.Add(vm);
                 _deviceList.Devices.Add(n);
                 _deviceList.ListenToDevice(n);
