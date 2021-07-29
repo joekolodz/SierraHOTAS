@@ -325,7 +325,7 @@ namespace SierraHOTAS.Tests
 
             deviceVm.PropertyChanged += DeviceVm_PropertyChanged;
 
-            var isTimeOut = 10;
+            var isTimeOut = 100;
             while (isTimeOut > 0 && propertyThatChanged.ToLower() != "isdeviceloaded")
             {
                 isTimeOut--;
