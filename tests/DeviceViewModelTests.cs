@@ -143,7 +143,7 @@ namespace SierraHOTAS.Tests
             return deviceVm;
         }
 
-        private static DeviceViewModel CreateDeviceViewMode_LostConnection(out IHOTASQueue hotasQueue, out IHOTASDevice hotasDevice)
+        private static DeviceViewModel CreateDeviceViewMode_LostConnection_old(out IHOTASQueue hotasQueue, out IHOTASDevice hotasDevice)
         {
             var subFileSystem = Substitute.For<IFileSystem>();
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
@@ -168,20 +168,34 @@ namespace SierraHOTAS.Tests
             return deviceVm;
         }
 
-        private static DeviceViewModel CreateDeviceViewMode_AxesChanged(out IHOTASQueue hotasQueue, out IHOTASDevice hotasDevice)
+        private static DeviceViewModel CreateDeviceViewMode_LostConnection(out IHOTASQueue hotasQueue, out IHOTASDevice subHotasDevice)
         {
             var subFileSystem = Substitute.For<IFileSystem>();
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
-            var subDirectInputFactory = Substitute.For<DirectInputFactory>();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
             var subJoystickFactory = Substitute.For<JoystickFactory>();
 
             var hotasQueueFactory = new HOTASQueueFactory();
-            var hotasDeviceFactory = new HOTASDeviceFactory();
+            var testJoystick = new TestJoystick_LostConnection();
+            subJoystickFactory.CreateJoystick(Arg.Any<IDirectInput>(), Arg.Any<Guid>()).Returns(j => testJoystick);
 
-            var deviceId = Guid.NewGuid();
-            var productId = Guid.NewGuid();
-            var directInput = subDirectInputFactory.CreateDirectInput();
+            hotasQueue = hotasQueueFactory.CreateHOTASQueue();
+            subHotasDevice = Substitute.For<IHOTASDevice>();
+            subHotasDevice.ButtonMap.Returns(new ObservableCollection<IHotasBaseMap>());
+            subHotasDevice.Capabilities.Returns(new Capabilities() { AxeCount = 0, ButtonCount = 2 });
+
+            var deviceVm = new DeviceViewModel(subDispatcherFactory.CreateDispatcher(), subFileSystem, subMediaPlayerFactory, subHotasDevice);
+            return deviceVm;
+        }
+
+        private static DeviceViewModel CreateDeviceViewMode_AxesChanged(out IHOTASQueue hotasQueue, out IHOTASDevice subHotasDevice)
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subDispatcherFactory = Substitute.For<DispatcherFactory>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subJoystickFactory = Substitute.For<JoystickFactory>();
+
+            var hotasQueueFactory = new HOTASQueueFactory();
             var testJoystick = new TestJoystick_AxisChanged();
             subJoystickFactory.CreateJoystick(Arg.Any<IDirectInput>(), Arg.Any<Guid>()).Returns(j => testJoystick);
 
@@ -189,9 +203,17 @@ namespace SierraHOTAS.Tests
             subDispatcherFactory.CreateDispatcher().Returns(d => testDispatcher);
 
             hotasQueue = hotasQueueFactory.CreateHOTASQueue();
-            hotasDevice = hotasDeviceFactory.CreateHOTASDevice(directInput, subJoystickFactory, productId, deviceId, "test", hotasQueue);
+            subHotasDevice = Substitute.For<IHOTASDevice>();
 
-            var deviceVm = new DeviceViewModel(subDispatcherFactory.CreateDispatcher(), subFileSystem, subMediaPlayerFactory, hotasDevice);
+            var axisMap = Substitute.For<HOTASAxisMap>();
+            axisMap.MapId = (int)JoystickOffset.Slider1;
+            axisMap.Type = HOTASButtonMap.ButtonType.AxisLinear;
+            subHotasDevice.ButtonMap.Returns(new ObservableCollection<IHotasBaseMap>()
+            {
+                axisMap
+            });
+
+            var deviceVm = new DeviceViewModel(subDispatcherFactory.CreateDispatcher(), subFileSystem, subMediaPlayerFactory, subHotasDevice);
             return deviceVm;
         }
 
@@ -317,62 +339,29 @@ namespace SierraHOTAS.Tests
         public void lost_connection_to_device()
         {
             var deviceVm = CreateDeviceViewMode_LostConnection(out _, out var hotasDevice);
-            propertyThatChanged = string.Empty;
-
-            hotasDevice.ListenAsync();
-
-            Assert.True(deviceVm.IsDeviceLoaded);
-
-            deviceVm.PropertyChanged += DeviceVm_PropertyChanged;
-
-            var isTimeOut = 100;
-            while (isTimeOut > 0 && propertyThatChanged.ToLower() != "isdeviceloaded")
-            {
-                isTimeOut--;
-                System.Threading.Thread.Sleep(1);
-            }
-            Assert.False(deviceVm.IsDeviceLoaded);
-            Assert.Equal("isdeviceloaded", propertyThatChanged.ToLower());
-            deviceVm.PropertyChanged -= DeviceVm_PropertyChanged;
+            Assert.PropertyChanged(deviceVm, "IsDeviceLoaded", () => hotasDevice.LostConnectionToDevice += Raise.EventWith(new object(), new LostConnectionToDeviceEventArgs(hotasDevice as HOTASDevice)));
         }
 
-        private string propertyThatChanged = "";
-        private void DeviceVm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        [Fact]
+        public void is_device_loaded()
         {
-            propertyThatChanged = e.PropertyName;
+            var deviceVm = CreateDeviceViewMode(out var hotasDevice);
+            Assert.True(deviceVm.IsDeviceLoaded);
+            hotasDevice.Capabilities = null;
+            Assert.False(deviceVm.IsDeviceLoaded);
         }
 
         [Fact]
         public void axis_changed()
         {
             var deviceVm = CreateDeviceViewMode_AxesChanged(out _, out var hotasDevice);
-
             var axis = deviceVm.ButtonMap.First(m => m.ButtonId == (int)JoystickOffset.Slider1) as AxisMapViewModel;
             Assert.NotNull(axis);
-            axis.OnAxisValueChanged += Axis_OnAxisValueChanged;
-
-            changedAxisValue = 0;
-            isAxisChanged = false;
-            hotasDevice.ListenAsync();
-            var isTimeOut = 10;
-            while (isTimeOut > 0 && isAxisChanged == false)
-            {
-                isTimeOut--;
-                System.Threading.Thread.Sleep(1000);
-            }
-
-            axis.OnAxisValueChanged -= Axis_OnAxisValueChanged;
-            Assert.True(isAxisChanged);
-            Assert.Equal(1000, changedAxisValue);
-        }
-
-
-        private int changedAxisValue;
-        private bool isAxisChanged = false;
-        private void Axis_OnAxisValueChanged(object sender, AxisChangedViewModelEventArgs e)
-        {
-            changedAxisValue = e.Value;
-            isAxisChanged = true;
+            Assert.Raises<AxisChangedViewModelEventArgs>(a => axis.OnAxisValueChanged += a,
+                a => axis.OnAxisValueChanged -= a,
+                () => hotasDevice.AxisChanged += Raise.EventWith(hotasDevice,
+                    new AxisChangedEventArgs()
+                        {AxisId = axis.ButtonId, Value = 1000, Device = hotasDevice as HOTASDevice}));
         }
 
         [Fact]
