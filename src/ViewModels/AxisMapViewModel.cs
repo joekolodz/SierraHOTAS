@@ -23,7 +23,7 @@ namespace SierraHOTAS.ViewModels
         private readonly HOTASAxisMap _hotasAxisMap;
         private readonly IFileSystem _fileSystem;
         private IMediaPlayer _mediaPlayer;
-        private readonly Dispatcher _appDispatcher;
+        private readonly IDispatcher _appDispatcher;
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<AxisChangedViewModelEventArgs> OnAxisValueChanged;
         public event EventHandler RecordingStopped;
@@ -157,7 +157,7 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        public AxisMapViewModel(Dispatcher dispatcher, MediaPlayerFactory mediaPlayerFactory, IFileSystem fileSystem, HOTASAxisMap map)
+        public AxisMapViewModel(IDispatcher dispatcher, MediaPlayerFactory mediaPlayerFactory, IFileSystem fileSystem, HOTASAxisMap map)
         {
             _appDispatcher = dispatcher;
             _fileSystem = fileSystem;
@@ -323,9 +323,9 @@ namespace SierraHOTAS.ViewModels
         /// <param name="value"></param>
         public void SetAxis(int value)
         {
-            _appDispatcher?.Invoke(()=>
+            _appDispatcher?.Invoke(() =>
             {
-                OnAxisValueChanged?.Invoke(this, new AxisChangedViewModelEventArgs(){Value = value});
+                OnAxisValueChanged?.Invoke(this, new AxisChangedViewModelEventArgs() { Value = value });
             });
         }
 

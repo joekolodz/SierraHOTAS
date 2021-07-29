@@ -2,6 +2,8 @@
 using SierraHOTAS.Views;
 using SierraHOTAS.ViewModels;
 using System.Windows;
+using SierraHOTAS.Factories;
+using SierraHOTAS.Models;
 
 namespace SierraHOTAS
 {
@@ -19,7 +21,7 @@ namespace SierraHOTAS
             var container = IoCContainer.GetContainer();
 
             Current.MainWindow = new MainWindow(container.Resolve<HOTASCollectionViewModel>());
-            _ = new ViewService(Current.MainWindow, container.Resolve<IEventAggregator>());
+            _ = new ViewService(Current.MainWindow, container.Resolve<IEventAggregator>(), container.Resolve<DispatcherFactory>());
 
             Current.MainWindow.Show();
         }

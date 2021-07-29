@@ -43,7 +43,7 @@ namespace SierraHOTAS.Tests
         public void is_jitter_smooth()
         {
             var test = new JitterDetection();
-            test.Threshold = 5;
+            JitterDetection.Threshold = 5;
 
             for (var i = 0; i < 20; i++)
             {

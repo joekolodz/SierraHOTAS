@@ -14,14 +14,15 @@ namespace SierraHOTAS
         {
             var builder = new ContainerBuilder();
 
-            builder.Register(c => Dispatcher.CurrentDispatcher).As<Dispatcher>();
-
             builder.RegisterType<EventAggregator>().As<IEventAggregator>().SingleInstance();
 
+            builder.RegisterType<DispatcherFactory>();
             builder.RegisterType<DirectInputFactory>();
             builder.RegisterType<JoystickFactory>();
             builder.RegisterType<MediaPlayerFactory>();
             builder.RegisterType<HOTASDeviceFactory>();
+            builder.RegisterType<DeviceViewModelFactory>();
+            builder.RegisterType<QuickProfilePanelViewModel>();
 
             builder.RegisterType<ActionCatalogViewModel>();
             builder.RegisterType<HOTASCollection>().As<IHOTASCollection>();

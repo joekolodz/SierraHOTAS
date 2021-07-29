@@ -1,4 +1,8 @@
-﻿using System;
+﻿using SierraHOTAS.Annotations;
+using SierraHOTAS.Models;
+using SierraHOTAS.ModeProfileWindow.ViewModels;
+using SierraHOTAS.ViewModels.Commands;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,11 +10,6 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
-using SierraHOTAS.Annotations;
-using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
-using SierraHOTAS.ViewModels.Commands;
 
 namespace SierraHOTAS.ViewModels
 {
@@ -95,8 +94,7 @@ namespace SierraHOTAS.ViewModels
         }
         public Dictionary<int, string> TemplateModes { get; set; }
 
-        public Dispatcher AppDispatcher { get; set; }
-
+        private readonly IDispatcher _appDispatcher;
         private int _activationButtonId;
         private Guid _deviceId;
         private ModeActivationItem _activationItem;
@@ -124,15 +122,17 @@ namespace SierraHOTAS.ViewModels
         {
         }
 
-        public ModeProfileConfigWindowViewModel(IEventAggregator eventAggregator, int mode, Dictionary<int, ModeActivationItem> activationButtonList)
+        public ModeProfileConfigWindowViewModel(IEventAggregator eventAggregator, IDispatcher appDispatcher, int mode, Dictionary<int, ModeActivationItem> activationButtonList)
         {
-            _eventAggregator = eventAggregator;
+            _appDispatcher = appDispatcher ?? throw new ArgumentNullException(nameof(appDispatcher));
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+            _activationButtonList = activationButtonList ?? throw new ArgumentNullException(nameof(activationButtonList));
             _mode = mode;
-            _activationButtonList = activationButtonList;
 
             BuildTemplateList();
             IsTemplateModeVisible = TemplateModes.Count > 1;
 
+            //if there is no activation item, then we are creating a new one for the mode supplied. there will be nothing to assign here.
             if (!_activationButtonList.TryGetValue(_mode, out _activationItem)) return;
 
             ProfileName = _activationItem.ProfileName;
@@ -145,15 +145,15 @@ namespace SierraHOTAS.ViewModels
             _isActivationButtonValid = true;
             IsTemplateModeVisible = false;
 
-            AppDispatcher?.Invoke(() =>
+            _appDispatcher.Invoke(() =>
             {
-                OnPropertyChanged(nameof(TemplateModes));
-                _saveModeProfileCommand.ForceCanExecuteChanged();
+                ((CommandHandler)SaveModeProfileCommand).ForceCanExecuteChanged();
             });
         }
 
         public void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
         {
+            //get the button map from the device on which the button was pressed
             if (!(e.Device.ButtonMap.FirstOrDefault(m => m.MapId == e.ButtonId) is HOTASButtonMap map))
             {
                 Logging.Log.Info($"Couldn't find a button map. No mode activation has been set.");
@@ -169,7 +169,7 @@ namespace SierraHOTAS.ViewModels
             _activationButtonId = map.MapId;
             ValidateActivationButton();
 
-            AppDispatcher?.Invoke(() =>
+            _appDispatcher?.Invoke(() =>
             {
                 OnPropertyChanged(nameof(TemplateModes));
                 _saveModeProfileCommand.ForceCanExecuteChanged();

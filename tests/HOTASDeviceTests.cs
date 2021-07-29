@@ -10,6 +10,29 @@ namespace SierraHOTAS.Tests
     public class HOTASDeviceTests
     {
         [Fact]
+        public void basic_constructor_null()
+        {
+            Assert.Throws<ArgumentNullException>(() => new HOTASDevice(null, Guid.NewGuid(), Guid.NewGuid(), "not empty", Substitute.For<IHOTASQueue>()));
+            Assert.Throws<ArgumentNullException>(() => new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), string.Empty, Substitute.For<IHOTASQueue>()));
+            Assert.Throws<ArgumentNullException>(() => new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "not empty", null));
+            //empty device id is valid
+            var device = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.Empty, "not empty", Substitute.For<IHOTASQueue>());
+            Assert.Null(device.Name);
+        }
+
+        [Fact]
+        public void basic_constructor()
+        {
+            var productId = Guid.NewGuid();
+            var deviceId = Guid.NewGuid();
+            var device = new HOTASDevice(Substitute.For<IDirectInput>(), productId, deviceId, "test 1", Substitute.For<IHOTASQueue>());
+            Assert.Equal("test 1", device.Name);
+            Assert.Equal(productId, device.ProductId);
+            Assert.Equal(deviceId, device.DeviceId);
+            Assert.NotNull(device.ModeProfiles);
+        }
+
+        [Fact]
         public void initialize_device_default_constructor()
         {
             var test = new HOTASDevice();

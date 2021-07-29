@@ -63,13 +63,11 @@ namespace SierraHOTAS.Models
 
         public HOTASDevice(IDirectInput directInput, JoystickFactory joystickFactory, Guid productGuid, Guid deviceId, string name, IHOTASQueue hotasQueue) : this(directInput, productGuid, deviceId, name, hotasQueue)
         {
-            if (directInput == null) throw new ArgumentNullException(nameof(directInput));
-            if (joystickFactory == null) throw new ArgumentNullException(nameof(joystickFactory));
-            if (hotasQueue == null) throw new ArgumentNullException(nameof(hotasQueue));
+            _directInput = directInput ?? throw new ArgumentNullException(nameof(directInput));
+            _joystickFactory = joystickFactory ?? throw new ArgumentNullException(nameof(joystickFactory));
+            _hotasQueue = hotasQueue ?? throw new ArgumentNullException(nameof(hotasQueue));
             if (deviceId == Guid.Empty) throw new ArgumentNullException(nameof(deviceId));
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-
-            _joystickFactory = joystickFactory;
 
             if (App.IsDebug) return;
             AcquireJoystick();
@@ -101,7 +99,6 @@ namespace SierraHOTAS.Models
         public void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode)
         {
             var sourceMap = ModeProfiles[templateModeSource];
-
 
             var isDestinationMapFound = ModeProfiles.TryGetValue(destinationMode, out var destinationMap);
             if (!isDestinationMapFound)

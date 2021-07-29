@@ -1,4 +1,5 @@
 ﻿using SierraHOTAS.Annotations;
+using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels.Commands;
@@ -8,8 +9,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using System.Windows.Threading;
-using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.ViewModels
 {
@@ -17,20 +16,26 @@ namespace SierraHOTAS.ViewModels
     {
         private const string ASSIGN_FIRST_PROFILE_MESSAGE = "Before creating a new profile, you must first assign an activation button to the existing profile.";
 
-        private readonly Dispatcher _appDispatcher;
+        private readonly IDispatcher _appDispatcher;
         private readonly IFileSystem _fileSystem;
         private readonly MediaPlayerFactory _mediaPlayerFactory;
+        private readonly DeviceViewModelFactory _deviceViewModelFactory;
         private bool? _snapToButton = true;
         private readonly IEventAggregator _eventAggregator;
+
         public event EventHandler<EventArgs> ShowMainWindow;
         public event EventHandler<EventArgs> Close;
+        public event EventHandler<ButtonPressedViewModelEventArgs> ButtonPressed;
+        public event EventHandler<AxisChangedViewModelEventArgs> AxisChanged;
+        public event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
+        public event EventHandler<EventArgs> FileOpened;
 
         public QuickProfilePanelViewModel QuickProfilePanelViewModel { get; set; }
+
         public ActionCatalogViewModel ActionCatalog { get; set; }
         public ObservableCollection<ActivityItem> Activity { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeProfileActivationButtons.Values.ToObservableCollection();
-
 
         public bool? SnapToButton
         {
@@ -55,11 +60,6 @@ namespace SierraHOTAS.ViewModels
                 OnPropertyChanged();
             }
         }
-
-        public event EventHandler<ButtonPressedViewModelEventArgs> ButtonPressed;
-        public event EventHandler<AxisChangedViewModelEventArgs> AxisChanged;
-        public event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
-        public event EventHandler<EventArgs> FileOpened;
 
         private readonly IHOTASCollection _deviceList;
 
@@ -108,15 +108,16 @@ namespace SierraHOTAS.ViewModels
         private ICommand _showInputGraphWindowCommand;
 
         public ICommand ShowInputGraphWindowCommand => _showInputGraphWindowCommand ?? (_showInputGraphWindowCommand = new CommandHandler(ShowInputGraphWindow));
-        public HOTASCollectionViewModel(Dispatcher dispatcher, IEventAggregator eventAggregator, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel)
+        public HOTASCollectionViewModel(DispatcherFactory dispatcherFactory, IEventAggregator eventAggregator, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel, QuickProfilePanelViewModel quickProfilePanelViewModel, DeviceViewModelFactory deviceViewModelFactory)
         {
             _fileSystem = fileSystem;
             _mediaPlayerFactory = mediaPlayerFactory;
-            _appDispatcher = dispatcher;
+            _deviceViewModelFactory = deviceViewModelFactory;
+            _appDispatcher = dispatcherFactory.CreateDispatcher();
             _deviceList = hotasCollection;
             ActionCatalog = actionCatalogViewModel;
             Activity = new ObservableCollection<ActivityItem>();
-            QuickProfilePanelViewModel = new QuickProfilePanelViewModel(eventAggregator, fileSystem);
+            QuickProfilePanelViewModel = quickProfilePanelViewModel;
 
             QuickProfilePanelViewModel.ShowMainWindow += QuickProfilePanelViewModel_ShowMainWindow;
             QuickProfilePanelViewModel.Close += QuickProfilePanelViewModel_Close;
@@ -243,7 +244,18 @@ namespace SierraHOTAS.ViewModels
 
             if (hotas.Devices.Any(d => d.DeviceId == Guid.Empty))
             {
-                ProfileSetFileName = $"Could not load a device.";
+                ProfileSetFileName = "Invalid device found in profile. Check logs";
+
+                var messageHeader = "Device with an invalid device id found:";
+                Logging.Log.Warn(messageHeader);
+                Console.WriteLine(messageHeader);
+
+                foreach (var d in hotas.Devices)
+                {
+                    var messageDetail = $"Invalid device:{d.Name}";
+                    Logging.Log.Warn(messageDetail);
+                    Console.WriteLine(messageDetail);
+                }
                 return;
             }
 
@@ -270,7 +282,7 @@ namespace SierraHOTAS.ViewModels
             _deviceList.Start();
 
             BuildDevicesViewModel();
-            AddHandlers();
+            AddHandlers();//TODO remove? addhandlers gets called in LoadHotas
 
             AutoLoadProfile();
         }
@@ -278,7 +290,7 @@ namespace SierraHOTAS.ViewModels
         private void DeviceList_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
         {
             //DeviceViewModel is already handling this behavior. Don't really need to do anything here.
-            
+
             //var deviceVm = Devices.FirstOrDefault(h => h.InstanceId == e.HOTASDevice.DeviceId);
             //if (deviceVm == null) return;
             //_appDispatcher.Invoke(() => Devices.Remove(deviceVm));
@@ -360,7 +372,8 @@ namespace SierraHOTAS.ViewModels
                 {
                     Logging.Log.Warn($"Loaded mappings for {ld.Name}, but could not find the device attached!");
                     Logging.Log.Warn($"Mappings will be displayed, but they will not function");
-                    deviceVm = new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, ld);
+                    //deviceVm = new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, ld);
+                    deviceVm = _deviceViewModelFactory.CreateDeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, ld);
                     Devices.Add(deviceVm);
                     _deviceList.AddDevice(ld);
                     d = ld;
@@ -378,7 +391,7 @@ namespace SierraHOTAS.ViewModels
         private void BuildDevicesViewModel()
         {
             RemoveAllHandlers();
-            Devices = _deviceList.Devices.Select(device => new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, device)).ToObservableCollection();
+            Devices = _deviceList.Devices.Select(device => _deviceViewModelFactory.CreateDeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, device)).ToObservableCollection();
         }
 
         private void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -416,7 +429,8 @@ namespace SierraHOTAS.ViewModels
             //remaining devices here do not have a mapping loaded, so assign a default mapping
             foreach (var n in newDevices)
             {
-                var vm = new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, n);
+                //var vm = new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, n);
+                var vm = _deviceViewModelFactory.CreateDeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, n);
                 Devices.Add(vm);
                 _deviceList.Devices.Add(n);
                 _deviceList.ListenToDevice(n);
@@ -559,6 +573,10 @@ namespace SierraHOTAS.ViewModels
             ActionCatalog.Add(item);
         }
 
+        /// <summary>
+        /// bound to lstDevices in MainWindow.xaml
+        /// </summary>
+        /// <param name="device"></param>
         public void lstDevices_OnSelectionChanged(DeviceViewModel device)
         {
             SelectedDevice = device;

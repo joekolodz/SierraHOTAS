@@ -21,11 +21,11 @@ namespace SierraHOTAS.Tests
 {
     public class HOTASCollectionViewModelTests
     {
-        private ITestOutputHelper _output;
-        public HOTASCollectionViewModelTests(ITestOutputHelper output)
-        {
-            _output = output;
-        }
+        //private ITestOutputHelper _output;
+        //public HOTASCollectionViewModelTests(ITestOutputHelper output)
+        //{
+        //    _output = output;
+        //}
 
         //public static class DispatcherUtil
         //{
@@ -45,10 +45,167 @@ namespace SierraHOTAS.Tests
         //    }
         //}
 
+        private class TestDispatcher_AxisChanged : IDispatcher
+        {
+            public void Invoke(Action callback)
+            {
+                callback.Invoke();
+            }
+        }
+
         private static HOTASCollectionViewModel CreateHotasCollectionViewModel(out IEventAggregator subEventAggregator, out IHOTASCollection subHotasCollection, out IFileSystem subFileSystem, out MediaPlayerFactory subMediaPlayerFactory, out Dictionary<int, ModeActivationItem> subModeProfileButtons, out ActionCatalogViewModel subActionVm)
+        {
+            return CreateHotasCollectionViewModel(out subEventAggregator, out subHotasCollection, out subFileSystem, out subMediaPlayerFactory, out subModeProfileButtons, out subActionVm, out _);
+        }
+
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel_WithEventAggregator(out IEventAggregator eventAggregator, out IHOTASCollection subHotasCollection)
+        {
+            var subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subDispatcherFactory = Substitute.For<DispatcherFactory>();
+            var deviceViewModelFactory = new DeviceViewModelFactory();
+
+            subHotasCollection = Substitute.For<IHOTASCollection>();
+            subHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() };
+
+            var subModeProfileButtons = new Dictionary<int, ModeActivationItem>();
+            subHotasCollection.ModeProfileActivationButtons.Returns(subModeProfileButtons);
+
+            var subActionVm = Substitute.For<ActionCatalogViewModel>();
+
+            eventAggregator = new EventAggregator();
+
+            IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
+            subDispatcherFactory.CreateDispatcher().Returns(d => testDispatcher);
+
+            var subQuickProfilePanelVm = new QuickProfilePanelViewModel(eventAggregator, subFileSystem);
+
+
+            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, eventAggregator, subFileSystem, subMediaPlayerFactory, subHotasCollection, subActionVm, subQuickProfilePanelVm, deviceViewModelFactory);
+            return hotasVm;
+        }
+
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel_WithEventAggregator(out IEventAggregator eventAggregator, out IHOTASCollection hotasCollection, out IFileSystem subFileSystem)
+        {
+            subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subDispatcherFactory = Substitute.For<DispatcherFactory>();
+            var deviceViewModelFactory = new DeviceViewModelFactory();
+
+            hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
+            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+
+            var subActionVm = Substitute.For<ActionCatalogViewModel>();
+
+            eventAggregator = new EventAggregator();
+
+            IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
+            subDispatcherFactory.CreateDispatcher().Returns(d => testDispatcher);
+
+            var subQuickProfilePanelVm = new QuickProfilePanelViewModel(eventAggregator, subFileSystem);
+
+            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, eventAggregator, subFileSystem, subMediaPlayerFactory, hotasCollection, subActionVm, subQuickProfilePanelVm, deviceViewModelFactory);
+            return hotasVm;
+        }
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel(out IHOTASCollection hotasCollection, out IFileSystem subFileSystem, out QuickProfilePanelViewModel subQuickProfilePanelVm)
+        {
+            subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subDispatcherFactory = Substitute.For<DispatcherFactory>();
+            var deviceViewModelFactory = new DeviceViewModelFactory();
+
+            hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
+            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+
+            var subActionVm = Substitute.For<ActionCatalogViewModel>();
+
+            var subEventAggregator = new EventAggregator();
+
+            IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
+            subDispatcherFactory.CreateDispatcher().Returns(d => testDispatcher);
+
+            subQuickProfilePanelVm = Substitute.For<QuickProfilePanelViewModel>();
+
+            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, subEventAggregator, subFileSystem, subMediaPlayerFactory, hotasCollection, subActionVm, subQuickProfilePanelVm, deviceViewModelFactory);
+            return hotasVm;
+        }
+
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel(out IFileSystem subFileSystem, out QuickProfilePanelViewModel subQuickProfilePanelVm)
+        {
+            subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subDispatcherFactory = Substitute.For<DispatcherFactory>();
+            var deviceViewModelFactory = new DeviceViewModelFactory();
+
+            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
+            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+
+            var subActionVm = Substitute.For<ActionCatalogViewModel>();
+
+            var subEventAggregator = new EventAggregator();
+
+            IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
+            subDispatcherFactory.CreateDispatcher().Returns(d => testDispatcher);
+
+            subQuickProfilePanelVm = Substitute.For<QuickProfilePanelViewModel>();
+
+            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, subEventAggregator, subFileSystem, subMediaPlayerFactory, hotasCollection, subActionVm, subQuickProfilePanelVm, deviceViewModelFactory);
+            return hotasVm;
+        }
+
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel_WithDispatcher(out IFileSystem subFileSystem, out QuickProfilePanelViewModel subQuickProfilePanelVm)
+        {
+            subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subDispatcherFactory = new DispatcherFactory();
+            var deviceViewModelFactory = new DeviceViewModelFactory();
+
+            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
+            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+
+            var subActionVm = Substitute.For<ActionCatalogViewModel>();
+
+            var subEventAggregator = new EventAggregator();
+
+            subQuickProfilePanelVm = Substitute.For<QuickProfilePanelViewModel>();
+
+            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, subEventAggregator, subFileSystem, subMediaPlayerFactory, hotasCollection, subActionVm, subQuickProfilePanelVm, deviceViewModelFactory);
+            return hotasVm;
+        }
+
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel_DeviceVmFactorySub(out IFileSystem subFileSystem, out QuickProfilePanelViewModel subQuickProfilePanelVm, out DeviceViewModelFactory subDeviceViewModelFactory)
+        {
+            subFileSystem = Substitute.For<IFileSystem>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subDispatcherFactory = Substitute.For<DispatcherFactory>();
+            subDeviceViewModelFactory = Substitute.For<DeviceViewModelFactory>();
+
+            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
+            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+
+            var subActionVm = Substitute.For<ActionCatalogViewModel>();
+
+            var subEventAggregator = new EventAggregator();
+            IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
+            subDispatcherFactory.CreateDispatcher().Returns(d => testDispatcher);
+
+            subQuickProfilePanelVm = Substitute.For<QuickProfilePanelViewModel>();
+
+            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, subEventAggregator, subFileSystem, subMediaPlayerFactory, hotasCollection, subActionVm, subQuickProfilePanelVm, subDeviceViewModelFactory);
+            return hotasVm;
+        }
+
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel(out IEventAggregator subEventAggregator, out IHOTASCollection subHotasCollection, out IFileSystem subFileSystem, out MediaPlayerFactory subMediaPlayerFactory, out Dictionary<int, ModeActivationItem> subModeProfileButtons, out ActionCatalogViewModel subActionVm, out QuickProfilePanelViewModel subQuickProfilePanelVm)
         {
             subFileSystem = Substitute.For<IFileSystem>();
             subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subDispatcherFactory = Substitute.For<DispatcherFactory>();
+            var deviceViewModelFactory = new DeviceViewModelFactory();
 
             subHotasCollection = Substitute.For<IHOTASCollection>();
             subHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() };
@@ -59,9 +216,35 @@ namespace SierraHOTAS.Tests
             subActionVm = Substitute.For<ActionCatalogViewModel>();
 
             subEventAggregator = Substitute.For<IEventAggregator>();
+            IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
+            subDispatcherFactory.CreateDispatcher().Returns(d => testDispatcher);
 
-            var hotasVm = new HOTASCollectionViewModel(Dispatcher.CurrentDispatcher, subEventAggregator, subFileSystem, subMediaPlayerFactory, subHotasCollection, subActionVm);
+            subQuickProfilePanelVm = new QuickProfilePanelViewModel(subEventAggregator, subFileSystem);
+
+            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, subEventAggregator, subFileSystem, subMediaPlayerFactory, subHotasCollection, subActionVm, subQuickProfilePanelVm, deviceViewModelFactory);
             return hotasVm;
+        }
+
+        private HOTASCollection CreateHotasCollection()
+        {
+            var subDirectInputFactory = Substitute.For<DirectInputFactory>();
+            var subJoystickFactory = Substitute.For<JoystickFactory>();
+            var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
+            var hotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory, subHotasDeviceFactory);
+            return hotasCollection;
+        }
+
+        private HOTASCollection CreateHotasCollectionSubstitute()
+        {
+            var subDirectInputFactory = Substitute.For<DirectInputFactory>();
+            var subJoystickFactory = Substitute.For<JoystickFactory>();
+            var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
+            var subHotasCollection = Substitute.For<HOTASCollection>(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory, subHotasDeviceFactory);
+            return subHotasCollection;
         }
 
         private static HOTASButtonMap AddHotasButtonMap(ObservableCollection<IHotasBaseMap> buttons, int existingButtonMapId = 1, HOTASButtonMap.ButtonType type = HOTASButtonMap.ButtonType.Button, string mapName = "Button1", string actionName = "Fire", int scanCode = 43)
@@ -160,7 +343,6 @@ namespace SierraHOTAS.Tests
                 receivedEvents.Add(e.Mode);
             };
 
-            //Test
             hotasVm.Initialize();
             hotasVm.SetMode(expectedMode);
 
@@ -179,7 +361,7 @@ namespace SierraHOTAS.Tests
             var device = subDeviceList.Devices[0];
             subDeviceList.GetDevice(default).ReturnsForAnyArgs(device);
 
-            var buttonMap = new HOTASButtonMap() {Type = HOTASButtonMap.ButtonType.Button, MapName = firstExpectedButtonName};
+            var buttonMap = new HOTASButtonMap() { Type = HOTASButtonMap.ButtonType.Button, MapName = firstExpectedButtonName };
             subDeviceList.Devices[0].ButtonMap.Add(buttonMap);
 
             hotasVm.Initialize();
@@ -208,7 +390,6 @@ namespace SierraHOTAS.Tests
                 receivedEvents.Add(e.Mode);
             };
 
-            //Test
             hotasVm.Initialize();
             hotasVm.SetMode(expectedMode);
 
@@ -221,10 +402,23 @@ namespace SierraHOTAS.Tests
             var hotasVm = CreateHotasCollectionViewModel(out _, out _, out _, out _, out _, out _);
             var model = new DeviceViewModel() { Name = "Test" };
 
-            //Test
             hotasVm.Initialize();
-            hotasVm.SelectionChangedCommand.Execute(model);
+            Assert.NotSame(model, hotasVm.SelectedDevice);
 
+            hotasVm.SelectionChangedCommand.Execute(model);
+            Assert.Same(model, hotasVm.SelectedDevice);
+        }
+
+        [Fact]
+        public void selection_changed_public()
+        {
+            var hotasVm = CreateHotasCollectionViewModel(out _, out _, out _, out _, out _, out _);
+            var model = new DeviceViewModel() { Name = "Test" };
+
+            hotasVm.Initialize();
+            Assert.NotSame(model, hotasVm.SelectedDevice);
+
+            hotasVm.lstDevices_OnSelectionChanged(model);
             Assert.Same(model, hotasVm.SelectedDevice);
         }
 
@@ -275,7 +469,7 @@ namespace SierraHOTAS.Tests
             subDirectInputFactory.CreateDirectInput().Returns(subDirectInput);
 
             var subJoystick = Substitute.For<IJoystick>();
-            subJoystick.Capabilities.Returns(new Capabilities(){AxeCount = 2, ButtonCount = 1});
+            subJoystick.Capabilities.Returns(new Capabilities() { AxeCount = 2, ButtonCount = 1 });
             var subJoystickFactory = Substitute.For<JoystickFactory>();
             subJoystickFactory.CreateJoystick(default, default).ReturnsForAnyArgs(subJoystick);
 
@@ -615,7 +809,8 @@ namespace SierraHOTAS.Tests
 
 
             hotasVm.Initialize();
-            hotasVm.EditModeProfileCommand.Execute(item);
+
+            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => hotasVm.EditModeProfileCommand.Execute(item));
 
             subDeviceList.DidNotReceive().SetupNewModeProfile();
             subDeviceList.DidNotReceive().SetMode(0);
@@ -636,7 +831,8 @@ namespace SierraHOTAS.Tests
             subDeviceList.RemoveModeProfile(item).Returns(true);
 
             hotasVm.Initialize();
-            hotasVm.DeleteModeProfileCommand.Execute(item);
+
+            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => hotasVm.DeleteModeProfileCommand.Execute(item));
 
             subDeviceList.Received().RemoveModeProfile(item);
         }
@@ -646,15 +842,31 @@ namespace SierraHOTAS.Tests
         {
             var deviceGuid = Guid.NewGuid();
             const int modeActivationButtonId = 1000;
-
-            var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out _, out _, out _, out _);
+            var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out var eventAggregator, out IHOTASCollection subDeviceList);
             var item = new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid, Mode = 1 };
             subDeviceList.ModeProfileActivationButtons.Add(1, item);
             subDeviceList.RemoveModeProfile(item).Returns(true);
 
             hotasVm.Initialize();
-            hotasVm.DeleteModeProfileCommand.Execute(item);
+            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => eventAggregator.Publish(new DeleteModeProfileEvent(item)));
             subDeviceList.Received().RemoveModeProfile(item);
+        }
+
+        [Fact]
+        public void mode_activation_idems_property_getter()
+        {
+            var deviceGuid = Guid.NewGuid();
+            const int modeActivationButtonId = 1000;
+            var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out var eventAggregator, out IHOTASCollection subDeviceList);
+            var item = new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid, Mode = 1 };
+            subDeviceList.ModeProfileActivationButtons.Add(1, item);
+            subDeviceList.RemoveModeProfile(item).Returns(true);
+
+            hotasVm.Initialize();
+            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => eventAggregator.Publish(new DeleteModeProfileEvent(item)));
+            subDeviceList.Received().RemoveModeProfile(item);
+
+            Assert.Equal(hotasVm.ModeActivationItems[0].DeviceId, subDeviceList.ModeProfileActivationButtons[item.Mode].DeviceId);
         }
 
         [Fact]
@@ -663,8 +875,8 @@ namespace SierraHOTAS.Tests
             var hotasVm = CreateHotasCollectionViewModel(out var subEventAggregator, out var subDeviceList, out _, out _, out _, out _);
 
             var activationButtons = new Dictionary<int, ModeActivationItem>();
-            activationButtons.Add(1, new ModeActivationItem(){Mode = 1, ButtonName = "bob", ProfileName = "bobs profile"});
-            activationButtons.Add(2, new ModeActivationItem(){Mode = 2, ButtonName = "sponge", ProfileName = "sponges profile", TemplateMode = 1});
+            activationButtons.Add(1, new ModeActivationItem() { Mode = 1, ButtonName = "bob", ProfileName = "bobs profile" });
+            activationButtons.Add(2, new ModeActivationItem() { Mode = 2, ButtonName = "sponge", ProfileName = "sponges profile", TemplateMode = 1 });
             subDeviceList.ModeProfileActivationButtons.Returns(activationButtons);
 
             subDeviceList.SetupNewModeProfile().Returns(2);
@@ -712,23 +924,6 @@ namespace SierraHOTAS.Tests
             var d = new DeviceViewModel();
             hotasVm.lstDevices_OnSelectionChanged(d);
             Assert.Same(d, hotasVm.SelectedDevice);
-        }
-
-        [Fact]
-        public void show_main_window()
-        {
-            var hotasVm = CreateHotasCollectionViewModel(out _, out _, out _, out _, out _, out _);
-
-            var receivedEvents = new List<EventArgs>();
-
-            hotasVm.ShowMainWindow += delegate (object sender, EventArgs e)
-            {
-                receivedEvents.Add(e);
-            };
-
-            hotasVm.QuickProfilePanelViewModel.ShowWindow();
-
-            Assert.Single(receivedEvents);
         }
 
         [Fact]
@@ -829,6 +1024,289 @@ namespace SierraHOTAS.Tests
 
             Assert.Single(hotasVm.Activity);
             Assert.Equal("button 2", hotasVm.Activity.FirstOrDefault()?.ActionName);
+        }
+
+        [Fact]
+        public void snap_to_button()
+        {
+            var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out _, out _, out _, out _, out _);
+            hotasVm.Initialize();
+            Assert.True(hotasVm.SnapToButton); //default is true
+            Assert.PropertyChanged(hotasVm, "SnapToButton", () => hotasVm.SnapToButton = false);
+        }
+
+        [Fact]
+        public void quick_profile_show_main_window()
+        {
+            var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out _, out _, out _, out _, out var subQuickProfilePanelVm);
+            hotasVm.Initialize();
+            Assert.Raises<EventArgs>(a => hotasVm.ShowMainWindow += a, a => hotasVm.ShowMainWindow -= a, () => subQuickProfilePanelVm.ShowWindow());
+        }
+
+        [Fact]
+        public void quick_profile_closed()
+        {
+            var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out _, out _, out _, out _, out var subQuickProfilePanelVm);
+            hotasVm.Initialize();
+            Assert.Raises<EventArgs>(a => hotasVm.Close += a, a => hotasVm.Close -= a, () => subQuickProfilePanelVm.CloseApp());
+        }
+
+        [Fact]
+        public void quick_load_profile_via_publish()
+        {
+            var productId = Guid.NewGuid();
+            var deviceId = Guid.NewGuid();
+
+            var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out var eventAggregator, out _, out IFileSystem subFileSystem);
+            hotasVm.Initialize();
+            var profileEvent = new QuickProfileSelectedEvent()
+            {
+                Id = 43,
+                Name = "not null",
+                Path = "not null"
+            };
+
+            var newHotasCollection = Substitute.For<IHOTASCollection>();
+            newHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = productId, DeviceId = deviceId } };
+
+            var subModeProfileButtons = new Dictionary<int, ModeActivationItem>();
+            newHotasCollection.ModeProfileActivationButtons.Returns(subModeProfileButtons);
+
+            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(newHotasCollection);
+
+            Assert.Empty(hotasVm.Devices);
+            eventAggregator.Publish(profileEvent);
+            Assert.Equal(deviceId, hotasVm.Devices[0].InstanceId);
+        }
+
+        [Fact]
+        public void load_profile_no_file()
+        {
+            var productId = Guid.NewGuid();
+            var deviceId = Guid.NewGuid();
+
+            var hotasVm = CreateHotasCollectionViewModel_WithDispatcher(out var subFileSystem, out var subQuickProfilePanelVm);
+
+            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(i => null);
+            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
+
+            Assert.Null(hotasVm.Devices);
+            hotasVm.Initialize();
+            Assert.Empty(hotasVm.Devices);
+
+            Assert.Equal("Could not load test path!!! Is this a SierraHOTAS compatible JSON file?", hotasVm.ProfileSetFileName);
+        }
+
+        [Fact]
+        public void load_profile_bad_guid()
+        {
+            var productId = Guid.NewGuid();
+            var deviceId = Guid.Empty;
+
+            var hotasVm = CreateHotasCollectionViewModel(out _, out IFileSystem subFileSystem, out QuickProfilePanelViewModel subQuickProfilePanelVm);
+
+            var newHotasCollection = CreateHotasCollection();
+            newHotasCollection.Devices.Add(new HOTASDevice() { DeviceId = deviceId });
+
+
+            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(newHotasCollection);
+            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
+
+            Assert.Null(hotasVm.Devices);
+            hotasVm.Initialize();
+            Assert.Empty(hotasVm.Devices);
+            Assert.Equal("Invalid device found in profile. Check logs", hotasVm.ProfileSetFileName);
+        }
+
+        [Fact]
+        public void load_profile()
+        {
+            var deviceId = Guid.NewGuid();
+
+            var hotasVm = CreateHotasCollectionViewModel(out var subFileSystem, out var subQuickProfilePanelVm);
+
+            var subHotasCollection = CreateHotasCollectionSubstitute();
+            subHotasCollection.Devices.Add(new HOTASDevice()
+            {
+                DeviceId = deviceId,
+                ButtonMap =
+            {
+                new HOTASButtonMap(){MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 1"}},
+                new HOTASButtonMap(){MapId = 44, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 2"}},
+            }
+            });
+
+            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
+            subFileSystem.LastSavedFileName.Returns("last saved file");
+            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
+
+            Assert.Single(hotasVm.ActionCatalog.Catalog);
+            Assert.Null(hotasVm.Devices);
+
+            Assert.PropertyChanged(hotasVm, "ModeActivationItems", hotasVm.Initialize);
+
+            Assert.NotEmpty(hotasVm.Devices);
+            Assert.Equal("last saved file", hotasVm.ProfileSetFileName);
+            Assert.Single(hotasVm.ActionCatalog.Catalog);
+
+
+            subHotasCollection.Received().Stop();
+        }
+
+        [Fact]
+        public void load_profile_add_button_list_to_catalog()
+        {
+            var productId = Guid.NewGuid();
+            var deviceId = Guid.NewGuid();
+
+            var hotasVm = CreateHotasCollectionViewModel(out var subFileSystem, out var subQuickProfilePanelVm);
+            Assert.Single(hotasVm.ActionCatalog.Catalog);
+            Assert.Equal("<No Action>", hotasVm.ActionCatalog.Catalog[0].ActionName);
+
+            var subHotasCollection = CreateHotasCollectionSubstitute();
+
+            var subDevice = new HOTASDevice(Substitute.For<IDirectInput>(), productId, deviceId, "test device",
+                Substitute.For<IHOTASQueue>())
+            {
+                ButtonMap =
+                {
+                    new HOTASAxisMap() {MapName = "test1", MapId = 43, Type = HOTASButtonMap.ButtonType.AxisLinear, ButtonMap = new ObservableCollection<HOTASButtonMap>(){new HOTASButtonMap(){MapName = "bm1", ActionName = "abm1", ActionCatalogItem = new ActionCatalogItem(){ActionName = "action1", Actions = new ObservableCollection<ButtonAction>(){new ButtonAction(){ScanCode = 1}}}}}},
+                    new HOTASAxisMap() {MapName = "test2", MapId = 44, Type = HOTASButtonMap.ButtonType.AxisLinear, ButtonMap = new ObservableCollection<HOTASButtonMap>(){new HOTASButtonMap(){MapName = "bm2", ActionName = "abm2", ActionCatalogItem = new ActionCatalogItem(){ActionName = "action2", Actions = new ObservableCollection<ButtonAction>(){new ButtonAction(){ScanCode = 2}}}}}},
+                }
+            };
+            subDevice.ModeProfiles.Add(43, new ObservableCollection<IHotasBaseMap>());
+            subHotasCollection.Devices.Add(subDevice);
+
+
+
+            subHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = 43, DeviceId = deviceId });
+            subHotasCollection.SetupNewModeProfile();
+
+
+            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
+            subFileSystem.LastSavedFileName.Returns("last saved file");
+            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
+
+            hotasVm.Initialize();
+
+            Assert.Equal(3, hotasVm.ActionCatalog.Catalog.Count);
+            Assert.Equal("<No Action>", hotasVm.ActionCatalog.Catalog[0].ActionName);
+            Assert.Equal("action1", hotasVm.ActionCatalog.Catalog[1].ActionName);
+            Assert.Equal("action2", hotasVm.ActionCatalog.Catalog[2].ActionName);
+        }
+
+
+        [Fact]
+        public void device_recording_stopped_no_map()
+        {
+            var deviceId = Guid.NewGuid();
+
+            var hotasVm = CreateHotasCollectionViewModel_DeviceVmFactorySub(out var subFileSystem, out var subQuickProfilePanelVm, out var deviceViewModelFactory);
+
+
+            var subHotasCollection = CreateHotasCollectionSubstitute();
+            subHotasCollection.Devices.Add(new HOTASDevice()
+            {
+                DeviceId = deviceId,
+                ButtonMap =
+                {
+                    new HOTASButtonMap(){MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 1"}},
+                    new HOTASButtonMap(){MapId = 44, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 2"}},
+
+                }
+            });
+
+            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
+            subFileSystem.LastSavedFileName.Returns("last saved file");
+            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
+
+            var subDevice = Substitute.For<HOTASDevice>();
+            subDevice.DeviceId = Guid.NewGuid();
+            subDevice.Name = "sub device";
+            subDevice.ButtonMap.Add(new HOTASButtonMap() { MapId = 45, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 3" } });
+
+            var subDeviceVm = Substitute.For<DeviceViewModel>(Substitute.For<IDispatcher>(), subFileSystem, Substitute.For<MediaPlayerFactory>(), subDevice);
+
+            deviceViewModelFactory.CreateDeviceViewModel(Arg.Any<IDispatcher>(), Arg.Any<IFileSystem>(), Arg.Any<MediaPlayerFactory>(), Arg.Any<IHOTASDevice>()).Returns(subDeviceVm);
+
+            hotasVm.Initialize();
+
+            subDeviceVm.RecordingStopped += Raise.Event();
+            Assert.Single(hotasVm.ActionCatalog.Catalog);
+        }
+
+        [Fact]
+        public void device_recording_stopped_with_map()
+        {
+            var deviceId = Guid.NewGuid();
+
+            var hotasVm = CreateHotasCollectionViewModel_DeviceVmFactorySub(out var subFileSystem, out var subQuickProfilePanelVm, out var deviceViewModelFactory);
+
+
+            var subHotasCollection = CreateHotasCollectionSubstitute();
+            subHotasCollection.Devices.Add(new HOTASDevice()
+            {
+                DeviceId = deviceId,
+                ButtonMap =
+                {
+                    new HOTASButtonMap(){MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 1"}},
+                    new HOTASButtonMap(){MapId = 44, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 2"}},
+                }
+            });
+
+            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
+            subFileSystem.LastSavedFileName.Returns("last saved file");
+            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
+
+            var subDevice = Substitute.For<HOTASDevice>();
+            subDevice.DeviceId = Guid.NewGuid();
+            subDevice.Name = "sub device";
+            subDevice.ButtonMap.Add(new HOTASButtonMap() { MapId = 45, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 3" } });
+            subHotasCollection.Devices.Add(subDevice);
+
+            var subDeviceVm = Substitute.For<DeviceViewModel>(Substitute.For<IDispatcher>(), subFileSystem, Substitute.For<MediaPlayerFactory>(), subDevice);
+
+
+            deviceViewModelFactory.CreateDeviceViewModel(Arg.Any<IDispatcher>(), Arg.Any<IFileSystem>(), Arg.Any<MediaPlayerFactory>(), Arg.Any<IHOTASDevice>()).Returns(subDeviceVm);
+
+            hotasVm.Initialize();
+            subDeviceVm.RecordingStopped += Raise.EventWith(new ButtonMapViewModel() { ActionName = "test button map" }, new EventArgs());
+            Assert.Equal(2, hotasVm.ActionCatalog.Catalog.Count);
+
+
+            hotasVm.Initialize();//trigger remove handlers for code coverage, can't test
+        }
+
+        [Fact]
+        public void device_list_button_pressed()
+        {
+            var deviceGuid = Guid.NewGuid();
+            var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out _, out IHOTASCollection subDeviceList);
+            var hotasDevice = subDeviceList.Devices[0];
+            hotasDevice.DeviceId = deviceGuid;
+            
+            hotasVm.Initialize();
+
+            Assert.Raises<ButtonPressedViewModelEventArgs>(e => hotasVm.ButtonPressed += e, e => hotasVm.ButtonPressed -= e, () =>
+            {
+                subDeviceList.ButtonPressed += Raise.EventWith(new object(), new ButtonPressedEventArgs() {Device = (HOTASDevice) hotasDevice});
+            });
+        }
+
+        [Fact]
+        public void device_list_axis_changed()
+        {
+            var deviceGuid = Guid.NewGuid();
+            var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out _, out IHOTASCollection subDeviceList);
+            var hotasDevice = subDeviceList.Devices[0];
+            hotasDevice.DeviceId = deviceGuid;
+
+            hotasVm.Initialize();
+
+            Assert.Raises<AxisChangedViewModelEventArgs>(e => hotasVm.AxisChanged += e, e => hotasVm.AxisChanged -= e, () =>
+            {
+                subDeviceList.AxisChanged += Raise.EventWith(new object(), new AxisChangedEventArgs(){AxisId = 1, Device = (HOTASDevice)hotasDevice, Value = 1});
+            });
         }
     }
 }

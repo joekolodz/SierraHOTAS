@@ -4,7 +4,7 @@ namespace SierraHOTAS.Models
 {
     public class JitterDetection
     {
-        public int Threshold { get; set; }
+        public static int Threshold { get; set; } = 10;
         private readonly int[] _previousValues;
         private readonly int[] _previousAverages;
         private int _arraySize = 20;
@@ -12,7 +12,6 @@ namespace SierraHOTAS.Models
 
         public JitterDetection()
         {
-            Threshold = 10;
             _previousValues = new int[_arraySize];
             _previousAverages = new int[_arraySizeAverage];
         }

@@ -1,12 +1,14 @@
 ﻿using SierraHOTAS.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace SierraHOTAS.ViewModels
 {
+    [ExcludeFromCodeCoverage]
     public class InputGraphWindowViewModel
     {
         public Dispatcher AppDispatcher { get; set; }

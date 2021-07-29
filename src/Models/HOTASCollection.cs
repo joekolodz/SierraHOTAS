@@ -22,12 +22,12 @@ namespace SierraHOTAS.Models
         private bool _isShiftStateActive;
         private int _previousMode;
 
-        public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
-        public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
-        public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
-        public event EventHandler<AxisChangedEventArgs> AxisChanged;
-        public event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
-        public event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
+        public virtual event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
+        public virtual event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
+        public virtual event EventHandler<ButtonPressedEventArgs> ButtonPressed;
+        public virtual event EventHandler<AxisChangedEventArgs> AxisChanged;
+        public virtual event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
+        public virtual event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
         [JsonProperty]
         public string JsonFormatVersion { get; } = FILE_FORMAT_VERSION;
@@ -264,7 +264,7 @@ namespace SierraHOTAS.Models
                 Logging.Log.Info("adding a device");
 
                 var queue = _hotasQueueFactory.CreateHOTASQueue();
-                var device = _hotasDeviceFactory.CreateHotasDevice(_directInput, _joystickFactory, n.ProductGuid, n.InstanceGuid, n.ProductName, queue);
+                var device = _hotasDeviceFactory.CreateHOTASDevice(_directInput, _joystickFactory, n.ProductGuid, n.InstanceGuid, n.ProductName, queue);
                 newDevices.Add(device);
             }
 

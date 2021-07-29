@@ -133,6 +133,7 @@
       <DependentUpon>QuickProfilePanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="EventAggregator.cs" />
+    <Compile Include="Factories\DeviceViewModelFactory.cs" />
     <Compile Include="Factories\DirectInputFactory.cs" />
     <Compile Include="Factories\HOTASDeviceFactory.cs" />
     <Compile Include="Factories\HOTASQueueFactory.cs" />
@@ -142,6 +143,8 @@
     <Compile Include="IoCContainer.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
     <Compile Include="Models\DirectInputWrapper.cs" />
+    <Compile Include="Factories\DispatcherFactory.cs" />
+    <Compile Include="Models\DispatcherWrapper.cs" />
     <Compile Include="Models\IDirectInput.cs" />
     <Compile Include="Models\IDispatcher.cs" />
     <Compile Include="Models\IFileSystem.cs" />

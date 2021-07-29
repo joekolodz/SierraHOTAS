@@ -4,6 +4,7 @@ using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace SierraHOTAS
 {
@@ -15,15 +16,39 @@ namespace SierraHOTAS
         public override bool CanConvert(Type objectType)
         {
             return objectType == typeof(HOTASButtonMap) ||
-                   objectType == typeof(HOTASAxisMap);
+                   objectType == typeof(HOTASAxisMap) ||
+                   objectType == typeof(IHOTASDevice);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            if (objectType == typeof(IHOTASDevice))
+            {
+                var device = new HOTASDevice();
+                try
+                {
+                    serializer.Populate(reader, device);
+                }
+                catch (Exception e)
+                {
+                    Logging.Log.Error(e,"Failed to deserialize a HOTASDevice");
+                    throw;
+                }
+                return device;
+            }
+
             if (objectType == typeof(HOTASButtonMap))
             {
                 var buttonMap = new HOTASButtonMap();
-                serializer.Populate(reader, buttonMap);
+                try
+                {
+                    serializer.Populate(reader, buttonMap);
+                }
+                catch (Exception e)
+                {
+                    Logging.Log.Error(e, "Failed to deserialize a HOTASButtonMap");
+                    throw;
+                }
                 return buttonMap;
             }
 

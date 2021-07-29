@@ -16,18 +16,34 @@ namespace SierraHOTAS.ViewModels
         private IHOTASDevice _hotasDevice = null;
         private readonly IFileSystem _fileSystem;
         private readonly MediaPlayerFactory _mediaPlayerFactory;
-        private readonly Dispatcher _appDispatcher;
+        private readonly IDispatcher _appDispatcher;
 
-        public event EventHandler RecordingStopped;
+        public virtual event EventHandler RecordingStopped;
 
         public Guid InstanceId { get; set; }
 
         public string Name { get; set; }
 
-        public string PID => _hotasDevice.ProductId.ToString().Substring(0, 4).ToUpper();
-        public string VID => _hotasDevice.ProductId.ToString().Substring(4, 4).ToUpper();
+        public string PID => GetPID(_hotasDevice.ProductId);
 
-        public string NameWithIds => string.Format($"VID:{VID} PID:{PID} {Name}");
+        public static string GetPID(Guid productGuid)
+        {
+            return productGuid.ToString().Substring(0, 4).ToUpper();
+        }
+
+        public string VID => GetVID(_hotasDevice.ProductId);
+
+        public static string GetVID(Guid productGuid)
+        {
+            return productGuid.ToString().Substring(4, 4).ToUpper();
+        }
+
+        public string NameWithIds => GetnNameWithIds(VID, PID, Name);
+
+        public static string GetnNameWithIds(string vid, string pid, string deviceName)
+        {
+            return string.Format($"VID:{vid} PID:{pid} {deviceName}");
+        }
 
 
         public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
@@ -39,7 +55,7 @@ namespace SierraHOTAS.ViewModels
         {
         }
 
-        public DeviceViewModel(Dispatcher dispatcher, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASDevice device)
+        public DeviceViewModel(IDispatcher dispatcher, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASDevice device)
         {
             _appDispatcher = dispatcher;
             _fileSystem = fileSystem;
@@ -173,6 +189,7 @@ namespace SierraHOTAS.ViewModels
             ForceDisableAllOtherMaps(sender, false);
             RecordingStopped?.Invoke(sender, e);
         }
+
         private void MapViewModel_RecordingCancelled(object sender, EventArgs e)
         {
             ForceDisableAllOtherMaps(sender, false);

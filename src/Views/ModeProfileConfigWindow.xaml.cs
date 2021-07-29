@@ -19,11 +19,10 @@ namespace SierraHOTAS.Views
         private readonly Action _cancelCallback;
         private readonly Action<EventHandler<ButtonPressedEventArgs>> _removePressedHandler;
 
-        public ModeProfileConfigWindow(IEventAggregator eventAggregator, int mode, Dictionary<int, ModeActivationItem> activationButtonList, Action<EventHandler<ButtonPressedEventArgs>> pressedHandler, Action<EventHandler<ButtonPressedEventArgs>> removePressedHandler, Action cancelCallback)
+        public ModeProfileConfigWindow(IEventAggregator eventAggregator, IDispatcher appDispatcher, int mode, Dictionary<int, ModeActivationItem> activationButtonList, Action<EventHandler<ButtonPressedEventArgs>> pressedHandler, Action<EventHandler<ButtonPressedEventArgs>> removePressedHandler, Action cancelCallback)
         {
             InitializeComponent();
-            ModeProfileConfigViewModel = new ModeProfileConfigWindowViewModel(eventAggregator, mode, activationButtonList);
-            ModeProfileConfigViewModel.AppDispatcher = Dispatcher;
+            ModeProfileConfigViewModel = new ModeProfileConfigWindowViewModel(eventAggregator, appDispatcher, mode, activationButtonList);
             ModeProfileConfigViewModel.SaveCancelled += SaveCancelled;
             ModeProfileConfigViewModel.NewModeProfileSaved += NewModeProfileSaved;
             Closed += OnClosed;
@@ -52,7 +51,6 @@ namespace SierraHOTAS.Views
         private void RemoveHandlers()
         {
             Closed -= SaveCancelled;
-            ModeProfileConfigViewModel.AppDispatcher = null;
             ModeProfileConfigViewModel.SaveCancelled -= SaveCancelled;
             ModeProfileConfigViewModel.NewModeProfileSaved -= NewModeProfileSaved;
             _removePressedHandler(PressedHandler);

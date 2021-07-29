@@ -33,10 +33,12 @@ namespace SierraHOTAS.ViewModels
         private ICommand _autoLoadSelectedCommand;
         public ICommand AutoLoadSelectedCommand => _autoLoadSelectedCommand ?? (_autoLoadSelectedCommand = new CommandHandlerWithParameter<int>(QuickProfile_AutoLoadSelected));
 
+        public QuickProfilePanelViewModel() { }
+
         public QuickProfilePanelViewModel(IEventAggregator eventAggregator, IFileSystem fileSystem)
         {
-            _eventAggregator = eventAggregator;
-            _fileSystem = fileSystem;
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+            _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         }
 
         public void SetupQuickProfiles()
@@ -46,7 +48,7 @@ namespace SierraHOTAS.ViewModels
             QuickProfilesList = _fileSystem.LoadQuickProfilesList(QUICK_PROFILE_LIST_FILE_NAME) ?? new Dictionary<int, QuickProfileItem>();
         }
 
-        public void QuickProfile_Requested(int quickProfileId)
+        private void QuickProfile_Requested(int quickProfileId)
         {
             var path = _fileSystem.ChooseHotasProfileForQuickLoad();
 
@@ -115,9 +117,9 @@ namespace SierraHOTAS.ViewModels
             ShowMainWindow?.Invoke(this, new EventArgs());
         }
 
-        public string GetAutoLoadPath()
+        public virtual string GetAutoLoadPath()
         {
-            if (QuickProfilesList == null) return string.Empty;
+            if (QuickProfilesList == null || QuickProfilesList.Count == 0) return string.Empty;
             return QuickProfilesList.Where(item => item.Value.AutoLoad).Select(item => item.Value.Path).FirstOrDefault();
         }
         
@@ -125,7 +127,5 @@ namespace SierraHOTAS.ViewModels
         {
             Close?.Invoke(this, new EventArgs());
         }
-
-
     }
 }
