@@ -1,7 +1,9 @@
-﻿using SharpDX.DirectInput;
+﻿using System.Diagnostics.CodeAnalysis;
+using SharpDX.DirectInput;
 
 namespace SierraHOTAS.Models
 {
+    [ExcludeFromCodeCoverage]
     public class JoystickWrapper : IJoystick
     {
         private readonly Joystick _joystick;
@@ -21,8 +23,7 @@ namespace SierraHOTAS.Models
        
         public void Acquire()
         {
-
-            //TODO z[this does not return after the computer wakes from sleep
+            //TODO this does not return after the computer wakes from sleep
             _joystick.Acquire();
         }
 

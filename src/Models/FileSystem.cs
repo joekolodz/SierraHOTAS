@@ -3,18 +3,30 @@ using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using SierraHOTAS.Factories;
 
 namespace SierraHOTAS
 {
+    /// <summary>
+    /// SierraHOTAS specific library for system file I/O and related operations specific to the app (sounds, HOTAS objects, SierraHOTAS json file format, etc)
+    /// </summary>
     public class FileSystem : IFileSystem
     {
+        private static IFileIO _fileIo;
+        private static FileDialogFactory _fileDialogFactory;
         public string LastSavedFileName { get; set; }
+
+        public FileSystem(IFileIO fileIo, FileDialogFactory fileDialogFactory)
+        {
+             _fileIo = fileIo;
+             _fileDialogFactory = fileDialogFactory;
+        }
 
         private static string BuildCurrentPath(string fileName)
         {
-            var path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var folder = Path.GetDirectoryName(path);
-            fileName = Path.Combine(folder, fileName);
+            var path = _fileIo.GetExecutingAssemblyLocation();
+            var folder = _fileIo.GetDirectoryName(path);
+            fileName = _fileIo.Combine(folder, fileName);
             return fileName;
         }
 
@@ -22,7 +34,7 @@ namespace SierraHOTAS
         {
             fileName = BuildCurrentPath(fileName);
             Logging.Log.Debug($"Saving Quick List as :{fileName}");
-            using (var file = File.CreateText(fileName))
+            using (var file = _fileIo.CreateText(fileName))
             {
                 var serializer = new JsonSerializer { Formatting = Formatting.Indented };
                 serializer.Serialize(file, list);
@@ -33,9 +45,9 @@ namespace SierraHOTAS
         {
             var path = BuildCurrentPath(fileName);
 
-            if (!File.Exists(path)) return null;
+            if (!_fileIo.FileExists(path)) return null;
 
-            using (var file = File.OpenText(path))
+            using (var file = _fileIo.OpenText(path))
             {
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
@@ -54,12 +66,11 @@ namespace SierraHOTAS
 
         public string ChooseHotasProfileForQuickLoad()
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                FileName = LastSavedFileName ?? "Document",
-                DefaultExt = ".json",
-                Filter = "Sierra Hotel (.json)|*.json"
-            };
+            var dlg = _fileDialogFactory.CreateOpenFileDialog();
+
+            dlg.FileName = LastSavedFileName ?? "Document";
+            dlg.DefaultExt = ".json";
+            dlg.Filter = "Sierra Hotel (.json)|*.json";
 
             var result = dlg.ShowDialog();
             return result != true ? null : dlg.FileName;
@@ -79,12 +90,10 @@ namespace SierraHOTAS
 
         public void FileSaveAs(IHOTASCollection deviceList)
         {
-            var dlg = new Microsoft.Win32.SaveFileDialog
-            {
-                FileName = "New Mapping",
-                DefaultExt = ".json",
-                Filter = "Sierra Hotel (.json)|*.json"
-            };
+            var dlg = _fileDialogFactory.CreateSaveFileDialog();
+            dlg.FileName = "New Mapping";
+            dlg.DefaultExt = ".json";
+            dlg.Filter = "Sierra Hotel (.json)|*.json";
 
             var result = dlg.ShowDialog();
 
@@ -96,7 +105,7 @@ namespace SierraHOTAS
         private static void BaseSave(string fileName, IHOTASCollection deviceList)
         {
             Logging.Log.Debug($"Saving profile as :{fileName}");
-            using (var file = File.CreateText(fileName))
+            using (var file = _fileIo.CreateText(fileName))
             {
                 var serializer = new JsonSerializer { Formatting = Formatting.Indented };
                 serializer.Serialize(file, deviceList);
@@ -105,12 +114,10 @@ namespace SierraHOTAS
 
         public IHOTASCollection FileOpenDialog()
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                FileName = LastSavedFileName ?? "Document",
-                DefaultExt = ".json",
-                Filter = "Sierra Hotel (.json)|*.json"
-            };
+            var dlg = _fileDialogFactory.CreateOpenFileDialog();
+            dlg.FileName = LastSavedFileName ?? "Document";
+            dlg.DefaultExt = ".json";
+            dlg.Filter = "Sierra Hotel (.json)|*.json";
 
             var result = dlg.ShowDialog();
             if (result != true) return null;
@@ -124,7 +131,7 @@ namespace SierraHOTAS
 
             if (string.IsNullOrWhiteSpace(path)) return null;
 
-            using (var file = File.OpenText(path))
+            using (var file = _fileIo.OpenText(path))
             {
                 Logging.Log.Info($"Reading profile from :{path}");
 
@@ -171,12 +178,11 @@ namespace SierraHOTAS
 
         public string GetSoundFileName()
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                DefaultExt = ".mp3",
-                Filter = "Audio Clip (.mp3)|*.mp3|(all)|*.*",
-                InitialDirectory = $@"{Environment.CurrentDirectory}\Sounds"
-            };
+            var dlg = _fileDialogFactory.CreateOpenFileDialog();
+
+            dlg.DefaultExt = ".mp3";
+            dlg.Filter = "Audio Clip (.mp3)|*.mp3|(all)|*.*";
+            dlg.InitialDirectory = $@"{_fileIo.GetCurrentDirectory()}\Sounds";
 
             var result = dlg.ShowDialog();
             return result != true ? null : dlg.FileName;

@@ -1,8 +1,10 @@
 ﻿using SharpDX.DirectInput;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SierraHOTAS.Models
 {
+    [ExcludeFromCodeCoverage]
     public class DirectInputWrapper : IDirectInput
     {
         private readonly DirectInput _directInput;

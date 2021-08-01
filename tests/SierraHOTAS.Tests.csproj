@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionCatalogViewModelTests.cs" />
+    <Compile Include="ActivityItemTests.cs" />
     <Compile Include="AxisMapViewModelTests.cs" />
     <Compile Include="ButtonActionViewModelTests.cs" />
     <Compile Include="ButtonMapViewModelTests.cs" />

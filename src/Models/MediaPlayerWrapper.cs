@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace SierraHOTAS.Models
 {
+    [ExcludeFromCodeCoverage]
     public class MediaPlayerWrapper : IMediaPlayer
     {
         private readonly MediaPlayer _mediaPlayer;

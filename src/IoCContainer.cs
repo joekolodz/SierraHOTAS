@@ -1,8 +1,7 @@
 ﻿using Autofac;
-using SierraHOTAS.ViewModels;
-using System.Windows.Threading;
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
+using SierraHOTAS.ViewModels;
 
 namespace SierraHOTAS
 {
@@ -22,15 +21,18 @@ namespace SierraHOTAS
             builder.RegisterType<MediaPlayerFactory>();
             builder.RegisterType<HOTASDeviceFactory>();
             builder.RegisterType<DeviceViewModelFactory>();
-            builder.RegisterType<QuickProfilePanelViewModel>();
+            builder.RegisterType<HOTASQueueFactory>();
+            builder.RegisterType<FileDialogFactory>().As<FileDialogFactory>();
 
+            builder.RegisterType<HOTASCollectionViewModel>();
+            builder.RegisterType<QuickProfilePanelViewModel>();
             builder.RegisterType<ActionCatalogViewModel>();
+            
             builder.RegisterType<HOTASCollection>().As<IHOTASCollection>();
             builder.RegisterType<HOTASQueue>().As<IHOTASQueue>();
-            builder.RegisterType<HOTASQueueFactory>();
-            builder.RegisterType<FileSystem>().As<IFileSystem>();
             
-            builder.RegisterType<HOTASCollectionViewModel>();
+            builder.RegisterType<FileIO>().As<IFileIO>();
+            builder.RegisterType<FileSystem>().As<IFileSystem>();
 
             var container =  builder.Build();
 

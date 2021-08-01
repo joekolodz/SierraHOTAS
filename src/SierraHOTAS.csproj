@@ -135,6 +135,7 @@
     <Compile Include="EventAggregator.cs" />
     <Compile Include="Factories\DeviceViewModelFactory.cs" />
     <Compile Include="Factories\DirectInputFactory.cs" />
+    <Compile Include="Factories\FileDialogFactory.cs" />
     <Compile Include="Factories\HOTASDeviceFactory.cs" />
     <Compile Include="Factories\HOTASQueueFactory.cs" />
     <Compile Include="Factories\JoystickFactory.cs" />
@@ -145,8 +146,11 @@
     <Compile Include="Models\DirectInputWrapper.cs" />
     <Compile Include="Factories\DispatcherFactory.cs" />
     <Compile Include="Models\DispatcherWrapper.cs" />
+    <Compile Include="Models\FileIO.cs" />
     <Compile Include="Models\IDirectInput.cs" />
     <Compile Include="Models\IDispatcher.cs" />
+    <Compile Include="Models\IFileIO.cs" />
+    <Compile Include="Models\IFileStream.cs" />
     <Compile Include="Models\IFileSystem.cs" />
     <Compile Include="Models\IHOTASCollection.cs" />
     <Compile Include="Models\IHOTASDevice.cs" />
@@ -154,6 +158,9 @@
     <Compile Include="Models\IJoystick.cs" />
     <Compile Include="Models\IMediaPlayer.cs" />
     <Compile Include="Models\InputGraphNode.cs" />
+    <Compile Include="Models\IOpenFileDialog.cs" />
+    <Compile Include="Models\OpenFileDialogWrapper.cs" />
+    <Compile Include="Models\ISaveFileDialog.cs" />
     <Compile Include="Models\JoystickOffset.cs" />
     <Compile Include="Models\JoystickWrapper.cs" />
     <Compile Include="Models\LostConnectionToDeviceEventArgs.cs" />
@@ -183,6 +190,7 @@
     <Compile Include="Models\FileSystem.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="Models\QuickProfileItem.cs" />
+    <Compile Include="Models\SaveFileDialogWrapper.cs" />
     <Compile Include="ViewModels\DeleteModeProfileEvent.cs" />
     <Compile Include="ViewModels\InputGraphWindowViewModel.cs" />
     <Compile Include="ViewModels\ShowInputGraphWindowEvent.cs" />
