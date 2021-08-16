@@ -12,7 +12,7 @@ namespace SierraHOTAS.Models
     [JsonObject(MemberSerialization.OptIn)]
     public class HOTASCollection : IHOTASCollection
     {
-        private const string FILE_FORMAT_VERSION = "1.0.0";
+        public const string FileFormatVersion = "1.0.0";
         private readonly JoystickFactory _joystickFactory;
         private readonly DirectInputFactory _directInputFactory;
         private readonly IDirectInput _directInput;
@@ -30,7 +30,7 @@ namespace SierraHOTAS.Models
         public virtual event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
         [JsonProperty]
-        public string JsonFormatVersion { get; } = FILE_FORMAT_VERSION;
+        public string JsonFormatVersion { get; set; }
 
         [JsonProperty]
         public ObservableCollection<IHOTASDevice> Devices { get; set; }
@@ -77,7 +77,7 @@ namespace SierraHOTAS.Models
             Devices = new ObservableCollection<IHOTASDevice>();
             ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
             _directInput = _directInputFactory?.CreateDirectInput();
-
+            JsonFormatVersion = FileFormatVersion;
         }
 
         public void Start()

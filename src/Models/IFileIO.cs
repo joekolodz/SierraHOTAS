@@ -11,5 +11,6 @@ namespace SierraHOTAS.Models
         StreamReader OpenText(string path);
         bool FileExists(string path);
         string GetCurrentDirectory();
+        IFileStream CreateFileStream(string path, FileMode fileMode, FileAccess fileAccess);
     }
 }

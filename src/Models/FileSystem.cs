@@ -3,6 +3,7 @@ using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json.Linq;
 using SierraHOTAS.Factories;
 
 namespace SierraHOTAS
@@ -14,12 +15,13 @@ namespace SierraHOTAS
     {
         private static IFileIO _fileIo;
         private static FileDialogFactory _fileDialogFactory;
+     
         public string LastSavedFileName { get; set; }
 
         public FileSystem(IFileIO fileIo, FileDialogFactory fileDialogFactory)
         {
-             _fileIo = fileIo;
-             _fileDialogFactory = fileDialogFactory;
+             _fileIo = fileIo ?? throw new ArgumentNullException(nameof(fileIo));
+            _fileDialogFactory = fileDialogFactory ?? throw new ArgumentNullException(nameof(fileDialogFactory)); ;
         }
 
         private static string BuildCurrentPath(string fileName)
@@ -53,8 +55,13 @@ namespace SierraHOTAS
                 serializer.Converters.Add(new CustomJsonConverter());
                 try
                 {
-                    var list = (Dictionary<int, QuickProfileItem>)serializer.Deserialize(file, typeof(Dictionary<int, QuickProfileItem>));
+                    var list = (Dictionary<int, QuickProfileItem>) serializer.Deserialize(file, typeof(Dictionary<int, QuickProfileItem>));
                     return list;
+                }
+                catch (JsonException jsonException)
+                {
+                    Logging.Log.Error($"Could not deserialize {file}\nPlease verify this a SierraHOTAS compatible JSON file.\n\nStack:{jsonException}");
+                    throw;
                 }
                 catch (Exception e)
                 {
@@ -127,8 +134,6 @@ namespace SierraHOTAS
 
         public IHOTASCollection FileOpen(string path)
         {
-            _ = GetFileVersion(path);
-
             if (string.IsNullOrWhiteSpace(path)) return null;
 
             using (var file = _fileIo.OpenText(path))
@@ -138,10 +143,17 @@ namespace SierraHOTAS
                 var serializer = new JsonSerializer();
                 serializer.Converters.Add(new CustomJsonConverter());
 
-                IHOTASCollection collection;
+                IHOTASCollection collection = null;
                 try
                 {
-                    collection = (HOTASCollection)serializer.Deserialize(file, typeof(HOTASCollection));
+                    var o = (JObject)JToken.ReadFrom(new JsonTextReader(file));
+                    var version = (string)o["JsonFormatVersion"];
+                    
+                    if (version == HOTASCollection.FileFormatVersion)
+                    {
+                        collection = (HOTASCollection)serializer.Deserialize(new JTokenReader(o), typeof(HOTASCollection));
+                    }
+                    //else - based on version, use factory to get old version and convert/map to latest version, then re-save
                 }
                 catch (JsonReaderException readerException)
                 {
@@ -157,23 +169,6 @@ namespace SierraHOTAS
                 LastSavedFileName = path;
                 return collection;
             }
-        }
-
-        private static string GetFileVersion(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path)) return string.Empty;
-
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                fs.Seek(6, SeekOrigin.Begin);
-
-                var b = new byte[17];
-                fs.Read(b, 0, 17);
-
-                var s = System.Text.Encoding.UTF8.GetString(b);
-            }
-
-            return "1.0";
         }
 
         public string GetSoundFileName()

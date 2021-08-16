@@ -147,6 +147,7 @@
     <Compile Include="Factories\DispatcherFactory.cs" />
     <Compile Include="Models\DispatcherWrapper.cs" />
     <Compile Include="Models\FileIO.cs" />
+    <Compile Include="Models\FileStreamWrapper.cs" />
     <Compile Include="Models\IDirectInput.cs" />
     <Compile Include="Models\IDispatcher.cs" />
     <Compile Include="Models\IFileIO.cs" />

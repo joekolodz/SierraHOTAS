@@ -41,5 +41,10 @@ namespace SierraHOTAS.Models
         {
             return Environment.CurrentDirectory;
         }
+
+        public IFileStream CreateFileStream(string path, FileMode fileMode, FileAccess fileAccess)
+        {
+            return new FileStreamWrapper(new FileStream(path, fileMode, fileAccess));
+        }
     }
 }

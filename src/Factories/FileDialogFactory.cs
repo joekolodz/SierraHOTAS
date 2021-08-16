@@ -4,12 +4,12 @@ namespace SierraHOTAS.Factories
 {
     public class FileDialogFactory
     {
-        public IOpenFileDialog CreateOpenFileDialog()
+        public virtual IOpenFileDialog CreateOpenFileDialog()
         {
             return new OpenFileDialogWrapper();
 
         }
-        public ISaveFileDialog CreateSaveFileDialog()
+        public virtual ISaveFileDialog CreateSaveFileDialog()
         {
             return new SaveFileDialogWrapper();
 

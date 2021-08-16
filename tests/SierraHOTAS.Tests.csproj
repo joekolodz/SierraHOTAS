@@ -99,6 +99,7 @@
     <Compile Include="ButtonActionViewModelTests.cs" />
     <Compile Include="ButtonMapViewModelTests.cs" />
     <Compile Include="DeviceViewModelTests.cs" />
+    <Compile Include="FileSystemTests.cs" />
     <Compile Include="HOTASButtonMapTests.cs" />
     <Compile Include="HOTASCollectionViewModelTests.cs" />
     <Compile Include="HOTASDeviceTests.cs" />
