@@ -2,7 +2,7 @@
 
 namespace SierraHOTAS.Models
 {
-    public class AxisDirectionChangedEventArgs
+    public class AxisDirectionChangedEventArgs : System.EventArgs
     {
         public AxisDirection NewDirection { get; set; }
     }

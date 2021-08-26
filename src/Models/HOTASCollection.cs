@@ -40,12 +40,34 @@ namespace SierraHOTAS.Models
         private IHOTASDevice _selectedDevice;
 
         [JsonProperty]
-        public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
+        public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; private set; }
+
+        public HOTASCollection()
+        {
+            Initialize();    
+        }
+
+        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, MediaPlayerFactory mediaPlayerFactory, HOTASDeviceFactory hotasDeviceFactory)
+        {
+            _directInputFactory = directInputFactory ?? throw new ArgumentNullException(nameof(directInputFactory)); 
+            _joystickFactory = joystickFactory ?? throw new ArgumentNullException(nameof(joystickFactory));
+            _hotasQueueFactory = hotasQueueFactory ?? throw new ArgumentNullException(nameof(hotasQueueFactory));
+            _mediaPlayerFactory = mediaPlayerFactory ?? throw new ArgumentNullException(nameof(mediaPlayerFactory));
+            _hotasDeviceFactory = hotasDeviceFactory ?? throw new ArgumentNullException(nameof(hotasDeviceFactory));
+            _directInput = _directInputFactory?.CreateDirectInput();
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            Devices = new ObservableCollection<IHOTASDevice>();
+            ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
+            JsonFormatVersion = FileFormatVersion;
+        }
 
         public void AddDevice(IHOTASDevice device)
         {
             var newDevice = _hotasDeviceFactory.CreateHOTASDevice(_directInput, device.ProductId, device.DeviceId, device.Name, _hotasQueueFactory.CreateHOTASQueue());
-            //var newDevice = new HOTASDevice(_directInput, device.ProductId, device.DeviceId, device.Name, _hotasQueueFactory.CreateHOTASQueue());
             RebuildMapForNewDevice(device, newDevice);
         }
 
@@ -64,20 +86,6 @@ namespace SierraHOTAS.Models
             newDevice.SetButtonMap(device.ButtonMap.ToObservableCollection());
             newDevice.SetModeProfile(device.ModeProfiles);
             Devices.Add(newDevice);
-        }
-
-        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, MediaPlayerFactory mediaPlayerFactory, HOTASDeviceFactory hotasDeviceFactory)
-        {
-            _directInputFactory = directInputFactory;
-            _joystickFactory = joystickFactory;
-            _hotasQueueFactory = hotasQueueFactory;
-            _mediaPlayerFactory = mediaPlayerFactory;
-            _hotasDeviceFactory = hotasDeviceFactory;
-
-            Devices = new ObservableCollection<IHOTASDevice>();
-            ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
-            _directInput = _directInputFactory?.CreateDirectInput();
-            JsonFormatVersion = FileFormatVersion;
         }
 
         public void Start()
@@ -152,6 +160,7 @@ namespace SierraHOTAS.Models
         }
 
         //TODO - make this public and add the ability to remove a connected device from the UI
+        //you'd want to do this to keep the save file size down; or during save, remove items from the collection that don't have any assigned actions
         private void RemoveDevice(IHOTASDevice device)
         {
             if (device == null) return;
@@ -251,6 +260,8 @@ namespace SierraHOTAS.Models
 
             var newDevices = new ObservableCollection<IHOTASDevice>();
 
+            if (rescannedDevices == null) return newDevices;
+
             foreach (var n in rescannedDevices)
             {
                 var existingDevice = Devices.FirstOrDefault(d => d.DeviceId == n.InstanceGuid);
@@ -259,9 +270,6 @@ namespace SierraHOTAS.Models
                 {
                     if (existingDevice.Capabilities != null) continue;
                 }
-
-                //TODO remove log
-                Logging.Log.Info("adding a device");
 
                 var queue = _hotasQueueFactory.CreateHOTASQueue();
                 var device = _hotasDeviceFactory.CreateHOTASDevice(_directInput, _joystickFactory, n.ProductGuid, n.InstanceGuid, n.ProductName, queue);
@@ -367,7 +375,7 @@ namespace SierraHOTAS.Models
         /// </summary>
         public void ApplyActivationButtonToAllProfiles()
         {
-            //new profiles, wont have the link to previous profiles, so we iterate the entire dictionary to sync them all 
+            //new profiles wont have the link to previous profiles, so we iterate the entire dictionary to sync them all 
             foreach (var item in ModeProfileActivationButtons)
             {
                 var buttonId = item.Value.ButtonId;

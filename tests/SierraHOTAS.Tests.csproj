@@ -100,7 +100,9 @@
     <Compile Include="ButtonMapViewModelTests.cs" />
     <Compile Include="DeviceViewModelTests.cs" />
     <Compile Include="FileSystemTests.cs" />
+    <Compile Include="HOTASAxisMapTests.cs" />
     <Compile Include="HOTASButtonMapTests.cs" />
+    <Compile Include="HOTASCollectionTests.cs" />
     <Compile Include="HOTASCollectionViewModelTests.cs" />
     <Compile Include="HOTASDeviceTests.cs" />
     <Compile Include="HOTASQueueTests.cs" />

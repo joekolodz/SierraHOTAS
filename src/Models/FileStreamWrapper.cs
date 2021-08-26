@@ -18,12 +18,9 @@ namespace SierraHOTAS.Models
             return _fileStream.Seek(offset, origin);
         }
 
-        public int Read(out byte[] array, int offset, int count)
+        public int Read([In, Out] byte[] array, int offset, int count)
         {
-            var inner = new byte[count];
-            var read = _fileStream.Read(inner, offset, count);
-            array = inner;
-            return read;
+            return _fileStream.Read(array, offset, count);
         }
 
         public void Dispose()

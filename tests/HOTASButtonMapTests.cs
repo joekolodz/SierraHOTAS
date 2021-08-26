@@ -114,6 +114,25 @@ namespace SierraHOTAS.Tests
             
             Assert.Single(map.ActionCatalogItem.Actions);
         }
+
+        [Fact]
+        public void reset_shift()
+        {
+            var map = new HOTASButtonMap {IsShift = true, ShiftModePage = 1};
+            map.ResetShift();
+            Assert.False(map.IsShift);
+            Assert.Equal(0, map.ShiftModePage);
+        }
+
+        [Fact]
+        public void to_string()
+        {
+            const int LLKHF_UP = 0x80;
+            var map = new HOTASButtonMap();
+            map.ActionCatalogItem.Actions.Add(new ButtonAction() { ScanCode = 48, Flags = LLKHF_UP });
+            Assert.Equal("[KEY_B^]", map.ToString());
+            map.ActionCatalogItem.Actions.Add(new ButtonAction() { ScanCode = 49});
+            Assert.Equal("[KEY_B^][KEY_Nv]", map.ToString());
+        }
     }
 }
-//

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using SierraHOTAS.ViewModels;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Newtonsoft.Json;
-using SierraHOTAS.ViewModels;
 
 namespace SierraHOTAS.Models
 {
@@ -130,6 +129,8 @@ namespace SierraHOTAS.Models
             var previous = Segments[0].Value;
             for (var i = 1; i < Segments.Count; i++)
             {
+                Segments[i].PropertyChanged -= Segment_PropertyChanged;
+
                 if (Segments[i].Value > ushort.MaxValue)
                 {
                     Segments[i].Value = ushort.MaxValue - 655;
@@ -139,6 +140,8 @@ namespace SierraHOTAS.Models
                     Segments[i].Value = previous + 655;
                 }
                 previous = Segments[i].Value;
+
+                Segments[i].PropertyChanged += Segment_PropertyChanged;
             }
         }
 
@@ -304,15 +307,15 @@ namespace SierraHOTAS.Models
 
         public void ClearUnassignedActions()
         {
-            foreach (var b in ButtonMap)
+            ClearUnassignedActions(ButtonMap);
+            ClearUnassignedActions(ReverseButtonMap);
+        }
+
+        private void ClearUnassignedActions(ObservableCollection<HOTASButtonMap> map)
+        {
+            foreach (var b in map)
             {
-                if (b.ActionName != "<No Action>") return;
-                b.ActionName = string.Empty;
-                b.ActionCatalogItem.Actions.Clear();
-            }
-            foreach (var b in ReverseButtonMap)
-            {
-                if (b.ActionName != "<No Action>") return;
+                if (b.ActionName != "<No Action>") continue;
                 b.ActionName = string.Empty;
                 b.ActionCatalogItem.Actions.Clear();
             }

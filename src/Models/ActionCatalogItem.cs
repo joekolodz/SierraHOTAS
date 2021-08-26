@@ -1,8 +1,7 @@
-﻿using SierraHOTAS.Models;
+﻿using SierraHOTAS.Annotations;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using SierraHOTAS.Annotations;
 
 namespace SierraHOTAS.Models
 {
@@ -10,6 +9,8 @@ namespace SierraHOTAS.Models
     {
         private string _actionName;
         public bool NoAction { get; set; } = false;
+        
+        [DefaultValue("")]
         public string ActionName
         {
             get => _actionName;

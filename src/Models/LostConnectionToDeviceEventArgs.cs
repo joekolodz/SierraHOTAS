@@ -4,9 +4,9 @@ namespace SierraHOTAS.Models
 {
     public class LostConnectionToDeviceEventArgs : EventArgs
     {
-        public HOTASDevice HOTASDevice { get; set; }
+        public IHOTASDevice HOTASDevice { get; set; }
 
-        public LostConnectionToDeviceEventArgs(HOTASDevice device)
+        public LostConnectionToDeviceEventArgs(IHOTASDevice device)
         {
             HOTASDevice = device;
         }

@@ -8,6 +8,6 @@ namespace SierraHOTAS.Models
     {
         public int AxisId { get; set; }
         public int Value { get; set; }
-        public HOTASDevice Device { get; set; }
+        public IHOTASDevice Device { get; set; }
     }
 }

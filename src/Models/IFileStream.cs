@@ -7,6 +7,6 @@ namespace SierraHOTAS.Models
     public interface IFileStream : IDisposable
     {
         long Seek(long offset, SeekOrigin origin);
-        int Read(out byte[] array, int offset, int count);
+        int Read([In, Out] byte[] array, int offset, int count);
     }
 }

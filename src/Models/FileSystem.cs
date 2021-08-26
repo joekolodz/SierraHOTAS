@@ -15,12 +15,12 @@ namespace SierraHOTAS
     {
         private static IFileIO _fileIo;
         private static FileDialogFactory _fileDialogFactory;
-     
+
         public string LastSavedFileName { get; set; }
 
         public FileSystem(IFileIO fileIo, FileDialogFactory fileDialogFactory)
         {
-             _fileIo = fileIo ?? throw new ArgumentNullException(nameof(fileIo));
+            _fileIo = fileIo ?? throw new ArgumentNullException(nameof(fileIo));
             _fileDialogFactory = fileDialogFactory ?? throw new ArgumentNullException(nameof(fileDialogFactory)); ;
         }
 
@@ -55,7 +55,7 @@ namespace SierraHOTAS
                 serializer.Converters.Add(new CustomJsonConverter());
                 try
                 {
-                    var list = (Dictionary<int, QuickProfileItem>) serializer.Deserialize(file, typeof(Dictionary<int, QuickProfileItem>));
+                    var list = (Dictionary<int, QuickProfileItem>)serializer.Deserialize(file, typeof(Dictionary<int, QuickProfileItem>));
                     return list;
                 }
                 catch (JsonException jsonException)
@@ -112,11 +112,18 @@ namespace SierraHOTAS
         private static void BaseSave(string fileName, IHOTASCollection deviceList)
         {
             Logging.Log.Debug($"Saving profile as :{fileName}");
-            using (var file = _fileIo.CreateText(fileName))
+
+            var settings = new JsonSerializerSettings
             {
-                var serializer = new JsonSerializer { Formatting = Formatting.Indented };
-                serializer.Serialize(file, deviceList);
-            }
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                Formatting = Formatting.Indented
+            };
+
+            _fileIo.WriteAllText(fileName, JsonConvert.SerializeObject(deviceList, settings));
+
+            var x = new Dictionary<int, string>() { { 1, "bob" }, { 2, "ded" } };
+
         }
 
         public IHOTASCollection FileOpenDialog()
@@ -148,7 +155,7 @@ namespace SierraHOTAS
                 {
                     var o = (JObject)JToken.ReadFrom(new JsonTextReader(file));
                     var version = (string)o["JsonFormatVersion"];
-                    
+
                     if (version == HOTASCollection.FileFormatVersion)
                     {
                         collection = (HOTASCollection)serializer.Deserialize(new JTokenReader(o), typeof(HOTASCollection));

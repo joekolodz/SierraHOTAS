@@ -22,9 +22,14 @@ namespace SierraHOTAS.Models
             return Path.Combine(folder, fileName);
         }
 
-        public StreamWriter CreateText(string fileName)
+        public StreamWriter CreateText(string path)
         {
-            return File.CreateText(fileName);
+            return File.CreateText(path);
+        }
+
+        public void WriteAllText(string path, string contents)
+        {
+            File.WriteAllText(path, contents);
         }
 
         public StreamReader OpenText(string path)

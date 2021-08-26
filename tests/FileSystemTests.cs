@@ -155,8 +155,6 @@ namespace SierraHOTAS.Tests
             var expectedFileName = "New Mapping";
 
             var subFileIO = Substitute.For<IFileIO>();
-            subFileIO.CreateText(Arg.Any<string>()).Returns(new StreamWriter(new MemoryStream()));
-
             var subDialogFactory = Substitute.For<FileDialogFactory>();
             var subDialog = Substitute.For<ISaveFileDialog>();
             subDialog.FileName.Returns("some path");
@@ -169,7 +167,7 @@ namespace SierraHOTAS.Tests
             fs.LastSavedFileName = "";
             fs.FileSave(subList);
             Assert.Equal(expectedFileName, fs.LastSavedFileName);
-            subFileIO.Received().CreateText(expectedFileName);
+            subFileIO.Received().WriteAllText(expectedFileName, Arg.Any<string>());
         }
 
         [Fact]
@@ -178,8 +176,6 @@ namespace SierraHOTAS.Tests
             var expectedFileName = "not empty";
 
             var subFileIO = Substitute.For<IFileIO>();
-            subFileIO.CreateText(Arg.Any<string>()).Returns(new StreamWriter(new MemoryStream()));
-
             var subDialogFactory = Substitute.For<FileDialogFactory>();
             var subDialog = Substitute.For<ISaveFileDialog>();
             subDialog.FileName.Returns("some path");
@@ -192,7 +188,7 @@ namespace SierraHOTAS.Tests
             fs.LastSavedFileName = expectedFileName;
             fs.FileSave(subList);
             Assert.Equal(expectedFileName, fs.LastSavedFileName);
-            subFileIO.Received().CreateText(expectedFileName);
+            subFileIO.Received().WriteAllText(expectedFileName, Arg.Any<string>());
         }
 
         [Fact]
@@ -201,8 +197,6 @@ namespace SierraHOTAS.Tests
             var expectedFileName = "New Mapping";
 
             var subFileIO = Substitute.For<IFileIO>();
-            subFileIO.CreateText(Arg.Any<string>()).Returns(new StreamWriter(new MemoryStream()));
-
             var subDialogFactory = Substitute.For<FileDialogFactory>();
             var subDialog = Substitute.For<ISaveFileDialog>();
             subDialog.FileName.Returns("some path");
@@ -215,7 +209,7 @@ namespace SierraHOTAS.Tests
             fs.LastSavedFileName = "";
             fs.FileSave(subList);
             Assert.Equal(expectedFileName, fs.LastSavedFileName);
-            subFileIO.Received().CreateText(expectedFileName);
+            subFileIO.Received().WriteAllText(expectedFileName, Arg.Any<string>());
         }
 
         [Fact]

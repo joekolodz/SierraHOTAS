@@ -7,6 +7,6 @@ namespace SierraHOTAS.Models
     public class ButtonPressedEventArgs : EventArgs
     {
         public int ButtonId { get; set; }
-        public HOTASDevice Device { get; set; }
+        public IHOTASDevice Device { get; set; }
     }
 }
