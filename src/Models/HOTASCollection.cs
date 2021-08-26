@@ -44,12 +44,12 @@ namespace SierraHOTAS.Models
 
         public HOTASCollection()
         {
-            Initialize();    
+            Initialize();
         }
 
         public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, MediaPlayerFactory mediaPlayerFactory, HOTASDeviceFactory hotasDeviceFactory)
         {
-            _directInputFactory = directInputFactory ?? throw new ArgumentNullException(nameof(directInputFactory)); 
+            _directInputFactory = directInputFactory ?? throw new ArgumentNullException(nameof(directInputFactory));
             _joystickFactory = joystickFactory ?? throw new ArgumentNullException(nameof(joystickFactory));
             _hotasQueueFactory = hotasQueueFactory ?? throw new ArgumentNullException(nameof(hotasQueueFactory));
             _mediaPlayerFactory = mediaPlayerFactory ?? throw new ArgumentNullException(nameof(mediaPlayerFactory));
@@ -412,7 +412,7 @@ namespace SierraHOTAS.Models
         {
             foreach (var b in buttonMap)
             {
-                ApplyShiftModePage(mode, activationButtonId, buttonMap);
+                ApplyShiftModePage(mode, activationButtonId, false, b);
             }
         }
 

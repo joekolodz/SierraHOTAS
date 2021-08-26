@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NSubstitute;
-using NSubstitute.Core.Arguments;
+﻿using NSubstitute;
 using SharpDX.DirectInput;
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using SierraHOTAS.ModeProfileWindow.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Xunit;
 using JoystickOffset = SierraHOTAS.Models.JoystickOffset;
 
@@ -76,6 +73,31 @@ namespace SierraHOTAS.Tests
             list.AddDevice(device);
             var addedDevice = list.Devices.First(d => d.DeviceId == deviceId);
             Assert.Equal("mode profile map", addedDevice.ModeProfiles[43][0].MapName);
+        }
+
+        [Fact]
+        public void replace_device()
+        {
+            var deviceId = Guid.NewGuid();
+            var firstDevice = new HOTASDevice() { DeviceId = deviceId, Name = "existing device"};
+
+            var replaceDevice = new HOTASDevice() { DeviceId = deviceId, Name = "replace device" };
+
+            var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
+            subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(firstDevice);
+
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            firstDevice.ButtonMap.Add(new HOTASButton());
+            list.AddDevice(firstDevice);
+            
+            var currentDevice = list.Devices.First(d => d.DeviceId == deviceId);
+            Assert.Equal(firstDevice.Name, currentDevice.Name);
+
+            list.ReplaceDevice(replaceDevice);
+
+            currentDevice = list.Devices.First(d => d.DeviceId == deviceId);
+            
+            Assert.Equal(replaceDevice.Name, currentDevice.Name);
         }
 
         [Fact]
@@ -540,7 +562,7 @@ namespace SierraHOTAS.Tests
         {
             var subDevice = Substitute.For<IHOTASDevice>();
             var buttonMap = new ObservableCollection<IHotasBaseMap>();
-            var map = new HOTASButton() {MapId = 1, IsShift = true, ShiftModePage = 1};
+            var map = new HOTASButton() { MapId = 1, IsShift = true, ShiftModePage = 1 };
             buttonMap.Add(map);
             subDevice.ButtonMap.Returns(buttonMap);
 
@@ -644,18 +666,32 @@ namespace SierraHOTAS.Tests
             Assert.Equal(0, map1.ShiftModePage);
             Assert.Equal(2, list.Mode);
         }
-        
+
         //todo in progress
         [Fact]
         public void apply_activation_button_to_all_profiles()
         {
             var subDevice = Substitute.For<IHOTASDevice>();
-            var buttonMap = new ObservableCollection<IHotasBaseMap>();
-            var map1 = new HOTASButton() { MapId = 1, IsShift = true, ShiftModePage = 1 };
-            var map2 = new HOTASButton() { MapId = 2, IsShift = false, ShiftModePage = 2 };
-            buttonMap.Add(map1);
-            buttonMap.Add(map2);
-            subDevice.ButtonMap.Returns(buttonMap);
+            var buttonMapProfile1 = new ObservableCollection<IHotasBaseMap>();
+            var button_1_1 = new HOTASButton() { MapId = 1, IsShift = false, ShiftModePage = 1 };
+            var button_1_2 = new HOTASButton() { MapId = 2, IsShift = false, ShiftModePage = 2 };
+            var button_1_3 = new HOTASAxis() { MapId = 3, ButtonMap = new ObservableCollection<HOTASButton>() { new HOTASButton() { MapId = 3, ShiftModePage = 3 } } };
+
+            buttonMapProfile1.Add(button_1_1);
+            buttonMapProfile1.Add(button_1_2);
+            buttonMapProfile1.Add(button_1_3);
+
+            var buttonMapProfile2 = new ObservableCollection<IHotasBaseMap>();
+            var button_2_1 = new HOTASButton() { MapId = 1, IsShift = false, ShiftModePage = 0 }; //simulate a new profile that does not have links back to previous profiles
+            var button_2_2 = new HOTASButton() { MapId = 2, IsShift = false, ShiftModePage = 0 }; //simulate a new profile that does not have links back to previous profiles
+            var button_2_3 = new HOTASAxis() { MapId = 3, ButtonMap = new ObservableCollection<HOTASButton>() { new HOTASButton() { MapId = 3, ShiftModePage = 0 } } };
+
+            buttonMapProfile2.Add(button_2_1);
+            buttonMapProfile2.Add(button_2_2);
+            buttonMapProfile2.Add(button_2_3);
+
+            subDevice.ButtonMap.Returns(buttonMapProfile1);
+
 
             var deviceId = Guid.NewGuid();
             subDevice.DeviceId = deviceId;
@@ -664,17 +700,20 @@ namespace SierraHOTAS.Tests
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(),
                 Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var profile = new Dictionary<int, ObservableCollection<IHotasBaseMap>>()
+            var profiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>()
             {
                 {
-                    1, new ObservableCollection<IHotasBaseMap> {buttonMap[0]}
+                    1, buttonMapProfile1
                 },
                 {
-                    2, new ObservableCollection<IHotasBaseMap> {buttonMap[1]}
+                    2, buttonMapProfile2
+                },
+                {
+                    3, buttonMapProfile2
                 }
             };
 
-            subDevice.ModeProfiles.Returns(profile);
+            subDevice.ModeProfiles.Returns(profiles);
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
@@ -694,9 +733,26 @@ namespace SierraHOTAS.Tests
                 Mode = 2
             };
 
+            var item3 = new ModeActivationItem()
+            {
+                DeviceId = deviceId,
+                ButtonId = 3,
+                Mode = 3
+            };
+
             list.ModeProfileActivationButtons.Add(1, item1);
             list.ModeProfileActivationButtons.Add(2, item2);
+            list.ModeProfileActivationButtons.Add(3, item3);
 
+            Assert.Equal(0, button_2_1.ShiftModePage);
+            Assert.Equal(0, button_2_2.ShiftModePage);
+            Assert.Equal(0, button_2_3.ButtonMap[0].ShiftModePage);
+
+            list.ApplyActivationButtonToAllProfiles();
+
+            Assert.Equal(1, button_2_1.ShiftModePage);
+            Assert.Equal(2, button_2_2.ShiftModePage);
+            Assert.Equal(3, button_2_3.ButtonMap[0].ShiftModePage);
         }
     }
 }
