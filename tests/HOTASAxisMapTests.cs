@@ -15,7 +15,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void constructor()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             Assert.NotNull(map.Segments);
             Assert.NotNull(map.ButtonMap);
             Assert.NotNull(map.ReverseButtonMap);
@@ -25,7 +25,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void set_value_direction_changed_when_is_directional_true()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = true;
             Assert.True(map.Direction == AxisDirection.Forward);
             map.SetAxis(800);
@@ -46,7 +46,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void set_value_direction_not_changed_when_is_directional_false()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = false;
             Assert.True(map.Direction == AxisDirection.Forward);
             map.SetAxis(800);
@@ -67,7 +67,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void set_value_detect_segment_changed_not_enough_segments()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.Segments.Clear();
             map.SetAxis(1000);
             Assert.False(map.IsSegmentChanged);
@@ -80,7 +80,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void set_value_detect_segment_changed()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.Segments.Clear();
             map.Segments.Add(new Segment(1, 0));
             map.Segments.Add(new Segment(2, 10));
@@ -92,7 +92,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void set_value_same_segment()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.Segments.Clear();
             map.Segments.Add(new Segment(1, 0));
             map.Segments.Add(new Segment(2, 10));
@@ -106,9 +106,9 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void calculate_segment_range_no_segments()
         {
-            var map = new HOTASAxisMap();
-            map.ButtonMap.Add(new HOTASButtonMap());
-            map.ReverseButtonMap.Add(new HOTASButtonMap());
+            var map = new HOTASAxis();
+            map.ButtonMap.Add(new HOTASButton());
+            map.ReverseButtonMap.Add(new HOTASButton());
             map.CalculateSegmentRange(0);
             Assert.Empty(map.Segments);
             Assert.Empty(map.ButtonMap);
@@ -118,7 +118,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void calculate_segment_not_directional_not_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = false;
             map.IsMultiAction = false;//should create single action button map list
 
@@ -136,7 +136,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void calculate_segment_is_directional_not_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = true;
             map.IsMultiAction = false;//should create single action button map list
 
@@ -155,14 +155,14 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void calculate_segment_is_directional_not_multi_action_existing_buttons()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = true;
             map.IsMultiAction = false;//should leave a single action button map list
 
-            map.ButtonMap.Add(new HOTASButtonMap() { MapName = "kept" });
-            map.ButtonMap.Add(new HOTASButtonMap() { MapName = "removed" });
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { MapName = "kept" });
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { MapName = "removed" });
+            map.ButtonMap.Add(new HOTASButton() { MapName = "kept" });
+            map.ButtonMap.Add(new HOTASButton() { MapName = "removed" });
+            map.ReverseButtonMap.Add(new HOTASButton() { MapName = "kept" });
+            map.ReverseButtonMap.Add(new HOTASButton() { MapName = "removed" });
 
             map.CalculateSegmentRange(2);
             Assert.NotEmpty(map.Segments);
@@ -176,14 +176,14 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void calculate_segment_not_directional_is_multi_action_less_segments_than_buttons()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = false;
             map.IsMultiAction = true;//should create action button map for each segment
 
             map.ButtonMap.Clear();
-            map.ButtonMap.Add(new HOTASButtonMap() { MapName = "kept" });
-            map.ButtonMap.Add(new HOTASButtonMap() { MapName = "removed 1" });
-            map.ButtonMap.Add(new HOTASButtonMap() { MapName = "removed 2" });
+            map.ButtonMap.Add(new HOTASButton() { MapName = "kept" });
+            map.ButtonMap.Add(new HOTASButton() { MapName = "removed 1" });
+            map.ButtonMap.Add(new HOTASButton() { MapName = "removed 2" });
 
             map.ReverseButtonMap.Clear();
 
@@ -198,16 +198,16 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void calculate_segment_is_directional_is_multi_action_less_segments_than_buttons()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = true;
             map.IsMultiAction = true;//should create action button map for each segment
 
             map.ButtonMap.Clear();
 
             map.ReverseButtonMap.Clear();
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { MapName = "kept" });
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { MapName = "removed 1" });
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { MapName = "removed 2" });
+            map.ReverseButtonMap.Add(new HOTASButton() { MapName = "kept" });
+            map.ReverseButtonMap.Add(new HOTASButton() { MapName = "removed 1" });
+            map.ReverseButtonMap.Add(new HOTASButton() { MapName = "removed 2" });
 
             map.CalculateSegmentRange(1);
             Assert.NotEmpty(map.Segments);
@@ -220,7 +220,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void calculate_segment_not_directional_is_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = false;
             map.IsMultiAction = true;//should create action button map for each segment
 
@@ -244,7 +244,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void calculate_segment_is_directional_Is_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = true;
             map.IsMultiAction = true;//should create action button map for each segment
 
@@ -276,7 +276,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void clear_segments()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.CalculateSegmentRange(4);
             Assert.Equal(4, map.Segments.Count);
             map.ClearSegments();
@@ -286,7 +286,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_segment_from_raw_value_not_found()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.CalculateSegmentRange(4);
             Assert.Equal(4, map.Segments.Count);
             Assert.Equal(0, map.GetSegmentFromRawValue(65536));
@@ -295,7 +295,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_segment_from_raw_value()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.CalculateSegmentRange(4);
             Assert.Equal(4, map.Segments.Count);
             Assert.Equal(1, map.GetSegmentFromRawValue(0));
@@ -311,7 +311,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void segment_filter()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             Assert.False(map.SegmentFilter(new Segment(1, ushort.MaxValue)));
             Assert.True(map.SegmentFilter(new Segment(1, ushort.MinValue)));
             Assert.True(map.SegmentFilter(new Segment(1, ushort.MaxValue - 1)));
@@ -320,7 +320,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_button_from_raw_value_not_directional_not_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = false;
             map.IsMultiAction = false;
 
@@ -335,7 +335,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_button_from_raw_value_forward_directional_not_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = true;
             map.IsMultiAction = false;
 
@@ -350,7 +350,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_button_from_raw_value_not_directional_is_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = false;
             map.IsMultiAction = true;
 
@@ -364,7 +364,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_button_from_raw_value_forward_directional_is_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = true;
             map.IsMultiAction = true;
 
@@ -378,7 +378,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_button_from_raw_value_backward_directional_is_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = true;
             map.IsMultiAction = true;
 
@@ -405,7 +405,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void get_button_from_raw_value_backward_directional_not_multi_action()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.IsDirectional = true;
             map.IsMultiAction = false;
 
@@ -433,14 +433,14 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void clear_unassigned_actions()
         {
-            var map = new HOTASAxisMap();
-            map.ButtonMap.Add(new HOTASButtonMap() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "<No Action>", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
-            map.ButtonMap.Add(new HOTASButtonMap() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 1", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
-            map.ButtonMap.Add(new HOTASButtonMap() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 2", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
+            var map = new HOTASAxis();
+            map.ButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "<No Action>", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
+            map.ButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 1", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
+            map.ButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 2", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
 
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "<No Action>", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 1", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 2", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
+            map.ReverseButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "<No Action>", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
+            map.ReverseButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 1", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
+            map.ReverseButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 2", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
 
             map.ClearUnassignedActions();
             Assert.Empty(map.ButtonMap[0].ActionCatalogItem.Actions);
@@ -455,7 +455,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void segment_boundary_test()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.CalculateSegmentRange(4);
             map.Segments[0].Value = 34000;//adjusting the first segment passed the second segment will pump the second segment up by 655 passed the new value of the first segment
             Assert.Equal(34655, map.Segments[1].Value);

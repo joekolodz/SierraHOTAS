@@ -305,7 +305,7 @@ namespace SierraHOTAS.Models
             {
                 foreach (var map in d.ButtonMap)
                 {
-                    if (!(map is HOTASButtonMap buttonMap)) continue;
+                    if (!(map is HOTASButton buttonMap)) continue;
                     if (buttonMap.ShiftModePage <= 0) continue;
 
                     var isOn = d.GetButtonState(buttonMap.MapId);
@@ -354,13 +354,13 @@ namespace SierraHOTAS.Models
 
                     switch (map)
                     {
-                        case HOTASAxisMap axisMap:
+                        case HOTASAxis axisMap:
                             {
                                 //ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ButtonMap);
                                 //ApplyShiftModePage(item.Key, item.Value.ButtonId, axisMap.ReverseButtonMap);
                                 break;
                             }
-                        case HOTASButtonMap buttonMap:
+                        case HOTASButton buttonMap:
                             {
                                 buttonMap.ResetShift();
                                 break;
@@ -392,13 +392,13 @@ namespace SierraHOTAS.Models
 
                     switch (map)
                     {
-                        case HOTASAxisMap axisMap:
+                        case HOTASAxis axisMap:
                             {
                                 ApplyShiftModePage(key, buttonId, axisMap.ButtonMap);
                                 ApplyShiftModePage(key, buttonId, axisMap.ReverseButtonMap);
                                 break;
                             }
-                        case HOTASButtonMap buttonMap:
+                        case HOTASButton buttonMap:
                             {
                                 ApplyShiftModePage(key, buttonId, isShift, buttonMap);
                                 break;
@@ -408,7 +408,7 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private static void ApplyShiftModePage(int mode, int activationButtonId, ObservableCollection<HOTASButtonMap> buttonMap)
+        private static void ApplyShiftModePage(int mode, int activationButtonId, ObservableCollection<HOTASButton> buttonMap)
         {
             foreach (var b in buttonMap)
             {
@@ -416,12 +416,12 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private static void ApplyShiftModePage(int mode, int activationButtonId, bool isShift, HOTASButtonMap buttonMap)
+        private static void ApplyShiftModePage(int mode, int activationButtonId, bool isShift, HOTASButton button)
         {
-            if (buttonMap.MapId != activationButtonId) return;
+            if (button.MapId != activationButtonId) return;
 
-            buttonMap.ShiftModePage = mode;
-            buttonMap.IsShift = isShift;
+            button.ShiftModePage = mode;
+            button.IsShift = isShift;
         }
     }
 }

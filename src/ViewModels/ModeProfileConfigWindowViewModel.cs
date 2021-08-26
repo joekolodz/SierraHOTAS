@@ -108,7 +108,7 @@ namespace SierraHOTAS.ViewModels
         private int _selectedTemplateMode;
         private readonly int _mode;
         private readonly Dictionary<int, ModeActivationItem> _activationButtonList;
-        private HOTASButtonMap _buttonMap;
+        private HOTASButton _button;
         private IEventAggregator _eventAggregator;
 
         private CommandHandler _saveModeProfileCommand;
@@ -154,7 +154,7 @@ namespace SierraHOTAS.ViewModels
         public void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             //get the button map from the device on which the button was pressed
-            if (!(e.Device.ButtonMap.FirstOrDefault(m => m.MapId == e.ButtonId) is HOTASButtonMap map))
+            if (!(e.Device.ButtonMap.FirstOrDefault(m => m.MapId == e.ButtonId) is HOTASButton map))
             {
                 Logging.Log.Info($"Couldn't find a button map. No mode activation has been set.");
                 return;
@@ -162,7 +162,7 @@ namespace SierraHOTAS.ViewModels
 
             Logging.Log.Info($"{e.ButtonId} from {e.Device.Name} - {sender}; ShiftMode:{map.ShiftModePage}; IsShift:{map.IsShift}");
 
-            _buttonMap = map;
+            _button = map;
             DeviceName = e.Device.Name;
             _deviceId = e.Device.DeviceId;
             ActivationButtonName = map.MapName;
@@ -196,9 +196,9 @@ namespace SierraHOTAS.ViewModels
                 }
             }
 
-            if (_buttonMap != null)
+            if (_button != null)
             {
-                _buttonMap.ShiftModePage = _mode;
+                _button.ShiftModePage = _mode;
             }
 
             _activationItem = new ModeActivationItem()
@@ -227,9 +227,9 @@ namespace SierraHOTAS.ViewModels
 
         private void ValidateActivationButton()
         {
-            Logging.Log.Debug($"canexecute {_buttonMap?.ShiftModePage}");
+            Logging.Log.Debug($"canexecute {_button?.ShiftModePage}");
 
-            _isActivationButtonValid = _buttonMap != null;
+            _isActivationButtonValid = _button != null;
 
             foreach (var mapId in _activationButtonList)
             {

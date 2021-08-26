@@ -186,7 +186,7 @@ namespace SierraHOTAS.Models
                 var success = _lastPovButton.TryRemove(offset, out var translatedOffset);
 
                 if (!success) return;
-                if (!(GetMap(translatedOffset) is HOTASButtonMap map)) return;
+                if (!(GetMap(translatedOffset) is HOTASButton map)) return;
                 HandleButtonReleased(map, translatedOffset);
                 OnButtonRelease(translatedOffset);
             }
@@ -197,7 +197,7 @@ namespace SierraHOTAS.Models
                 _lastPovButton.TryAdd(offset, translatedOffset);
                 Logging.Log.Debug($"Pressing POV button: {offset} - {value}");
 
-                if (!(GetMap(translatedOffset) is HOTASButtonMap map)) return;
+                if (!(GetMap(translatedOffset) is HOTASButton map)) return;
 
                 HandleButtonPressed(map, translatedOffset);
                 OnButtonPress(translatedOffset);
@@ -208,7 +208,7 @@ namespace SierraHOTAS.Models
         private static readonly ConcurrentDictionary<int, Task> _activeButtons = new ConcurrentDictionary<int, Task>();
         private void HandleStandardButton(int offset, int value)
         {
-            var map = GetMap(offset) as HOTASButtonMap;
+            var map = GetMap(offset) as HOTASButton;
             if (IsButtonDown(value))
             {
                 if (map != null && (map.ActionCatalogItem.Actions.Count > 0 || map.ShiftModePage > 0))
@@ -225,26 +225,26 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private void HandleButtonPressed(HOTASButtonMap buttonMap, int offset)
+        private void HandleButtonPressed(HOTASButton button, int offset)
         {
-            if (buttonMap == null) return;
+            if (button == null) return;
 
-            if (buttonMap.IsMacro)
+            if (button.IsMacro)
             {
-                HandleMacro(buttonMap, offset);
+                HandleMacro(button, offset);
                 return;
             }
 
-            if (buttonMap.ShiftModePage > 0)
+            if (button.ShiftModePage > 0)
             {
-                HandleShiftMode(buttonMap.ShiftModePage, buttonMap.IsShift);
-                if (buttonMap.ActionCatalogItem.Actions.Count == 0) return;
+                HandleShiftMode(button.ShiftModePage, button.IsShift);
+                if (button.ActionCatalogItem.Actions.Count == 0) return;
             }
 
-            _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = buttonMap.MapId, Actions = buttonMap.ActionCatalogItem.Actions });
+            _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = button.MapId, Actions = button.ActionCatalogItem.Actions });
         }
 
-        private void HandleMacro(HOTASButtonMap buttonMap, int offset)
+        private void HandleMacro(HOTASButton button, int offset)
         {
             if (_activeMacros.TryGetValue(offset, out _))
             {
@@ -253,7 +253,7 @@ namespace SierraHOTAS.Models
             }
 
             _activeMacros.TryAdd(offset, true);
-            Task.Run(() => PlayMacroOnce(offset, buttonMap.ActionCatalogItem.Actions));
+            Task.Run(() => PlayMacroOnce(offset, button.ActionCatalogItem.Actions));
         }
 
         private void HandleShiftMode(int mode, bool isShift)
@@ -290,13 +290,13 @@ namespace SierraHOTAS.Models
             _activeMacros.TryRemove(offset, out _);
         }
 
-        private void HandleButtonReleased(HOTASButtonMap buttonMap, int offset)
+        private void HandleButtonReleased(HOTASButton button, int offset)
         {
-            if (buttonMap == null) return;
+            if (button == null) return;
 
-            var mapId = buttonMap.MapId;
+            var mapId = button.MapId;
 
-            if (buttonMap.IsShift)
+            if (button.IsShift)
             {
                 ShiftReleased?.Invoke(this, new EventArgs());
             }
@@ -308,7 +308,7 @@ namespace SierraHOTAS.Models
         {
             var offset = (int)state.Offset;
 
-            if (!(GetMap(offset) is HOTASAxisMap axis)) return;
+            if (!(GetMap(offset) is HOTASAxis axis)) return;
 
             axis.SetAxis(state.Value);
 

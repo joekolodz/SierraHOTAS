@@ -22,9 +22,9 @@ namespace SierraHOTAS
 
             devices[0].SetButtonMap(new ObservableCollection<IHotasBaseMap>()
             {
-                new HOTASButtonMap()
+                new HOTASButton()
                 {
-                    MapName = "Button 1", Type = HOTASButtonMap.ButtonType.Button, MapId = 54, ActionCatalogItem =
+                    MapName = "Button 1", Type = HOTASButton.ButtonType.Button, MapId = 54, ActionCatalogItem =
                         new ActionCatalogItem()
                         {
                             ActionName = "test button 54",
@@ -43,18 +43,18 @@ namespace SierraHOTAS
                             }
                         }
                 },
-                new HOTASAxisMap() {MapName = "Axis 2", Type = HOTASButtonMap.ButtonType.AxisRadial, MapId = 55, IsDirectional = true}
+                new HOTASAxis() {MapName = "Axis 2", Type = HOTASButton.ButtonType.AxisRadial, MapId = 55, IsDirectional = true}
             });
 
             devices[1].SetButtonMap(new ObservableCollection<IHotasBaseMap>()
             {
-                new HOTASAxisMap() { MapName = "Axis 1", Type = HOTASButtonMap.ButtonType.AxisLinear, MapId = 42, IsDirectional = true },
-                new HOTASAxisMap() { MapName = "Axis 2", Type = HOTASButtonMap.ButtonType.AxisRadial, MapId = 43, IsDirectional = false },
-                new HOTASButtonMap() { MapName = "Button 0", Type = HOTASButtonMap.ButtonType.Button, MapId = 48 },
-                new HOTASButtonMap()
+                new HOTASAxis() { MapName = "Axis 1", Type = HOTASButton.ButtonType.AxisLinear, MapId = 42, IsDirectional = true },
+                new HOTASAxis() { MapName = "Axis 2", Type = HOTASButton.ButtonType.AxisRadial, MapId = 43, IsDirectional = false },
+                new HOTASButton() { MapName = "Button 0", Type = HOTASButton.ButtonType.Button, MapId = 48 },
+                new HOTASButton()
                 {
                     MapName = "Button 1",
-                    Type = HOTASButtonMap.ButtonType.Button,
+                    Type = HOTASButton.ButtonType.Button,
                     MapId = 55,
                     ActionCatalogItem = new ActionCatalogItem()
                     {
@@ -66,10 +66,10 @@ namespace SierraHOTAS
                         }
                     }
                 },
-                new HOTASButtonMap()
+                new HOTASButton()
                 {
                     MapName = "Button 2",
-                    Type = HOTASButtonMap.ButtonType.Button,
+                    Type = HOTASButton.ButtonType.Button,
                     MapId = 56,
                     ActionCatalogItem = new ActionCatalogItem()
                     {

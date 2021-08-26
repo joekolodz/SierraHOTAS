@@ -6,16 +6,16 @@ using System.Linq;
 
 namespace SierraHOTAS.Models
 {
-    public class HOTASAxisMap : IHotasBaseMap
+    public class HOTASAxis : IHotasBaseMap
     {
         public event EventHandler<AxisDirectionChangedEventArgs> OnAxisDirectionChanged;
         public event EventHandler<AxisSegmentChangedEventArgs> OnAxisSegmentChanged;
 
         public int MapId { get; set; }
         public string MapName { get; set; }
-        public HOTASButtonMap.ButtonType Type { get; set; }
-        public ObservableCollection<HOTASButtonMap> ButtonMap { get; set; }
-        public ObservableCollection<HOTASButtonMap> ReverseButtonMap { get; set; }
+        public HOTASButton.ButtonType Type { get; set; }
+        public ObservableCollection<HOTASButton> ButtonMap { get; set; }
+        public ObservableCollection<HOTASButton> ReverseButtonMap { get; set; }
 
         public bool IsDirectional { get; set; } = true;
         public bool IsMultiAction { get; set; } = false;
@@ -33,11 +33,11 @@ namespace SierraHOTAS.Models
 
         public AxisDirection Direction { get; private set; }
 
-        public HOTASAxisMap()
+        public HOTASAxis()
         {
             Segments = new ObservableCollection<Segment>();
-            ButtonMap = new ObservableCollection<HOTASButtonMap>();
-            ReverseButtonMap = new ObservableCollection<HOTASButtonMap>();
+            ButtonMap = new ObservableCollection<HOTASButton>();
+            ReverseButtonMap = new ObservableCollection<HOTASButton>();
             SoundVolume = 1.0d;
             _previousValues = new int[_arraySize];
         }
@@ -167,14 +167,14 @@ namespace SierraHOTAS.Models
 
             if (ButtonMap.Count == 0)
             {
-                ButtonMap.Add(new HOTASButtonMap() { MapId = 1, MapName = $"Axis Button 1", Type = HOTASButtonMap.ButtonType.Button });
+                ButtonMap.Add(new HOTASButton() { MapId = 1, MapName = $"Axis Button 1", Type = HOTASButton.ButtonType.Button });
             }
 
             if (IsDirectional)
             {
                 if (ReverseButtonMap.Count == 0)
                 {
-                    ReverseButtonMap.Add(new HOTASButtonMap() { MapId = 1, MapName = $"Reverse Axis Button 1", Type = HOTASButtonMap.ButtonType.Button });
+                    ReverseButtonMap.Add(new HOTASButton() { MapId = 1, MapName = $"Reverse Axis Button 1", Type = HOTASButton.ButtonType.Button });
                 }
             }
 
@@ -194,7 +194,7 @@ namespace SierraHOTAS.Models
             {
                 for (var i = ButtonMap.Count + 1; i <= segments; i++)
                 {
-                    ButtonMap.Add(new HOTASButtonMap() { MapId = i, MapName = $"Axis Button {i}", Type = HOTASButtonMap.ButtonType.Button });
+                    ButtonMap.Add(new HOTASButton() { MapId = i, MapName = $"Axis Button {i}", Type = HOTASButton.ButtonType.Button });
                 }
             }
 
@@ -211,7 +211,7 @@ namespace SierraHOTAS.Models
                 {
                     for (var i = ReverseButtonMap.Count + 1; i <= segments; i++)
                     {
-                        ReverseButtonMap.Add(new HOTASButtonMap() { MapId = i, MapName = $"Reverse Axis Button {i}", Type = HOTASButtonMap.ButtonType.Button });
+                        ReverseButtonMap.Add(new HOTASButton() { MapId = i, MapName = $"Reverse Axis Button {i}", Type = HOTASButton.ButtonType.Button });
                     }
                 }
             }
@@ -245,9 +245,9 @@ namespace SierraHOTAS.Models
             return item.Value != ushort.MaxValue;
         }
 
-        public HOTASButtonMap GetButtonMapFromRawValue(int value)
+        public HOTASButton GetButtonMapFromRawValue(int value)
         {
-            HOTASButtonMap map;
+            HOTASButton map;
 
             var segment = GetSegmentFromRawValue(value);
 
@@ -263,9 +263,9 @@ namespace SierraHOTAS.Models
             return map;
         }
 
-        private HOTASButtonMap GetSingleActionMap()
+        private HOTASButton GetSingleActionMap()
         {
-            HOTASButtonMap map;
+            HOTASButton map;
             if (IsDirectional)
             {
                 if (Direction == AxisDirection.Forward)
@@ -284,9 +284,9 @@ namespace SierraHOTAS.Models
             return map;
         }
 
-        private HOTASButtonMap GetMultiActionMap(int segment)
+        private HOTASButton GetMultiActionMap(int segment)
         {
-            HOTASButtonMap map;
+            HOTASButton map;
             if (IsDirectional)
             {
                 if (Direction == AxisDirection.Forward)
@@ -311,7 +311,7 @@ namespace SierraHOTAS.Models
             ClearUnassignedActions(ReverseButtonMap);
         }
 
-        private void ClearUnassignedActions(ObservableCollection<HOTASButtonMap> map)
+        private void ClearUnassignedActions(ObservableCollection<HOTASButton> map)
         {
             foreach (var b in map)
             {

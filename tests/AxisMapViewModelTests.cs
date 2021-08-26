@@ -17,14 +17,14 @@
             var subMediaPlayer = Substitute.For<IMediaPlayer>();
             var subDispatcherFactory = new DispatcherFactory();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
 
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
             return mapVm;
         }
 
-        //private AxisMapViewModel CreateAxisMapViewModel(out HOTASAxisMap map)
+        //private AxisMapViewModel CreateAxisMapViewModel(out HOTASAxis map)
         //{
         //    var subFileSystem = Substitute.For<IFileSystem>();
         //    var subMediaPlayer = Substitute.For<IMediaPlayer>();
@@ -32,7 +32,7 @@
         //    var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
         //    subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
 
-        //    map = new HOTASAxisMap();
+        //    map = new HOTASAxis();
         //    var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
         //    return mapVm;
         //}
@@ -42,7 +42,7 @@
             var subFileSystem = Substitute.For<IFileSystem>();
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             subMediaPlayer = Substitute.For<IMediaPlayer>();
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
 
@@ -55,7 +55,7 @@
             subFileSystem = Substitute.For<IFileSystem>();
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             subMediaPlayer = Substitute.For<IMediaPlayer>();
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
 
@@ -63,12 +63,12 @@
             return mapVm;
         }
 
-        private AxisMapViewModel CreateAxisMapViewModel(out IFileSystem subFileSystem, out IMediaPlayer subMediaPlayer, out HOTASAxisMap map)
+        private AxisMapViewModel CreateAxisMapViewModel(out IFileSystem subFileSystem, out IMediaPlayer subMediaPlayer, out HOTASAxis map)
         {
             subFileSystem = Substitute.For<IFileSystem>();
             var subDispatcherFactory = new DispatcherFactory();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
-            map = new HOTASAxisMap();
+            map = new HOTASAxis();
             subMediaPlayer = Substitute.For<IMediaPlayer>();
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
 
@@ -76,7 +76,7 @@
             return mapVm;
         }
 
-        private AxisMapViewModel CreateAxisMapViewModel(out IMediaPlayer subMediaPlayer, HOTASAxisMap map)
+        private AxisMapViewModel CreateAxisMapViewModel(out IMediaPlayer subMediaPlayer, HOTASAxis map)
         {
             var subFileSystem = Substitute.For<IFileSystem>();
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
@@ -88,7 +88,7 @@
             return mapVm;
         }
 
-        //private AxisMapViewModel CreateAxisMapViewModel(out IFileSystem subFileSystem, out IMediaPlayer subMediaPlayer, out DispatcherFactory subDispatcherFactory, out MediaPlayerFactory subMediaPlayerFactory, out HOTASAxisMap map)
+        //private AxisMapViewModel CreateAxisMapViewModel(out IFileSystem subFileSystem, out IMediaPlayer subMediaPlayer, out DispatcherFactory subDispatcherFactory, out MediaPlayerFactory subMediaPlayerFactory, out HOTASAxis map)
         //{
         //    subFileSystem = Substitute.For<IFileSystem>();
         //    subMediaPlayer = Substitute.For<IMediaPlayer>();
@@ -96,12 +96,12 @@
         //    subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
         //    subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
 
-        //    map = new HOTASAxisMap();
+        //    map = new HOTASAxis();
         //    var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
         //    return mapVm;
         //}
 
-        //private AxisMapViewModel CreateAxisMapViewModel(out IFileSystem subFileSystem, out IMediaPlayer subMediaPlayer, out DispatcherFactory subDispatcherFactory, out MediaPlayerFactory subMediaPlayerFactory, out HOTASAxisMap map)
+        //private AxisMapViewModel CreateAxisMapViewModel(out IFileSystem subFileSystem, out IMediaPlayer subMediaPlayer, out DispatcherFactory subDispatcherFactory, out MediaPlayerFactory subMediaPlayerFactory, out HOTASAxis map)
         //{
         //    subFileSystem = Substitute.For<IFileSystem>();
         //    subMediaPlayer = Substitute.For<IMediaPlayer>();
@@ -109,7 +109,7 @@
         //    subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
         //    subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
 
-        //    map = new HOTASAxisMap();
+        //    map = new HOTASAxis();
         //    var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
         //    return mapVm;
         //}
@@ -117,19 +117,19 @@
         [Fact]
         public void constructor_test_valid_map()
         {
-            var map = new HOTASAxisMap();
-            map.ButtonMap.Add(new HOTASButtonMap() { MapId = 1, MapName = "test 1", Type = HOTASButtonMap.ButtonType.AxisLinear });
-            map.ButtonMap.Add(new HOTASButtonMap() { MapId = 2, MapName = "test 2", Type = HOTASButtonMap.ButtonType.AxisRadial });
+            var map = new HOTASAxis();
+            map.ButtonMap.Add(new HOTASButton() { MapId = 1, MapName = "test 1", Type = HOTASButton.ButtonType.AxisLinear });
+            map.ButtonMap.Add(new HOTASButton() { MapId = 2, MapName = "test 2", Type = HOTASButton.ButtonType.AxisRadial });
 
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { MapId = 3, MapName = "test 3", Type = HOTASButtonMap.ButtonType.AxisLinear });
-            map.ReverseButtonMap.Add(new HOTASButtonMap() { MapId = 4, MapName = "test 4", Type = HOTASButtonMap.ButtonType.AxisRadial });
+            map.ReverseButtonMap.Add(new HOTASButton() { MapId = 3, MapName = "test 3", Type = HOTASButton.ButtonType.AxisLinear });
+            map.ReverseButtonMap.Add(new HOTASButton() { MapId = 4, MapName = "test 4", Type = HOTASButton.ButtonType.AxisRadial });
 
             var mapVm = CreateAxisMapViewModel(out var subMediaPlayer, map);
 
             mapVm.ButtonName = "new name";
             Assert.NotEmpty(map.MapName);
 
-            map.Type = HOTASButtonMap.ButtonType.Button;
+            map.Type = HOTASButton.ButtonType.Button;
             Assert.Equal(mapVm.Type, map.Type);
 
             Assert.Equal(2, mapVm.ButtonMap.Count);
@@ -157,7 +157,7 @@
         [Fact]
         public void constructor_test_valid_sound_file_from_deserialization()
         {
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             map.SoundFileName = "file name";
             CreateAxisMapViewModel(out var subMediaPlayer, map);
             map.SoundFileName = "bob";
@@ -176,7 +176,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns(string.Empty);
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
             mapVm.OpenFileCommand.Execute(default);
@@ -194,7 +194,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns("some file");
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
 
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
@@ -213,7 +213,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns("some file");
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
             var segmentLess = new Segment(1, 4000);
@@ -233,7 +233,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns("some file");
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
             mapVm.IsDirectional = true;
@@ -279,7 +279,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns("some file");
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
@@ -298,7 +298,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns("some file");
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
@@ -335,7 +335,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns("some file");
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
             mapVm.IsDirectional = false;
@@ -360,7 +360,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns("some file");
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
             mapVm.IsDirectional = true;
@@ -425,7 +425,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns("some file");
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
             Assert.Equal(1.0d, mapVm.SoundVolume);
@@ -451,7 +451,7 @@
             subMediaPlayerFactory.CreateMediaPlayer().Returns(subMediaPlayer);
             subFileSystem.GetSoundFileName().Returns("some file");
 
-            var map = new HOTASAxisMap();
+            var map = new HOTASAxis();
             var mapVm = new AxisMapViewModel(subDispatcherFactory.CreateDispatcher(), subMediaPlayerFactory, subFileSystem, map);
 
             Assert.True(mapVm.Direction == AxisDirection.Forward);

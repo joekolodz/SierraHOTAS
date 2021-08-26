@@ -112,22 +112,22 @@ namespace SierraHOTAS.ViewModels
             {
                 switch (baseMap.Type)
                 {
-                    case HOTASButtonMap.ButtonType.AxisLinear:
-                        var linearMap = baseMap as HOTASAxisMap;
+                    case HOTASButton.ButtonType.AxisLinear:
+                        var linearMap = baseMap as HOTASAxis;
                         var lmVm = new AxisMapViewModel(_appDispatcher, _mediaPlayerFactory, _fileSystem, linearMap);
                         AddAxisMapHandlers(lmVm);
                         ButtonMap.Add(lmVm);
                         break;
 
-                    case HOTASButtonMap.ButtonType.AxisRadial:
-                        var radialMap = baseMap as HOTASAxisMap;
+                    case HOTASButton.ButtonType.AxisRadial:
+                        var radialMap = baseMap as HOTASAxis;
                         var rmVm = new AxisMapViewModel(_appDispatcher, _mediaPlayerFactory, _fileSystem, radialMap);
                         AddAxisMapHandlers(rmVm);
                         ButtonMap.Add(rmVm);
                         break;
 
                     default:
-                        var buttonMap = baseMap as HOTASButtonMap;
+                        var buttonMap = baseMap as HOTASButton;
                         var bmVm = new ButtonMapViewModel(buttonMap);
                         AddButtonMapHandlers(bmVm);
                         ButtonMap.Add(bmVm);

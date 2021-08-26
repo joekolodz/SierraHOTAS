@@ -15,8 +15,8 @@ namespace SierraHOTAS
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(HOTASButtonMap) ||
-                   objectType == typeof(HOTASAxisMap) ||
+            return objectType == typeof(HOTASButton) ||
+                   objectType == typeof(HOTASAxis) ||
                    objectType == typeof(IHOTASDevice);
         }
 
@@ -37,16 +37,16 @@ namespace SierraHOTAS
                 return device;
             }
 
-            if (objectType == typeof(HOTASButtonMap))
+            if (objectType == typeof(HOTASButton))
             {
-                var buttonMap = new HOTASButtonMap();
+                var buttonMap = new HOTASButton();
                 try
                 {
                     serializer.Populate(reader, buttonMap);
                 }
                 catch (Exception e)
                 {
-                    Logging.Log.Error(e, "Failed to deserialize a HOTASButtonMap");
+                    Logging.Log.Error(e, "Failed to deserialize a HOTASButton");
                     throw;
                 }
                 return buttonMap;
@@ -66,19 +66,19 @@ namespace SierraHOTAS
                 {
                     IHotasBaseMap map;
                     var testValue = jsonObject.Value<string>("Type");
-                    Enum.TryParse(testValue, out HOTASButtonMap.ButtonType testType);
+                    Enum.TryParse(testValue, out HOTASButton.ButtonType testType);
 
                     try
                     {
                         switch (testType)
                         {
-                            case HOTASButtonMap.ButtonType.AxisLinear:
-                            case HOTASButtonMap.ButtonType.AxisRadial:
-                                map = new HOTASAxisMap();
+                            case HOTASButton.ButtonType.AxisLinear:
+                            case HOTASButton.ButtonType.AxisRadial:
+                                map = new HOTASAxis();
                                 serializer.Populate(jsonObject.CreateReader(), map);
                                 break;
                             default:
-                                map = new HOTASButtonMap();
+                                map = new HOTASButton();
                                 serializer.Populate(jsonObject.CreateReader(), map);
                                 break;
                         }

@@ -205,9 +205,9 @@ namespace SierraHOTAS.Tests
             hotasQueue = hotasQueueFactory.CreateHOTASQueue();
             subHotasDevice = Substitute.For<IHOTASDevice>();
 
-            var axisMap = Substitute.For<HOTASAxisMap>();
+            var axisMap = Substitute.For<HOTASAxis>();
             axisMap.MapId = (int)JoystickOffset.Slider1;
-            axisMap.Type = HOTASButtonMap.ButtonType.AxisLinear;
+            axisMap.Type = HOTASButton.ButtonType.AxisLinear;
             subHotasDevice.ButtonMap.Returns(new ObservableCollection<IHotasBaseMap>()
             {
                 axisMap
@@ -260,11 +260,11 @@ namespace SierraHOTAS.Tests
         {
             var deviceVm = CreateDeviceViewMode("Test Device", out var hotasDevice);
             var list = new ObservableCollection<IHotasBaseMap>();
-            list.Add(new HOTASButtonMap() { MapId = 48, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
-            var testButton = new HOTASButtonMap()
+            list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
+            var testButton = new HOTASButton()
             {
                 MapId = 49,
-                Type = HOTASButtonMap.ButtonType.Button,
+                Type = HOTASButton.ButtonType.Button,
                 ActionCatalogItem = new ActionCatalogItem()
                 { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } },
                 ActionName = "<No Action>"
@@ -284,8 +284,8 @@ namespace SierraHOTAS.Tests
         {
             var deviceVm = CreateDeviceViewMode("Test Device", out var hotasDevice);
             var list = new ObservableCollection<IHotasBaseMap>();
-            list.Add(new HOTASButtonMap() { MapId = 48, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
-            list.Add(new HOTASButtonMap() { MapId = 49, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "second" });
+            list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
+            list.Add(new HOTASButton() { MapId = 49, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "second" });
 
             hotasDevice.SetButtonMap(list);
             deviceVm.ButtonMap.Add(new ButtonMapViewModel() { ButtonId = 1 });
@@ -303,9 +303,9 @@ namespace SierraHOTAS.Tests
         {
             var deviceVm = CreateDeviceViewMode("Test Device", out _);
             var list = new ObservableCollection<IHotasBaseMap>();
-            list.Add(new HOTASButtonMap() { MapId = 48, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
-            list.Add(new HOTASAxisMap() { MapId = 49, Type = HOTASButtonMap.ButtonType.AxisLinear, ButtonMap = new ObservableCollection<HOTASButtonMap>(), Segments = new ObservableCollection<Segment>() });
-            list.Add(new HOTASAxisMap() { MapId = 50, Type = HOTASButtonMap.ButtonType.AxisRadial, ButtonMap = new ObservableCollection<HOTASButtonMap>(), Segments = new ObservableCollection<Segment>() });
+            list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
+            list.Add(new HOTASAxis() { MapId = 49, Type = HOTASButton.ButtonType.AxisLinear, ButtonMap = new ObservableCollection<HOTASButton>(), Segments = new ObservableCollection<Segment>() });
+            list.Add(new HOTASAxis() { MapId = 50, Type = HOTASButton.ButtonType.AxisRadial, ButtonMap = new ObservableCollection<HOTASButton>(), Segments = new ObservableCollection<Segment>() });
 
             deviceVm.ButtonMap.Add(new ButtonMapViewModel() { ButtonId = 1 });
             Assert.Single(deviceVm.ButtonMap);
@@ -324,7 +324,7 @@ namespace SierraHOTAS.Tests
         {
             var deviceVm = CreateDeviceViewMode(out var hotasQueue, out var hotasDevice, out var subJoystick);
             var list = new ObservableCollection<IHotasBaseMap>();
-            list.Add(new HOTASButtonMap() { MapId = 48, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
+            list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
             deviceVm.RebuildMap(list);
 
             hotasQueue.Listen(subJoystick, list);
@@ -379,7 +379,7 @@ namespace SierraHOTAS.Tests
             expectedHotasDevice.ProductId = expectedProductId;
 
             var list = new ObservableCollection<IHotasBaseMap>();
-            list.Add(new HOTASButtonMap() { MapId = 48, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
+            list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
             expectedHotasDevice.SetButtonMap(list);
 
             Assert.Equal(originalHotasDevice.Name, deviceVm.Name);
@@ -402,8 +402,8 @@ namespace SierraHOTAS.Tests
             var deviceVm = CreateDeviceViewMode(out var hotasDevice);
 
             var list = new ObservableCollection<IHotasBaseMap>();
-            list.Add(new HOTASButtonMap() { MapId = 48, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
-            list.Add(new HOTASButtonMap() { MapId = 49, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "second" });
+            list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
+            list.Add(new HOTASButton() { MapId = 49, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "second" });
             deviceVm.RebuildMap(list);
 
             var mapVm1 = deviceVm.ButtonMap[0] as ButtonMapViewModel;
@@ -427,8 +427,8 @@ namespace SierraHOTAS.Tests
             var deviceVm = CreateDeviceViewMode(out var hotasDevice);
 
             var list = new ObservableCollection<IHotasBaseMap>();
-            list.Add(new HOTASButtonMap() { MapId = 48, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
-            list.Add(new HOTASButtonMap() { MapId = 49, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "second" });
+            list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
+            list.Add(new HOTASButton() { MapId = 49, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "second" });
             deviceVm.RebuildMap(list);
 
             var mapVm1 = deviceVm.ButtonMap[0] as ButtonMapViewModel;
@@ -455,7 +455,7 @@ namespace SierraHOTAS.Tests
             var deviceVm = CreateDeviceViewMode(out var hotasDevice);
 
             var list = new ObservableCollection<IHotasBaseMap>();
-            list.Add(new HOTASButtonMap() { MapId = 48, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
+            list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
             deviceVm.RebuildMap(list);
 
             var map =  deviceVm.ButtonMap[0] as ButtonMapViewModel;

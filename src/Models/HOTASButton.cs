@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SierraHOTAS.Models
 {
-    public class HOTASButtonMap : IHotasBaseMap
+    public class HOTASButton : IHotasBaseMap
     {
         public enum ButtonType
         {
@@ -37,7 +37,7 @@ namespace SierraHOTAS.Models
         private bool _isRecording;
         private ObservableCollection<ButtonAction> _actionsHistory;
 
-        public HOTASButtonMap()
+        public HOTASButton()
         {
             ActionCatalogItem = new ActionCatalogItem();
         }

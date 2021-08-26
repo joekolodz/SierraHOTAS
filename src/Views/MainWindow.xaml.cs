@@ -101,8 +101,8 @@ namespace SierraHOTAS.Views
                 if (map.ButtonId != e.AxisId) continue;
                 Dispatcher?.Invoke(() =>
                 {
-                    if (map.Type == HOTASButtonMap.ButtonType.Button ||
-                        map.Type == HOTASButtonMap.ButtonType.POV)
+                    if (map.Type == HOTASButton.ButtonType.Button ||
+                        map.Type == HOTASButton.ButtonType.POV)
                     {
                         gridMap.SelectedItem = map;
                         gridMap.ScrollIntoView(map);

@@ -316,14 +316,14 @@ namespace SierraHOTAS.ViewModels
         {
             string actionName;
 
-            if (map.Type == HOTASButtonMap.ButtonType.Button || map.Type == HOTASButtonMap.ButtonType.POV)
+            if (map.Type == HOTASButton.ButtonType.Button || map.Type == HOTASButton.ButtonType.POV)
             {
-                if (!(map is HOTASButtonMap buttonMap)) return;
+                if (!(map is HOTASButton buttonMap)) return;
                 actionName = buttonMap.ActionName;
             }
             else
             {
-                if (!(map is HOTASAxisMap axisMap)) return;
+                if (!(map is HOTASAxis axisMap)) return;
 
                 //only virtual axis buttons will have a map id > 0, otherwise map id is equal to offset
                 if (e.MapId == 0) e.MapId = e.Offset;
@@ -536,13 +536,13 @@ namespace SierraHOTAS.ViewModels
                         if (string.IsNullOrWhiteSpace(m.MapName)) continue;
                         switch (m)
                         {
-                            case HOTASAxisMap axisMap:
+                            case HOTASAxis axisMap:
                                 {
                                     AddButtonListToCatalog(axisMap.ButtonMap);
                                     AddButtonListToCatalog(axisMap.ReverseButtonMap);
                                     break;
                                 }
-                            case HOTASButtonMap buttonMap:
+                            case HOTASButton buttonMap:
                                 {
                                     AddButtonToCatalog(buttonMap.ActionName, buttonMap.ActionCatalogItem.Actions, buttonMap.MapName);
                                     break;
@@ -553,7 +553,7 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        private void AddButtonListToCatalog(ObservableCollection<HOTASButtonMap> mapList)
+        private void AddButtonListToCatalog(ObservableCollection<HOTASButton> mapList)
         {
             foreach (var baseMap in mapList)
             {

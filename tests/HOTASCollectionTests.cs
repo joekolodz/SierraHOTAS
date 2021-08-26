@@ -55,7 +55,7 @@ namespace SierraHOTAS.Tests
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
             var device = new HOTASDevice() { DeviceId = deviceId };
-            device.ButtonMap.Add(new HOTASButtonMap() { MapId = 1, MapName = "first button", ActionName = "tes action", IsShift = true, ShiftModePage = 2, Type = HOTASButtonMap.ButtonType.Button });
+            device.ButtonMap.Add(new HOTASButton() { MapId = 1, MapName = "first button", ActionName = "tes action", IsShift = true, ShiftModePage = 2, Type = HOTASButton.ButtonType.Button });
             list.AddDevice(device);
             var addedDevice = list.Devices.First(d => d.DeviceId == deviceId);
             Assert.Equal("first button", addedDevice.ButtonMap[0].MapName);
@@ -71,8 +71,8 @@ namespace SierraHOTAS.Tests
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
             var device = new HOTASDevice() { DeviceId = deviceId };
-            device.ButtonMap.Add(new HOTASButtonMap() { MapId = 1, MapName = "first button", ActionName = "tes action", IsShift = true, ShiftModePage = 2, Type = HOTASButtonMap.ButtonType.Button });
-            device.ModeProfiles.Add(43, new ObservableCollection<IHotasBaseMap>() { { new HOTASButtonMap() { MapName = "mode profile map" } } });
+            device.ButtonMap.Add(new HOTASButton() { MapId = 1, MapName = "first button", ActionName = "tes action", IsShift = true, ShiftModePage = 2, Type = HOTASButton.ButtonType.Button });
+            device.ModeProfiles.Add(43, new ObservableCollection<IHotasBaseMap>() { { new HOTASButton() { MapName = "mode profile map" } } });
             list.AddDevice(device);
             var addedDevice = list.Devices.First(d => d.DeviceId == deviceId);
             Assert.Equal("mode profile map", addedDevice.ModeProfiles[43][0].MapName);
@@ -497,7 +497,7 @@ namespace SierraHOTAS.Tests
         {
             var subDevice = Substitute.For<IHOTASDevice>();
             var buttonMap = new ObservableCollection<IHotasBaseMap>();
-            buttonMap.Add(new HOTASButtonMap() { ShiftModePage = 43 });
+            buttonMap.Add(new HOTASButton() { ShiftModePage = 43 });
             subDevice.IsDeviceLoaded.Returns(true);
             subDevice.ButtonMap.Returns(buttonMap);
             subDevice.GetButtonState(Arg.Any<int>()).Returns(true);
@@ -540,7 +540,7 @@ namespace SierraHOTAS.Tests
         {
             var subDevice = Substitute.For<IHOTASDevice>();
             var buttonMap = new ObservableCollection<IHotasBaseMap>();
-            var map = new HOTASButtonMap() {MapId = 1, IsShift = true, ShiftModePage = 1};
+            var map = new HOTASButton() {MapId = 1, IsShift = true, ShiftModePage = 1};
             buttonMap.Add(map);
             subDevice.ButtonMap.Returns(buttonMap);
 
@@ -589,8 +589,8 @@ namespace SierraHOTAS.Tests
         {
             var subDevice = Substitute.For<IHOTASDevice>();
             var buttonMap = new ObservableCollection<IHotasBaseMap>();
-            var map1 = new HOTASButtonMap() { MapId = 1, IsShift = true, ShiftModePage = 1 };
-            var map2 = new HOTASButtonMap() { MapId = 2, IsShift = false, ShiftModePage = 2 };
+            var map1 = new HOTASButton() { MapId = 1, IsShift = true, ShiftModePage = 1 };
+            var map2 = new HOTASButton() { MapId = 2, IsShift = false, ShiftModePage = 2 };
             buttonMap.Add(map1);
             buttonMap.Add(map2);
             subDevice.ButtonMap.Returns(buttonMap);
@@ -646,14 +646,13 @@ namespace SierraHOTAS.Tests
         }
         
         //todo in progress
-        //before renaming HOTASButtonMap to HOTASButton and HOTASAxisMap to HOTASAxis
         [Fact]
         public void apply_activation_button_to_all_profiles()
         {
             var subDevice = Substitute.For<IHOTASDevice>();
             var buttonMap = new ObservableCollection<IHotasBaseMap>();
-            var map1 = new HOTASButtonMap() { MapId = 1, IsShift = true, ShiftModePage = 1 };
-            var map2 = new HOTASButtonMap() { MapId = 2, IsShift = false, ShiftModePage = 2 };
+            var map1 = new HOTASButton() { MapId = 1, IsShift = true, ShiftModePage = 1 };
+            var map2 = new HOTASButton() { MapId = 2, IsShift = false, ShiftModePage = 2 };
             buttonMap.Add(map1);
             buttonMap.Add(map2);
             subDevice.ButtonMap.Returns(buttonMap);

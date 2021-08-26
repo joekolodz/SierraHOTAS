@@ -167,15 +167,15 @@ namespace SierraHOTAS.Tests
             profileVm.DeviceName = "not set";
 
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "test device 1", Substitute.For<IHOTASQueue>());
-            device1.ButtonMap.Add(new HOTASButtonMap() { MapId = 1 });
-            device1.ButtonMap.Add(new HOTASButtonMap() { MapId = 2 });
+            device1.ButtonMap.Add(new HOTASButton() { MapId = 1 });
+            device1.ButtonMap.Add(new HOTASButton() { MapId = 2 });
 
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = 1, Device = device1 });
             Assert.Equal("test device 1", profileVm.DeviceName);
 
             var device2 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "test device 2", Substitute.For<IHOTASQueue>());
-            device2.ButtonMap.Add(new HOTASButtonMap() { MapId = 4, MapName = "test activation name" });
-            device2.ButtonMap.Add(new HOTASButtonMap() { MapId = 5 });
+            device2.ButtonMap.Add(new HOTASButton() { MapId = 4, MapName = "test activation name" });
+            device2.ButtonMap.Add(new HOTASButton() { MapId = 5 });
 
             //button and device do not match up so devicename does not change
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = 1, Device = device2 });
@@ -231,7 +231,7 @@ namespace SierraHOTAS.Tests
 
             var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "test device 1", Substitute.For<IHOTASQueue>());
-            var button = new HOTASButtonMap() { MapId = 1, ShiftModePage = 0 };
+            var button = new HOTASButton() { MapId = 1, ShiftModePage = 0 };
             device1.ButtonMap.Add(button);
 
             //shift mode test needs a button to have been pressed
@@ -254,7 +254,7 @@ namespace SierraHOTAS.Tests
 
             var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "new device 1", Substitute.For<IHOTASQueue>());
-            var button = new HOTASButtonMap() { MapId = 43, ShiftModePage = 0, ActionName = "new action", MapName = "new map" };
+            var button = new HOTASButton() { MapId = 43, ShiftModePage = 0, ActionName = "new action", MapName = "new map" };
             device1.ButtonMap.Add(button);
 
             //test needs a button to have been pressed
@@ -281,7 +281,7 @@ namespace SierraHOTAS.Tests
 
             var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "new device 1", Substitute.For<IHOTASQueue>());
-            var button = new HOTASButtonMap() { MapId = 43, ShiftModePage = 0, ActionName = "new action", MapName = "new map" };
+            var button = new HOTASButton() { MapId = 43, ShiftModePage = 0, ActionName = "new action", MapName = "new map" };
             device1.ButtonMap.Add(button);
 
             //test needs a button to have been pressed
@@ -322,10 +322,10 @@ namespace SierraHOTAS.Tests
             var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), new TestDispatcher(), mode, activationButtonList);
 
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), device1Id, "first device", Substitute.For<IHOTASQueue>());
-            device1.ButtonMap.Add(new HOTASButtonMap() { MapId = 1 });
+            device1.ButtonMap.Add(new HOTASButton() { MapId = 1 });
 
             var device2 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), device2Id, "second device", Substitute.For<IHOTASQueue>());
-            device2.ButtonMap.Add(new HOTASButtonMap() { MapId = 2, MapName = "test activation name" });
+            device2.ButtonMap.Add(new HOTASButton() { MapId = 2, MapName = "test activation name" });
 
             Assert.False(profileVm.IsActivationErrorVisible);
             //press a button on a device tha is already in the activation list
@@ -365,7 +365,7 @@ namespace SierraHOTAS.Tests
 
             var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "new device 1", Substitute.For<IHOTASQueue>());
-            var button = new HOTASButtonMap() { MapId = 43, ShiftModePage = 0, ActionName = "new action 1", MapName = "new map 1" };
+            var button = new HOTASButton() { MapId = 43, ShiftModePage = 0, ActionName = "new action 1", MapName = "new map 1" };
             device1.ButtonMap.Add(button);
 
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = 43, Device = device1 });
@@ -381,7 +381,7 @@ namespace SierraHOTAS.Tests
 
             profileVm.TemplateModeSelected(new object(), args);
 
-            button = new HOTASButtonMap() { MapId = 44, ShiftModePage = 0, ActionName = "new action 2", MapName = "new map 2" };
+            button = new HOTASButton() { MapId = 44, ShiftModePage = 0, ActionName = "new action 2", MapName = "new map 2" };
             device1.ButtonMap.Add(button);
 
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = 44, Device = device1 });

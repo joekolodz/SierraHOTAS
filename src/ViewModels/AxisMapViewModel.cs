@@ -20,7 +20,7 @@ namespace SierraHOTAS.ViewModels
 
     public class AxisMapViewModel : IBaseMapViewModel, INotifyPropertyChanged
     {
-        private readonly HOTASAxisMap _hotasAxisMap;
+        private readonly HOTASAxis _hotasAxis;
         private readonly IFileSystem _fileSystem;
         private IMediaPlayer _mediaPlayer;
         private readonly IDispatcher _appDispatcher;
@@ -34,17 +34,17 @@ namespace SierraHOTAS.ViewModels
 
         public int ButtonId
         {
-            get => _hotasAxisMap.MapId;
-            set => _hotasAxisMap.MapId = value;
+            get => _hotasAxis.MapId;
+            set => _hotasAxis.MapId = value;
         }
 
         public string ButtonName
         {
-            get => _hotasAxisMap.MapName;
+            get => _hotasAxis.MapName;
             set
             {
-                if (_hotasAxisMap.MapName == value) return;
-                _hotasAxisMap.MapName = value;
+                if (_hotasAxis.MapName == value) return;
+                _hotasAxis.MapName = value;
                 OnPropertyChanged();
             }
         }
@@ -57,16 +57,16 @@ namespace SierraHOTAS.ViewModels
 
         public bool CanExecute => true;
 
-        public HOTASButtonMap.ButtonType Type
+        public HOTASButton.ButtonType Type
         {
-            get => _hotasAxisMap.Type;
-            set => _hotasAxisMap.Type = value;
+            get => _hotasAxis.Type;
+            set => _hotasAxis.Type = value;
         }
 
         private int _segmentCount;
         public int SegmentCount
         {
-            get => _hotasAxisMap.Segments.Count;
+            get => _hotasAxis.Segments.Count;
             set
             {
                 if (_segmentCount == value) return;
@@ -78,17 +78,17 @@ namespace SierraHOTAS.ViewModels
 
         public ObservableCollection<Segment> Segments
         {
-            get => _hotasAxisMap.Segments;
-            set => _hotasAxisMap.Segments = value;
+            get => _hotasAxis.Segments;
+            set => _hotasAxis.Segments = value;
         }
 
         public bool IsMultiAction
         {
-            get => _hotasAxisMap.IsMultiAction;
+            get => _hotasAxis.IsMultiAction;
             set
             {
-                if (_hotasAxisMap.IsMultiAction == value) return;
-                _hotasAxisMap.IsMultiAction = value;
+                if (_hotasAxis.IsMultiAction == value) return;
+                _hotasAxis.IsMultiAction = value;
                 MultiActionChanged();
                 OnPropertyChanged();
             }
@@ -96,12 +96,12 @@ namespace SierraHOTAS.ViewModels
 
         public bool IsDirectional
         {
-            get => _hotasAxisMap.IsDirectional;
+            get => _hotasAxis.IsDirectional;
             set
             {
-                if (_hotasAxisMap.IsDirectional == value) return;
-                _hotasAxisMap.IsDirectional = value;
-                if (!_hotasAxisMap.IsDirectional) Direction = AxisDirection.Forward;
+                if (_hotasAxis.IsDirectional == value) return;
+                _hotasAxis.IsDirectional = value;
+                if (!_hotasAxis.IsDirectional) Direction = AxisDirection.Forward;
                 DirectionChanged();
                 OnPropertyChanged();
             }
@@ -109,22 +109,22 @@ namespace SierraHOTAS.ViewModels
 
         public string SoundFileName
         {
-            get => _hotasAxisMap.SoundFileName;
+            get => _hotasAxis.SoundFileName;
             set
             {
-                if (_hotasAxisMap.SoundFileName == value) return;
-                _hotasAxisMap.SoundFileName = value;
+                if (_hotasAxis.SoundFileName == value) return;
+                _hotasAxis.SoundFileName = value;
                 OnPropertyChanged();
             }
         }
 
         public double SoundVolume
         {
-            get => _hotasAxisMap.SoundVolume;
+            get => _hotasAxis.SoundVolume;
             set
             {
-                if (Math.Abs(_hotasAxisMap.SoundVolume - value) < 0.05d) return;
-                _hotasAxisMap.SoundVolume = value;
+                if (Math.Abs(_hotasAxis.SoundVolume - value) < 0.05d) return;
+                _hotasAxis.SoundVolume = value;
                 OnPropertyChanged();
             }
         }
@@ -157,7 +157,7 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        public AxisMapViewModel(IDispatcher dispatcher, MediaPlayerFactory mediaPlayerFactory, IFileSystem fileSystem, HOTASAxisMap map)
+        public AxisMapViewModel(IDispatcher dispatcher, MediaPlayerFactory mediaPlayerFactory, IFileSystem fileSystem, HOTASAxis map)
         {
             _appDispatcher = dispatcher;
             _fileSystem = fileSystem;
@@ -167,11 +167,11 @@ namespace SierraHOTAS.ViewModels
             ReverseButtonMap = new ObservableCollection<ButtonMapViewModel>();
             AddHandlersToReverseButtonMapCollection();
 
-            _hotasAxisMap = map;
-            _segmentCount = _hotasAxisMap.Segments.Count;
+            _hotasAxis = map;
+            _segmentCount = _hotasAxis.Segments.Count;
 
-            _hotasAxisMap.OnAxisDirectionChanged += OnAxisDirectionChanged;
-            _hotasAxisMap.OnAxisSegmentChanged += OnAxisSegmentChanged;
+            _hotasAxis.OnAxisDirectionChanged += OnAxisDirectionChanged;
+            _hotasAxis.OnAxisSegmentChanged += OnAxisSegmentChanged;
 
             _mediaPlayer = mediaPlayerFactory.CreateMediaPlayer();
             _mediaPlayer.Volume = 0f;
@@ -221,13 +221,13 @@ namespace SierraHOTAS.ViewModels
 
         public bool SegmentFilter(object item)
         {
-            return _hotasAxisMap.SegmentFilter((Segment)item);
+            return _hotasAxis.SegmentFilter((Segment)item);
         }
 
         private void SegmentsCountChanged()
         {
             ResetSegments();
-            _hotasAxisMap.CalculateSegmentRange(_segmentCount);
+            _hotasAxis.CalculateSegmentRange(_segmentCount);
             AddSegmentHandlers();
 
             RemoveAllButtonMapHandlers();
@@ -243,8 +243,8 @@ namespace SierraHOTAS.ViewModels
         {
             RemoveReverseButtonMapHandlers();
             ReverseButtonMap.Clear();
-            _hotasAxisMap.ReverseButtonMap.Clear();
-            _hotasAxisMap.CreateActionMapList();
+            _hotasAxis.ReverseButtonMap.Clear();
+            _hotasAxis.CreateActionMapList();
 
             if (_segmentCount == 1) return;
 
@@ -259,7 +259,7 @@ namespace SierraHOTAS.ViewModels
             ButtonMap.Clear();
             ReverseButtonMap.Clear();
 
-            _hotasAxisMap.CreateActionMapList();
+            _hotasAxis.CreateActionMapList();
 
             RebuildAllButtonMapViewModels();
         }
@@ -272,7 +272,7 @@ namespace SierraHOTAS.ViewModels
 
         private void RebuildForwardButtonMapViewModels()
         {
-            foreach (var map in _hotasAxisMap.ButtonMap)
+            foreach (var map in _hotasAxis.ButtonMap)
             {
                 var vm = new ButtonMapViewModel(map);
                 AddButtonMapHandlers(vm);
@@ -282,7 +282,7 @@ namespace SierraHOTAS.ViewModels
 
         private void RebuildReverseButtonMapViewModels()
         {
-            foreach (var map in _hotasAxisMap.ReverseButtonMap)
+            foreach (var map in _hotasAxis.ReverseButtonMap)
             {
                 var vm = new ButtonMapViewModel(map);
                 AddButtonMapHandlers(vm);
@@ -293,7 +293,7 @@ namespace SierraHOTAS.ViewModels
         public void ResetSegments()
         {
             RemoveSegmentHandlers();
-            _hotasAxisMap.ClearSegments();
+            _hotasAxis.ClearSegments();
         }
 
         private void AddSegmentHandlers()
@@ -337,7 +337,7 @@ namespace SierraHOTAS.ViewModels
         private void OnAxisSegmentChanged(object sender, AxisSegmentChangedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(SoundFileName)) return;
-            if (sender is HOTASAxisMap axisMap)
+            if (sender is HOTASAxis axisMap)
             {
                 _appDispatcher?.Invoke(() =>
                 {

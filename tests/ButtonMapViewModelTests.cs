@@ -23,13 +23,13 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void constructor_param()
         {
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action" } };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action" } };
             var mapVm = new ButtonMapViewModel(map);
             Assert.Empty(mapVm.Actions);
             Assert.NotNull(mapVm.ActionItem);
             Assert.Equal(43, mapVm.ButtonId);
             Assert.Equal("test map", mapVm.ButtonName);
-            Assert.Equal(HOTASButtonMap.ButtonType.Button, mapVm.Type);
+            Assert.Equal(HOTASButton.ButtonType.Button, mapVm.Type);
             Assert.Equal("test action", mapVm.ActionItem.ActionName);
             Assert.False(mapVm.IsRecording);
             Assert.False(mapVm.IsDisabledForced);
@@ -38,7 +38,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void to_string()
         {
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action" } };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action" } };
             var mapVm = new ButtonMapViewModel(map);
             Assert.Equal($"ButtonMap MapId:{map.MapId}, {map.MapName}", mapVm.ToString());
         }
@@ -53,7 +53,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
 
             var mapVm = new ButtonMapViewModel(map);
             Assert.NotEmpty(mapVm.GetHotasActions());
@@ -69,7 +69,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button };
 
             var mapVm = new ButtonMapViewModel(map);
             Assert.Empty(mapVm.Actions);
@@ -89,7 +89,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button };
 
             var mapVm = new ButtonMapViewModel(map);
             Assert.Empty(mapVm.Actions);
@@ -109,7 +109,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button };
 
             var mapVm = new ButtonMapViewModel(map);
             mapVm.AssignActions(catalog);
@@ -132,7 +132,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ShiftModePage = shiftModePage };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ShiftModePage = shiftModePage };
 
             var mapVm = new ButtonMapViewModel(map);
             mapVm.AssignActions(catalog);
@@ -153,7 +153,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button };
 
             var mapVm = new ButtonMapViewModel(map);
             mapVm.AssignActions(catalog);
@@ -175,7 +175,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
             var mapVm = new ButtonMapViewModel(map);
             mapVm.IsDisabledForced = false;
             Assert.True(mapVm.RecordMacroStartCommand.CanExecute(default));
@@ -192,7 +192,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
             var mapVm = new ButtonMapViewModel(map);
             mapVm.IsDisabledForced = true;
             Assert.False(mapVm.RecordMacroStartCommand.CanExecute(default));
@@ -208,7 +208,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
             var mapVm = new ButtonMapViewModel(map);
 
             Assert.NotEmpty(mapVm.Actions);
@@ -230,7 +230,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
             var mapVm = new ButtonMapViewModel(map);
             mapVm.IsDisabledForced = false;
             mapVm.IsRecording = true;
@@ -248,7 +248,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
             var mapVm = new ButtonMapViewModel(map);
             mapVm.IsDisabledForced = true;
             Assert.False(mapVm.RecordMacroStopCommand.CanExecute(default));
@@ -264,7 +264,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
             var mapVm = new ButtonMapViewModel(map);
 
             Assert.NotEmpty(mapVm.Actions);
@@ -287,7 +287,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
             var mapVm = new ButtonMapViewModel(map);
             mapVm.IsDisabledForced = false;
             mapVm.IsRecording = true;
@@ -305,7 +305,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
             var mapVm = new ButtonMapViewModel(map);
             mapVm.IsDisabledForced = true;
             Assert.False(mapVm.RecordMacroCancelCommand.CanExecute(default));
@@ -321,7 +321,7 @@ namespace SierraHOTAS.Tests
                 new ButtonAction() {ScanCode = 2},
                 new ButtonAction() {ScanCode = 3},
             };
-            var map = new HOTASButtonMap() { MapName = "test map", MapId = 43, Type = HOTASButtonMap.ButtonType.Button, ActionCatalogItem = catalog };
+            var map = new HOTASButton() { MapName = "test map", MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = catalog };
             var mapVm = new ButtonMapViewModel(map);
 
             Assert.NotEmpty(mapVm.Actions);

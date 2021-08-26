@@ -16,9 +16,9 @@ namespace SierraHOTAS.ViewModels.DataTemplates
 
             switch (iMap.Type)
             {
-                case HOTASButtonMap.ButtonType.AxisLinear:
+                case HOTASButton.ButtonType.AxisLinear:
                     return LinearDataTemplate;
-                case HOTASButtonMap.ButtonType.AxisRadial:
+                case HOTASButton.ButtonType.AxisRadial:
                     return RadialDataTemplate;
                 default:
                     return ButtonDataTemplate;

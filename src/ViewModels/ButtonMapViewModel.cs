@@ -11,12 +11,12 @@ namespace SierraHOTAS.ViewModels
 {
     public class ButtonMapViewModel : IBaseMapViewModel, INotifyPropertyChanged
     {
-        private readonly HOTASButtonMap _hotasButtonMap;
+        private readonly HOTASButton _hotasButton;
 
         public ActionCatalogItem ActionItem
         {
-            get => _hotasButtonMap.ActionCatalogItem; 
-            set => _hotasButtonMap.ActionCatalogItem = value;
+            get => _hotasButton.ActionCatalogItem; 
+            set => _hotasButton.ActionCatalogItem = value;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -27,25 +27,25 @@ namespace SierraHOTAS.ViewModels
 
         public int ButtonId
         {
-            get => _hotasButtonMap.MapId;
-            set => _hotasButtonMap.MapId = value;
+            get => _hotasButton.MapId;
+            set => _hotasButton.MapId = value;
         }
 
         public string ButtonName
         {
-            get => _hotasButtonMap.MapName;
+            get => _hotasButton.MapName;
             set
             {
-                if (_hotasButtonMap.MapName == value) return;
-                _hotasButtonMap.MapName = value;
+                if (_hotasButton.MapName == value) return;
+                _hotasButton.MapName = value;
                 OnPropertyChanged(nameof(ButtonName));
             }
         }
 
-        public HOTASButtonMap.ButtonType Type
+        public HOTASButton.ButtonType Type
         {
-            get => _hotasButtonMap.Type;
-            set => _hotasButtonMap.Type = value;
+            get => _hotasButton.Type;
+            set => _hotasButton.Type = value;
         }
 
         public string ActionName
@@ -80,38 +80,38 @@ namespace SierraHOTAS.ViewModels
 
         public int ActivateShiftModePage
         {
-            get => _hotasButtonMap.ShiftModePage;
+            get => _hotasButton.ShiftModePage;
             set
             {
-                if (_hotasButtonMap.ShiftModePage == value) return;
-                Logging.Log.Info($"about to change Mode from: {_hotasButtonMap.ShiftModePage} to: {value}");
-                _hotasButtonMap.ShiftModePage = value;
+                if (_hotasButton.ShiftModePage == value) return;
+                Logging.Log.Info($"about to change Mode from: {_hotasButton.ShiftModePage} to: {value}");
+                _hotasButton.ShiftModePage = value;
                 OnPropertyChanged(nameof(ActivateShiftModePage));
             }
         }
 
         public ButtonMapViewModel()
         {
-            _hotasButtonMap = new HOTASButtonMap();
+            _hotasButton = new HOTASButton();
             Actions = new ObservableCollection<ButtonActionViewModel>();
             ActionItem = new ActionCatalogItem();
             AddHandlers();
         }
 
-        public ButtonMapViewModel(HOTASButtonMap buttonMap)
+        public ButtonMapViewModel(HOTASButton button)
         {
-            _hotasButtonMap = buttonMap;
+            _hotasButton = button;
             IsRecording = false;
             IsDisabledForced = false;
             Actions = new ObservableCollection<ButtonActionViewModel>();
-            ActionItem = buttonMap.ActionCatalogItem;
+            ActionItem = button.ActionCatalogItem;
             AddHandlers();
-            BuildButtonActionViewModel(buttonMap.ActionCatalogItem.Actions);
+            BuildButtonActionViewModel(button.ActionCatalogItem.Actions);
         }
 
         public override string ToString()
         {
-            return $"ButtonMap MapId:{_hotasButtonMap.MapId}, {_hotasButtonMap.MapName}";
+            return $"ButtonMap MapId:{_hotasButton.MapId}, {_hotasButton.MapName}";
         }
 
         public ObservableCollection<ButtonAction> GetHotasActions()
@@ -176,7 +176,7 @@ namespace SierraHOTAS.ViewModels
 
             Actions.Clear();
 
-            _hotasButtonMap.Record();
+            _hotasButton.Record();
 
             IsRecording = true;
             RecordingStarted?.Invoke(this, EventArgs.Empty);
@@ -192,7 +192,7 @@ namespace SierraHOTAS.ViewModels
         {
             if (IsDisabledForced) return;
 
-            _hotasButtonMap.Stop();
+            _hotasButton.Stop();
 
             ReBuildButtonActionViewModel();
 
@@ -209,7 +209,7 @@ namespace SierraHOTAS.ViewModels
         {
             if (IsDisabledForced) return;
 
-            _hotasButtonMap.Cancel();
+            _hotasButton.Cancel();
 
             ReBuildButtonActionViewModel();
 

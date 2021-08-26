@@ -124,9 +124,9 @@ namespace SierraHOTAS.Models
             {
                 switch (map)
                 {
-                    case HOTASAxisMap axisMap:
+                    case HOTASAxis axisMap:
                         {
-                            var newAxisMap = new HOTASAxisMap()
+                            var newAxisMap = new HOTASAxis()
                             {
                                 MapId = axisMap.MapId,
                                 MapName = axisMap.MapName,
@@ -152,7 +152,7 @@ namespace SierraHOTAS.Models
                             destination.Add(newAxisMap);
                             break;
                         }
-                    case HOTASButtonMap buttonMap:
+                    case HOTASButton buttonMap:
                         {
                             var newMap = BuildAxisButtonMap(buttonMap);
                             destination.Add(newMap);
@@ -162,9 +162,9 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private static HOTASButtonMap BuildAxisButtonMap(HOTASButtonMap map)
+        private static HOTASButton BuildAxisButtonMap(HOTASButton map)
         {
-            var newMap = new HOTASButtonMap
+            var newMap = new HOTASButton
             {
                 MapId = map.MapId,
                 MapName = map.MapName,
@@ -286,8 +286,8 @@ namespace SierraHOTAS.Models
             if (Capabilities?.AxeCount > 0) SeedAxisMap(JoystickOffset.X, 6, buttonMap);
             SeedAxisMap(JoystickOffset.Slider1, 1, buttonMap);
             SeedAxisMap(JoystickOffset.Slider2, 1, buttonMap);
-            if (Capabilities?.ButtonCount > 0) SeedButtonMap(JoystickOffset.Button1, Capabilities.ButtonCount, HOTASButtonMap.ButtonType.Button, buttonMap);
-            if (Capabilities?.PovCount > 0) SeedPointOfViewMap(JoystickOffset.POV1, Capabilities.PovCount, HOTASButtonMap.ButtonType.POV, buttonMap);
+            if (Capabilities?.ButtonCount > 0) SeedButtonMap(JoystickOffset.Button1, Capabilities.ButtonCount, HOTASButton.ButtonType.Button, buttonMap);
+            if (Capabilities?.PovCount > 0) SeedPointOfViewMap(JoystickOffset.POV1, Capabilities.PovCount, HOTASButton.ButtonType.POV, buttonMap);
         }
 
         private void LoadCapabilities()
@@ -304,7 +304,7 @@ namespace SierraHOTAS.Models
             Logging.Log.Debug("Flags {0}", Capabilities.Flags);
         }
 
-        private void SeedPointOfViewMap(JoystickOffset startFrom, int length, HOTASButtonMap.ButtonType type, ObservableCollection<IHotasBaseMap> buttonMap)
+        private void SeedPointOfViewMap(JoystickOffset startFrom, int length, HOTASButton.ButtonType type, ObservableCollection<IHotasBaseMap> buttonMap)
         {
             var indexStart = JoystickOffsetValues.GetIndex(startFrom.ToString());
             for (var count = indexStart; count < indexStart + length; count++)
@@ -318,7 +318,7 @@ namespace SierraHOTAS.Models
                 {
                     var translatedOffset = HOTASQueue.TranslatePointOfViewOffset(offset, 4500 * (int)position);
 
-                    buttonMap.Add(new HOTASButtonMap()
+                    buttonMap.Add(new HOTASButton()
                     {
                         MapId = (int)translatedOffset,
                         Type = type,
@@ -334,16 +334,16 @@ namespace SierraHOTAS.Models
             for (var count = indexStart; count < indexStart + length; count++)
             {
                 var offset = JoystickOffsetValues.GetOffset(count);
-                var axisType = HOTASButtonMap.ButtonType.AxisLinear;
+                var axisType = HOTASButton.ButtonType.AxisLinear;
 
                 if (offset == JoystickOffset.RX ||
                     offset == JoystickOffset.RY ||
                     offset == JoystickOffset.RZ)
                 {
-                    axisType = HOTASButtonMap.ButtonType.AxisRadial;
+                    axisType = HOTASButton.ButtonType.AxisRadial;
                 }
 
-                buttonMap.Add(new HOTASAxisMap()
+                buttonMap.Add(new HOTASAxis()
                 {
                     MapId = (int)offset,
                     Type = axisType,
@@ -352,13 +352,13 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private void SeedButtonMap(JoystickOffset startFrom, int length, HOTASButtonMap.ButtonType type, ObservableCollection<IHotasBaseMap> buttonMap)
+        private void SeedButtonMap(JoystickOffset startFrom, int length, HOTASButton.ButtonType type, ObservableCollection<IHotasBaseMap> buttonMap)
         {
             var indexStart = JoystickOffsetValues.GetIndex(startFrom.ToString());
             for (var count = indexStart; count < indexStart + length; count++)
             {
                 var offset = JoystickOffsetValues.GetOffset(count);
-                buttonMap.Add(new HOTASButtonMap()
+                buttonMap.Add(new HOTASButton()
                 {
                     MapId = (int)offset,
                     Type = type,
