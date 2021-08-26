@@ -4,6 +4,7 @@ using SierraHOTAS.ModeProfileWindow.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using SierraHOTAS.Factories;
 
@@ -161,6 +162,7 @@ namespace SierraHOTAS.Models
 
         //TODO - make this public and add the ability to remove a connected device from the UI
         //you'd want to do this to keep the save file size down; or during save, remove items from the collection that don't have any assigned actions
+        [ExcludeFromCodeCoverage]
         private void RemoveDevice(IHOTASDevice device)
         {
             if (device == null) return;
