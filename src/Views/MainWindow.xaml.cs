@@ -122,7 +122,9 @@ namespace SierraHOTAS.Views
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-            WindowsProcedure.Initialize(this);
+
+            //TODO don't need this
+            //WindowsProcedure.Initialize(this);
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)

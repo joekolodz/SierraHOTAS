@@ -303,9 +303,8 @@ namespace SierraHOTAS
                 }
             }
 
-            var callbackValue = 0;//process this keypress as normal
-            if (IsKeySuppressionActive) callbackValue = 1;//don't continue handling this keystroke. prevents ALT from opening menu, alt-tab from switching screens, etc. Only do this when recording keypresses.
-            return (IntPtr)callbackValue;
+            if (IsKeySuppressionActive) return (IntPtr)1; //don't continue handling this keystroke. prevents ALT from opening menu, alt-tab from switching screens, etc. Only do this when recording keypresses.
+            return CallNextHookEx(_hookID, nCode, wParam, lParam); //continue call chain
         }
     }
 }
