@@ -33,7 +33,7 @@ namespace SierraHOTAS.Tests
         public void record_clears_actions()
         {
             var map = new HOTASButton();
-            map.ActionCatalogItem.Actions.Add(new ButtonAction() { ScanCode = 1, Flags = 1, TimeInMilliseconds = 1 });
+            map.ActionCatalogItem.Actions.Add(new ButtonAction() { ScanCode = 1, IsExtended = true, TimeInMilliseconds = 1 });
             map.Record();
             Assert.Empty(map.ActionCatalogItem.Actions);
         }
@@ -51,7 +51,7 @@ namespace SierraHOTAS.Tests
         public void record_sets_history_with_one_item()
         {
             var map = new HOTASButton();
-            var item = new ButtonAction() { ScanCode = 1, Flags = 1, TimeInMilliseconds = 1 };
+            var item = new ButtonAction() { ScanCode = 1, IsExtended = true, TimeInMilliseconds = 1 };
             map.ActionCatalogItem.Actions.Add(item);
             map.Record();
             map.Cancel();
@@ -63,11 +63,11 @@ namespace SierraHOTAS.Tests
         public void stop_keeps_only_new_actions()
         {
             var map = new HOTASButton();
-            var item = new ButtonAction() { ScanCode = 1, Flags = 1, TimeInMilliseconds = 1 };
+            var item = new ButtonAction() { ScanCode = 1, IsExtended = true, TimeInMilliseconds = 1 };
             map.ActionCatalogItem.Actions.Add(item);
             map.Record();
 
-            var newItem = new ButtonAction() { ScanCode = 1, Flags = 1, TimeInMilliseconds = 1 };
+            var newItem = new ButtonAction() { ScanCode = 1, IsExtended = true, TimeInMilliseconds = 1 };
             map.ActionCatalogItem.Actions.Add(newItem);
 
             map.Stop();
@@ -110,7 +110,7 @@ namespace SierraHOTAS.Tests
             var map = new HOTASButton();
             map.Record();
 
-            Keyboard.SimulateKeyPressTest(1, 0);
+            Keyboard.SimulateKeyPressTest(1, false, false);
             
             Assert.Single(map.ActionCatalogItem.Actions);
         }
@@ -127,9 +127,8 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void to_string()
         {
-            const int LLKHF_UP = 0x80;
             var map = new HOTASButton();
-            map.ActionCatalogItem.Actions.Add(new ButtonAction() { ScanCode = 48, Flags = LLKHF_UP });
+            map.ActionCatalogItem.Actions.Add(new ButtonAction() { ScanCode = 48, IsKeyUp = true});
             Assert.Equal("[KEY_B^]", map.ToString());
             map.ActionCatalogItem.Actions.Add(new ButtonAction() { ScanCode = 49});
             Assert.Equal("[KEY_B^][KEY_Nv]", map.ToString());

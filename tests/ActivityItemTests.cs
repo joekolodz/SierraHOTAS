@@ -12,33 +12,25 @@ namespace SierraHOTAS.Tests
             
             //normal
             item.ScanCode = (int)Win32Structures.ScanCodeShort.CAPITAL;
-            item.Flags = 128;
+            item.IsKeyUp = true;
+            item.IsExtended = false;
             Assert.Equal("CAPS", item.Key);
             
             item.ScanCode = (int)Win32Structures.ScanCodeShort.ESCAPE;
-            item.Flags = 128;
+            item.IsKeyUp = true;
+            item.IsExtended = false;
             Assert.Equal(Win32Structures.ScanCodeShort.ESCAPE.ToString(), item.Key);
 
             //extended
             item.ScanCode = (int)Win32Structures.ScanCodeShort.LWIN;
-            item.Flags = 1;
+            item.IsKeyUp = false;
+            item.IsExtended = true;
             Assert.Equal(Win32Structures.ScanCodeShort.LWIN.ToString(), item.Key);
             
             item.ScanCode = (int)Win32Structures.ScanCodeShort.NEXT;
-            item.Flags = 1;
+            item.IsKeyUp = false;
+            item.IsExtended = true;
             Assert.Equal("PG DN", item.Key);
-        }
-
-        [Fact]
-        public void is_key_up()
-        {
-            var item = new ActivityItem();
-            
-            item.Flags = 0x80;
-            Assert.True(item.IsKeyUp);
-
-            item.Flags = 0x0;
-            Assert.False(item.IsKeyUp);
         }
 
         [Fact]

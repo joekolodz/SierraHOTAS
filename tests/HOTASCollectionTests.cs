@@ -297,7 +297,7 @@ namespace SierraHOTAS.Tests
             list.ListenToDevice(subDevice);
 
             Assert.Raises<KeystrokeSentEventArgs>(a => list.KeystrokeDownSent += a, a => list.KeystrokeDownSent -= a,
-                () => subDevice.KeystrokeDownSent += Raise.EventWith(subDevice, new KeystrokeSentEventArgs(1, 1, 1, 1)));
+                () => subDevice.KeystrokeDownSent += Raise.EventWith(subDevice, new KeystrokeSentEventArgs(1, 1, 1, false, true)));
         }
 
         [Fact]
@@ -314,7 +314,7 @@ namespace SierraHOTAS.Tests
             list.ListenToDevice(subDevice);
 
             Assert.Raises<KeystrokeSentEventArgs>(a => list.KeystrokeUpSent += a, a => list.KeystrokeUpSent -= a,
-                () => subDevice.KeystrokeUpSent += Raise.EventWith(subDevice, new KeystrokeSentEventArgs(1, 1, 1, 1)));
+                () => subDevice.KeystrokeUpSent += Raise.EventWith(subDevice, new KeystrokeSentEventArgs(1, 1, 1, false, true)));
         }
 
         [Fact]

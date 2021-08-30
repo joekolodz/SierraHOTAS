@@ -42,13 +42,6 @@ namespace SierraHOTAS
         internal const int WM_KEYUP = 0x0101;
         internal const int WM_SYSKEYDOWN = 0x0104;
         internal const int WM_SYSKEYUP = 0x0105;
-        internal const int WM_PREVIOUS_KEYSTATE = 0x40000000;
-
-        internal const uint MAPVK_VK_TO_VSC = 0x00;
-        internal const uint MAPVK_VSC_TO_VK = 0x01;
-        internal const uint MAPVK_VK_TO_CHAR = 0x02;
-        internal const uint MAPVK_VSC_TO_VK_EX = 0x03;
-        internal const uint MAPVK_VK_TO_VSC_EX = 0x04;
 
         internal static LowLevelKeyboardProc _proc = HookCallback;
         internal static IntPtr _hookID = IntPtr.Zero;
@@ -60,12 +53,16 @@ namespace SierraHOTAS
         internal class KeystrokeEventArgs : EventArgs
         {
             public int Code { get; set; }
-            public int Flags { get; set; }
+            public bool IsKeyUp { get; set; }
+            public bool IsExtended { get; set; }
 
-            public KeystrokeEventArgs(uint code, Win32Structures.KBDLLHOOKSTRUCTFlags flags)
+            //public int Flags { get; set; }
+
+            public KeystrokeEventArgs(uint code, bool isKeyUp, bool isExtended)
             {
                 Code = (int)code;
-                Flags = (int)flags;
+                IsKeyUp = isKeyUp;
+                IsExtended = isExtended;
             }
         }
 
@@ -183,9 +180,9 @@ namespace SierraHOTAS
             }
         }
 
-        public static string GetKeyDisplayName(Win32Structures.ScanCodeShort scanCode, int flags)
+        public static string GetKeyDisplayName(Win32Structures.ScanCodeShort scanCode, bool isExtended)
         {
-            if ((flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)
+            if (isExtended)
             {
                 _displayKeyNamesExtended.TryGetValue(scanCode, out var name);
                 return name;
@@ -209,37 +206,37 @@ namespace SierraHOTAS
             _lstKeyDownBuffer.Clear();
         }
 
-        public static void SendKeyPress(int scanCode, int flags)
+        public static void SendKeyPress(int scanCode, bool isKeyUp, bool isExtended)
         {
             var pInputs = new[]
             {
-                BuildKeyboardInput((Win32Structures.ScanCodeShort)scanCode, flags),
+                BuildKeyboardInput((Win32Structures.ScanCodeShort)scanCode, isKeyUp, isExtended),
             };
             SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
         }
 
-        public static void SendKeyPress(Win32Structures.ScanCodeShort scanCode, int flags)
+        public static void SendKeyPress(Win32Structures.ScanCodeShort scanCode, bool isKeyUp, bool isExtended)
         {
             var pInputs = new Win32Structures.INPUT[]
             {
-                BuildKeyboardInput(scanCode, flags),
+                BuildKeyboardInput(scanCode, isKeyUp, isExtended)
             };
             SendInput((uint)pInputs.Length, pInputs, Win32Structures.INPUT.Size);
         }
 
-        public static void SimulateKeyPressTest(uint scanCode, int flags)
+        public static void SimulateKeyPressTest(uint scanCode, bool isKeyUp, bool isExtended)
         {
-            KeyDownEvent?.Invoke(null, new KeystrokeEventArgs(scanCode, (Win32Structures.KBDLLHOOKSTRUCTFlags)flags));
+            KeyDownEvent?.Invoke(null, new KeystrokeEventArgs(scanCode, isKeyUp, isExtended));
         }
 
-        private static Win32Structures.INPUT BuildKeyboardInput(Win32Structures.ScanCodeShort scanCode, int flags)
+        private static Win32Structures.INPUT BuildKeyboardInput(Win32Structures.ScanCodeShort scanCode, bool isKeyUp, bool isExtended)
         {
             Win32Structures.KEYEVENTF keyEventFlags = Win32Structures.KEYEVENTF.SCANCODE;
 
-            if ((flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)
+            if (isExtended)
                 keyEventFlags |= Win32Structures.KEYEVENTF.EXTENDEDKEY;
 
-            if ((flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
+            if (isKeyUp)
                 keyEventFlags |= Win32Structures.KEYEVENTF.KEYUP;
 
             return new Win32Structures.INPUT()
@@ -270,41 +267,45 @@ namespace SierraHOTAS
             return (IntPtr)0;
         }
 
+
         private static List<uint> _lstKeyDownBuffer;
+
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode < 0) return CallNextHookEx(_hookID, nCode, wParam, lParam);
+            if (!IsKeySuppressionActive || nCode < 0)
+            {
+                return CallNextHookEx(_hookID, nCode, wParam, lParam); //continue call chain
+            }
 
             var key = Marshal.PtrToStructure<Win32Structures.KBDLLHOOKSTRUCT>(lParam);
 
-            //Debug.WriteLine($"HookCallback:{key.scanCode} - {key.flags}");
-
             //bufKey will hold both the scan code and the extended keyboard flag
             var bufKey = key.scanCode << 8;
-            var ext = (uint)(key.flags & Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED);
-            bufKey |= ext;
+            var ext = (key.flags & Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED);
+            bufKey |= (uint)ext;
+            
+            var isExtended = ext == Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED;
+            var isKeyUp = (key.flags & Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP;
 
-            if (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN)
+            if (isKeyUp)
+            {
+                if (_lstKeyDownBuffer.Contains(bufKey))
+                {
+                    _lstKeyDownBuffer.Remove(bufKey);
+                    KeyUpEvent?.Invoke(null, new KeystrokeEventArgs(key.scanCode, true, isExtended));
+                }
+            }
+            else
             {
                 //suppress key repeating events from firing the event
                 if (!_lstKeyDownBuffer.Contains(bufKey))
                 {
                     _lstKeyDownBuffer.Add(bufKey);
-                    KeyDownEvent?.Invoke(null, new KeystrokeEventArgs(key.scanCode, key.flags));
+                    KeyDownEvent?.Invoke(null, new KeystrokeEventArgs(key.scanCode, false, isExtended));
                 }
             }
 
-            if (wParam == (IntPtr)WM_KEYUP || wParam == (IntPtr)WM_SYSKEYUP)
-            {
-                if (_lstKeyDownBuffer.Contains(bufKey))
-                {
-                    _lstKeyDownBuffer.Remove(bufKey);
-                    KeyUpEvent?.Invoke(null, new KeystrokeEventArgs(key.scanCode, key.flags));
-                }
-            }
-
-            if (IsKeySuppressionActive) return (IntPtr)1; //don't continue handling this keystroke. prevents ALT from opening menu, alt-tab from switching screens, etc. Only do this when recording keypresses.
-            return CallNextHookEx(_hookID, nCode, wParam, lParam); //continue call chain
+            return (IntPtr)1; //don't continue handling this keystroke. prevents ALT from opening menu, alt-tab from switching screens, etc. Only do this when recording keypresses.
         }
     }
 }

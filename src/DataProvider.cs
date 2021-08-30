@@ -32,13 +32,12 @@ namespace SierraHOTAS
                             {
                                 new ButtonAction()
                                 {
-                                    ScanCode = (int) Win32Structures.ScanCodeShort.SPACE, TimeInMilliseconds = 0,
-                                    Flags = 0
+                                    ScanCode = (int) Win32Structures.ScanCodeShort.SPACE, TimeInMilliseconds = 0
                                 },
                                 new ButtonAction()
                                 {
                                     ScanCode = (int) Win32Structures.ScanCodeShort.SPACE, TimeInMilliseconds = 0,
-                                    Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP
+                                    IsKeyUp = true
                                 }
                             }
                         }
@@ -61,8 +60,8 @@ namespace SierraHOTAS
                         ActionName = "test button 55",
                         Actions = new ObservableCollection<ButtonAction>()
                         {
-                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.LMENU, TimeInMilliseconds = 0, Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED},
-                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.LMENU, TimeInMilliseconds = 0, Flags = (int) (Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP | Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)}
+                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.LMENU, TimeInMilliseconds = 0, IsExtended = true},
+                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.LMENU, TimeInMilliseconds = 0, IsExtended = true, IsKeyUp = true}
                         }
                     }
                 },
@@ -76,10 +75,10 @@ namespace SierraHOTAS
                         ActionName = "test button 56",
                         Actions = new ObservableCollection<ButtonAction>()
                         {
-                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.RSHIFT, TimeInMilliseconds = 0, Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED},
-                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.KEY_B, TimeInMilliseconds = 0, Flags = 0},
-                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.KEY_B, TimeInMilliseconds = 0, Flags = (int) Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP},
-                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.RSHIFT, TimeInMilliseconds = 0, Flags = (int) (Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP | Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED)}
+                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.RSHIFT, TimeInMilliseconds = 0, IsExtended = true},
+                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.KEY_B, TimeInMilliseconds = 0},
+                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.KEY_B, TimeInMilliseconds = 0, IsKeyUp = true},
+                            new ButtonAction() {ScanCode = (int) Win32Structures.ScanCodeShort.RSHIFT, TimeInMilliseconds = 0, IsKeyUp = true, IsExtended = true}
                         }
                     }
                 }

@@ -12,7 +12,7 @@ namespace SierraHOTAS.ViewModels
             set => _action.TimeInMilliseconds = value;
         }
 
-        public bool IsKeyUp => (_action.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP;
+        public bool IsKeyUp => _action.IsKeyUp;
 
         private ButtonAction _action { get; set; }
 
@@ -28,7 +28,7 @@ namespace SierraHOTAS.ViewModels
 
         private string GetScanCodeDisplay()
         {
-            return Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)_action.ScanCode, _action.Flags);
+            return Keyboard.GetKeyDisplayName((Win32Structures.ScanCodeShort)_action.ScanCode, _action.IsExtended);
         }
     }
 }

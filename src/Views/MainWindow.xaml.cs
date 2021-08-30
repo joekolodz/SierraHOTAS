@@ -123,7 +123,7 @@ namespace SierraHOTAS.Views
         {
             base.OnSourceInitialized(e);
 
-            //TODO don't need this
+            //TODO remove
             //WindowsProcedure.Initialize(this);
         }
 
@@ -133,7 +133,6 @@ namespace SierraHOTAS.Views
             DataContext = HotasCollectionViewModel;
 
             SetupUsbDeviceWatcher();
-
             Keyboard.Start();
         }
 

@@ -1,9 +1,4 @@
-﻿using NSubstitute;
-using System;
-using System.Collections.ObjectModel;
-using System.Windows.Threading;
-using SierraHOTAS.Factories;
-using SierraHOTAS.Models;
+﻿using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels;
 using Xunit;
 
@@ -21,7 +16,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void constructor_with_action()
         {
-            var button = new ButtonAction() {Flags = 0, ScanCode = 48, TimeInMilliseconds = 0};
+            var button = new ButtonAction() {ScanCode = 48, TimeInMilliseconds = 0};
             var actionVm = new ButtonActionViewModel(button);
             Assert.Equal("B", actionVm.ScanCode);
         }
@@ -29,7 +24,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void is_key_up_false()
         {
-            var button = new ButtonAction() {Flags = 0, ScanCode = 48, TimeInMilliseconds = 0};
+            var button = new ButtonAction() {ScanCode = 48, TimeInMilliseconds = 0};
             var actionVm = new ButtonActionViewModel(button);
             Assert.False(actionVm.IsKeyUp);
         }
@@ -37,7 +32,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void is_key_up_true()
         {
-            var button = new ButtonAction() {Flags = 128, ScanCode = 48, TimeInMilliseconds = 0};
+            var button = new ButtonAction() {IsKeyUp = true, ScanCode = 48, TimeInMilliseconds = 0};
             var actionVm = new ButtonActionViewModel(button);
             Assert.True(actionVm.IsKeyUp);
         }
@@ -46,7 +41,7 @@ namespace SierraHOTAS.Tests
         public void time_getter()
         {
             const int time = 4000;
-            var button = new ButtonAction() {Flags = 0, ScanCode = 48, TimeInMilliseconds = time};
+            var button = new ButtonAction() {ScanCode = 48, TimeInMilliseconds = time};
             var actionVm = new ButtonActionViewModel(button);
             Assert.Equal(time,actionVm.TimeInMilliseconds);
         }
@@ -55,7 +50,7 @@ namespace SierraHOTAS.Tests
         public void time_setter()
         {
             const int time = 4000;
-            var button = new ButtonAction() {Flags = 0, ScanCode = 48, TimeInMilliseconds = 0};
+            var button = new ButtonAction() {ScanCode = 48, TimeInMilliseconds = 0};
             var actionVm = new ButtonActionViewModel(button);
             Assert.NotEqual(time, actionVm.TimeInMilliseconds);
             actionVm.TimeInMilliseconds = time;

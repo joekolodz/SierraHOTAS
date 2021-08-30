@@ -96,8 +96,8 @@ namespace SierraHOTAS.Models
                     }
 
                     if (offset == JoystickOffset.POV1 ||
-                        offset == JoystickOffset.POV2||
-                        offset == JoystickOffset.POV3||
+                        offset == JoystickOffset.POV2 ||
+                        offset == JoystickOffset.POV3 ||
                         offset == JoystickOffset.POV4)
                     {
                         Logging.Log.Debug($"Offset:{offset}({state.RawOffset}), POV:{TranslatePointOfViewOffset(offset, state.Value)}, Seq:{state.Sequence}, Value:{state.Value}");
@@ -142,10 +142,10 @@ namespace SierraHOTAS.Models
                 {
                     foreach (var keyUp in keyUpList.Where(i => i.Item1 == job.Offset).ToList())
                     {
-                        Keyboard.SendKeyPress(keyUp.Item2.ScanCode, keyUp.Item2.Flags);
+                        Keyboard.SendKeyPress(keyUp.Item2.ScanCode, keyUp.Item2.IsKeyUp, keyUp.Item2.IsExtended);
                         keyUpList.Remove(keyUp);
 
-                        KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(job.MapId, keyUp.Item1, keyUp.Item2.ScanCode, keyUp.Item2.Flags));
+                        KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(job.MapId, keyUp.Item1, keyUp.Item2.ScanCode, keyUp.Item2.IsKeyUp, keyUp.Item2.IsExtended));
                     }
                 }
 
@@ -156,14 +156,14 @@ namespace SierraHOTAS.Models
 
                 foreach (var action in job.Actions)
                 {
-                    if ((action.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
+                    if (action.IsKeyUp)
                     {
                         keyUpList.Add(new Tuple<int, ButtonAction>(job.Offset, action));
                     }
                     else
                     {
-                        Keyboard.SendKeyPress(action.ScanCode, action.Flags);
-                        KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(job.MapId, job.Offset, action.ScanCode, action.Flags));
+                        Keyboard.SendKeyPress(action.ScanCode, action.IsKeyUp, action.IsExtended);
+                        KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(job.MapId, job.Offset, action.ScanCode, action.IsKeyUp, action.IsExtended));
                     }
                 }
             }
@@ -276,15 +276,15 @@ namespace SierraHOTAS.Models
                     }
                 }
 
-                Keyboard.SendKeyPress(action.ScanCode, action.Flags);
+                Keyboard.SendKeyPress(action.ScanCode, action.IsKeyUp, action.IsExtended);
 
-                if ((action.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) == (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
+                if (action.IsKeyUp)
                 {
-                    KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
+                    KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.IsKeyUp, action.IsExtended));
                 }
                 else
                 {
-                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.Flags));
+                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.IsKeyUp, action.IsExtended));
                 }
             }
             _activeMacros.TryRemove(offset, out _);

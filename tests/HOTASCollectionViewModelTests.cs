@@ -267,8 +267,8 @@ namespace SierraHOTAS.Tests
                     ActionName = actionName,
                     Actions = new ObservableCollection<ButtonAction>()
                     {
-                        new ButtonAction() { Flags = 0, ScanCode = scanCode },
-                        new ButtonAction() { Flags = 1, ScanCode = scanCode },
+                        new ButtonAction() {ScanCode = scanCode },
+                        new ButtonAction() {IsExtended = true, ScanCode = scanCode },
                     }
                 }
             };
@@ -292,8 +292,8 @@ namespace SierraHOTAS.Tests
                             ActionName = actionName,
                             Actions = new ObservableCollection<ButtonAction>()
                             {
-                                new ButtonAction() { Flags = 0, ScanCode = scanCode },
-                                new ButtonAction() { Flags = 1, ScanCode = scanCode },
+                                new ButtonAction() { ScanCode = scanCode },
+                                new ButtonAction() { IsExtended = true, ScanCode = scanCode },
                             }
                         }
                     }
@@ -308,8 +308,8 @@ namespace SierraHOTAS.Tests
                             ActionName = actionName,
                             Actions = new ObservableCollection<ButtonAction>()
                             {
-                                new ButtonAction() { Flags = 0, ScanCode = scanCode },
-                                new ButtonAction() { Flags = 1, ScanCode = scanCode },
+                                new ButtonAction() { ScanCode = scanCode },
+                                new ButtonAction() { IsExtended = true, ScanCode = scanCode },
                             }
                         }
                     }
@@ -936,7 +936,7 @@ namespace SierraHOTAS.Tests
             IHotasBaseMap map = new HOTASButton() { Type = HOTASButton.ButtonType.Button, ActionName = "test action" };
             queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { map });
 
-            subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, 0));
+            subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
             Assert.Single(hotasVm.Activity);
         }
@@ -951,7 +951,7 @@ namespace SierraHOTAS.Tests
             var map = new HOTASButton() { Type = HOTASButton.ButtonType.Button, ActionName = "test action" };
             queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { map });
 
-            subDeviceList.KeystrokeUpSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, 0));
+            subDeviceList.KeystrokeUpSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
             Assert.Single(hotasVm.Activity);
         }
@@ -967,7 +967,7 @@ namespace SierraHOTAS.Tests
 
             queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { map });
 
-            subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, 0));
+            subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
             //test if button type says Axis, but map is something else, we should not add an activity
             Assert.Empty(hotasVm.Activity);
@@ -986,7 +986,7 @@ namespace SierraHOTAS.Tests
 
             queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { axisMap });
 
-            subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, 0));
+            subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
             Assert.Single(hotasVm.Activity);
             Assert.Equal("button 1", hotasVm.Activity.FirstOrDefault()?.ActionName);
@@ -1020,7 +1020,7 @@ namespace SierraHOTAS.Tests
             Assert.True(axisMap.Direction == AxisDirection.Backward);
 
             queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { axisMap });
-            subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, 0));
+            subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
             Assert.Single(hotasVm.Activity);
             Assert.Equal("button 2", hotasVm.Activity.FirstOrDefault()?.ActionName);

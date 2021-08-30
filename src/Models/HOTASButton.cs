@@ -18,7 +18,6 @@ namespace SierraHOTAS.Models
         public int MapId { get; set; }
         public string MapName { get; set; }
         public ButtonType Type { get; set; }
-
         public int ShiftModePage { get; set; }
         public bool IsShift { get; set; }
 
@@ -111,7 +110,7 @@ namespace SierraHOTAS.Models
         {
             if (!_isRecording) return;
 
-            ActionCatalogItem.Actions.Add(new ButtonAction() { Flags = e.Flags, ScanCode = e.Code, TimeInMilliseconds = 0 });
+            ActionCatalogItem.Actions.Add(new ButtonAction() { ScanCode = e.Code, IsKeyUp = e.IsKeyUp, IsExtended = e.IsExtended, TimeInMilliseconds = 0 });
         }
 
         public void ClearUnassignedActions()
@@ -137,8 +136,7 @@ namespace SierraHOTAS.Models
             foreach (var a in ActionCatalogItem.Actions)
             {
                 var upDown = "v";
-                if ((a.Flags & (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP) ==
-                    (int)Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_UP)
+                if (a.IsKeyUp)
                 {
                     upDown = "^";
                 }

@@ -338,7 +338,7 @@ namespace SierraHOTAS.ViewModels
                 }
             }
 
-            var activity = new ActivityItem() { Offset = e.Offset, ButtonName = map.MapName, ScanCode = e.Code, Flags = e.Flags, ActionName = actionName, Time = DateTime.Now };
+            var activity = new ActivityItem() { Offset = e.Offset, ButtonName = map.MapName, ScanCode = e.Code, IsKeyUp = e.IsKeyUp, IsExtended = e.IsExtended, ActionName = actionName, Time = DateTime.Now };
 
             _appDispatcher?.Invoke(() =>
             {
