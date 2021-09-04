@@ -34,4 +34,4 @@ jobs:
       run: packages\xunit.runner.console.2.4.1\tools\net472\xunit.console.exe tests\bin\Release\SierraHOTAS.Tests.dll
 
     - name: Create Setup
-      run: msbuild SierraHOTASSetup.wixproj -m /p:Configuration=Release
+      run: msbuild SierraHOTASSetup\SierraHOTASSetup.wixproj -m /p:Configuration=Release
