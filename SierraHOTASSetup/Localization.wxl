@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="Company">Back Row Bob</String>
+  <String Id="ProductName">SierraHOTAS</String>
+  <String Id="ProductFolderName">SierraHOTAS</String>
+  <String Id="Description">Joystick to keyboard mapping desktop application for Windows</String>
+  <String Id="Keywords">mapper,joystick,dcs,dcs-world,hotas,keyboard-mapping,dcsworld,mw5,mw5mercs,sierra hotel</String>
+  <String Id="DowngradeErrorMessage">A newer version of SierraHOTAS is already installed.</String>
+  <String Id="Language">1033</String>
+</WixLocalization>

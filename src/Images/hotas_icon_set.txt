@@ -12,3 +12,23 @@ Save final icons to PNG with transparency
 - paste, delete background
 - CTRL+SHIFT+S to save as
 - select PNG
+
+Main app icon
+src/images/icon.afdesign
+
+
+App installer
+Needs BMP for installer window background images
+- From Affinity Designer export image as GIF
+- Drag into Photoshop SierraHOTSSetup
+- Save As from Photoshop and change filetype to BMP
+- Save folder is in the installer project (same as afdesign files: SierraHOTSSetup/Assets/)
+
+SierraHOTSSetup/Assets/background.afdesign (SierraHOTASSetup Background.bmp)
+493x312 (left 160px is room for image. the rest is obscured by text, buttons, boxes, etc)
+
+SierraHOTSSetup/Assets/banner.afdesign (SierraHOTASSetup Banner.bmp)
+493x58 (the entire graphic can be used)
+
+License.rtf
+SierraHOTSSetup/Assets/license.rtf

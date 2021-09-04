@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <!--this id will change for each new version of the app-->
+  <?define ProductCode="{c83bb365-d91e-4439-8f5e-b3deeafe26d5}"?>
+
+  <!--this id should always be the same as long as this is the same app-->
+  <?define UpgradeCode="{2025ed6b-e297-4156-8b49-97e80dcd9548}"?>
+
+  <Product Id="$(var.ProductCode)" 
+           Name="!(loc.ProductName)" 
+           Language="!(loc.Language)" 
+           Version="$(var.BuildVersion)" 
+           Manufacturer="!(loc.Company)" 
+           UpgradeCode="$(var.UpgradeCode)">
+
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perMachine" 
+             Platform="$(var.Platform)"
+             Manufacturer="!(loc.Company)" 
+             Description="!(loc.Description)" 
+             Keywords="!(loc.Keywords)" 
+             Languages="!(loc.Language)" 
+    />
+
+    <!--Message if the user tries to install an older version-->
+		<MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeErrorMessage)" />
+		
+    <!--bundle CAB file inside MSI instead of two separate files-->
+    <MediaTemplate EmbedCab="yes"/>
+
+    <Icon Id="icon.ico" SourceFile="$(var.SierraHOTAS.ProjectDir)icon64x64.ico"/>
+    <Property Id="ARPPRODUCTICON">icon.ico</Property>
+
+    <!--Help and support website-->
+    <Property Id="ARPURLINFOABOUT">https://github.com/joekolodz/SierraHOTAS</Property>
+
+    <!--show the basic UI-->
+    <UIRef Id="WixUI_Minimal"/>
+    <!--<WixVariable Id="WixUILicenseRft" Value="$(var.ProjectDir)Assets\License.rtf"/>-->
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.ProjectDir)Assets\SierraHOTASSetup Background.bmp"/>
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.ProjectDir)Assets\SierraHOTASSetup Banner.bmp"/>
+
+
+    <Feature Id="ProductFeature" Title="!(loc.ProductName) Setup" Level="1">
+
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="PublishedComponents" />
+
+    </Feature>
+
+
+	</Product>
+
+  
+</Wix>

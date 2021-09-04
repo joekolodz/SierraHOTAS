@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <Fragment>
+
+    <!--deployment manifest-->
+    <ComponentGroup Id="ProductComponents">
+
+      <ComponentRef Id="AppShortcut"/>
+
+    </ComponentGroup>
+
+    <!--installation config-->
+    <!--<DirectoryRef Id="INSTALLFOLDER" FileSource="..\src\bin\$(var.Configuration)\">-->
+    
+    <DirectoryRef Id="INSTALLFOLDER" FileSource="..\src\bin\Debug\">
+      
+      
+      <!--shortcut to app executable-->
+      <Component Id="AppShortcut" Guid="{8eb88abf-9ef1-4aee-9d5a-5aadfc5a0add}">
+
+        <CreateFolder/>
+
+
+
+        <!-- this Shortcut Id does not have to match the ComponentRef Id above-->
+        <Shortcut Id="MainAppShortcut"
+                  Name="!(loc.ProductName)"
+                  Target="[INSTALLFOLDER]SierraHOTAS.exe"
+                  Directory="InstallProgramMenuFolder"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="icon.ico"
+        />
+
+        <RegistryValue
+          Root="HKCU"
+          Key="Software\!(loc.ProductName)"
+          Name="shortcut"
+          Type="integer"
+          Value="1"
+          KeyPath="yes"/>
+
+        <!--remove start menu items-->
+        <RemoveFolder Id="RemoveStartMenu" Directory="InstallProgramMenuFolder" On="uninstall"/>
+        <RemoveFile Id="RemoveLogFile" Name="log.txt" On="uninstall"/>
+
+      </Component>
+    </DirectoryRef>
+
+  </Fragment>
+
+</Wix>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" InitialTargets="EnsureWixToolsetInstalled" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.10</ProductVersion>
+    <ProjectGuid>f5f1fae3-26c1-45fa-b30e-8cd0668886c6</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>SierraHOTASSetup</OutputName>
+    <OutputType>Package</OutputType>
+    <Cultures>;</Cultures>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DefineConstants>Debug</DefineConstants>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Components.wxs" />
+    <Compile Include="ComponentsGenerated.wxs" />
+    <Compile Include="Directories.wxs" />
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Localization.wxl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\SierraHOTAS.csproj">
+      <Name>SierraHOTAS</Name>
+      <Project>{5f2e2862-7836-4512-aa06-5f5eae943aee}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixUIExtension">
+      <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
+      <Name>WixUIExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\setup_background.afdesign" />
+    <Content Include="Assets\setup_banner.afdesign" />
+    <Content Include="Assets\SierraHOTASSetup Background.bmp" />
+    <Content Include="Assets\SierraHOTASSetup Banner.bmp" />
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
+  <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
+    <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
+  </Target>
+  <Target Name="BeforeBuild">
+    <!--<Exec Command="MSBuild.exe ..\SierraHOTAS.sln /p:Configuration=$(Configuration) /p:Platform=AnyCPU" />-->
+    <GetAssemblyIdentity AssemblyFiles="..\src\bin\$(Configuration)\SierraHOTAS.exe">
+      <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
+    </GetAssemblyIdentity>
+    <PropertyGroup>
+      <DefineConstants>BuildVersion=%(AssemblyVersion.Version);BasePath=..\src\bin\$(Configuration)\</DefineConstants>
+    </PropertyGroup>
+    <HeatDirectory 
+      OutputFile="ComponentsGenerated.wxs" DirectoryRefId="INSTALLFOLDER" ComponentGroupName="PublishedComponents" SuppressCom="true" Directory="..\src\bin\$(Configuration)\" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" AutoGenerateGuids="false" GenerateGuidsNow="true" ToolPath="$(WixToolPath)"
+      PreprocessorVariable="var.BasePath"
+      />
+  </Target>
+  <Target Name="AfterBuild">
+    <GetAssemblyIdentity AssemblyFiles="..\src\bin\$(Configuration)\SierraHOTAS.exe">
+      <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
+    </GetAssemblyIdentity>
+    <Exec Command="if not exist Installer mkdir Installer"/>
+    <Exec Command="move bin\$(Configuration)\$(OutputName).msi Installer\SierraHOTAS-$(Configuration)-%(AssemblyVersion.Version)-Setup.msi"/>
+  </Target>
+</Project>
