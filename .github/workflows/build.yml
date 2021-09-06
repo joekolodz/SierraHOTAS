@@ -35,3 +35,15 @@ jobs:
 
     - name: Create Setup
       run: msbuild SierraHOTASSetup\SierraHOTASSetup.wixproj -m /p:Configuration=Release
+      
+    - name: release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: test release
+        tag_name: ${{ github.ref }}
+        body_path: CHANGELOG.md
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
