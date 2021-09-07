@@ -41,14 +41,31 @@ jobs:
       with:
         name: SierraHOTAS-Release-1.0.0.0-Setup
         path: SierraHOTASSetup\Installer
-      
-    - name: release
-      uses: actions/create-release@v1
-      id: create_release
-      with:
-        draft: false
-        prerelease: false
-        release_name: test release
-        tag_name: ${{ github.ref }}
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+  
+  release:
+    name: Release installer
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - name: Download installer
+        uses: actions/download-artifact@v2
+        with:
+          name: SierraHOTAS-Release-1.0.0.0-Setup
+      - name: Create release
+        id: create-new-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+      - name: Upload installer to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-new-release.outputs.upload_url }}
+          asset_path: ./SierraHOTAS-Release-1.0.0.0-Setup
+          asset_name: SierraHOTAS-Setup.zip
+          asset_content_type: application/zip
+        
