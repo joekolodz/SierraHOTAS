@@ -65,7 +65,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-new-release.outputs.upload_url }}
-          asset_path: SierraHOTAS\SierraHOTAS-Release-1.0.0.0-Setup
+          asset_path: SierraHOTAS\SierraHOTAS\SierraHOTAS-Release-1.0.0.0-Setup
           asset_name: SierraHOTAS-Setup.zip
           asset_content_type: application/zip
         
