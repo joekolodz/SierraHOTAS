@@ -13,6 +13,8 @@ namespace SierraHOTAS.Models
     {
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
+        public event EventHandler<MacroStartedEventArgs> MacroStarted;
+        public event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
@@ -248,7 +250,9 @@ namespace SierraHOTAS.Models
         {
             if (_activeMacros.TryGetValue(offset, out _))
             {
-                //prevent a given macro from running more than once
+                //cancel a macro already in progress
+                _activeMacros.TryRemove(offset, out _);
+                MacroCancelled?.Invoke(this, new MacroCancelledEventArgs(offset, (int)Win32Structures.ScanCodeShort.MACRO_CANCELLED));
                 return;
             }
 
@@ -263,8 +267,12 @@ namespace SierraHOTAS.Models
 
         private async Task PlayMacroOnce(int offset, ObservableCollection<ButtonAction> actions)
         {
+            MacroStarted?.Invoke(this, new MacroStartedEventArgs(offset, (int)Win32Structures.ScanCodeShort.MACRO_STARTED));
+
             foreach (var action in actions)
             {
+                if (_activeMacros.ContainsKey(offset) == false) break;
+                
                 if (action.TimeInMilliseconds > 0)
                 {
                     //yes this is precise only to the nearest KeyDownRepeatDelay milliseconds. repeated keys are on a 60 millisecond boundary, so the UI could be locked to 60ms increments only

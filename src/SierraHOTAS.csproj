@@ -160,6 +160,8 @@
     <Compile Include="Models\IMediaPlayer.cs" />
     <Compile Include="Models\InputGraphNode.cs" />
     <Compile Include="Models\IOpenFileDialog.cs" />
+    <Compile Include="Models\MacroCancelledEventArgs.cs" />
+    <Compile Include="Models\MacroStartedEventArgs.cs" />
     <Compile Include="Models\OpenFileDialogWrapper.cs" />
     <Compile Include="Models\ISaveFileDialog.cs" />
     <Compile Include="Models\JoystickOffset.cs" />

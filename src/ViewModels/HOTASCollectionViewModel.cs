@@ -275,6 +275,8 @@ namespace SierraHOTAS.ViewModels
 
             _deviceList.ButtonPressed += DeviceList_ButtonPressed;
             _deviceList.KeystrokeDownSent += DeviceList_KeystrokeDownSent;
+            _deviceList.MacroStarted += DeviceList_MacroStarted;
+            _deviceList.MacroCancelled += DeviceList_MacroCancelled;
             _deviceList.KeystrokeUpSent += DeviceList_KeystrokeUpSent;
             _deviceList.ModeProfileChanged += OnModeProfileChanged;
             _deviceList.LostConnectionToDevice += DeviceList_LostConnectionToDevice;
@@ -344,6 +346,29 @@ namespace SierraHOTAS.ViewModels
             {
                 Activity.Insert(0, activity);
             });
+        }
+
+        private void DeviceList_MacroStarted(object sender, MacroStartedEventArgs e)
+        {
+            AddMacroActivity(sender, e.Offset, e.Code, false, "Macro Started");
+        }
+
+        private void DeviceList_MacroCancelled(object sender, MacroCancelledEventArgs e)
+        {
+            AddMacroActivity(sender, e.Offset, e.Code, true, "Macro Cancelled");
+        }
+
+        private void AddMacroActivity(object sender, int offset, int scanCode, bool isKeyUp, string message)
+        {
+            var map = (sender as HOTASQueue)?.GetMap(offset);
+            if (map == null) return;
+            var activity = new ActivityItem()
+            {
+                Offset = offset, ButtonName = map.MapName, ScanCode = scanCode, IsKeyUp = isKeyUp, IsExtended = true,
+                ActionName = message, Time = DateTime.Now
+            };
+
+            _appDispatcher?.Invoke(() => { Activity.Insert(0, activity); });
         }
 
         public void Dispose()

@@ -72,7 +72,16 @@ namespace SierraHOTAS.ViewModels
 
         private void _hotasDevice_AxisChanged(object sender, AxisChangedEventArgs e)
         {
-            var map = ButtonMap.FirstOrDefault(axis => axis.ButtonId == e.AxisId);
+            IBaseMapViewModel map;
+            try
+            {
+                map = ButtonMap.FirstOrDefault(axis => axis.ButtonId == e.AxisId);
+            }
+            catch (Exception exception)
+            {
+                Logging.Log.Fatal(exception);
+                return;
+            }
             map?.SetAxis(e.Value);
         }
 

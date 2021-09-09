@@ -15,6 +15,8 @@ namespace SierraHOTAS.Models
 
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
+        public event EventHandler<MacroStartedEventArgs> MacroStarted;
+        public event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
         public event EventHandler ShiftReleased;
@@ -207,6 +209,8 @@ namespace SierraHOTAS.Models
         {
             _hotasQueue.KeystrokeDownSent += OnKeystrokeDownSent;
             _hotasQueue.KeystrokeUpSent += OnKeystrokeUpSent;
+            _hotasQueue.MacroStarted += OnMacroStarted;
+            _hotasQueue.MacroCancelled += OnMacroCancelled;
             _hotasQueue.ButtonPressed += OnButtonPress;
             _hotasQueue.AxisChanged += OnAxisChanged;
             _hotasQueue.ModeProfileSelected += OnModeProfileSelected;
@@ -218,6 +222,8 @@ namespace SierraHOTAS.Models
         {
             _hotasQueue.KeystrokeDownSent -= OnKeystrokeDownSent;
             _hotasQueue.KeystrokeUpSent -= OnKeystrokeUpSent;
+            _hotasQueue.MacroStarted -= OnMacroStarted;
+            _hotasQueue.MacroCancelled -= OnMacroCancelled;
             _hotasQueue.ButtonPressed -= OnButtonPress;
             _hotasQueue.AxisChanged -= OnAxisChanged;
             _hotasQueue.ModeProfileSelected -= OnModeProfileSelected;
@@ -375,6 +381,16 @@ namespace SierraHOTAS.Models
         private void OnKeystrokeDownSent(object sender, KeystrokeSentEventArgs e)
         {
             KeystrokeDownSent?.Invoke(sender, e);
+        }
+
+        private void OnMacroStarted(object sender, MacroStartedEventArgs e)
+        {
+            MacroStarted?.Invoke(sender, e);
+        }
+
+        private void OnMacroCancelled(object sender, MacroCancelledEventArgs e)
+        {
+            MacroCancelled?.Invoke(sender, e);
         }
 
         private void OnButtonPress(object sender, ButtonPressedEventArgs e)

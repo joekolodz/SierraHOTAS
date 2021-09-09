@@ -25,6 +25,8 @@ namespace SierraHOTAS.Models
 
         public virtual event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public virtual event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
+        public virtual event EventHandler<MacroStartedEventArgs> MacroStarted;
+        public virtual event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         public virtual event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public virtual event EventHandler<AxisChangedEventArgs> AxisChanged;
         public virtual event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
@@ -111,6 +113,8 @@ namespace SierraHOTAS.Models
             device.AxisChanged -= Device_AxisChanged;
             device.KeystrokeDownSent -= Device_KeystrokeDownSent;
             device.KeystrokeUpSent -= Device_KeystrokeUpSent;
+            device.MacroStarted -= Device_MacroStarted;
+            device.MacroCancelled -= Device_MacroCancelled;
             device.ModeProfileSelected -= Device_ModeProfileSelected;
             device.ShiftReleased -= Device_ShiftReleased;
             device.LostConnectionToDevice -= Device_LostConnectionToDevice;
@@ -149,6 +153,8 @@ namespace SierraHOTAS.Models
             device.AxisChanged += Device_AxisChanged;
             device.KeystrokeDownSent += Device_KeystrokeDownSent;
             device.KeystrokeUpSent += Device_KeystrokeUpSent;
+            device.MacroStarted += Device_MacroStarted;
+            device.MacroCancelled += Device_MacroCancelled;
             device.ModeProfileSelected += Device_ModeProfileSelected;
             device.ShiftReleased += Device_ShiftReleased;
             device.LostConnectionToDevice += Device_LostConnectionToDevice;
@@ -219,6 +225,16 @@ namespace SierraHOTAS.Models
         private void Device_KeystrokeUpSent(object sender, KeystrokeSentEventArgs e)
         {
             KeystrokeUpSent?.Invoke(sender, e);
+        }
+
+        private void Device_MacroStarted(object sender, MacroStartedEventArgs e)
+        {
+            MacroStarted?.Invoke(sender, e);
+        }
+
+        private void Device_MacroCancelled(object sender, MacroCancelledEventArgs e)
+        {
+            MacroCancelled?.Invoke(sender, e);
         }
 
         public void ForceButtonPress(IHOTASDevice device, JoystickOffset offset, bool isDown)
