@@ -1,10 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json.Linq;
-using SierraHOTAS.Factories;
 
 namespace SierraHOTAS
 {
@@ -113,17 +112,16 @@ namespace SierraHOTAS
         {
             Logging.Log.Debug($"Saving profile as :{fileName}");
 
-            var settings = new JsonSerializerSettings
+            try
             {
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                Formatting = Formatting.Indented
-            };
+                _fileIo.WriteAllText(fileName, JsonConvert.SerializeObject(deviceList, Formatting.Indented, new CustomJsonConverter()));
 
-            _fileIo.WriteAllText(fileName, JsonConvert.SerializeObject(deviceList, settings));
-
-            var x = new Dictionary<int, string>() { { 1, "bob" }, { 2, "ded" } };
-
+            }
+            catch (Exception e)
+            {
+                Logging.Log.Debug(e);
+                throw;
+            }
         }
 
         public IHOTASCollection FileOpenDialog()

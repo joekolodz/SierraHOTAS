@@ -13,7 +13,7 @@ namespace SierraHOTAS.Models
         event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
-        event EventHandler ShiftReleased;
+        event EventHandler<EventArgs> ShiftReleased;
         event EventHandler<AxisChangedEventArgs> AxisChanged;
         event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
@@ -32,7 +32,7 @@ namespace SierraHOTAS.Models
         void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode);
         //void ReAcquireJoystick();
         void ListenAsync();
-        void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap);
+        void SetButtonMap(ObservableCollection<IHotasBaseMap> existingButtonMap);
         void SetMode(int mode);
         void ForceButtonPress(JoystickOffset offset, bool isDown);
         void Stop();

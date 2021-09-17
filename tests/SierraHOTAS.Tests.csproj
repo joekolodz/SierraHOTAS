@@ -98,6 +98,7 @@
     <Compile Include="AxisMapViewModelTests.cs" />
     <Compile Include="ButtonActionViewModelTests.cs" />
     <Compile Include="ButtonMapViewModelTests.cs" />
+    <Compile Include="CustomJsonConverterTests.cs" />
     <Compile Include="DeviceViewModelTests.cs" />
     <Compile Include="FileSystemTests.cs" />
     <Compile Include="HOTASAxisMapTests.cs" />

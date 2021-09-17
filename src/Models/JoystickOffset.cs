@@ -149,23 +149,23 @@
         AngularVelocityX = 188, // 0x000000BC
         AngularVelocityY = 192, // 0x000000C0
         AngularVelocityZ = 196, // 0x000000C4
-        VelocitySliders0 = 200, // 0x000000C8
-        VelocitySliders1 = 204, // 0x000000CC
+        VelocitySliders1 = 200, // 0x000000C8
+        VelocitySliders2 = 204, // 0x000000CC
         AccelerationX = 208, // 0x000000D0
         AccelerationY = 212, // 0x000000D4
         AccelerationZ = 216, // 0x000000D8
         AngularAccelerationX = 220, // 0x000000DC
         AngularAccelerationY = 224, // 0x000000E0
         AngularAccelerationZ = 228, // 0x000000E4
-        AccelerationSliders0 = 232, // 0x000000E8
-        AccelerationSliders1 = 236, // 0x000000EC
+        AccelerationSliders1 = 232, // 0x000000E8
+        AccelerationSliders2 = 236, // 0x000000EC
         ForceX = 240, // 0x000000F0
         ForceY = 244, // 0x000000F4
         ForceZ = 248, // 0x000000F8
         TorqueX = 252, // 0x000000FC
         TorqueY = 256, // 0x00000100
         TorqueZ = 260, // 0x00000104
-        ForceSliders0 = 264, // 0x00000108
-        ForceSliders1 = 268, // 0x0000010C    
+        ForceSliders1 = 264, // 0x00000108
+        ForceSliders2 = 268, // 0x0000010C    
     }
 }

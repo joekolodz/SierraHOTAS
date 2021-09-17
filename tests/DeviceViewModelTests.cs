@@ -33,6 +33,11 @@ namespace SierraHOTAS.Tests
 
             }
 
+            public bool IsAxisPresent(string axisName)
+            {
+                return true;
+            }
+
             public void Poll()
             {
 
@@ -53,6 +58,7 @@ namespace SierraHOTAS.Tests
 
             }
         }
+
         private class TestJoystick_AxisChanged : IJoystick
         {
             private JoystickUpdate[] data;
@@ -73,6 +79,11 @@ namespace SierraHOTAS.Tests
             public void GetCurrentState(ref JoystickState joystickState)
             {
 
+            }
+
+            public bool IsAxisPresent(string axisName)
+            {
+                return true;
             }
 
             public void Poll()
@@ -293,9 +304,9 @@ namespace SierraHOTAS.Tests
 
             deviceVm.RebuildMap();
             Assert.NotEmpty(deviceVm.ButtonMap);
-            Assert.Equal(4, deviceVm.ButtonMap.Count);
-            Assert.Equal(hotasDevice.ButtonMap[2].MapId, deviceVm.ButtonMap[2].ButtonId);
-            Assert.Equal(hotasDevice.ButtonMap[3].MapId, deviceVm.ButtonMap[3].ButtonId);
+            Assert.Equal(2, deviceVm.ButtonMap.Count);
+            Assert.Equal(hotasDevice.ButtonMap[0].MapId, deviceVm.ButtonMap[0].ButtonId);
+            Assert.Equal(hotasDevice.ButtonMap[1].MapId, deviceVm.ButtonMap[1].ButtonId);
         }
 
         [Fact]

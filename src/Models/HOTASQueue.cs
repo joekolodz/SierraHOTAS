@@ -19,8 +19,8 @@ namespace SierraHOTAS.Models
         public event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
         public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
-        public event EventHandler ShiftReleased;
-        public event EventHandler LostConnectionToDevice;
+        public event EventHandler<EventArgs> ShiftReleased;
+        public event EventHandler<EventArgs> LostConnectionToDevice;
 
         private bool _isStopRequested;
 

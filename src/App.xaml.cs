@@ -1,9 +1,8 @@
 ﻿using Autofac;
-using SierraHOTAS.Views;
-using SierraHOTAS.ViewModels;
-using System.Windows;
 using SierraHOTAS.Factories;
-using SierraHOTAS.Models;
+using SierraHOTAS.ViewModels;
+using SierraHOTAS.Views;
+using System.Windows;
 
 namespace SierraHOTAS
 {

@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
 using SharpDX.DirectInput;
+using SierraHOTAS.Factories;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.Models
 {
@@ -19,7 +19,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
-        public event EventHandler ShiftReleased;
+        public event EventHandler<EventArgs> ShiftReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
         public event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
@@ -93,13 +93,15 @@ namespace SierraHOTAS.Models
             ModeProfiles.Add(newMode, newButtonMap);
 
             //create an empty button map, but do not switch to it yet
-            BuildButtonMapProfileNewMode(newButtonMap);
+            SeedButtonMapProfileFromDeviceCapabilities(newButtonMap);
 
             return newMode;
         }
 
         public void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode)
         {
+            if (!ModeProfiles.ContainsKey(templateModeSource)) return;
+
             var sourceMap = ModeProfiles[templateModeSource];
 
             var isDestinationMapFound = ModeProfiles.TryGetValue(destinationMode, out var destinationMap);
@@ -142,13 +144,13 @@ namespace SierraHOTAS.Models
 
                             foreach (var b in axisMap.ButtonMap)
                             {
-                                var newMap = BuildAxisButtonMap(b);
+                                var newMap = BuildButtonMap(b);
                                 newAxisMap.ButtonMap.Add(newMap);
                             }
 
                             foreach (var b in axisMap.ReverseButtonMap)
                             {
-                                var newMap = BuildAxisButtonMap(b);
+                                var newMap = BuildButtonMap(b);
                                 newAxisMap.ReverseButtonMap.Add(newMap);
                             }
                             destination.Add(newAxisMap);
@@ -156,7 +158,7 @@ namespace SierraHOTAS.Models
                         }
                     case HOTASButton buttonMap:
                         {
-                            var newMap = BuildAxisButtonMap(buttonMap);
+                            var newMap = BuildButtonMap(buttonMap);
                             destination.Add(newMap);
                             break;
                         }
@@ -164,7 +166,7 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private static HOTASButton BuildAxisButtonMap(HOTASButton map)
+        private static HOTASButton BuildButtonMap(HOTASButton map)
         {
             var newMap = new HOTASButton
             {
@@ -176,7 +178,7 @@ namespace SierraHOTAS.Models
                 ActionCatalogItem = new ActionCatalogItem()
                 {
                     ActionName = map.ActionCatalogItem.ActionName,
-                    NoAction = false,
+                    NoAction = map.ActionCatalogItem.NoAction,
                     Actions = map.ActionCatalogItem.Actions.ToObservableCollection()
                 }
             };
@@ -231,15 +233,18 @@ namespace SierraHOTAS.Models
             _hotasQueue.LostConnectionToDevice -= OnLostConnectionToDevice;
         }
 
-        public void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap)
+        public void SetButtonMap(ObservableCollection<IHotasBaseMap> existingButtonMap)
         {
             if (IsDeviceLoaded)
             {
                 //rebuild the button map in this manner, because additional buttons may be recognized at a later time
                 //for instance, the virpil side cars can be linked to an existing device which makes that original device look like it has more buttons.
+                //existingButtonMap is assumed to have less button entries in this scenario. So we want to copy the data from existingButtonMap for any buttons that match between the two lists
+                //any buttons that don't match means that the device has more buttons than are in the existingButtonMap list and so there is nothing to copy
+                //If the device has fewer buttons than exist on the existingButtonMap, then those buttons are not copied over and lost
                 ButtonMap = new ObservableCollection<IHotasBaseMap>();
-                BuildButtonMapProfile(ButtonMap);
-                foreach (var source in buttonMap)
+                SeedButtonMapProfileFromDeviceCapabilities(ButtonMap);
+                foreach (var source in existingButtonMap)
                 {
                     var i = ButtonMap.FirstOrDefault(b => b.MapId == source.MapId);
                     if (i == null) continue;
@@ -251,7 +256,7 @@ namespace SierraHOTAS.Models
             else
             {
                 //if the device isn't loaded, then copy from the profile directly
-                ButtonMap = buttonMap;
+                ButtonMap = existingButtonMap;
             }
         }
 
@@ -274,24 +279,17 @@ namespace SierraHOTAS.Models
         private void LoadCapabilitiesMapping()
         {
             LoadCapabilities();
-            BuildButtonMapProfile();
+            SeedButtonMapProfileFromDeviceCapabilities();
         }
 
-        private void BuildButtonMapProfile()
+        private void SeedButtonMapProfileFromDeviceCapabilities()
         {
-            BuildButtonMapProfile(ButtonMap);
+            SeedButtonMapProfileFromDeviceCapabilities(ButtonMap);
         }
 
-        private void BuildButtonMapProfileNewMode(ObservableCollection<IHotasBaseMap> buttonMap)
+        private void SeedButtonMapProfileFromDeviceCapabilities(ObservableCollection<IHotasBaseMap> buttonMap)
         {
-            BuildButtonMapProfile(buttonMap);
-        }
-
-        private void BuildButtonMapProfile(ObservableCollection<IHotasBaseMap> buttonMap)
-        {
-            if (Capabilities?.AxeCount > 0) SeedAxisMap(JoystickOffset.X, 6, buttonMap);
-            SeedAxisMap(JoystickOffset.Slider1, 1, buttonMap);
-            SeedAxisMap(JoystickOffset.Slider2, 1, buttonMap);
+            if (Capabilities?.AxeCount > 0) SeedAxisMap(Capabilities.AxeCount, buttonMap);
             if (Capabilities?.ButtonCount > 0) SeedButtonMap(JoystickOffset.Button1, Capabilities.ButtonCount, HOTASButton.ButtonType.Button, buttonMap);
             if (Capabilities?.PovCount > 0) SeedPointOfViewMap(JoystickOffset.POV1, Capabilities.PovCount, HOTASButton.ButtonType.POV, buttonMap);
         }
@@ -334,12 +332,14 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private void SeedAxisMap(JoystickOffset startFrom, int length, ObservableCollection<IHotasBaseMap> buttonMap)
+        private void SeedAxisMap(int deviceAxeCount, ObservableCollection<IHotasBaseMap> buttonMap)
         {
-            var indexStart = JoystickOffsetValues.GetIndex(startFrom.ToString());
-            for (var count = indexStart; count < indexStart + length; count++)
+            var foundDevices = 0;
+            for (var i = 0; i < JoystickOffsetValues.AxisNames.Length; i++)
             {
-                var offset = JoystickOffsetValues.GetOffset(count);
+                if (!Joystick.IsAxisPresent(JoystickOffsetValues.AxisNames[i])) continue;
+
+                var offset = JoystickOffsetValues.GetOffset(i);
                 var axisType = HOTASButton.ButtonType.AxisLinear;
 
                 if (offset == JoystickOffset.RX ||
@@ -355,6 +355,8 @@ namespace SierraHOTAS.Models
                     Type = axisType,
                     MapName = $"{JoystickOffsetValues.GetName(offset)}"
                 });
+
+                if (++foundDevices >= deviceAxeCount) break;
             }
         }
 

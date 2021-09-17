@@ -1,6 +1,8 @@
-﻿namespace SierraHOTAS.Models
+﻿using System;
+
+namespace SierraHOTAS.Models
 {
-    public class MacroCancelledEventArgs
+    public class MacroCancelledEventArgs: EventArgs
     {
         public int Offset { get; set; }
         public int Code { get; set; }

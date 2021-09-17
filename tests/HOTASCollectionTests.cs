@@ -17,26 +17,23 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void constructor_null()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new HOTASCollection(null, Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), Substitute.For<HOTASDeviceFactory>()));
+            var exception = Assert.Throws<ArgumentNullException>(() => new HOTASCollection(null, Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>()));
             Assert.Equal("Value cannot be null.\r\nParameter name: directInputFactory", exception.Message);
 
-            exception = Assert.Throws<ArgumentNullException>(() => new HOTASCollection(Substitute.For<DirectInputFactory>(), null, Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), Substitute.For<HOTASDeviceFactory>()));
+            exception = Assert.Throws<ArgumentNullException>(() => new HOTASCollection(Substitute.For<DirectInputFactory>(), null, Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>()));
             Assert.Equal("Value cannot be null.\r\nParameter name: joystickFactory", exception.Message);
 
-            exception = Assert.Throws<ArgumentNullException>(() => new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), null, Substitute.For<MediaPlayerFactory>(), Substitute.For<HOTASDeviceFactory>()));
+            exception = Assert.Throws<ArgumentNullException>(() => new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), null, Substitute.For<HOTASDeviceFactory>()));
             Assert.Equal("Value cannot be null.\r\nParameter name: hotasQueueFactory", exception.Message);
 
-            exception = Assert.Throws<ArgumentNullException>(() => new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), null, Substitute.For<HOTASDeviceFactory>()));
-            Assert.Equal("Value cannot be null.\r\nParameter name: mediaPlayerFactory", exception.Message);
-
-            exception = Assert.Throws<ArgumentNullException>(() => new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), null));
+            exception = Assert.Throws<ArgumentNullException>(() => new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), null));
             Assert.Equal("Value cannot be null.\r\nParameter name: hotasDeviceFactory", exception.Message);
         }
 
         [Fact]
         public void constructor()
         {
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), Substitute.For<HOTASDeviceFactory>());
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
             Assert.Empty(list.Devices);
             Assert.Empty(list.ModeProfileActivationButtons);
             Assert.Equal(HOTASCollection.FileFormatVersion, list.JsonFormatVersion);
@@ -50,7 +47,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(newDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             var device = new HOTASDevice() { DeviceId = deviceId };
             device.ButtonMap.Add(new HOTASButton() { MapId = 1, MapName = "first button", ActionName = "tes action", IsShift = true, ShiftModePage = 2, Type = HOTASButton.ButtonType.Button });
             list.AddDevice(device);
@@ -66,7 +63,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(newDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             var device = new HOTASDevice() { DeviceId = deviceId };
             device.ButtonMap.Add(new HOTASButton() { MapId = 1, MapName = "first button", ActionName = "tes action", IsShift = true, ShiftModePage = 2, Type = HOTASButton.ButtonType.Button });
             device.ModeProfiles.Add(43, new ObservableCollection<IHotasBaseMap>() { { new HOTASButton() { MapName = "mode profile map" } } });
@@ -86,7 +83,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(firstDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             firstDevice.ButtonMap.Add(new HOTASButton());
             list.AddDevice(firstDevice);
             
@@ -120,7 +117,7 @@ namespace SierraHOTAS.Tests
             subDirectInputFactory.CreateDirectInput().Returns(subDirectInput);
             subDirectInput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly).Returns(deviceInstances);
 
-            var list = new HOTASCollection(subDirectInputFactory, Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(subDirectInputFactory, Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.Start();
 
             var addedDevice = list.Devices[0];
@@ -138,7 +135,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.Stop();
             subDevice.Received().Stop();
@@ -154,7 +151,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ClearButtonMap();
             subDevice.Received().ClearButtonMap();
@@ -171,7 +168,7 @@ namespace SierraHOTAS.Tests
 
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice1);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice1);
 
             var subDevice2 = Substitute.For<IHOTASDevice>();
@@ -191,7 +188,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void listen_to_device()
         {
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), Substitute.For<HOTASDeviceFactory>());
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
             var subDevice = Substitute.For<IHOTASDevice>();
             list.ListenToDevice(subDevice);
             subDevice.Received().ListenAsync();
@@ -200,7 +197,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void device_lost_connection_to_device()
         {
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), Substitute.For<HOTASDeviceFactory>());
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
             var subDevice = Substitute.For<IHOTASDevice>();
             list.ListenToDevice(subDevice);
 
@@ -219,7 +216,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             var newMode = list.SetupNewModeProfile();
             Assert.Equal(43, newMode);
@@ -235,7 +232,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.CopyModeProfileFromTemplate(4, 5);
             subDevice.Received().CopyModeProfileFromTemplate(4, 5);
@@ -251,7 +248,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToDevice(subDevice);
 
@@ -269,7 +266,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToDevice(subDevice);
 
@@ -292,7 +289,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToDevice(subDevice);
 
@@ -309,7 +306,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToDevice(subDevice);
 
@@ -326,7 +323,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToDevice(subDevice);
             list.ForceButtonPress(subDevice, JoystickOffset.Button1, true);
@@ -342,7 +339,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToDevice(subDevice);
 
@@ -359,7 +356,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToDevice(subDevice);
 
@@ -377,7 +374,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice1);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice1);
 
             subDevice2.ButtonMap.Returns(new ObservableCollection<IHotasBaseMap>());
@@ -402,7 +399,7 @@ namespace SierraHOTAS.Tests
 
             var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
-            var list = new HOTASCollection(subDirectInputFactory, Substitute.For<JoystickFactory>(), subHotasQueueFactory, Substitute.For<MediaPlayerFactory>(), subHotasDeviceFactory);
+            var list = new HOTASCollection(subDirectInputFactory, Substitute.For<JoystickFactory>(), subHotasQueueFactory, subHotasDeviceFactory);
             var devices = list.GetHOTASDevices();
 
             Assert.NotNull(devices);
@@ -432,7 +429,7 @@ namespace SierraHOTAS.Tests
             subDirectInputFactory.CreateDirectInput().Returns(subDirectInput);
             subDirectInput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly).Returns(deviceInstances);
 
-            var list = new HOTASCollection(subDirectInputFactory, Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(subDirectInputFactory, Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.Start();
 
             var addedDevice = list.Devices[0];
@@ -464,7 +461,7 @@ namespace SierraHOTAS.Tests
 
             var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
-            var list = new HOTASCollection(subDirectInputFactory, Substitute.For<JoystickFactory>(), subHotasQueueFactory, Substitute.For<MediaPlayerFactory>(), subHotasDeviceFactory);
+            var list = new HOTASCollection(subDirectInputFactory, Substitute.For<JoystickFactory>(), subHotasQueueFactory, subHotasDeviceFactory);
             list.Start();
 
             var existingDevice = list.Devices[0];
@@ -483,7 +480,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.Mode = 1;
             list.AddDevice(subDevice);
             list.ListenToAllDevices();
@@ -502,7 +499,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.Mode = 1;
             list.AddDevice(subDevice);
             list.ListenToAllDevices();
@@ -527,7 +524,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.Mode = 1;
             list.AddDevice(subDevice);
             list.ListenToAllDevices();
@@ -545,7 +542,7 @@ namespace SierraHOTAS.Tests
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(subDevice);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToAllDevices();
 
@@ -582,7 +579,7 @@ namespace SierraHOTAS.Tests
 
             subDevice.ModeProfiles.Returns(profile);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToAllDevices();
 
@@ -636,7 +633,7 @@ namespace SierraHOTAS.Tests
 
             subDevice.ModeProfiles.Returns(profile);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToAllDevices();
 
@@ -715,7 +712,7 @@ namespace SierraHOTAS.Tests
 
             subDevice.ModeProfiles.Returns(profiles);
 
-            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), subDeviceFactory);
+            var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subDeviceFactory);
             list.AddDevice(subDevice);
             list.ListenToAllDevices();
 

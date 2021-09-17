@@ -6,15 +6,15 @@ namespace SierraHOTAS.Models
     {
         public int MapId { get; set; }
         public int Offset { get; set; }
-        public int Code { get; set; }
+        public int ScanCode { get; set; }
         public bool IsKeyUp { get; set; }
         public bool IsExtended { get; set; }
 
-        public KeystrokeSentEventArgs(int mapId, int offset, int code, bool isKeyUp, bool isExtended)
+        public KeystrokeSentEventArgs(int mapId, int offset, int scanCode, bool isKeyUp, bool isExtended)
         {
             MapId = mapId;
             Offset = offset;
-            Code = code;
+            ScanCode = scanCode;
             IsKeyUp = isKeyUp;
             IsExtended = isExtended;
         }

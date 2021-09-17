@@ -75,7 +75,7 @@ namespace SierraHOTAS.Tests
             var subFileSystem = Substitute.For<IFileSystem>();
             subFileSystem.ChooseHotasProfileForQuickLoad().Returns("test path");
 
-            var hotas = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<MediaPlayerFactory>(), Substitute.For<HOTASDeviceFactory>());
+            var hotas = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
             subFileSystem.FileOpen(Arg.Any<string>()).Returns(hotas);
 
             var panelVm = new QuickProfilePanelViewModel(Substitute.For<IEventAggregator>(), subFileSystem);

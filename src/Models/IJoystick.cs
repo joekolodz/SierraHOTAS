@@ -8,6 +8,7 @@ namespace SierraHOTAS.Models
         void Acquire();
         Capabilities Capabilities { get; }
         void GetCurrentState(ref JoystickState joystickState);
+        bool IsAxisPresent(string axisName);
         void Poll();
         JoystickUpdate[] GetBufferedData();
         void Unacquire();

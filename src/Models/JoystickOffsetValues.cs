@@ -31,15 +31,42 @@ namespace SierraHOTAS.Models
         private static Dictionary<int, JoystickOffset> OffsetLookup { get; set; }
         private static Dictionary<string, int> IndexLookup { get; set; }
         public static JoystickOffset[] Offsets { get; set; }
+        public static string[] AxisNames { get; set; }
 
         /// <summary>
-        /// Get the SharpDX enum value list as an array
+        /// Get the SharpDX-edited enum value list as an array
         /// </summary>
         static JoystickOffsetValues()
         {
             Offsets = (JoystickOffset[])Enum.GetValues(typeof(JoystickOffset));
             PopulateOffsetIndexLookup();
             PopulateOffsetNameLookup();
+            PopulateJoystickAxisNames();
+        }
+
+        /// <summary>
+        /// Get the original SharpDX axis enum values as an array
+        /// This is only used when calling GetObjectPropertiesByName to find out if the axis exists on the device
+        /// </summary>
+        private static void PopulateJoystickAxisNames()
+        {
+            AxisNames = new[]
+            {
+                SharpDX.DirectInput.JoystickOffset.X.ToString(),
+                SharpDX.DirectInput.JoystickOffset.Y.ToString(),
+                SharpDX.DirectInput.JoystickOffset.Z.ToString(),
+                SharpDX.DirectInput.JoystickOffset.RotationX.ToString(),
+                SharpDX.DirectInput.JoystickOffset.RotationY.ToString(),
+                SharpDX.DirectInput.JoystickOffset.RotationZ.ToString(),
+                SharpDX.DirectInput.JoystickOffset.Sliders0.ToString(),
+                SharpDX.DirectInput.JoystickOffset.Sliders1.ToString(),
+                SharpDX.DirectInput.JoystickOffset.VelocitySliders0.ToString(),
+                SharpDX.DirectInput.JoystickOffset.VelocitySliders1.ToString(),
+                SharpDX.DirectInput.JoystickOffset.AccelerationSliders0.ToString(),
+                SharpDX.DirectInput.JoystickOffset.AccelerationSliders1.ToString(),
+                SharpDX.DirectInput.JoystickOffset.ForceSliders0.ToString(),
+                SharpDX.DirectInput.JoystickOffset.ForceSliders1.ToString()
+            };
         }
 
         private static void PopulateOffsetNameLookup()
@@ -124,6 +151,16 @@ namespace SierraHOTAS.Models
         public static string GetName(JoystickOffset offset)
         {
             return Enum.GetName(typeof(JoystickOffset), offset);
+        }
+
+        /// <summary>
+        /// get offset string name from enum integer value (not index) (ie: "Buttons55" from 103)
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public static string GetPOVName(int offset)
+        {
+            return Enum.GetName(typeof(PointOfViewPositionValues), offset >> 8);
         }
     }
 }

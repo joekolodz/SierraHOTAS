@@ -26,7 +26,7 @@ namespace SierraHOTAS.Tests
         public void get_offset()
         {
             Assert.Equal(JoystickOffset.Button1, JoystickOffsetValues.GetOffset(12));
-            Assert.Equal(JoystickOffset.ForceSliders1, JoystickOffsetValues.GetOffset(163));
+            Assert.Equal(JoystickOffset.ForceSliders1, JoystickOffsetValues.GetOffset(162));
             Assert.Equal(JoystickOffset.X, JoystickOffsetValues.GetOffset(-1));
             Assert.Equal(JoystickOffset.X, JoystickOffsetValues.GetOffset(164));
         }
@@ -46,7 +46,7 @@ namespace SierraHOTAS.Tests
             Assert.Equal("RY", JoystickOffsetValues.GetName(16));
             Assert.Equal("Z", JoystickOffsetValues.GetName(8));
             Assert.Equal("Button1", JoystickOffsetValues.GetName(48));
-            Assert.Equal("AccelerationSliders1", JoystickOffsetValues.GetName(236));
+            Assert.Equal("AccelerationSliders1", JoystickOffsetValues.GetName(232));
         }
     }
 }

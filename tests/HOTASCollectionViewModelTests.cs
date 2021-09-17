@@ -92,7 +92,7 @@ namespace SierraHOTAS.Tests
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var deviceViewModelFactory = new DeviceViewModelFactory();
 
-            hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
             hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
 
@@ -115,7 +115,7 @@ namespace SierraHOTAS.Tests
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var deviceViewModelFactory = new DeviceViewModelFactory();
 
-            hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
             hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
 
@@ -139,7 +139,7 @@ namespace SierraHOTAS.Tests
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var deviceViewModelFactory = new DeviceViewModelFactory();
 
-            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
             hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
 
@@ -163,7 +163,7 @@ namespace SierraHOTAS.Tests
             var subDispatcherFactory = new DispatcherFactory();
             var deviceViewModelFactory = new DeviceViewModelFactory();
 
-            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
             hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
 
@@ -184,7 +184,7 @@ namespace SierraHOTAS.Tests
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             subDeviceViewModelFactory = Substitute.For<DeviceViewModelFactory>();
 
-            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), subMediaPlayerFactory, Substitute.For<HOTASDeviceFactory>());
+            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
             hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
 
@@ -207,8 +207,15 @@ namespace SierraHOTAS.Tests
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var deviceViewModelFactory = new DeviceViewModelFactory();
 
+            var subJoystick = Substitute.For<IJoystick>();
+            subJoystick.Capabilities.Returns(new Capabilities() { AxeCount = 2, ButtonCount = 1 });
+            subJoystick.IsAxisPresent(Arg.Any<string>()).Returns(true);
+
+            var subJoystickFactory = Substitute.For<JoystickFactory>();
+            subJoystickFactory.CreateJoystick(default, default).ReturnsForAnyArgs(subJoystick);
+
             subHotasCollection = Substitute.For<IHOTASCollection>();
-            subHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() };
+            subHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice(Substitute.For<IDirectInput>(), subJoystickFactory, Guid.NewGuid(), Guid.NewGuid(), "test joystick", Substitute.For<IHOTASQueue>()) };
 
             subModeProfileButtons = new Dictionary<int, ModeActivationItem>();
             subHotasCollection.ModeProfileActivationButtons.Returns(subModeProfileButtons);
@@ -232,7 +239,7 @@ namespace SierraHOTAS.Tests
             var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
             var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
-            var hotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory, subHotasDeviceFactory);
+            var hotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subHotasDeviceFactory);
             return hotasCollection;
         }
 
@@ -243,7 +250,7 @@ namespace SierraHOTAS.Tests
             var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
             var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
-            var subHotasCollection = Substitute.For<HOTASCollection>(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory, subHotasDeviceFactory);
+            var subHotasCollection = Substitute.For<HOTASCollection>(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subHotasDeviceFactory);
             return subHotasCollection;
         }
 
@@ -366,13 +373,13 @@ namespace SierraHOTAS.Tests
 
             hotasVm.Initialize();
 
-            Assert.Equal(firstExpectedButtonName, hotasVm.Devices[0].ButtonMap[0].ButtonName);
+            Assert.Equal(firstExpectedButtonName, hotasVm.Devices[0].ButtonMap[3].ButtonName);
 
             buttonMap.MapName = secondExpectedButtonName;
 
             hotasVm.SetMode(expectedMode);
 
-            Assert.Equal(secondExpectedButtonName, hotasVm.Devices[0].ButtonMap[0].ButtonName);
+            Assert.Equal(secondExpectedButtonName, hotasVm.Devices[0].ButtonMap[3].ButtonName);
         }
 
         [Fact]
@@ -470,6 +477,8 @@ namespace SierraHOTAS.Tests
 
             var subJoystick = Substitute.For<IJoystick>();
             subJoystick.Capabilities.Returns(new Capabilities() { AxeCount = 2, ButtonCount = 1 });
+            subJoystick.IsAxisPresent(Arg.Any<string>()).Returns(true);
+
             var subJoystickFactory = Substitute.For<JoystickFactory>();
             subJoystickFactory.CreateJoystick(default, default).ReturnsForAnyArgs(subJoystick);
 
@@ -480,7 +489,7 @@ namespace SierraHOTAS.Tests
 
             var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
 
-            var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory, subHotasDeviceFactory);
+            var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subHotasDeviceFactory);
             loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, productGuid, deviceGuid, "loaded device", subHotasQueue));
 
             var testMap = loadedHotasCollection.Devices[0].ButtonMap.First(m => m.MapId == 48) as HOTASButton;
@@ -549,6 +558,8 @@ namespace SierraHOTAS.Tests
 
             var subJoystick = Substitute.For<IJoystick>();
             subJoystick.Capabilities.Returns(new Capabilities() { AxeCount = 2, ButtonCount = 1 });
+            subJoystick.IsAxisPresent(Arg.Any<string>()).Returns(true);
+
             var subJoystickFactory = Substitute.For<JoystickFactory>();
             subJoystickFactory.CreateJoystick(default, default).ReturnsForAnyArgs(subJoystick);
 
@@ -559,7 +570,7 @@ namespace SierraHOTAS.Tests
 
             var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
 
-            var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subMediaPlayerFactory, subHotasDeviceFactory);
+            var loadedHotasCollection = new HOTASCollection(subDirectInputFactory, subJoystickFactory, subHotasQueueFactory, subHotasDeviceFactory);
             loadedHotasCollection.Devices.Add(new HOTASDevice(subDirectInput, subJoystickFactory, productGuid, existingDeviceId, "loaded device", subHotasQueue));
 
             var testMap = loadedHotasCollection.Devices[0].ButtonMap.First(m => m.MapId == 48) as HOTASButton;
@@ -576,7 +587,7 @@ namespace SierraHOTAS.Tests
             existingDevice.DeviceId = existingDeviceId;
             existingDevice.Name = "existing device";
             existingDevice.Capabilities = new Capabilities() { AxeCount = 2, ButtonCount = 1 };
-
+            
 
             AddHotasButtonMap(existingDevice.ButtonMap, existingButtonMapId);
 
@@ -632,10 +643,9 @@ namespace SierraHOTAS.Tests
             hotasVm.Initialize();
             hotasVm.OpenFileCommand.Execute(default);
 
-
             //check that the in-memory button (existing) is replaced by the one loaded from the file
-            Assert.Equal(existingButtonMapId, hotasVm.Devices[0].ButtonMap[0].ButtonId);
-            Assert.NotEqual(loadedButtonMapId, hotasVm.Devices[0].ButtonMap[0].ButtonId);
+            Assert.Equal(existingButtonMapId, hotasVm.Devices[0].ButtonMap[3].ButtonId);
+            Assert.NotEqual(loadedButtonMapId, hotasVm.Devices[0].ButtonMap[3].ButtonId);
 
             Assert.Single(hotasVm.ActionCatalog.Catalog);
             Assert.Equal("<No Action>", hotasVm.ActionCatalog.Catalog[0].ActionName);
@@ -681,7 +691,7 @@ namespace SierraHOTAS.Tests
 
             Assert.NotEqual(expectedButtonMapVm, existingButtonmapVm);
             Assert.Empty(subDeviceList.ModeProfileActivationButtons);
-            Assert.Empty(((HOTASButton)existingDevice.ButtonMap[1]).ActionCatalogItem.Actions);
+            Assert.Empty(((HOTASButton)existingDevice.ButtonMap[2]).ActionCatalogItem.Actions);
             Assert.Equal(2, receivedEvents.Count);
             Assert.Equal(expectedPropertyChanged, receivedEvents[0]);
             Assert.Empty(hotasVm.ProfileSetFileName);
@@ -1284,12 +1294,12 @@ namespace SierraHOTAS.Tests
             var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out _, out IHOTASCollection subDeviceList);
             var hotasDevice = subDeviceList.Devices[0];
             hotasDevice.DeviceId = deviceGuid;
-            
+
             hotasVm.Initialize();
 
             Assert.Raises<ButtonPressedViewModelEventArgs>(e => hotasVm.ButtonPressed += e, e => hotasVm.ButtonPressed -= e, () =>
             {
-                subDeviceList.ButtonPressed += Raise.EventWith(new object(), new ButtonPressedEventArgs() {Device = (HOTASDevice) hotasDevice});
+                subDeviceList.ButtonPressed += Raise.EventWith(new object(), new ButtonPressedEventArgs() { Device = (HOTASDevice)hotasDevice });
             });
         }
 
@@ -1305,7 +1315,7 @@ namespace SierraHOTAS.Tests
 
             Assert.Raises<AxisChangedViewModelEventArgs>(e => hotasVm.AxisChanged += e, e => hotasVm.AxisChanged -= e, () =>
             {
-                subDeviceList.AxisChanged += Raise.EventWith(new object(), new AxisChangedEventArgs(){AxisId = 1, Device = (HOTASDevice)hotasDevice, Value = 1});
+                subDeviceList.AxisChanged += Raise.EventWith(new object(), new AxisChangedEventArgs() { AxisId = 1, Device = (HOTASDevice)hotasDevice, Value = 1 });
             });
         }
     }

@@ -17,7 +17,6 @@ namespace SierraHOTAS.Models
         private readonly JoystickFactory _joystickFactory;
         private readonly DirectInputFactory _directInputFactory;
         private readonly IDirectInput _directInput;
-        private readonly MediaPlayerFactory _mediaPlayerFactory;
         private readonly HOTASQueueFactory _hotasQueueFactory;
         private readonly HOTASDeviceFactory _hotasDeviceFactory;
         private bool _isShiftStateActive;
@@ -50,12 +49,11 @@ namespace SierraHOTAS.Models
             Initialize();
         }
 
-        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, MediaPlayerFactory mediaPlayerFactory, HOTASDeviceFactory hotasDeviceFactory)
+        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, HOTASDeviceFactory hotasDeviceFactory)
         {
             _directInputFactory = directInputFactory ?? throw new ArgumentNullException(nameof(directInputFactory));
             _joystickFactory = joystickFactory ?? throw new ArgumentNullException(nameof(joystickFactory));
             _hotasQueueFactory = hotasQueueFactory ?? throw new ArgumentNullException(nameof(hotasQueueFactory));
-            _mediaPlayerFactory = mediaPlayerFactory ?? throw new ArgumentNullException(nameof(mediaPlayerFactory));
             _hotasDeviceFactory = hotasDeviceFactory ?? throw new ArgumentNullException(nameof(hotasDeviceFactory));
             _directInput = _directInputFactory?.CreateDirectInput();
             Initialize();
