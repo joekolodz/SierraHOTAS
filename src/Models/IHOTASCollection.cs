@@ -28,6 +28,7 @@ namespace SierraHOTAS.Models
         void Start();
         void Stop();
         void ClearButtonMap();
+        void ApplyButtonMapToAllProfiles();
         void ListenToAllDevices();
         void ListenToDevice(IHOTASDevice device);
         int SetupNewModeProfile();
@@ -35,7 +36,7 @@ namespace SierraHOTAS.Models
         void ForceButtonPress(IHOTASDevice device, JoystickOffset offset, bool isDown);
         IHOTASDevice GetDevice(Guid instanceId);
         void ClearUnassignedActions();
-        ObservableCollection<IHOTASDevice> GetHOTASDevices();
+        ObservableCollection<IHOTASDevice> RefreshMissingDevices();
 
         /// <summary>
         /// Activate the profile for the given Mode

@@ -84,14 +84,18 @@ namespace SierraHOTAS.Models
 
         private void RebuildMapForNewDevice(IHOTASDevice device, IHOTASDevice newDevice)
         {
-            newDevice.SetButtonMap(device.ButtonMap.ToObservableCollection());
+            newDevice.ApplyButtonMap(device.ButtonMap.ToObservableCollection());
             newDevice.SetModeProfile(device.ModeProfiles);
             Devices.Add(newDevice);
         }
 
         public void Start()
         {
-            LoadAllDevices();
+            if (!App.IsDebug)
+            {
+                Devices = RefreshMissingDevices();
+            }
+
             ListenToAllDevices();
         }
 
@@ -128,13 +132,12 @@ namespace SierraHOTAS.Models
             }
         }
 
-        /// <summary>
-        /// Get all devices attached and load their custom button map profiles
-        /// </summary>
-        private void LoadAllDevices()
+        public void ApplyButtonMapToAllProfiles()
         {
-            if (App.IsDebug) return;
-            Devices = GetHOTASDevices();
+            foreach (var d in Devices)
+            {
+                d.OverlayAllProfilesToDevice();
+            }
         }
 
         public void ListenToAllDevices()
@@ -270,7 +273,11 @@ namespace SierraHOTAS.Models
             }
         }
 
-        public ObservableCollection<IHOTASDevice> GetHOTASDevices()
+        /// <summary>
+        /// Rescan all devices from DirectInput. Any devices scanned that are not already in the Device list will be added
+        /// </summary>
+        /// <returns></returns>
+        public ObservableCollection<IHOTASDevice> RefreshMissingDevices()
         {
             var rescannedDevices = _directInput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
 

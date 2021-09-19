@@ -115,7 +115,6 @@ namespace SierraHOTAS
             try
             {
                 _fileIo.WriteAllText(fileName, JsonConvert.SerializeObject(deviceList, Formatting.Indented, new CustomJsonConverter()));
-
             }
             catch (Exception e)
             {

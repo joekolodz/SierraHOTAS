@@ -282,7 +282,7 @@ namespace SierraHOTAS.Tests
             };
             list.Add(testButton);
 
-            hotasDevice.SetButtonMap(list);
+            hotasDevice.ApplyButtonMap(list);
 
             deviceVm.RebuildMap();
             Assert.NotEmpty(testButton.ActionCatalogItem.Actions);
@@ -298,7 +298,7 @@ namespace SierraHOTAS.Tests
             list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
             list.Add(new HOTASButton() { MapId = 49, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "second" });
 
-            hotasDevice.SetButtonMap(list);
+            hotasDevice.ApplyButtonMap(list);
             deviceVm.ButtonMap.Add(new ButtonMapViewModel() { ButtonId = 1 });
             Assert.Single(deviceVm.ButtonMap);
 
@@ -391,7 +391,7 @@ namespace SierraHOTAS.Tests
 
             var list = new ObservableCollection<IHotasBaseMap>();
             list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
-            expectedHotasDevice.SetButtonMap(list);
+            expectedHotasDevice.ApplyButtonMap(list);
 
             Assert.Equal(originalHotasDevice.Name, deviceVm.Name);
             Assert.Equal(originalHotasDevice.DeviceId, deviceVm.InstanceId);

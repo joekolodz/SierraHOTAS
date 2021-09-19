@@ -32,7 +32,8 @@ namespace SierraHOTAS.Models
         void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode);
         //void ReAcquireJoystick();
         void ListenAsync();
-        void SetButtonMap(ObservableCollection<IHotasBaseMap> existingButtonMap);
+        void OverlayAllProfilesToDevice();
+        void ApplyButtonMap(ObservableCollection<IHotasBaseMap> existingButtonMap);
         void SetMode(int mode);
         void ForceButtonPress(JoystickOffset offset, bool isDown);
         void Stop();

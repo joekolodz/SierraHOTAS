@@ -434,7 +434,7 @@ namespace SierraHOTAS.ViewModels
 
         private void RefreshDeviceList()
         {
-            var newDevices = _deviceList.GetHOTASDevices();
+            var newDevices = _deviceList.RefreshMissingDevices();
 
             //if the device has a mapping already loaded, then assign this device to that mapping
             foreach (var deviceViewModel in Devices)
@@ -516,6 +516,8 @@ namespace SierraHOTAS.ViewModels
             AddHandlers();
             ProfileSetFileName = _fileSystem.LastSavedFileName;
 
+            //since the JSON file may have less button maps than are on the device, we need to overlay them individually instead of replacing the whole collection
+            _deviceList.ApplyButtonMapToAllProfiles();
             _deviceList.AutoSetMode();
             _deviceList.ListenToAllDevices();
 

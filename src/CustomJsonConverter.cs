@@ -17,6 +17,7 @@ namespace SierraHOTAS
         {
             return objectType == typeof(HOTASButton) ||
                    objectType == typeof(HOTASAxis) ||
+                   objectType == typeof(ButtonAction) ||
                    objectType == typeof(IHOTASDevice);
         }
 
@@ -50,6 +51,21 @@ namespace SierraHOTAS
                     throw;
                 }
                 return buttonMap;
+            }
+
+            if (objectType == typeof(ButtonAction))
+            {
+                var action = new ButtonAction();
+                try
+                {
+                    serializer.Populate(reader, action);
+                }
+                catch (Exception e)
+                {
+                    Logging.Log.Error(e, "Failed to deserialize a ButtonAction");
+                    throw;
+                }
+                return action;
             }
 
             var dic = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
@@ -96,18 +112,25 @@ namespace SierraHOTAS
             return dic;
         }
 
-
-        //Don't serialize buttons that don't have any maps
+        //Don't serialize buttons that don't have any maps or custom changes
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            if (value is ButtonAction action)
+            {
+                SerializeButtonAction(writer, serializer, action);
+                return;
+            }
 
             if (value is HOTASButton button)
             {
-                if ((string.Compare(button.MapName, JoystickOffsetValues.GetName(button.MapId)) == 0 ||
-                    string.Compare(button.MapName, JoystickOffsetValues.GetPOVName(button.MapId)) == 0) &&
-                    (button.ActionCatalogItem == null || button.ActionCatalogItem.Actions == null || button.ActionCatalogItem.Actions.Count == 0)) return;
-
-                SerializeButton(writer, serializer, typeof(HOTASButton), button);
+                if (button.Type == HOTASButton.ButtonType.Button && string.CompareOrdinal(button.MapName, JoystickOffsetValues.GetName(button.MapId)) != 0 ||
+                    button.Type == HOTASButton.ButtonType.POV && string.CompareOrdinal(button.MapName, JoystickOffsetValues.GetPOVName(button.MapId)) != 0 ||
+                    button.ActionCatalogItem?.Actions?.Count > 0 ||
+                    button.IsShift)
+                {
+                    SerializeButton(writer, serializer, button);
+                }
+                return;
             }
 
             if (value is HOTASAxis axis)
@@ -115,30 +138,74 @@ namespace SierraHOTAS
                 if ((axis.ButtonMap == null || axis.ButtonMap.Count == 0) &&
                     (axis.ReverseButtonMap == null || axis.ReverseButtonMap.Count == 0)) return;
 
-                SerializeButton(writer, serializer, typeof(HOTASAxis), axis);
+                SerializeAxis(writer, serializer, axis);
+                return;
             }
 
-            if ((!(value is Dictionary<int, ObservableCollection<IHotasBaseMap>> profiles))) return;
-
+            if (!(value is Dictionary<int, ObservableCollection<IHotasBaseMap>>)) return;
 
             serializer.Serialize(writer, value);
         }
 
-        private static void SerializeButton(JsonWriter writer, JsonSerializer serializer, Type t, IHotasBaseMap axis)
+        private static void SerializeButton(JsonWriter writer, JsonSerializer serializer, HOTASButton button)
         {
-            var propList = t.GetProperties();
+            var propList = typeof(HOTASButton).GetProperties();
             writer.WriteStartObject();
             foreach (var prop in propList)
             {
-                if (prop.GetCustomAttributes(true).Any(x => x is JsonIgnoreAttribute))
-                {
-                    continue;
-                }
+                if (prop.GetCustomAttributes(true).Any(x => x is JsonIgnoreAttribute)) continue;
+
+                var value = prop.GetValue(button);
+
+                if (prop.Name == nameof(button.ShiftModePage) && (int)prop.GetValue(button) == 0) continue;
+                if (prop.Name == nameof(button.IsShift) && (bool)prop.GetValue(button) == false) continue;
+                
+                writer.WritePropertyName(prop.Name);
+                serializer.Serialize(writer, value);
+            }
+            writer.WriteEndObject();
+        }
+
+        private static void SerializeAxis(JsonWriter writer, JsonSerializer serializer, HOTASAxis axis)
+        {
+            var propList = typeof(HOTASAxis).GetProperties();
+            writer.WriteStartObject();
+            foreach (var prop in propList)
+            {
+                if (prop.GetCustomAttributes(true).Any(x => x is JsonIgnoreAttribute)) continue;
+
+                var value = prop.GetValue(axis);
+
+                if (prop.Name == nameof(axis.IsDirectional) && (bool)prop.GetValue(axis) == true) continue;
+                if (prop.Name == nameof(axis.IsMultiAction) && (bool)prop.GetValue(axis) == false) continue;
+                if (prop.Name == nameof(axis.SoundFileName) && string.IsNullOrEmpty((string)prop.GetValue(axis))) continue;
+                if (prop.Name == nameof(axis.SoundVolume) && Math.Abs((double)prop.GetValue(axis) - 1.0d) < 0.01) continue;
 
                 writer.WritePropertyName(prop.Name);
-                serializer.Serialize(writer, prop.GetValue(axis));
+                serializer.Serialize(writer, value);
+            }
+            writer.WriteEndObject();
+        }
+
+        private static void SerializeButtonAction(JsonWriter writer, JsonSerializer serializer, ButtonAction action)
+        {
+            var propList = typeof(ButtonAction).GetProperties();
+            writer.WriteStartObject();
+            foreach (var prop in propList)
+            {
+                if (prop.GetCustomAttributes(true).Any(x => x is JsonIgnoreAttribute)) continue;
+
+                var value = prop.GetValue(action);
+
+                if (prop.Name == nameof(action.IsKeyUp) && (bool)prop.GetValue(action) == false) continue;
+                if (prop.Name == nameof(action.IsExtended) && (bool)prop.GetValue(action) == false) continue;
+                if (prop.Name == nameof(action.TimeInMilliseconds) && (int)prop.GetValue(action) == 0) continue;
+
+                writer.WritePropertyName(prop.Name);
+                serializer.Serialize(writer, value);
             }
             writer.WriteEndObject();
         }
     }
 }
+

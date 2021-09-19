@@ -400,7 +400,7 @@ namespace SierraHOTAS.Tests
             var subHotasDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
             var list = new HOTASCollection(subDirectInputFactory, Substitute.For<JoystickFactory>(), subHotasQueueFactory, subHotasDeviceFactory);
-            var devices = list.GetHOTASDevices();
+            var devices = list.RefreshMissingDevices();
 
             Assert.NotNull(devices);
             Assert.Empty(devices);
@@ -434,7 +434,7 @@ namespace SierraHOTAS.Tests
 
             var addedDevice = list.Devices[0];
 
-            var deviceList = list.GetHOTASDevices();
+            var deviceList = list.RefreshMissingDevices();
             Assert.Empty(deviceList);
         }
 
@@ -465,7 +465,7 @@ namespace SierraHOTAS.Tests
             list.Start();
 
             var existingDevice = list.Devices[0];
-            var deviceList = list.GetHOTASDevices();
+            var deviceList = list.RefreshMissingDevices();
             Assert.Same(deviceList[0], existingDevice);
             subHotasDeviceFactory.Received().CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<JoystickFactory>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>());
             subHotasQueueFactory.Received().CreateHOTASQueue();

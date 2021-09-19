@@ -80,7 +80,7 @@ namespace SierraHOTAS.Models
         {
             ModeProfiles = profile;
             if (ModeProfiles.Count < 1) return;
-            SetButtonMap(profile[ModeProfiles.Keys.Min()].ToObservableCollection());
+            ApplyButtonMap(profile[ModeProfiles.Keys.Min()].ToObservableCollection());
         }
 
         //todo pass in the mode profile key for the profile you want to template from
@@ -233,14 +233,47 @@ namespace SierraHOTAS.Models
             _hotasQueue.LostConnectionToDevice -= OnLostConnectionToDevice;
         }
 
-        public void SetButtonMap(ObservableCollection<IHotasBaseMap> existingButtonMap)
+        public void OverlayAllProfilesToDevice()
+        {
+            var mergedModeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            var deviceButtons = new ObservableCollection<IHotasBaseMap>();
+            SeedButtonMapProfileFromDeviceCapabilities(deviceButtons);
+
+            foreach (var p in ModeProfiles)
+            {
+                if (p.Value.Count == 0) continue;
+                var d = deviceButtons.ToObservableCollection();//make a copy since we could have more than 1 profile and we don't need to rescan caps
+                mergedModeProfiles.Add(p.Key, MergeMaps(d, p.Value));
+            }
+
+            ModeProfiles = mergedModeProfiles;
+        }
+
+        private ObservableCollection<IHotasBaseMap> MergeMaps(ObservableCollection<IHotasBaseMap> sourceMap, ObservableCollection<IHotasBaseMap> destinationMap)
+        {
+            var merged = new ObservableCollection<IHotasBaseMap>();
+            foreach (var source in sourceMap)
+            {
+                var i = destinationMap.FirstOrDefault(b => b.MapId == source.MapId);
+                merged.Add(i ?? source);
+            }
+            return merged;
+        }
+
+
+        /// <summary>
+        /// Re-seed the device before overlaying the given button map
+        /// </summary>
+        /// <param name="existingButtonMap"></param>
+        public void ApplyButtonMap(ObservableCollection<IHotasBaseMap> existingButtonMap)
         {
             if (IsDeviceLoaded)
             {
-                //rebuild the button map in this manner, because additional buttons may be recognized at a later time
-                //for instance, the virpil side cars can be linked to an existing device which makes that original device look like it has more buttons.
+                //Reset the button map back to default hardware capabilities and then overlay the given button map on top
+                //We rebuild the button map in this manner, because additional hardware buttons may be recognized at a later time as well as the fact that the map loaded from the JSON file only has modified buttons
+                //For instance, the virpil side cars can be linked to an existing device which makes that original device look like it has more buttons.
                 //existingButtonMap is assumed to have less button entries in this scenario. So we want to copy the data from existingButtonMap for any buttons that match between the two lists
-                //any buttons that don't match means that the device has more buttons than are in the existingButtonMap list and so there is nothing to copy
+                //Any buttons that don't match means that the device has more buttons than are in the existingButtonMap list and so there is nothing to copy
                 //If the device has fewer buttons than exist on the existingButtonMap, then those buttons are not copied over and lost
                 ButtonMap = new ObservableCollection<IHotasBaseMap>();
                 SeedButtonMapProfileFromDeviceCapabilities(ButtonMap);
@@ -279,11 +312,6 @@ namespace SierraHOTAS.Models
         private void LoadCapabilitiesMapping()
         {
             LoadCapabilities();
-            SeedButtonMapProfileFromDeviceCapabilities();
-        }
-
-        private void SeedButtonMapProfileFromDeviceCapabilities()
-        {
             SeedButtonMapProfileFromDeviceCapabilities(ButtonMap);
         }
 

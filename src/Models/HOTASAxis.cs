@@ -20,7 +20,7 @@ namespace SierraHOTAS.Models
         public bool IsDirectional { get; set; } = true;
         public bool IsMultiAction { get; set; } = false;
         public string SoundFileName { get; set; }
-        public double SoundVolume { get; set; }
+        public double SoundVolume { get; set; } = 1.0d;
         public ObservableCollection<Segment> Segments { get; set; }
 
         [JsonIgnore]
@@ -31,6 +31,7 @@ namespace SierraHOTAS.Models
         private int _lastAvg;
         private readonly int[] _previousValues;
 
+        [JsonIgnore]
         public AxisDirection Direction { get; private set; }
 
         public HOTASAxis()
@@ -38,7 +39,6 @@ namespace SierraHOTAS.Models
             Segments = new ObservableCollection<Segment>();
             ButtonMap = new ObservableCollection<HOTASButton>();
             ReverseButtonMap = new ObservableCollection<HOTASButton>();
-            SoundVolume = 1.0d;
             _previousValues = new int[_arraySize];
         }
 

@@ -266,7 +266,7 @@ namespace SierraHOTAS.Tests
             Assert.Equal(2, device.ModeProfiles[2].Count);
             Assert.Equal("test map 2,2", device.ModeProfiles[2][1].MapName);
 
-            //assert that SetButtonMap is called
+            //assert that ApplyButtonMap is called
             Assert.NotNull(device.ModeProfiles);
             Assert.Equal(3, device.ButtonMap.Count);
             Assert.Equal("test map 1,1", device.ButtonMap[2].MapName);
@@ -402,7 +402,7 @@ namespace SierraHOTAS.Tests
             var newMap = new ObservableCollection<IHotasBaseMap>();
 
             Assert.Equal(3, device.ButtonMap.Count);
-            device.SetButtonMap(newMap);
+            device.ApplyButtonMap(newMap);
             Assert.Empty(device.ButtonMap);
         }
 
@@ -420,7 +420,7 @@ namespace SierraHOTAS.Tests
             Assert.Equal(3, device.ButtonMap.Count);
             Assert.True(((HOTASAxis)device.ButtonMap[0]).IsDirectional);
             Assert.Empty(((HOTASButton)device.ButtonMap[2]).ActionName);
-            device.SetButtonMap(newMap);
+            device.ApplyButtonMap(newMap);
             Assert.Equal(3, device.ButtonMap.Count);
             Assert.False(((HOTASAxis)device.ButtonMap[0]).IsDirectional);
             Assert.Equal("existing action", ((HOTASButton)device.ButtonMap[2]).ActionName);
@@ -554,6 +554,47 @@ namespace SierraHOTAS.Tests
             var device = CreateHotasDevice_GetButtonState();
             var state = device.GetButtonState((int)JoystickOffset.Button1);
             Assert.True(state);
+        }
+
+        [Fact]
+        public void overlay_all_profiles_to_device()
+        {
+            var device = CreateHotasDevice();
+            device.ModeProfiles[1].RemoveAt(0);
+            device.ModeProfiles[1].RemoveAt(0);
+            var button = device.ModeProfiles[1][0] as HOTASButton;
+            
+            //baseline
+            Assert.NotNull(button);
+            Assert.Empty(button.ActionCatalogItem.Actions);
+
+            button.ActionCatalogItem = new ActionCatalogItem()
+            {
+                ActionName = "Fire", NoAction = false, Actions = new ObservableCollection<ButtonAction>()
+                {
+                    new ButtonAction() {ScanCode = 1},
+                    new ButtonAction() {ScanCode = 1, IsKeyUp = true}
+                }
+            };
+
+            //baseline
+            Assert.Single(device.ModeProfiles);
+            
+            device.OverlayAllProfilesToDevice();
+
+            //verify 2 axis and a button are in the profile and that the button retained its values
+            Assert.Equal(3, device.ModeProfiles[1].Count);
+            Assert.Equal(HOTASButton.ButtonType.AxisLinear, device.ModeProfiles[1][0].Type);
+            Assert.Equal(HOTASButton.ButtonType.AxisLinear, device.ModeProfiles[1][1].Type);
+            Assert.Equal(HOTASButton.ButtonType.Button, device.ModeProfiles[1][2].Type);
+
+            button = device.ModeProfiles[1][2] as HOTASButton;
+            Assert.NotNull(button);
+            Assert.Equal(2, button.ActionCatalogItem.Actions.Count);
+            Assert.Equal(1, button.ActionCatalogItem.Actions[0].ScanCode);
+            Assert.False(button.ActionCatalogItem.Actions[0].IsKeyUp);
+            Assert.Equal(1, button.ActionCatalogItem.Actions[1].ScanCode);
+            Assert.True(button.ActionCatalogItem.Actions[1].IsKeyUp);
         }
     }
 }
