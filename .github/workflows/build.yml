@@ -32,7 +32,13 @@ jobs:
     
     - name: Test
       run: packages\xunit.runner.console.2.4.1\tools\net472\xunit.console.exe tests\bin\Release\SierraHOTAS.Tests.dll
-
+   
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action/composite@v1
+      if: always()
+      with:
+        files: sierrahotas-test-results/**/*.xml
+    
     - name: Create Setup
       run: msbuild SierraHOTASSetup\SierraHOTASSetup.wixproj -m /p:Configuration=Release
     
