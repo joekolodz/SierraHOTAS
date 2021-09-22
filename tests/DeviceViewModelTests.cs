@@ -6,6 +6,7 @@ using SierraHOTAS.ViewModels;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using SierraHOTAS.Win32;
 using Xunit;
 using JoystickOffset = SierraHOTAS.Models.JoystickOffset;
 
@@ -122,7 +123,7 @@ namespace SierraHOTAS.Tests
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var subDirectInputFactory = Substitute.For<DirectInputFactory>();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
-            var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
+            var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>());
 
             var hotasDeviceFactory = new HOTASDeviceFactory();
 
@@ -141,7 +142,7 @@ namespace SierraHOTAS.Tests
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var subDirectInputFactory = Substitute.For<DirectInputFactory>();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
-            var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>();
+            var subHotasQueueFactory = Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>());
 
             var hotasDeviceFactory = new HOTASDeviceFactory();
 
@@ -162,7 +163,7 @@ namespace SierraHOTAS.Tests
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
             var subJoystickFactory = Substitute.For<JoystickFactory>();
 
-            var hotasQueueFactory = new HOTASQueueFactory();
+            var hotasQueueFactory = new HOTASQueueFactory(Substitute.For<IKeyboard>());
             var hotasDeviceFactory = new HOTASDeviceFactory();
 
             var deviceId = Guid.NewGuid();
@@ -186,7 +187,7 @@ namespace SierraHOTAS.Tests
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
             var subJoystickFactory = Substitute.For<JoystickFactory>();
 
-            var hotasQueueFactory = new HOTASQueueFactory();
+            var hotasQueueFactory = new HOTASQueueFactory(Substitute.For<IKeyboard>());
             var testJoystick = new TestJoystick_LostConnection();
             subJoystickFactory.CreateJoystick(Arg.Any<IDirectInput>(), Arg.Any<Guid>()).Returns(j => testJoystick);
 
@@ -206,7 +207,7 @@ namespace SierraHOTAS.Tests
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
             var subJoystickFactory = Substitute.For<JoystickFactory>();
 
-            var hotasQueueFactory = new HOTASQueueFactory();
+            var hotasQueueFactory = new HOTASQueueFactory(Substitute.For<IKeyboard>());
             var testJoystick = new TestJoystick_AxisChanged();
             subJoystickFactory.CreateJoystick(Arg.Any<IDirectInput>(), Arg.Any<Guid>()).Returns(j => testJoystick);
 
@@ -236,7 +237,7 @@ namespace SierraHOTAS.Tests
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
             var subJoystickFactory = Substitute.For<JoystickFactory>();
 
-            var hotasQueueFactory = new HOTASQueueFactory();
+            var hotasQueueFactory = new HOTASQueueFactory(Substitute.For<IKeyboard>());
             var hotasDeviceFactory = new HOTASDeviceFactory();
 
             var deviceId = Guid.NewGuid();

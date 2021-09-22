@@ -2,6 +2,7 @@
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels;
+using SierraHOTAS.Win32;
 
 namespace SierraHOTAS
 {
@@ -22,6 +23,7 @@ namespace SierraHOTAS
             builder.RegisterType<HOTASDeviceFactory>();
             builder.RegisterType<DeviceViewModelFactory>();
             builder.RegisterType<HOTASQueueFactory>();
+            builder.RegisterType<KeyboardWrapper>().As<IKeyboard>();
             builder.RegisterType<FileDialogFactory>().As<FileDialogFactory>();
 
             builder.RegisterType<HOTASCollectionViewModel>();

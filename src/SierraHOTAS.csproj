@@ -160,6 +160,7 @@
     <Compile Include="Models\IMediaPlayer.cs" />
     <Compile Include="Models\InputGraphNode.cs" />
     <Compile Include="Models\IOpenFileDialog.cs" />
+    <Compile Include="Models\KeyboardWrapper.cs" />
     <Compile Include="Models\MacroCancelledEventArgs.cs" />
     <Compile Include="Models\MacroStartedEventArgs.cs" />
     <Compile Include="Models\OpenFileDialogWrapper.cs" />
@@ -239,6 +240,7 @@
     <Compile Include="ViewModels\QuickProfilePanelViewModel.cs" />
     <Compile Include="ViewModels\QuickProfileSelectedEvent.cs" />
     <Compile Include="Views\ViewService.cs" />
+    <Compile Include="Win32\IKeyboard.cs" />
     <Compile Include="Win32\Win32Structures.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>

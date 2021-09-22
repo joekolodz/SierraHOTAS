@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SierraHOTAS.Win32;
 
 namespace SierraHOTAS.Models
 {
@@ -29,8 +30,14 @@ namespace SierraHOTAS.Models
         private Dictionary<int, JitterDetection> _jitterDetectionDictionary;
 
 
+        private IKeyboard Keyboard { get; set; }
         private IJoystick Joystick { get; set; }
         private ObservableCollection<IHotasBaseMap> _buttonMap;
+
+        public HOTASQueue(IKeyboard keyboard)
+        {
+            Keyboard = keyboard;
+        }
 
         public void Listen(IJoystick joystick, ObservableCollection<IHotasBaseMap> buttonMap)
         {

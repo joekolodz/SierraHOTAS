@@ -8,6 +8,7 @@ using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels;
+using SierraHOTAS.Win32;
 using Xunit;
 
 namespace SierraHOTAS.Tests
@@ -75,7 +76,7 @@ namespace SierraHOTAS.Tests
             var subFileSystem = Substitute.For<IFileSystem>();
             subFileSystem.ChooseHotasProfileForQuickLoad().Returns("test path");
 
-            var hotas = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(), Substitute.For<HOTASDeviceFactory>());
+            var hotas = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>());
             subFileSystem.FileOpen(Arg.Any<string>()).Returns(hotas);
 
             var panelVm = new QuickProfilePanelViewModel(Substitute.For<IEventAggregator>(), subFileSystem);

@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using NSubstitute;
 using SharpDX.DirectInput;
 using SierraHOTAS.Models;
+using SierraHOTAS.Win32;
 using Xunit;
 using JoystickOffset = SierraHOTAS.Models.JoystickOffset;
 
@@ -12,8 +13,11 @@ namespace SierraHOTAS.Tests
     {
         private class TestJoystick_BasicQueue : IJoystick
         {
+            public JoystickUpdate[] TestData { get; set; }
+
             public TestJoystick_BasicQueue()
             {
+                TestData = new JoystickUpdate[1];
                 Capabilities = new Capabilities() { AxeCount = 2, ButtonCount = 128, PovCount = 4};
             }
 
@@ -42,9 +46,11 @@ namespace SierraHOTAS.Tests
 
             public JoystickUpdate[] GetBufferedData()
             {
-                var data = new JoystickUpdate[1];
-                data[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
-                return data;
+                if (TestData == null)
+                {
+                    throw new Exception("forced exception");
+                }
+                return TestData;
             }
 
             public void Unacquire()
@@ -159,33 +165,41 @@ namespace SierraHOTAS.Tests
             Assert.Equal(expected, actual);
         }
 
-        //[Fact]
-        //public void tests()
-        //{
-        //    var joystick = new TestJoystick_BasicQueue();
+        [Fact]
+        public void tests()
+        {
+            var joystick = new TestJoystick_BasicQueue();
 
-        //    var map = new ObservableCollection<IHotasBaseMap>()
-        //    {
-        //        new HOTASButton()
-        //        {
-        //            MapId = (int) JoystickOffset.Button1, MapName = "trigger", Type = HOTASButton.ButtonType.Button,
-        //            ActionName = "fire", ActionCatalogItem = new ActionCatalogItem()
-        //            {
-        //                ActionName = "fire", Actions = new ObservableCollection<ButtonAction>()
-        //                {
-        //                    new ButtonAction() {ScanCode = 1},
-        //                    new ButtonAction() {ScanCode = 1, IsKeyUp = true}
-        //                }
-        //            }
-        //        }
-        //    };
+            var map = new ObservableCollection<IHotasBaseMap>()
+            {
+                new HOTASButton()
+                {
+                    MapId = (int) JoystickOffset.Button1, MapName = "trigger", Type = HOTASButton.ButtonType.Button,
+                    ActionName = "fire", ActionCatalogItem = new ActionCatalogItem()
+                    {
+                        ActionName = "fire", Actions = new ObservableCollection<ButtonAction>()
+                        {
+                            new ButtonAction() {ScanCode = 28},
+                            new ButtonAction() {ScanCode = 28, IsKeyUp = true}
+                        }
+                    }
+                }
+            };
 
-        //    var queue = new HOTASQueue();
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
 
+            Assert.Raises<ButtonPressedEventArgs>(a => queue.ButtonPressed += a, a => queue.ButtonPressed -= a, () =>
+            {
+                joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+                System.Threading.Thread.Sleep(100);
+            });
 
-        //    //Assert.Raises<KeystrokeSentEventArgs>(a => queue.KeystrokeDownSent += a,
-        //    //    a => queue.KeystrokeDownSent -= a,
-        //    //    () => queue.Listen(joystick, map));
-        //}
+            Assert.Raises<EventArgs>(a => queue.LostConnectionToDevice += a, a => queue.LostConnectionToDevice -= a, () =>
+            {
+                joystick.TestData = null;
+                System.Threading.Thread.Sleep(50);
+            });
+        }
     }
 }

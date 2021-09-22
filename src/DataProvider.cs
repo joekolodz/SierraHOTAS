@@ -16,8 +16,8 @@ namespace SierraHOTAS
             var di = new DirectInputWrapper(new DirectInput());
             var devices = new ObservableCollection<IHOTASDevice>()
             {
-                new HOTASDevice(di, new JoystickFactory(), productGuid, throttleGuid, "Joe's Test Throttle", new HOTASQueue()),
-                new HOTASDevice(di, new JoystickFactory(), productGuid,stickGuid, "Joe's Test Stick", new HOTASQueue())
+                new HOTASDevice(di, new JoystickFactory(), productGuid, throttleGuid, "Joe's Test Throttle", new HOTASQueue(new KeyboardWrapper())),
+                new HOTASDevice(di, new JoystickFactory(), productGuid,stickGuid, "Joe's Test Stick", new HOTASQueue(new KeyboardWrapper()))
             };
 
             devices[0].ApplyButtonMap(new ObservableCollection<IHotasBaseMap>()
