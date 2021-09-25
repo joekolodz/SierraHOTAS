@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using Castle.Core.Smtp;
 using NSubstitute;
 using SharpDX.DirectInput;
 using SierraHOTAS.Models;
@@ -15,10 +16,10 @@ namespace SierraHOTAS.Tests
         {
             public JoystickUpdate[] TestData { get; set; }
 
-            public TestJoystick_BasicQueue()
+            public TestJoystick_BasicQueue(int dataBufferSize)
             {
-                TestData = new JoystickUpdate[1];
-                Capabilities = new Capabilities() { AxeCount = 2, ButtonCount = 128, PovCount = 4};
+                TestData = new JoystickUpdate[dataBufferSize];
+                Capabilities = new Capabilities() { AxeCount = 2, ButtonCount = 128, PovCount = 4 };
             }
 
             public int BufferSize { get; set; }
@@ -50,7 +51,11 @@ namespace SierraHOTAS.Tests
                 {
                     throw new Exception("forced exception");
                 }
-                return TestData;
+
+                var returnData = new JoystickUpdate[TestData.Length];
+                TestData.CopyTo(returnData, 0);
+                TestData = new JoystickUpdate[0];
+                return returnData;
             }
 
             public void Unacquire()
@@ -69,7 +74,7 @@ namespace SierraHOTAS.Tests
         {
             const int expected = -224;
             var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, -1);
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -77,7 +82,7 @@ namespace SierraHOTAS.Tests
         {
             const int expected = 32;
             var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.POVNorth);
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -85,7 +90,7 @@ namespace SierraHOTAS.Tests
         {
             const int expected = 1152032;
             var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.POVNorthEast);
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -93,7 +98,7 @@ namespace SierraHOTAS.Tests
         {
             const int expected = 2304032;
             var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.POVEast);
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -101,7 +106,7 @@ namespace SierraHOTAS.Tests
         {
             const int expected = 3456032;
             var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.POVSouthEast);
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -109,7 +114,7 @@ namespace SierraHOTAS.Tests
         {
             const int expected = 4608032;
             var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.POVSouth);
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -117,7 +122,7 @@ namespace SierraHOTAS.Tests
         {
             const int expected = 5760032;
             var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.POVSouthWest);
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -125,7 +130,7 @@ namespace SierraHOTAS.Tests
         {
             const int expected = 6912032;
             var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.POVWest);
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -133,7 +138,7 @@ namespace SierraHOTAS.Tests
         {
             const int expected = 8064032;
             var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.POVNorthWest);
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -155,7 +160,7 @@ namespace SierraHOTAS.Tests
             actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV3, (int)JoystickOffsetValues.PointOfViewPositionValues.POVNorthWest);
             Assert.Equal(expected, actual);
 
-            
+
             expected = 44;
             actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV4, (int)JoystickOffsetValues.PointOfViewPositionValues.POVNorth);
             Assert.Equal(expected, actual);
@@ -166,10 +171,377 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
-        public void tests()
+        public void keystroke_up_sent()
         {
-            var joystick = new TestJoystick_BasicQueue();
+            var isEventCalled = false;
+            var timeOut = 10;
 
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
+            var map = CreateTestHotasTestMapWithButton();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.KeystrokeUpSent += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void keystroke_down_sent()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithButton();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void macro_start()
+        {
+            var isEventCalled = false;
+            var timeOut = 100000;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithButton(timeInMilliseconds: 1);
+
+            var subKeyboard = Substitute.For<IKeyboard>();
+            subKeyboard.KeyDownRepeatDelay.Returns(35);
+            var queue = new HOTASQueue(subKeyboard);
+            queue.Listen(joystick, map);
+
+            queue.MacroStarted += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void macro_cancelled()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
+            var map = CreateTestHotasTestMapWithButton(timeInMilliseconds: 1);
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.MacroCancelled += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void button_pressed()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithButton();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.ButtonPressed += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void button_released()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
+            var map = CreateTestHotasTestMapWithButton();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.ButtonReleased += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void axis_changed()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithAxis();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.AxisChanged += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 43000 };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void axis_changed_causes_keypress_down()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
+            var map = CreateTestHotasTestMapWithAxis();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 4000 };
+            joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 6000 };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void axis_changed_causes_keypress_up()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
+            var map = CreateTestHotasTestMapWithAxis();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.KeystrokeUpSent += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 4000 };
+            joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 6000 };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void mode_profile_selected()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithShiftMode();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.ModeProfileSelected += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void shift_released()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithShiftMode();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.ShiftReleased += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void lost_connection_to_device()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithButton();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+
+            queue.LostConnectionToDevice += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData = null;
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void force_button_press()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithButton();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+            Assert.False(isEventCalled);
+            
+            queue.ButtonPressed += (sender, e) => { isEventCalled = true; };
+            queue.ForceButtonPress(JoystickOffset.Button1, true);
+            
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void stop_loop()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithButton();
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+            queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; };
+
+            //setup baseline test to prove it's actually running
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+
+            //test that we stop the loop and no events come through
+            isEventCalled = false;
+            queue.Stop();
+
+            joystick.TestData = new JoystickUpdate[1];
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.False(isEventCalled);
+        }
+
+        [Fact]
+        public void handle_pov_button_press()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithPOV();
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+            queue.ButtonPressed += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.POV1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.PointOfViewPositionValues.POVNorthEast };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        [Fact]
+        public void handle_pov_button_release()
+        {
+            var isEventCalled = false;
+            var timeOut = 10;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
+            var map = CreateTestHotasTestMapWithPOV();
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, map);
+            queue.ButtonReleased += (sender, e) => { isEventCalled = true; };
+            Assert.False(isEventCalled);
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.POV1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.PointOfViewPositionValues.POVNorthEast };
+            joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.POV1, Sequence = 0, Timestamp = 0, Value = -1 };
+            while (!isEventCalled && --timeOut > 0)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            Assert.True(isEventCalled);
+        }
+
+        private static ObservableCollection<IHotasBaseMap> CreateTestHotasTestMapWithButton(int timeInMilliseconds = 0)
+        {
             var map = new ObservableCollection<IHotasBaseMap>()
             {
                 new HOTASButton()
@@ -179,27 +551,79 @@ namespace SierraHOTAS.Tests
                     {
                         ActionName = "fire", Actions = new ObservableCollection<ButtonAction>()
                         {
-                            new ButtonAction() {ScanCode = 28},
+                            new ButtonAction() {ScanCode = 28, TimeInMilliseconds = timeInMilliseconds},
                             new ButtonAction() {ScanCode = 28, IsKeyUp = true}
                         }
                     }
                 }
             };
+            return map;
+        }
 
-            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
-
-            Assert.Raises<ButtonPressedEventArgs>(a => queue.ButtonPressed += a, a => queue.ButtonPressed -= a, () =>
+        private static ObservableCollection<IHotasBaseMap> CreateTestHotasTestMapWithAxis()
+        {
+            var map = new ObservableCollection<IHotasBaseMap>()
             {
-                joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
-                System.Threading.Thread.Sleep(100);
-            });
+                new HOTASAxis()
+                {
+                    MapId = (int) JoystickOffset.X, MapName = "axis 1", Type = HOTASButton.ButtonType.AxisLinear,
+                    Segments = new ObservableCollection<Segment>()
+                    {
+                        new Segment(1, 0),
+                        new Segment(2, 5000),
+                        new Segment(3, 10000),
+                    },
+                    ButtonMap = new ObservableCollection<HOTASButton>()
+                    {
+                        new HOTASButton()
+                        {
+                            MapId = 1, MapName = "axis triggered button 1", Type = HOTASButton.ButtonType.Button,
+                            ActionName = "click 1!", ActionCatalogItem = new ActionCatalogItem()
+                            {
+                                ActionName = "click 1!", Actions = new ObservableCollection<ButtonAction>()
+                                {
+                                    new ButtonAction() {ScanCode = 43},
+                                    new ButtonAction() {ScanCode = 43, IsKeyUp = true}
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            return map;
+        }
 
-            Assert.Raises<EventArgs>(a => queue.LostConnectionToDevice += a, a => queue.LostConnectionToDevice -= a, () =>
+        private static ObservableCollection<IHotasBaseMap> CreateTestHotasTestMapWithShiftMode()
+        {
+            var map = new ObservableCollection<IHotasBaseMap>()
             {
-                joystick.TestData = null;
-                System.Threading.Thread.Sleep(50);
-            });
+                new HOTASButton()
+                {
+                    MapId = (int) JoystickOffset.Button1, MapName = "trigger", Type = HOTASButton.ButtonType.Button, IsShift = true, ShiftModePage = 1,
+                    ActionName = "change modes", ActionCatalogItem = new ActionCatalogItem()
+                }
+            };
+            return map;
+        }
+
+        private static ObservableCollection<IHotasBaseMap> CreateTestHotasTestMapWithPOV()
+        {
+            var map = new ObservableCollection<IHotasBaseMap>()
+            {
+                new HOTASButton()
+                {
+                    MapId = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.POVNorthEast), MapName = "pov1NE", Type = HOTASButton.ButtonType.POV,
+                    ActionName = "pov1NE action", ActionCatalogItem = new ActionCatalogItem()
+                    {
+                        ActionName = "pov1NE action", Actions = new ObservableCollection<ButtonAction>()
+                        {
+                            new ButtonAction() {ScanCode = 17},
+                            new ButtonAction() {ScanCode = 17, IsKeyUp = true}
+                        }
+                    }
+                }
+            };
+            return map;
         }
     }
 }
