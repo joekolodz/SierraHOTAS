@@ -188,7 +188,7 @@ namespace SierraHOTAS.Models
         private static readonly ConcurrentDictionary<JoystickOffset, int> _lastPovButton = new ConcurrentDictionary<JoystickOffset, int>();
         private void HandlePovButton(JoystickOffset offset, int value)
         {
-            if (_lastPovButton.ContainsKey(offset) || value == -1)
+            if (_lastPovButton.ContainsKey(offset) || value == (int)JoystickOffsetValues.PointOfViewPositionValues.Released)
             {
                 Logging.Log.Debug($"POV button release: {offset} - {value}");
 

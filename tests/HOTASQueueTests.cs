@@ -532,7 +532,7 @@ namespace SierraHOTAS.Tests
             queue.ButtonReleased += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.POV1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.PointOfViewPositionValues.POVNorthEast };
-            joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.POV1, Sequence = 0, Timestamp = 0, Value = -1 };
+            joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.POV1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.PointOfViewPositionValues.Released };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
