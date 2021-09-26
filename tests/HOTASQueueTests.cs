@@ -73,7 +73,7 @@ namespace SierraHOTAS.Tests
         public void translate_point_of_view_offset_same_as_button()
         {
             const int expected = -224;
-            var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, -1);
+            var actual = HOTASQueue.TranslatePointOfViewOffset(JoystickOffset.POV1, (int)JoystickOffsetValues.PointOfViewPositionValues.Released);
             Assert.Equal(expected, actual);
         }
 
@@ -423,7 +423,7 @@ namespace SierraHOTAS.Tests
         public void lost_connection_to_device()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 20;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();

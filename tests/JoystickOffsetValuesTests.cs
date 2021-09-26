@@ -48,5 +48,18 @@ namespace SierraHOTAS.Tests
             Assert.Equal("Button1", JoystickOffsetValues.GetName(48));
             Assert.Equal("AccelerationSliders1", JoystickOffsetValues.GetName(232));
         }
+
+        [Fact]
+        public void get_pov_name()
+        {
+            Assert.Equal("POVNorth", JoystickOffsetValues.GetPOVName((int)JoystickOffsetValues.PointOfViewPositionValues.POVNorth));
+            Assert.Equal("POVNorthEast", JoystickOffsetValues.GetPOVName((int)JoystickOffsetValues.PointOfViewPositionValues.POVNorthEast << 8));
+            Assert.Equal("POVEast", JoystickOffsetValues.GetPOVName((int)JoystickOffsetValues.PointOfViewPositionValues.POVEast << 8));
+            Assert.Equal("POVSouthEast", JoystickOffsetValues.GetPOVName((int)JoystickOffsetValues.PointOfViewPositionValues.POVSouthEast << 8));
+            Assert.Equal("POVSouth", JoystickOffsetValues.GetPOVName((int)JoystickOffsetValues.PointOfViewPositionValues.POVSouth << 8));
+            Assert.Equal("POVSouthWest", JoystickOffsetValues.GetPOVName((int)JoystickOffsetValues.PointOfViewPositionValues.POVSouthWest << 8));
+            Assert.Equal("POVWest", JoystickOffsetValues.GetPOVName((int)JoystickOffsetValues.PointOfViewPositionValues.POVWest << 8));
+            Assert.Equal("POVNorthWest", JoystickOffsetValues.GetPOVName((int)JoystickOffsetValues.PointOfViewPositionValues.POVNorthWest << 8));
+        }
     }
 }

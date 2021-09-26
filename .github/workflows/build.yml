@@ -39,12 +39,6 @@ jobs:
       with:
         name: Unit Test Results
         path: sierrahotas-test-results.xml
-          
-    - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action/composite@v1
-      if: always()
-      with:
-        files: sierrahotas-test-results.xml
     
     - name: Create Setup
       run: msbuild SierraHOTASSetup\SierraHOTASSetup.wixproj -m /p:Configuration=Release
