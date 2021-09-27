@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Castle.Core.Smtp;
 using NSubstitute;
 using SharpDX.DirectInput;
@@ -174,7 +175,7 @@ namespace SierraHOTAS.Tests
         public void keystroke_up_sent()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithButton();
@@ -184,12 +185,24 @@ namespace SierraHOTAS.Tests
 
             queue.KeystrokeUpSent += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
+            var sw = Stopwatch.StartNew();
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
             joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
+
+            var x = new long[40];
+            
             while (!isEventCalled && --timeOut > 0)
             {
-                System.Threading.Thread.Sleep(10);
+                System.Threading.Thread.Sleep(5);
+                x[timeOut] = sw.ElapsedMilliseconds;
             }
+            sw.Stop();
+
+            foreach (var i in x)
+            {
+                Debug.WriteLine($"wait times: {i}");
+            }
+
             Assert.True(isEventCalled);
         }
 
