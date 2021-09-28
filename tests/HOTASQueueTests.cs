@@ -287,10 +287,21 @@ namespace SierraHOTAS.Tests
 
             queue.ButtonPressed += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
+
+            var sw = Stopwatch.StartNew();
+            var x = new long[80];
+            
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
+                x[timeOut] = sw.ElapsedMilliseconds;
+            }
+            sw.Stop();
+
+            foreach (var i in x)
+            {
+                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
