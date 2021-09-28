@@ -215,27 +215,13 @@ namespace SierraHOTAS.Tests
 
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
             queue.Listen(joystick, map);
-
             queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
-            
-            var sw = Stopwatch.StartNew();
-
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
-
-            var x = new long[40];
 
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
-                x[timeOut] = sw.ElapsedMilliseconds;
-            }
-
-            sw.Stop();
-
-            foreach (var i in x)
-            {
-                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -346,10 +332,22 @@ namespace SierraHOTAS.Tests
 
             queue.AxisChanged += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
+            
+            var sw = Stopwatch.StartNew();
+            var x = new long[10];
+
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 43000 };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
+                x[timeOut] = sw.ElapsedMilliseconds;
+            }
+
+            sw.Stop();
+
+            foreach (var i in x)
+            {
+                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -368,11 +366,23 @@ namespace SierraHOTAS.Tests
 
             queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
+            
+            var sw = Stopwatch.StartNew();
+            var x = new long[10];
+
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 4000 };
             joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 6000 };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
+                x[timeOut] = sw.ElapsedMilliseconds;
+            }
+
+            sw.Stop();
+
+            foreach (var i in x)
+            {
+                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -414,10 +424,22 @@ namespace SierraHOTAS.Tests
 
             queue.ModeProfileSelected += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
+
+            var sw = Stopwatch.StartNew();
+            var x = new long[10];
+
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
+                x[timeOut] = sw.ElapsedMilliseconds;
+            }
+
+            sw.Stop();
+
+            foreach (var i in x)
+            {
+                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -436,10 +458,22 @@ namespace SierraHOTAS.Tests
 
             queue.ShiftReleased += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
+
+            var sw = Stopwatch.StartNew();
+            var x = new long[10];
+
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
+                x[timeOut] = sw.ElapsedMilliseconds;
+            }
+
+            sw.Stop();
+
+            foreach (var i in x)
+            {
+                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -458,10 +492,22 @@ namespace SierraHOTAS.Tests
 
             queue.LostConnectionToDevice += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
+
+            var sw = Stopwatch.StartNew();
+            var x = new long[10];
+
             joystick.TestData = null;
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
+                x[timeOut] = sw.ElapsedMilliseconds;
+            }
+
+            sw.Stop();
+
+            foreach (var i in x)
+            {
+                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
