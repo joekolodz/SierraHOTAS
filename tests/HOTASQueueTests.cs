@@ -7,12 +7,20 @@ using SharpDX.DirectInput;
 using SierraHOTAS.Models;
 using SierraHOTAS.Win32;
 using Xunit;
+using Xunit.Abstractions;
 using JoystickOffset = SierraHOTAS.Models.JoystickOffset;
 
 namespace SierraHOTAS.Tests
 {
     public class HOTASQueueTests
     {
+        private readonly ITestOutputHelper _output;
+
+        public HOTASQueueTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         private class TestJoystick_BasicQueue : IJoystick
         {
             public JoystickUpdate[] TestData { get; set; }
@@ -185,22 +193,12 @@ namespace SierraHOTAS.Tests
 
             queue.KeystrokeUpSent += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
-            var sw = Stopwatch.StartNew();
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
             joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
-
-            var x = new long[40];
             
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(5);
-                x[timeOut] = sw.ElapsedMilliseconds;
-            }
-            sw.Stop();
-
-            foreach (var i in x)
-            {
-                Debug.WriteLine($"wait times: {i}");
             }
 
             Assert.True(isEventCalled);
@@ -210,7 +208,7 @@ namespace SierraHOTAS.Tests
         public void keystroke_down_sent()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
@@ -220,10 +218,24 @@ namespace SierraHOTAS.Tests
 
             queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
+            
+            var sw = Stopwatch.StartNew();
+
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+
+            var x = new long[40];
+
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
+                x[timeOut] = sw.ElapsedMilliseconds;
+            }
+
+            sw.Stop();
+
+            foreach (var i in x)
+            {
+                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
