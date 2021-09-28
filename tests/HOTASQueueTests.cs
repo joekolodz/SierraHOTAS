@@ -494,7 +494,7 @@ namespace SierraHOTAS.Tests
             Assert.False(isEventCalled);
 
             var sw = Stopwatch.StartNew();
-            var x = new long[10];
+            var x = new long[20];
 
             joystick.TestData = null;
             while (!isEventCalled && --timeOut > 0)
