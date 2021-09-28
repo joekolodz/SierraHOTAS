@@ -230,7 +230,7 @@ namespace SierraHOTAS.Tests
         public void macro_start()
         {
             var isEventCalled = false;
-            var timeOut = 100000;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton(timeInMilliseconds: 1);
@@ -254,7 +254,7 @@ namespace SierraHOTAS.Tests
         public void macro_cancelled()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithButton(timeInMilliseconds: 1);
@@ -277,7 +277,7 @@ namespace SierraHOTAS.Tests
         public void button_pressed()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
@@ -299,7 +299,7 @@ namespace SierraHOTAS.Tests
         public void button_released()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithButton();
@@ -322,7 +322,7 @@ namespace SierraHOTAS.Tests
         public void axis_changed()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithAxis();
@@ -332,22 +332,10 @@ namespace SierraHOTAS.Tests
 
             queue.AxisChanged += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
-            
-            var sw = Stopwatch.StartNew();
-            var x = new long[10];
-
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 43000 };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
-                x[timeOut] = sw.ElapsedMilliseconds;
-            }
-
-            sw.Stop();
-
-            foreach (var i in x)
-            {
-                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -356,7 +344,7 @@ namespace SierraHOTAS.Tests
         public void axis_changed_causes_keypress_down()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithAxis();
@@ -366,23 +354,11 @@ namespace SierraHOTAS.Tests
 
             queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
-            
-            var sw = Stopwatch.StartNew();
-            var x = new long[10];
-
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 4000 };
             joystick.TestData[1] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.X, Sequence = 0, Timestamp = 0, Value = 6000 };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
-                x[timeOut] = sw.ElapsedMilliseconds;
-            }
-
-            sw.Stop();
-
-            foreach (var i in x)
-            {
-                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -391,7 +367,7 @@ namespace SierraHOTAS.Tests
         public void axis_changed_causes_keypress_up()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithAxis();
@@ -414,7 +390,7 @@ namespace SierraHOTAS.Tests
         public void mode_profile_selected()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithShiftMode();
@@ -424,22 +400,10 @@ namespace SierraHOTAS.Tests
 
             queue.ModeProfileSelected += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
-
-            var sw = Stopwatch.StartNew();
-            var x = new long[10];
-
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
-                x[timeOut] = sw.ElapsedMilliseconds;
-            }
-
-            sw.Stop();
-
-            foreach (var i in x)
-            {
-                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -448,7 +412,7 @@ namespace SierraHOTAS.Tests
         public void shift_released()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithShiftMode();
@@ -458,22 +422,10 @@ namespace SierraHOTAS.Tests
 
             queue.ShiftReleased += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
-
-            var sw = Stopwatch.StartNew();
-            var x = new long[10];
-
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
-                x[timeOut] = sw.ElapsedMilliseconds;
-            }
-
-            sw.Stop();
-
-            foreach (var i in x)
-            {
-                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -482,7 +434,7 @@ namespace SierraHOTAS.Tests
         public void lost_connection_to_device()
         {
             var isEventCalled = false;
-            var timeOut = 20;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
@@ -492,22 +444,10 @@ namespace SierraHOTAS.Tests
 
             queue.LostConnectionToDevice += (sender, e) => { isEventCalled = true; };
             Assert.False(isEventCalled);
-
-            var sw = Stopwatch.StartNew();
-            var x = new long[20];
-
             joystick.TestData = null;
             while (!isEventCalled && --timeOut > 0)
             {
                 System.Threading.Thread.Sleep(10);
-                x[timeOut] = sw.ElapsedMilliseconds;
-            }
-
-            sw.Stop();
-
-            foreach (var i in x)
-            {
-                _output.WriteLine($"wait times: {i}");
             }
             Assert.True(isEventCalled);
         }
@@ -516,7 +456,7 @@ namespace SierraHOTAS.Tests
         public void force_button_press()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
@@ -539,7 +479,7 @@ namespace SierraHOTAS.Tests
         public void stop_loop()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
@@ -574,7 +514,7 @@ namespace SierraHOTAS.Tests
         public void handle_pov_button_press()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithPOV();
@@ -594,7 +534,7 @@ namespace SierraHOTAS.Tests
         public void handle_pov_button_release()
         {
             var isEventCalled = false;
-            var timeOut = 10;
+            var timeOut = 40;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithPOV();
