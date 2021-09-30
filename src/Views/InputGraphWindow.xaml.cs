@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -17,73 +18,105 @@ namespace SierraHOTAS.Views
     /// <summary>
     /// Interaction logic for InputGraphWindow.xaml
     /// </summary>
-    public partial class InputGraphWindow : Window, INotifyPropertyChanged
+    public partial class InputGraphWindow : Window
     {
-        public Dispatcher AppDispatcher { get; set; }
-        
+        private List<IHOTASDevice> _axisDeviceList;
         private int _graphScale;
-        private int _deviation;
-        private int _min;
-        private int _max;
-        public int Deviation
-        {
-            get => _deviation;
-            set
-            {
-                _deviation = value;
-                OnPropertyChanged(nameof(Deviation));
-            }
-        }
-
-        public int Min
-        {
-            get => _min;
-            set
-            {
-                _min = value;
-                OnPropertyChanged(nameof(Min));
-            }
-        }
-
-        public int Max
-        {
-            get => _max;
-            set
-            {
-                _max = value;
-                OnPropertyChanged(nameof(Max));
-            }
-        }
-
-        private readonly Dictionary<int, Collection<int>> _pointsDictionary;
-        
-        private readonly int[] _shiftList;
-
-
         private readonly Action<EventHandler<AxisChangedEventArgs>> _callBackRemoveHandler;
-        private bool _isCapturing;
-        public InputGraphWindow(Action<EventHandler<AxisChangedEventArgs>> handler, Action<EventHandler<AxisChangedEventArgs>> callBackRemoveHandler)
+        private Point _windowPosition;
+        private DispatcherTimer _dispatcherTimer;
+        private int _meterStrokeThickness = 2;
+
+        public InputGraphWindow(IHOTASCollection deviceList, Action<EventHandler<AxisChangedEventArgs>> handler, Action<EventHandler<AxisChangedEventArgs>> callBackRemoveHandler)
         {
             InitializeComponent();
 
             DataContext = this;
 
-            _pointsDictionary = new Dictionary<int, Collection<int>>();
-            _shiftList = new int[28];//from JoysticOffset.cs
+            foreach (var d in deviceList.Devices)
+            {
+                if (d.Capabilities.AxeCount <= 0) continue;
+                if (_axisDeviceList == null) _axisDeviceList = new List<IHOTASDevice>();
+                _axisDeviceList.Add(d);
+            }
+            //bind the names to a checkbox control and draw a canvas for each device selected?
+            //the devices in _axisDeviceList will have the names of the true axis that are actually on the device
 
-            AppDispatcher = Dispatcher;
+
             handler(AxisChangedHandler);
-
             _callBackRemoveHandler = callBackRemoveHandler;
 
-            _graphScale = (int)Width;
-
             SizeChanged += InputGraphWindow_OnSizeChanged;
+            CalculateScale((int)LineGraphCanvas.Height);
+
+            _dispatcherTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 25), DispatcherPriority.Render, DrawLoop, Dispatcher.CurrentDispatcher);
+        }
+
+
+        private double _meterPosition = 0d;
+        private readonly Line _meterLine = new Line() { Name = "Meter" };
+        private void DrawLoop(object sender, EventArgs e)
+        {
+            LineGraphCanvas.Children.Remove(_meterLine);
+
+            ++_meterPosition;
+            if (_meterPosition > LineGraphCanvas.ActualWidth) _meterPosition = 0;
+
+            _meterLine.Stroke = new SolidColorBrush(Colors.Yellow);
+            _meterLine.StrokeThickness = _meterStrokeThickness;
+            _meterLine.X1 = _meterPosition;
+            _meterLine.Y1 = 0;
+            _meterLine.X2 = _meterPosition;
+            _meterLine.Y2 = LineGraphCanvas.ActualHeight;
+
+            LineGraphCanvas.Children.Add(_meterLine);
+
+            var removeUiElements = new List<UIElement>();
+
+            var meterPositionBoundary = _meterPosition + _meterStrokeThickness + 6;
+
+            foreach (UIElement child in LineGraphCanvas.Children)
+            {
+
+                if (child is Ellipse)
+                {
+                    var x = child as Ellipse;
+                    var p = child.PointToScreen(new Point(0, 0));//Ellipse uses the parent canvas X,Y coord. it does not have its own
+                    var beforeX = p.X;
+                    p.X -= _windowPosition.X;
+                    //p.Y -= _windowPosition.Y;
+
+
+                    //Debug.WriteLine($"Meter: {_meterPosition}, Dot:{beforeX}, Window:{_windowPosition.X}, new Dot:{p.X}");
+
+                    if (Math.Abs(p.X - meterPositionBoundary) < .01)
+                    {
+                        removeUiElements.Add(x);
+                    }
+                }
+            }
+
+            foreach (var child in removeUiElements)
+            {
+                LineGraphCanvas.Children.Remove(child);
+            }
+
         }
 
         private void InputGraphWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            _graphScale = 65535 / (int)ActualHeight;
+            CalculateScale((int)LineGraphCanvas.ActualHeight);
+        }
+
+        protected override void OnLocationChanged(EventArgs e)
+        {
+            _windowPosition = new Point(Left, Top);
+            base.OnLocationChanged(e);
+        }
+
+        private void CalculateScale(int height)
+        {
+            _graphScale = 65535 / (height - 80);
         }
 
         private void AxisChangedHandler(object sender, AxisChangedEventArgs e)
@@ -93,15 +126,6 @@ namespace SierraHOTAS.Views
 
         private void TrackAxis(AxisChangedEventArgs e)
         {
-            //var axisName = JoystickOffsetValues.GetName(e.AxisId);
-
-            if (!_pointsDictionary.ContainsKey(e.AxisId))
-            {
-                _pointsDictionary.Add(e.AxisId, new Collection<int>());
-            }
-
-            var points = _pointsDictionary[e.AxisId];
-
             var c = Colors.White;
             var scaledValue = e.Value / _graphScale;
 
@@ -118,37 +142,26 @@ namespace SierraHOTAS.Views
                         break;
                     case 8:
                         c = Colors.Fuchsia;
-                        scaledValue = e.Value / 80;
+                        //scaledValue = e.Value / 80;
                         break;
                 }
             }
 
             if (e.Device.Name.ToLower().Contains("throttle"))
             {
-                if (_isCapturing && e.AxisId == 12)
-                {
-                    if (points.Count > 100)
-                        points.RemoveAt(0);
-
-                    points.Add(e.Value);
-                    Max = points.Max();
-                    Min = points.Min();
-                    Deviation = Max - Min;
-                }
-
                 switch (e.AxisId)
                 {
                     case 0:
                         c = Colors.Red;
-                        scaledValue = e.Value / 80;
+                        //scaledValue = e.Value / 80;
                         break;
                     case 4:
                         c = Colors.Yellow;
-                        scaledValue = e.Value / 80;
+                        //scaledValue = e.Value / 80;
                         break;
                     case 8:
                         c = Colors.Cyan;
-                        scaledValue = e.Value / 80;
+                        //scaledValue = e.Value / 80;
                         break;
                     case 12:
                         c = Colors.MediumPurple;
@@ -162,8 +175,8 @@ namespace SierraHOTAS.Views
                 }
             }
 
+            Dispatcher.InvokeAsync(() => Draw1(e.AxisId, scaledValue, c));
 
-            AppDispatcher.Invoke(() => Draw1(e.AxisId, scaledValue, c));
         }
 
         private void Draw1(int axisId, int value, Color color)
@@ -177,52 +190,15 @@ namespace SierraHOTAS.Views
                 Height = 2
             };
 
-            var shift = _shiftList[axisId];
-
-            Canvas.SetLeft(dot, shift++);
+            Canvas.SetLeft(dot, _meterPosition - _meterStrokeThickness);
             Canvas.SetBottom(dot, value);
             LineGraphCanvas.Children.Add(dot);
-
-            if (shift > ActualWidth)
-            {
-                shift = 0;
-                LineGraphCanvas.Children.Clear();
-            }
-
-            _shiftList[axisId] = shift;
         }
 
-        private void StartCapture_OnClick(object sender, RoutedEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
-            _isCapturing = true;
-        }
-
-        private void StopCapture_OnClick(object sender, RoutedEventArgs e)
-        {
-            _isCapturing = false;
-            Deviation = 0;
-            Max = 0;
-            Min = 0;
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            if (e.Key == Key.Escape) CloseInternal();
-        }
-
-        private void CloseInternal()
-        {
+            _dispatcherTimer.Stop();
             _callBackRemoveHandler(AxisChangedHandler);
-
-            Close();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

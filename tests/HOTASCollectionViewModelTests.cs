@@ -901,7 +901,7 @@ namespace SierraHOTAS.Tests
             hotasVm.Initialize();
             hotasVm.ShowInputGraphWindowCommand.Execute(default);
 
-            subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowInputGraphWindowEvent(null, null));
+            subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowInputGraphWindowEvent(null, null, null));
         }
 
         [Fact]

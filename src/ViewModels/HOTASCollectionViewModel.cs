@@ -155,7 +155,7 @@ namespace SierraHOTAS.ViewModels
 
         private void ShowInputGraphWindow()
         {
-            _eventAggregator.Publish(new ShowInputGraphWindowEvent(h => _deviceList.AxisChanged += h, h => _deviceList.AxisChanged -= h));
+            _eventAggregator.Publish(new ShowInputGraphWindowEvent(_deviceList, h => _deviceList.AxisChanged += h, h => _deviceList.AxisChanged -= h));
         }
 
         private void EditModeProfile(ModeActivationItem item)
