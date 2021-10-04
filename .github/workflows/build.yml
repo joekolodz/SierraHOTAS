@@ -51,5 +51,5 @@ jobs:
       with:
         tag_name: v${{ github.run_number }}
         name: Release ${{ github.run_number }}
-        files: SierraHOTASSetup\Installer\SierraHOTAS-Release-1.0.0.0-Setup.msi
+        files: SierraHOTASSetup\Installer\SierraHOTAS-Release-*
     
