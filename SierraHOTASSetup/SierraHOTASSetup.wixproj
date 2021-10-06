@@ -85,6 +85,6 @@
       <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
     </GetAssemblyIdentity>
     <Exec Command="if not exist Installer mkdir Installer"/>
-    <Exec Command="move bin\$(Configuration)\$(OutputName).msi Installer\SierraHOTAS-$(Configuration)-%(AssemblyVersion.Version)-Setup.msi"/>
+    <Exec Command="move bin\$(Configuration)\$(OutputName).msi Installer\SierraHOTAS-$(Configuration)-v$([System.Version]::Parse(%(AssemblyVersion.Version)).ToString(2))-Setup.msi"/>
   </Target>
 </Project>
