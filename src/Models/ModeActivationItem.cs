@@ -1,11 +1,12 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace SierraHOTAS.ModeProfileWindow.ViewModels
+namespace SierraHOTAS.Models
 {
     public class ModeActivationItem
     {
         public int Mode { get; set; }
+        public int InheritFromMode { get; set; }
         public bool IsShift { get; set; }
         public string ProfileName { get; set; }
         public string DeviceName { get; set; }

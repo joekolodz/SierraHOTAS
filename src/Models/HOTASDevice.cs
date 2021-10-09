@@ -46,6 +46,7 @@ namespace SierraHOTAS.Models
         private readonly IDirectInput _directInput;
         private IJoystick Joystick { get; set; }
         private IHOTASQueue _hotasQueue;
+        private Dictionary<int, ModeActivationItem> _modeProfileActivationButtons;
 
         public HOTASDevice() { }
 
@@ -60,10 +61,11 @@ namespace SierraHOTAS.Models
             DeviceId = deviceId;
             ProductId = productGuid;
             Name = name;
-            ModeProfiles.Add(1, ButtonMap);
+            InitializeModeProfile();
         }
 
-        public HOTASDevice(IDirectInput directInput, JoystickFactory joystickFactory, Guid productGuid, Guid deviceId, string name, IHOTASQueue hotasQueue) : this(directInput, productGuid, deviceId, name, hotasQueue)
+        public HOTASDevice(IDirectInput directInput, JoystickFactory joystickFactory, Guid productGuid, Guid deviceId, string name, IHOTASQueue hotasQueue) :
+            this(directInput, productGuid, deviceId, name, hotasQueue)
         {
             _directInput = directInput ?? throw new ArgumentNullException(nameof(directInput));
             _joystickFactory = joystickFactory ?? throw new ArgumentNullException(nameof(joystickFactory));
@@ -74,6 +76,20 @@ namespace SierraHOTAS.Models
             if (App.IsDebug) return;
             AcquireJoystick();
             LoadCapabilitiesMapping();
+        }
+
+        public void RemoveModeProfile(int mode)
+        {
+            ModeProfiles.Remove(mode);
+            if (ModeProfiles.Count == 0)
+            {
+                InitializeModeProfile();
+            }
+        }
+
+        private void InitializeModeProfile()
+        {
+            ModeProfiles.Add(1, ButtonMap);
         }
 
         public void SetModeProfile(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile)
@@ -199,12 +215,14 @@ namespace SierraHOTAS.Models
             Joystick.Acquire();
         }
 
+
         public void ListenAsync()
         {
+            if (_modeProfileActivationButtons == null) throw new InvalidOperationException("ModeProfileActivationButtons must be set before listening to device");
+
             RemoveQueueHandlers();
             AddQueueHandlers();
-
-            _hotasQueue.Listen(Joystick, ButtonMap);
+            _hotasQueue.Listen(Joystick, ModeProfiles, _modeProfileActivationButtons);
         }
 
         private void AddQueueHandlers()
@@ -241,7 +259,6 @@ namespace SierraHOTAS.Models
 
             foreach (var p in ModeProfiles)
             {
-                if (p.Value.Count == 0) continue;
                 var d = deviceButtons.ToObservableCollection();//make a copy since we could have more than 1 profile and we don't need to rescan caps
                 mergedModeProfiles.Add(p.Key, MergeMaps(d, p.Value));
             }
@@ -297,11 +314,16 @@ namespace SierraHOTAS.Models
         {
             if (!ModeProfiles.ContainsKey(mode))
             {
-                Logging.Log.Warn($"Tried to change device to Mode {mode}, but there was no profile for it. Profile will remain unchanged. Device ID: {DeviceId}, Device Name: {Name}");
+                Logging.Log.Debug($"Tried to change device to Mode {mode}, but there was no profile for it. Profile will remain unchanged. Device ID: {DeviceId}, Device Name: {Name}");
                 return;
             }
             ButtonMap = ModeProfiles[mode];
-            _hotasQueue.SetButtonMap(ButtonMap);
+            _hotasQueue.SetMode(mode);
+        }
+
+        public void SetModeActivation(Dictionary<int, ModeActivationItem> modeProfileActivationButtons)
+        {
+            _modeProfileActivationButtons = modeProfileActivationButtons;
         }
 
         public void ForceButtonPress(JoystickOffset offset, bool isDown)

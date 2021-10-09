@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using SharpDX.DirectInput;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 
 namespace SierraHOTAS.Models
 {

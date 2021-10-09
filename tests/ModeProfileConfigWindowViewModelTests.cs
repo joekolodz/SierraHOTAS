@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Threading;
-using NSubstitute;
+﻿using NSubstitute;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Windows.Controls;
 using Xunit;
 
 namespace SierraHOTAS.Tests
@@ -53,10 +47,25 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
-        public void basic_constructor_template_not_visible()
+        public void basic_constructor_template_not_visible_by_mode()
         {
-            const int mode = 0;
+            const int mode = 1;
             var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>());
+            Assert.False(profileVm.IsTemplateModeVisible);
+        }
+
+        [Fact]
+        public void basic_constructor_template_not_visible_by_null_activation_button_list()
+        {
+            var profileVm = new ModeProfileConfigWindowViewModel();
+            Assert.False(profileVm.IsTemplateModeVisible);
+        }
+
+        [Fact]
+        public void basic_constructor_template_not_visible_activation_button_list_has_items()
+        {
+            const int mode = 1;
+            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>(){ {1,new ModeActivationItem()}});
             Assert.False(profileVm.IsTemplateModeVisible);
         }
 
@@ -111,14 +120,12 @@ namespace SierraHOTAS.Tests
             profileVm.ActivationButtonName = string.Empty;
             profileVm.IsActivationErrorVisible = false;
             profileVm.IsShift = false;
-            profileVm.IsTemplateModeVisible = false;
 
             Assert.PropertyChanged(profileVm, "ProfileName", () => profileVm.ProfileName = "changed'");
             Assert.PropertyChanged(profileVm, "DeviceName", () => profileVm.DeviceName = "changed'");
             Assert.PropertyChanged(profileVm, "ActivationButtonName", () => profileVm.ActivationButtonName = "changed'");
             Assert.PropertyChanged(profileVm, "IsActivationErrorVisible", () => profileVm.IsActivationErrorVisible = true);
             Assert.PropertyChanged(profileVm, "IsShift", () => profileVm.IsShift = true);
-            Assert.PropertyChanged(profileVm, "IsTemplateModeVisible", () => profileVm.IsTemplateModeVisible = true);
         }
 
         [Fact]
@@ -126,7 +133,6 @@ namespace SierraHOTAS.Tests
         {
             var mode = 0;
             var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>());
-            profileVm.IsShiftVisible = false;
 
             Assert.True(profileVm.IsShiftVisible);
 
@@ -373,13 +379,7 @@ namespace SierraHOTAS.Tests
             profileVm.SaveModeProfileCommand.Execute(default);
             Assert.Equal(0, activationButtonList[1].TemplateMode);//template mode is unselected by default
 
-            var args = new SelectionChangedEventArgs(
-                System.Windows.Controls.Primitives.Selector.SelectionChangedEvent,
-                new List<KeyValuePair<int, string>> { },
-                new List<KeyValuePair<int, string>> {new KeyValuePair<int, string>(selectThisTemplateMode, activationButton2.ProfileName) }
-            );
-
-            profileVm.TemplateModeSelected(new object(), args);
+            profileVm.CopyTemplateMode = selectThisTemplateMode;
 
             button = new HOTASButton() { MapId = 44, ShiftModePage = 0, ActionName = "new action 2", MapName = "new map 2" };
             device1.ButtonMap.Add(button);

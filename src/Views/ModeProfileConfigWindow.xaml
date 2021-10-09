@@ -31,6 +31,7 @@
                 <RowDefinition Height="10"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -46,13 +47,16 @@
             <TextBlock Grid.Row="3" Grid.Column="2" Text="(Press any button on any joystick to select)" Style="{StaticResource ModeActivationTextBlock}" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13"/>
             <TextBlock Grid.Row="4" Grid.Column="2" Text="This button is already assigned to a mode" Style="{StaticResource ModeActivationTextBlockError}" Visibility="{Binding Path=IsActivationErrorVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="13"/>
 
-            <TextBlock Grid.Row="6" Grid.Column="0" Text="Copy From" Style="{StaticResource ModeActivationTextBlock}" Visibility="{Binding Path=IsTemplateModeVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-            <ComboBox Grid.Row="6" Grid.Column="2" Height="24" Foreground="{StaticResource TextHeaderBrush}" Visibility="{Binding Path=IsTemplateModeVisible, Converter={StaticResource VisibleIfTrueConverter}}" FontSize="15" ItemsSource="{Binding TemplateModes}" SelectedValuePath="Key" SelectionChanged="Selector_OnSelectionChanged" DisplayMemberPath="Value"/>
+            <TextBlock Grid.Row="6" Grid.Column="0" Text="Inherit Parent" Style="{StaticResource ModeActivationTextBlock}" Visibility="{Binding Path=IsInheritedVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+            <ComboBox Grid.Row="6" Grid.Column="2" Height="24" Foreground="{StaticResource TextHeaderBrush}" Visibility="{Binding Path=IsInheritedVisible, Converter={StaticResource VisibleIfTrueConverter}}" FontSize="15" ItemsSource="{Binding InheritModes}" SelectedValuePath="Key"  SelectedValue="{Binding InheritFromMode}" DisplayMemberPath="Value"/>
 
-            <TextBlock Grid.Row="7" Grid.Column="0" Text="Shift" Style="{StaticResource ModeActivationTextBlock}" Visibility="{Binding Path=IsShiftVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-            <CheckBox Grid.Row="7" Grid.Column="2" IsChecked="{Binding IsShift}" Visibility="{Binding Path=IsShiftVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Row="7" Grid.Column="0" Text="Copy From" Style="{StaticResource ModeActivationTextBlock}" Visibility="{Binding Path=IsTemplateModeVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+            <ComboBox Grid.Row="7" Grid.Column="2" Height="24" Foreground="{StaticResource TextHeaderBrush}" Visibility="{Binding Path=IsTemplateModeVisible, Converter={StaticResource VisibleIfTrueConverter}}" FontSize="15" ItemsSource="{Binding TemplateModes}" SelectedValuePath="Key"  SelectedValue="{Binding CopyTemplateMode}" DisplayMemberPath="Value"/>
 
-            <StackPanel Grid.Row="8" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Grid.Row="8" Grid.Column="0" Text="Shift" Style="{StaticResource ModeActivationTextBlock}" Visibility="{Binding Path=IsShiftVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+            <CheckBox Grid.Row="8" Grid.Column="2" IsChecked="{Binding IsShift}" Visibility="{Binding Path=IsShiftVisible, Converter={StaticResource VisibleIfTrueConverter}}" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+
+            <StackPanel Grid.Row="9" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Style="{StaticResource MenuButton}" Command="{Binding CancelCommand, IsAsync=True}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{StaticResource WindowBackgroundBrush}" ToolTip="Cancel" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                     <Image Source="../Images/cancel_blue_32x32.png"/>
                 </Button>

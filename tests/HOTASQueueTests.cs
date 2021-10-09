@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading;
@@ -25,10 +26,12 @@ namespace SierraHOTAS.Tests
         private class TestJoystick_BasicQueue : IJoystick
         {
             public JoystickUpdate[] TestData { get; set; }
+            private int _dataBufferSize;
 
             public TestJoystick_BasicQueue(int dataBufferSize)
             {
-                TestData = new JoystickUpdate[dataBufferSize];
+                _dataBufferSize = dataBufferSize;
+                TestData = new JoystickUpdate[_dataBufferSize];
                 Capabilities = new Capabilities() { AxeCount = 2, ButtonCount = 128, PovCount = 4 };
             }
 
@@ -64,7 +67,7 @@ namespace SierraHOTAS.Tests
 
                 var returnData = new JoystickUpdate[TestData.Length];
                 TestData.CopyTo(returnData, 0);
-                TestData = new JoystickUpdate[0];
+                TestData = new JoystickUpdate[_dataBufferSize];
                 return returnData;
             }
 
@@ -187,8 +190,12 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithButton();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.KeystrokeUpSent += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -208,10 +215,14 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
 
-            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
 
-            var mre = new ManualResetEventSlim(); 
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, modeProfiles, activationList);
+
+            var mre = new ManualResetEventSlim();
             queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; mre.Set(); };
             Assert.False(isEventCalled);
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
@@ -224,21 +235,42 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void macro_start()
         {
-            var isEventCalled = false;
+            var isMacroStartedEventCalled = false;
+            var isKeyDownEventCalled = false;
+            var isKeyUpEventCalled = false;
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton(timeInMilliseconds: 1);
 
             var subKeyboard = Substitute.For<IKeyboard>();
             subKeyboard.KeyDownRepeatDelay.Returns(35);
-            var queue = new HOTASQueue(subKeyboard);
-            queue.Listen(joystick, map);
 
-            var mre = new ManualResetEventSlim();
-            queue.MacroStarted += (sender, e) => { isEventCalled = true; mre.Set(); };
-            Assert.False(isEventCalled);
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
+            var queue = new HOTASQueue(subKeyboard);
+            queue.Listen(joystick, modeProfiles, activationList);
+
+            var mreMacro = new ManualResetEventSlim();
+            var mreKeyDown = new ManualResetEventSlim();
+            var mreKeyUp = new ManualResetEventSlim();
+            
+            queue.MacroStarted += (sender, e) => { isMacroStartedEventCalled = true; mreMacro.Set(); };
+            queue.KeystrokeDownSent += (sender, e) => { isKeyDownEventCalled = true; mreKeyDown.Set(); };
+            queue.KeystrokeUpSent += (sender, e) => { isKeyUpEventCalled = true; mreKeyUp.Set(); };
+
+            Assert.False(isMacroStartedEventCalled);
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
-            mre.Wait(5000);
-            Assert.True(isEventCalled);
+            
+            mreMacro.Wait(5000);
+            mreKeyDown.Wait(5000);
+            mreKeyUp.Wait(5000);
+            
+            Assert.True(isMacroStartedEventCalled);
+            Assert.True(isKeyDownEventCalled);
+            Assert.True(isKeyUpEventCalled);
+
+            subKeyboard.Received().SendKeyPress(Arg.Any<int>(), Arg.Any<bool>(), Arg.Any<bool>());
         }
 
         [Fact]
@@ -248,9 +280,12 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithButton(timeInMilliseconds: 1);
 
-            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
 
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, modeProfiles, activationList);
             var mre = new ManualResetEventSlim();
             queue.MacroCancelled += (sender, e) => { isEventCalled = true; mre.Set(); };
             Assert.False(isEventCalled);
@@ -267,14 +302,17 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
 
-            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
 
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, modeProfiles, activationList);
             var mre = new ManualResetEventSlim();
             queue.ButtonPressed += (sender, e) => { isEventCalled = true; mre.Set(); };
             Assert.False(isEventCalled);
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
-            
+
             mre.Wait(5000);
 
             Assert.True(isEventCalled);
@@ -287,8 +325,12 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithButton();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.ButtonReleased += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -300,14 +342,88 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
+        public void button_pressed_use_inherited_parent()
+        {
+            var isEventCalled = false;
+            var actualButtonId = 0;
+            var actualScanCode = 0;
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            activationList.Add(1, new ModeActivationItem(){Mode = 1});
+            activationList.Add(2, new ModeActivationItem(){Mode = 2, InheritFromMode = 1});
+
+            var mode1map = CreateTestHotasTestMapWithButton();
+            mode1map.Add(new HOTASButton(){MapId = (int)JoystickOffset.Button2, ActionCatalogItem = new ActionCatalogItem(){Actions = new ObservableCollection<ButtonAction>(){new ButtonAction(){ScanCode = 1}, new ButtonAction(){ScanCode = 1, IsKeyUp = true}}}});
+            var mode2map = CreateTestHotasTestMapWithButton();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, mode1map);
+            modeProfiles.Add(2, mode2map);
+
+            var queue = new HOTASQueue(Substitute.For<IKeyboard>());
+            queue.Listen(joystick, modeProfiles, activationList);
+            
+            //inherited key should be active
+            queue.SetMode(2);
+
+            var mre = new ManualResetEventSlim();
+            queue.KeystrokeDownSent += (sender, e) =>
+            {
+                isEventCalled = true;
+                actualButtonId = e.MapId;
+                actualScanCode = e.ScanCode;
+                mre.Set();
+            };
+
+            Assert.False(isEventCalled);
+            
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button2, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            mre.Wait(5000);
+
+            Assert.True(isEventCalled);
+            Assert.Equal((int)JoystickOffset.Button2, actualButtonId);
+            Assert.Equal(1, actualScanCode);
+
+            //inherited key should not be active
+            activationList[2].InheritFromMode = 0;
+
+            isEventCalled = false;
+            actualButtonId = 0;
+            actualScanCode = 0;
+            mre.Reset();
+
+            queue.ButtonPressed += (sender, e) => { isEventCalled = true; actualButtonId = e.ButtonId; mre.Set(); };
+
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button2, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+            mre.Wait(5000);
+            Assert.True(isEventCalled);
+            Assert.Equal(49, actualButtonId);
+            Assert.Equal(0, actualScanCode);
+
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
+            mre.Reset();
+            mre.Wait(5000);
+            
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button2, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
+            mre.Reset();
+            mre.Wait(5000);
+        }
+
+
+        [Fact]
         public void axis_changed()
         {
             var isEventCalled = false;
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithAxis();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.AxisChanged += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -324,8 +440,12 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithAxis();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -343,8 +463,12 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithAxis();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.KeystrokeUpSent += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -362,8 +486,12 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithShiftMode();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.ModeProfileSelected += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -380,8 +508,12 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithShiftMode();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.ShiftReleased += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -398,8 +530,12 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.LostConnectionToDevice += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -416,11 +552,16 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
+
             Assert.False(isEventCalled);
 
-            queue.ButtonPressed += (sender, e) => { isEventCalled = true;};
+            queue.ButtonPressed += (sender, e) => { isEventCalled = true; };
             queue.ForceButtonPress(JoystickOffset.Button1, true);
 
             Assert.True(isEventCalled);
@@ -433,8 +574,12 @@ namespace SierraHOTAS.Tests
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithButton();
 
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.KeystrokeDownSent += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -462,8 +607,13 @@ namespace SierraHOTAS.Tests
             var isEventCalled = false;
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
             var map = CreateTestHotasTestMapWithPOV();
+
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.ButtonPressed += (sender, e) => { isEventCalled = true; mre.Set(); };
@@ -479,8 +629,13 @@ namespace SierraHOTAS.Tests
             var isEventCalled = false;
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 2);
             var map = CreateTestHotasTestMapWithPOV();
+
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
-            queue.Listen(joystick, map);
+            queue.Listen(joystick, modeProfiles, activationList);
 
             var mre = new ManualResetEventSlim();
             queue.ButtonReleased += (sender, e) => { isEventCalled = true; mre.Set(); };

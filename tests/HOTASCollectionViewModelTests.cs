@@ -4,7 +4,6 @@ using Pose;
 using SharpDX.DirectInput;
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -67,7 +66,7 @@ namespace SierraHOTAS.Tests
             var deviceViewModelFactory = new DeviceViewModelFactory();
 
             subHotasCollection = Substitute.For<IHOTASCollection>();
-            subHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() };
+            subHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice(Substitute.For<IDirectInput>(), Guid.Empty, Guid.NewGuid(), "test device", Substitute.For<IHOTASQueue>()) };
 
             var subModeProfileButtons = new Dictionary<int, ModeActivationItem>();
             subHotasCollection.ModeProfileActivationButtons.Returns(subModeProfileButtons);
@@ -849,7 +848,7 @@ namespace SierraHOTAS.Tests
         {
             var deviceGuid = Guid.NewGuid();
             const int modeActivationButtonId = 1000;
-            var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out var eventAggregator, out IHOTASCollection subDeviceList);
+            var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out var eventAggregator, out var subDeviceList);
             var item = new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid, Mode = 1 };
             subDeviceList.ModeProfileActivationButtons.Add(1, item);
             subDeviceList.RemoveModeProfile(item).Returns(true);

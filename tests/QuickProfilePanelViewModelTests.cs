@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NSubstitute;
+﻿using NSubstitute;
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels;
 using SierraHOTAS.Win32;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace SierraHOTAS.Tests

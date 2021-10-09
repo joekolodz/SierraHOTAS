@@ -4,6 +4,7 @@ using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SierraHOTAS.Win32;
@@ -335,11 +336,18 @@ namespace SierraHOTAS.Tests
         public void force_button_press()
         {
             var deviceVm = CreateDeviceViewMode(out var hotasQueue, out var hotasDevice, out var subJoystick);
-            var list = new ObservableCollection<IHotasBaseMap>();
-            list.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
-            deviceVm.RebuildMap(list);
 
-            hotasQueue.Listen(subJoystick, list);
+
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+
+            var map = new ObservableCollection<IHotasBaseMap>();
+            map.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
+            modeProfiles.Add(1, map);
+
+            deviceVm.RebuildMap(map);
+
+            hotasQueue.Listen(subJoystick, modeProfiles, activationList);
 
             Assert.Raises<ButtonPressedEventArgs>(
                 a => hotasQueue.ButtonPressed += a,

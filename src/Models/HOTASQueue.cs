@@ -1,8 +1,10 @@
-﻿using SharpDX.DirectInput;
+﻿//todo can remove sharpdx dependency...replace JoystickUpdate with custom array. can do this in the joystickwrapper for the call to GetCurrentState
+using SharpDX.DirectInput;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,20 +31,28 @@ namespace SierraHOTAS.Models
 
         private Dictionary<int, JitterDetection> _jitterDetectionDictionary;
 
+        private Dictionary<int, ModeActivationItem> _modeProfileActivationButtons;
+
+        private int _mode;
 
         private IKeyboard Keyboard { get; set; }
         private IJoystick Joystick { get; set; }
         private ObservableCollection<IHotasBaseMap> _buttonMap;
+        private Dictionary<int, ObservableCollection<IHotasBaseMap>> _modeProfiles;
 
         public HOTASQueue(IKeyboard keyboard)
         {
             Keyboard = keyboard;
         }
 
-        public void Listen(IJoystick joystick, ObservableCollection<IHotasBaseMap> buttonMap)
+        public void Listen(IJoystick joystick, Dictionary<int, ObservableCollection<IHotasBaseMap>> modeProfiles, Dictionary<int, ModeActivationItem> modeProfileActivationButtons)
         {
             Joystick = joystick;
-            _buttonMap = buttonMap;
+            _modeProfiles = modeProfiles;
+            _modeProfileActivationButtons = modeProfileActivationButtons;
+
+            if (_modeProfiles.Count > 0) _buttonMap = _modeProfiles[1];
+
             _jitterDetectionDictionary = new Dictionary<int, JitterDetection>();
 
             _actionJobs = new BlockingCollection<ActionJobItem>();
@@ -225,6 +235,19 @@ namespace SierraHOTAS.Models
                     //if action list has a timer in it, then it is a macro and executes on another thread independently. does not interrupt other buttons
                     HandleButtonPressed(map, offset);
                 }
+                else
+                {
+                    if (_modeProfileActivationButtons.ContainsKey(_mode) &&
+                        _modeProfileActivationButtons[_mode].InheritFromMode>0)
+                    {
+                        map = GetMapFromParentMode(_modeProfileActivationButtons[_mode].InheritFromMode, offset) as HOTASButton;
+                        if (map != null)
+                        {
+                            HandleButtonPressed(map, offset);
+                        }
+                    }
+                }
+
                 OnButtonPress(offset);
             }
             else
@@ -279,7 +302,7 @@ namespace SierraHOTAS.Models
             foreach (var action in actions)
             {
                 if (_activeMacros.ContainsKey(offset) == false) break;
-                
+
                 if (action.TimeInMilliseconds > 0)
                 {
                     //yes this is precise only to the nearest KeyDownRepeatDelay milliseconds. repeated keys are on a 60 millisecond boundary, so the UI could be locked to 60ms increments only
@@ -287,6 +310,7 @@ namespace SierraHOTAS.Models
                     while (timeLeft > 0)
                     {
                         await Task.Delay(Keyboard.KeyDownRepeatDelay);
+                        if (!_activeMacros.ContainsKey(offset)) return;
                         timeLeft -= Keyboard.KeyDownRepeatDelay;
                     }
                 }
@@ -339,9 +363,30 @@ namespace SierraHOTAS.Models
             AxisChanged?.Invoke(this, new AxisChangedEventArgs() { AxisId = (int)state.Offset, Value = state.Value, Device = null });
         }
 
+        //public IHotasBaseMap GetMap(int buttonOffset)
+        //{
+        //    return _buttonMap.FirstOrDefault(m => m.MapId == buttonOffset);
+        //}
+
         public IHotasBaseMap GetMap(int buttonOffset)
         {
-            return _buttonMap.FirstOrDefault(m => m.MapId == buttonOffset);
+            var map = _buttonMap.FirstOrDefault(m => m.MapId == buttonOffset);
+            if (map == null)
+            {
+                Debug.WriteLine("fuck");
+            }
+            return map;
+        }
+
+        private IHotasBaseMap GetMapFromParentMode(int parentModeId, int buttonOffset)
+        {
+            var parentMode = _modeProfiles[parentModeId];
+            var map = parentMode.FirstOrDefault(m => m.MapId == buttonOffset) as HOTASButton;
+            //if (map.ActionCatalogItem.Actions.Count > 0 && map.ShiftModePage <= 0)
+            //{
+            //    ModeProfileSelected?.Invoke(this, new ModeProfileSelectedEventArgs(){IsShift = true, Mode = parentModeId });
+            //}
+            return map;
         }
 
         private void OnButtonPress(int buttonId)
@@ -354,9 +399,16 @@ namespace SierraHOTAS.Models
             ButtonReleased?.Invoke(this, new ButtonPressedEventArgs() { ButtonId = buttonId, Device = null });
         }
 
+        [Obsolete]
         public void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap)
         {
             _buttonMap = buttonMap;
+        }
+
+        public void SetMode(int mode)
+        {
+            _mode = mode;
+            _buttonMap = _modeProfiles[_mode];
         }
     }
 

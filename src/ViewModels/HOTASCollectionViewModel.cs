@@ -1,7 +1,6 @@
 ﻿using SierraHOTAS.Annotations;
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels.Commands;
 using System;
 using System.Collections.ObjectModel;

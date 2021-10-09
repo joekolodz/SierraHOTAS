@@ -3,7 +3,6 @@ using NSubstitute;
 using SharpDX.DirectInput;
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

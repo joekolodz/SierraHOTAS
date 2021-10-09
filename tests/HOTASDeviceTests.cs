@@ -273,6 +273,50 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
+        public void remove_mode_profile()
+        {
+            var device = CreateHotasDevice();
+
+
+            var newMapProfile = new ObservableCollection<IHotasBaseMap>()
+            {
+                new HOTASButton() {MapName = "test map 2,1", MapId = 0},
+            };
+
+            device.ModeProfiles.Add(2, newMapProfile);
+
+            Assert.Equal(2, device.ModeProfiles.Count);
+            Assert.Equal(3, device.ModeProfiles[1].Count);
+            Assert.Equal("Y", device.ModeProfiles[1][1].MapName);
+            Assert.Equal("test map 2,1", device.ModeProfiles[2][0].MapName);
+
+            device.RemoveModeProfile(1);
+
+            //removing the last one should result in creating a new default one
+            Assert.Single(device.ModeProfiles);
+            Assert.Single(device.ModeProfiles[2]);
+            Assert.Equal("test map 2,1", device.ModeProfiles[2][0].MapName);
+        }
+
+
+        [Fact]
+        public void remove_mode_profile_last_one()
+        {
+            var device = CreateHotasDevice();
+
+            Assert.Single(device.ModeProfiles);
+            Assert.Equal(3, device.ModeProfiles[1].Count);
+            Assert.Equal("Y", device.ModeProfiles[1][1].MapName);
+
+            device.RemoveModeProfile(1);
+
+            //removing the last one should result in creating a new default one
+            Assert.Single(device.ModeProfiles);
+            Assert.Equal(3, device.ModeProfiles[1].Count);
+            Assert.Equal("Y", device.ModeProfiles[1][1].MapName);
+        }
+
+        [Fact]
         public void copy_mode_profile_from_template()
         {
             var device = CreateHotasDevice();
@@ -341,11 +385,23 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
+        public void list_async_no_mode_activation()
+        {
+            var device = CreateHotasDevice(out _, out _, out _);
+            Assert.Throws<InvalidOperationException>(() => device.ListenAsync());
+        }
+
+        [Fact]
         public void list_async()
         {
             var device = CreateHotasDevice(out _, out _, out var hotasQueue);
+            device.SetModeActivation(new Dictionary<int, ModeActivationItem>());
 
             device.ListenAsync();
+
+            hotasQueue.Received().Listen(Arg.Any<IJoystick>(), Arg.Any<Dictionary<int, ObservableCollection<IHotasBaseMap>>>(), Arg.Any<Dictionary<int, ModeActivationItem>>());
+
+            hotasQueue.DidNotReceive();
 
             Assert.Raises<KeystrokeSentEventArgs>(
                 a => device.KeystrokeDownSent += a,
@@ -563,14 +619,16 @@ namespace SierraHOTAS.Tests
             device.ModeProfiles[1].RemoveAt(0);
             device.ModeProfiles[1].RemoveAt(0);
             var button = device.ModeProfiles[1][0] as HOTASButton;
-            
+
             //baseline
             Assert.NotNull(button);
             Assert.Empty(button.ActionCatalogItem.Actions);
 
             button.ActionCatalogItem = new ActionCatalogItem()
             {
-                ActionName = "Fire", NoAction = false, Actions = new ObservableCollection<ButtonAction>()
+                ActionName = "Fire",
+                NoAction = false,
+                Actions = new ObservableCollection<ButtonAction>()
                 {
                     new ButtonAction() {ScanCode = 1},
                     new ButtonAction() {ScanCode = 1, IsKeyUp = true}
@@ -579,7 +637,7 @@ namespace SierraHOTAS.Tests
 
             //baseline
             Assert.Single(device.ModeProfiles);
-            
+
             device.OverlayAllProfilesToDevice();
 
             //verify 2 axis and a button are in the profile and that the button retained its values

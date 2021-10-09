@@ -1,14 +1,11 @@
 ﻿using SierraHOTAS.Annotations;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels.Commands;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace SierraHOTAS.ViewModels
@@ -74,25 +71,35 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        public bool IsShiftVisible
+        public int CopyTemplateMode
         {
-            get => _mode != 1;
+            get => _copyTemplateMode;
             set
             {
-            }
-        }
-
-        public bool IsTemplateModeVisible
-        {
-            get => _isTemplateModeVisible;
-            set
-            {
-                if (value == _isTemplateModeVisible) return;
-                _isTemplateModeVisible = value;
+                if (value == _copyTemplateMode) return;
+                _copyTemplateMode = value;
                 OnPropertyChanged();
             }
         }
+
+        public int InheritFromMode
+        {
+            get => _inheritFromMode;
+            set
+            {
+                if (value == _inheritFromMode) return;
+                _inheritFromMode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsInheritedVisible => _mode != 1;
+        public bool IsShiftVisible => _mode != 1;
+
+        public bool IsTemplateModeVisible => _mode != 1 && _activationButtonList != null && !_activationButtonList.ContainsKey(_mode);
+
         public Dictionary<int, string> TemplateModes { get; set; }
+        public Dictionary<int, string> InheritModes { get; set; }
 
         private readonly IDispatcher _appDispatcher;
         private int _activationButtonId;
@@ -104,8 +111,8 @@ namespace SierraHOTAS.ViewModels
         private string _activationButtonName;
         private bool _isActivationErrorVisible;
         private bool _isShift;
-        private bool _isTemplateModeVisible = true;
-        private int _selectedTemplateMode;
+        private int _inheritFromMode;
+        private int _copyTemplateMode;
         private readonly int _mode;
         private readonly Dictionary<int, ModeActivationItem> _activationButtonList;
         private HOTASButton _button;
@@ -130,7 +137,7 @@ namespace SierraHOTAS.ViewModels
             _mode = mode;
 
             BuildTemplateList();
-            IsTemplateModeVisible = TemplateModes.Count > 1;
+            BuildInheritList();
 
             //if there is no activation item, then we are creating a new one for the mode supplied. there will be nothing to assign here.
             if (!_activationButtonList.TryGetValue(_mode, out _activationItem)) return;
@@ -139,11 +146,11 @@ namespace SierraHOTAS.ViewModels
             DeviceName = _activationItem.DeviceName;
             ActivationButtonName = _activationItem.ButtonName;
             IsShift = _activationItem.IsShift;
+            InheritFromMode = _activationItem.InheritFromMode;
             _deviceId = _activationItem.DeviceId;
             _activationButtonId = _activationItem.ButtonId;
 
             _isActivationButtonValid = true;
-            IsTemplateModeVisible = false;
 
             _appDispatcher.Invoke(() =>
             {
@@ -172,6 +179,7 @@ namespace SierraHOTAS.ViewModels
             _appDispatcher?.Invoke(() =>
             {
                 OnPropertyChanged(nameof(TemplateModes));
+                OnPropertyChanged(nameof(InheritModes));
                 _saveModeProfileCommand.ForceCanExecuteChanged();
             });
         }
@@ -182,6 +190,16 @@ namespace SierraHOTAS.ViewModels
             foreach (var kv in _activationButtonList)
             {
                 TemplateModes.Add(kv.Key, kv.Value.ProfileName);
+            }
+        }
+
+        private void BuildInheritList()
+        {
+            InheritModes = new Dictionary<int, string> { { 0, "- Do Not Inherit -" } };
+            foreach (var kv in _activationButtonList)
+            {
+                if (kv.Key == _mode) continue;
+                InheritModes.Add(kv.Key, kv.Value.ProfileName);
             }
         }
 
@@ -204,13 +222,14 @@ namespace SierraHOTAS.ViewModels
             _activationItem = new ModeActivationItem()
             {
                 Mode = _mode,
-                IsShift = IsShift,
-                ProfileName = ProfileName,
-                DeviceName = DeviceName,
+                InheritFromMode = _inheritFromMode,
+                IsShift = _isShift,
+                ProfileName = _profileName,
+                DeviceName = _deviceName,
                 DeviceId = _deviceId,
-                ButtonName = ActivationButtonName,
+                ButtonName = _activationButtonName,
                 ButtonId = _activationButtonId,
-                TemplateMode = _selectedTemplateMode
+                TemplateMode = _copyTemplateMode
             };
 
             _activationButtonList.Add(_mode, _activationItem);
@@ -250,16 +269,6 @@ namespace SierraHOTAS.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public void TemplateModeSelected(object sender, RoutedEventArgs routedEventArgs)
-        {
-            if ((routedEventArgs is SelectionChangedEventArgs args) && args.AddedItems.Count > 0)
-            {
-                Logging.Log.Info($"{args.AddedItems[0]}");
-                var selectedItem = (KeyValuePair<int, string>)args.AddedItems[0];
-                _selectedTemplateMode = selectedItem.Key;
-            }
         }
     }
 }

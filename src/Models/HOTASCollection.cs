@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using SharpDX.DirectInput;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -86,6 +85,7 @@ namespace SierraHOTAS.Models
         {
             newDevice.ApplyButtonMap(device.ButtonMap.ToObservableCollection());
             newDevice.SetModeProfile(device.ModeProfiles);
+            newDevice.SetModeActivation(ModeProfileActivationButtons);
             Devices.Add(newDevice);
         }
 
@@ -159,6 +159,8 @@ namespace SierraHOTAS.Models
             device.ModeProfileSelected += Device_ModeProfileSelected;
             device.ShiftReleased += Device_ShiftReleased;
             device.LostConnectionToDevice += Device_LostConnectionToDevice;
+            
+            device.SetModeActivation(ModeProfileActivationButtons);
             device.ListenAsync();
         }
 
@@ -349,16 +351,16 @@ namespace SierraHOTAS.Models
 
                 foreach (var d in Devices)
                 {
-                    d.ModeProfiles.Remove(item.Mode);
-                }
+                    d.RemoveModeProfile(item.Mode);
+                } 
 
                 Logging.Log.Debug($"DELETED Mode {item.Mode}!");
-                if (ModeProfileActivationButtons.Count > 0)
-                {
-                    var firstMode = ModeProfileActivationButtons.Keys.FirstOrDefault();
-                    SetMode(firstMode);
-                    Logging.Log.Debug($"Setting Mode to {firstMode}!");
-                }
+                
+                if (ModeProfileActivationButtons.Count <= 0) return true;
+
+                var firstMode = ModeProfileActivationButtons.Keys.FirstOrDefault();
+                SetMode(firstMode);
+                Logging.Log.Debug($"Setting Mode to {firstMode}!");
                 return true;
             }
             return false;

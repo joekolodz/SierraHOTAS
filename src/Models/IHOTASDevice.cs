@@ -30,7 +30,6 @@ namespace SierraHOTAS.Models
         void SetModeProfile(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile);
         int SetupNewModeProfile();
         void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode);
-        //void ReAcquireJoystick();
         void ListenAsync();
         void OverlayAllProfilesToDevice();
         void ApplyButtonMap(ObservableCollection<IHotasBaseMap> existingButtonMap);
@@ -38,7 +37,9 @@ namespace SierraHOTAS.Models
         void ForceButtonPress(JoystickOffset offset, bool isDown);
         void Stop();
         void ClearUnassignedActions();
+        void RemoveModeProfile(int mode);
         void ClearButtonMap();
         bool GetButtonState(int mapId);
+        void SetModeActivation(Dictionary<int, ModeActivationItem> modeProfileActivationButtons);
     }
 }

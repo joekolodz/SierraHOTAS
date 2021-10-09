@@ -1,5 +1,4 @@
 ﻿using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -66,11 +65,6 @@ namespace SierraHOTAS.Views
         {
             RemoveHandlers();
             Close();
-        }
-
-        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ModeProfileConfigViewModel.TemplateModeSelected(sender, e);
         }
     }
 }

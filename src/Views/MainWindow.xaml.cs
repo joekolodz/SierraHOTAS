@@ -1,8 +1,6 @@
 ﻿using Hardcodet.Wpf.TaskbarNotification;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using SierraHOTAS.ViewModels;
-using SierraHOTAS.Win32;
 using System;
 using System.Linq;
 using System.Management;

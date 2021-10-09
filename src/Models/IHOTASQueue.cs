@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using SharpDX.DirectInput;
 
 namespace SierraHOTAS.Models
 {
@@ -16,10 +16,11 @@ namespace SierraHOTAS.Models
         event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
         event EventHandler<EventArgs> ShiftReleased;
         event EventHandler<EventArgs> LostConnectionToDevice;
-        void Listen(IJoystick joystick, ObservableCollection<IHotasBaseMap> buttonMap);
+        void Listen(IJoystick joystick, Dictionary<int, ObservableCollection<IHotasBaseMap>> modeProfiles, Dictionary<int, ModeActivationItem> modeProfileActivationButtons);
         void ForceButtonPress(JoystickOffset offset, bool isDown);
         void Stop();
         IHotasBaseMap GetMap(int buttonOffset);
         void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap);
+        void SetMode(int mode);
     }
 }

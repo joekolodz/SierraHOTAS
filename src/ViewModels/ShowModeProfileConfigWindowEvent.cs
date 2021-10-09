@@ -1,5 +1,4 @@
 ﻿using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using System;
 using System.Collections.Generic;
 

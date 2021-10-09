@@ -7,7 +7,7 @@
         xmlns:profileViewModel="clr-namespace:SierraHOTAS.ViewModels"
         xmlns:controls="clr-namespace:SierraHOTAS.Controls"
         xmlns:tb="http://www.hardcodet.net/taskbar"
-        xmlns:viewModels="clr-namespace:SierraHOTAS.ModeProfileWindow.ViewModels"
+        xmlns:models="clr-namespace:SierraHOTAS.Models"
         d:DataContext="{d:DesignInstance viewModel:HOTASCollectionViewModel}"
         x:Class="SierraHOTAS.Views.MainWindow"
         mc:Ignorable="d"
@@ -124,7 +124,7 @@
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate DataType="viewModels:ModeActivationItem">
+                                    <DataTemplate DataType="models:ModeActivationItem">
                                         <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.DeleteModeProfileCommand}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip="Remove mode" 

@@ -2,7 +2,6 @@
 using SharpDX.DirectInput;
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
-using SierraHOTAS.ModeProfileWindow.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -49,7 +48,7 @@ namespace SierraHOTAS.Tests
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(newDevice);
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), subDeviceFactory);
-            var device = new HOTASDevice() { DeviceId = deviceId };
+            var device = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.Empty, deviceId, "test device", Substitute.For<IHOTASQueue>());
             device.ButtonMap.Add(new HOTASButton() { MapId = 1, MapName = "first button", ActionName = "tes action", IsShift = true, ShiftModePage = 2, Type = HOTASButton.ButtonType.Button });
             list.AddDevice(device);
             var addedDevice = list.Devices.First(d => d.DeviceId == deviceId);
@@ -65,7 +64,7 @@ namespace SierraHOTAS.Tests
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(newDevice);
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), subDeviceFactory);
-            var device = new HOTASDevice() { DeviceId = deviceId };
+            var device = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.Empty, deviceId, "test device", Substitute.For<IHOTASQueue>());
             device.ButtonMap.Add(new HOTASButton() { MapId = 1, MapName = "first button", ActionName = "tes action", IsShift = true, ShiftModePage = 2, Type = HOTASButton.ButtonType.Button });
             device.ModeProfiles.Add(43, new ObservableCollection<IHotasBaseMap>() { { new HOTASButton() { MapName = "mode profile map" } } });
             list.AddDevice(device);
@@ -77,9 +76,9 @@ namespace SierraHOTAS.Tests
         public void replace_device()
         {
             var deviceId = Guid.NewGuid();
-            var firstDevice = new HOTASDevice() { DeviceId = deviceId, Name = "existing device"};
+            var firstDevice = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.Empty, deviceId, "existing device", Substitute.For<IHOTASQueue>());
 
-            var replaceDevice = new HOTASDevice() { DeviceId = deviceId, Name = "replace device" };
+            var replaceDevice = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.Empty, deviceId, "replace device", Substitute.For<IHOTASQueue>());
 
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
             subDeviceFactory.CreateHOTASDevice(Arg.Any<IDirectInput>(), Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IHOTASQueue>()).Returns(firstDevice);

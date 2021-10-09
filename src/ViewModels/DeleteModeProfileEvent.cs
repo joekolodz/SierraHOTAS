@@ -1,4 +1,4 @@
-﻿using SierraHOTAS.ModeProfileWindow.ViewModels;
+﻿using SierraHOTAS.Models;
 
 namespace SierraHOTAS.ViewModels
 {
