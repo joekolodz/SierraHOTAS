@@ -140,13 +140,6 @@ namespace SierraHOTAS.Views
 
         private void DrawLoop(object sender, EventArgs e)
         {
-            // Compute the pixel's color.
-            var pink = (255 << 16) | (128 << 8) | 255;
-            var yellow = (255 << 16) | (255 << 8);
-            var green = 255 << 8;
-            var red = (255 << 16);
-            var blue = 255;
-
             EraseMeterLine(_meterPosition);
 
             ++_meterPosition;
@@ -163,7 +156,6 @@ namespace SierraHOTAS.Views
                 var axis = _deviceLastPoint[key];
                 Draw1(key, axis.Item1, axis.Item2);
             }
-
         }
 
         private void InputGraphWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
