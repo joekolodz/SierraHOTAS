@@ -1,16 +1,10 @@
 ﻿using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace SierraHOTAS.Views
@@ -23,9 +17,11 @@ namespace SierraHOTAS.Views
         private List<IHOTASDevice> _axisDeviceList;
         private int _graphScale;
         private readonly Action<EventHandler<AxisChangedEventArgs>> _callBackRemoveHandler;
-        private Point _windowPosition;
         private DispatcherTimer _dispatcherTimer;
-        private int _meterStrokeThickness = 2;
+        private int _meterStrokeThickness = 1;
+        private Dictionary<int, Tuple<int, Color>> _deviceLastPoint = new Dictionary<int, Tuple<int, Color>>();
+        private int _meterPosition = 0;
+        private static WriteableBitmap _writeableBitmap;
 
         public InputGraphWindow(IHOTASCollection deviceList, Action<EventHandler<AxisChangedEventArgs>> handler, Action<EventHandler<AxisChangedEventArgs>> callBackRemoveHandler)
         {
@@ -38,67 +34,134 @@ namespace SierraHOTAS.Views
                 if (d.Capabilities.AxeCount <= 0) continue;
                 if (_axisDeviceList == null) _axisDeviceList = new List<IHOTASDevice>();
                 _axisDeviceList.Add(d);
+                //grab capabilities from device so we know what axes are available
             }
             //bind the names to a checkbox control and draw a canvas for each device selected?
             //the devices in _axisDeviceList will have the names of the true axis that are actually on the device
 
-
             handler(AxisChangedHandler);
             _callBackRemoveHandler = callBackRemoveHandler;
 
+            Loaded += InputGraphWindow_Loaded;
             SizeChanged += InputGraphWindow_OnSizeChanged;
+
             CalculateScale((int)LineGraphCanvas.Height);
 
             _dispatcherTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 25), DispatcherPriority.Render, DrawLoop, Dispatcher.CurrentDispatcher);
+
         }
 
+        private void InputGraphWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            _writeableBitmap = new WriteableBitmap(
+                (int)ActualWidth,
+                (int)ActualHeight,
+                96,
+                96,
+                PixelFormats.Bgr32,
+                null);
 
-        private double _meterPosition = 0d;
-        private readonly Line _meterLine = new Line() { Name = "Meter" };
+            RenderOptions.SetBitmapScalingMode(LineGraphCanvasImage, BitmapScalingMode.NearestNeighbor);
+            RenderOptions.SetEdgeMode(LineGraphCanvasImage, EdgeMode.Aliased);
+
+            LineGraphCanvasImage.Source = _writeableBitmap;
+            LineGraphCanvasImage.Stretch = Stretch.None;
+            LineGraphCanvasImage.HorizontalAlignment = HorizontalAlignment.Left;
+            LineGraphCanvasImage.VerticalAlignment = VerticalAlignment.Top;
+        }
+
+        void DrawPixel(int column, int row, Color color)
+        {
+            var c = color.R << 16;
+            c |= color.G << 8;
+            c |= color.B;
+
+            try
+            {
+                // Reserve the back buffer for updates.
+                _writeableBitmap.Lock();
+
+                unsafe
+                {
+                    // Get a pointer to the back buffer.
+                    IntPtr pBackBuffer = _writeableBitmap.BackBuffer;
+                    var square = pBackBuffer;
+
+                    // Find the address of the pixel to draw.
+                    square += row * _writeableBitmap.BackBufferStride;
+                    square += column * 4;
+
+                    *(int*)square = c;
+                    for (var i = 0; i < _meterStrokeThickness - 1; i++)
+                    {
+                        square += 4;
+                        *(int*)square = c;
+                    }
+                }
+
+                var strokeWidth = _meterStrokeThickness;
+                // Specify the area of the bitmap that changed.
+                if (column + _meterStrokeThickness > ActualWidth)
+                {
+                    strokeWidth = (int)ActualWidth - _meterStrokeThickness;
+                }
+
+                _writeableBitmap.AddDirtyRect(new Int32Rect(column, row, strokeWidth, 1));
+            }
+            finally
+            {
+                // Release the back buffer and make it available for display.
+                _writeableBitmap.Unlock();
+            }
+        }
+
+        private void DrawMeterLine(int column)
+        {
+            var height = LineGraphCanvas.ActualHeight;
+            height = ActualHeight;
+            for (var row = 0; row < height; row++)
+            {
+                DrawPixel(column, row, Colors.Yellow);
+            }
+        }
+
+        private void EraseMeterLine(int column)
+        {
+            var width = _meterStrokeThickness;
+            var height = (int)ActualHeight;
+
+            var stride = (width * _writeableBitmap.Format.BitsPerPixel + 7) / 8;
+            var bufferSize = height * stride;
+
+            var rect = new Int32Rect(column, 0, width, height);
+            var bitmapData = new int[bufferSize]; //initializes to zero which is just black
+            _writeableBitmap.WritePixels(rect, bitmapData, stride, column, 0);
+        }
+
         private void DrawLoop(object sender, EventArgs e)
         {
-            LineGraphCanvas.Children.Remove(_meterLine);
+            // Compute the pixel's color.
+            var pink = (255 << 16) | (128 << 8) | 255;
+            var yellow = (255 << 16) | (255 << 8);
+            var green = 255 << 8;
+            var red = (255 << 16);
+            var blue = 255;
+
+            EraseMeterLine(_meterPosition);
 
             ++_meterPosition;
             if (_meterPosition > LineGraphCanvas.ActualWidth) _meterPosition = 0;
 
-            _meterLine.Stroke = new SolidColorBrush(Colors.Yellow);
-            _meterLine.StrokeThickness = _meterStrokeThickness;
-            _meterLine.X1 = _meterPosition;
-            _meterLine.Y1 = 0;
-            _meterLine.X2 = _meterPosition;
-            _meterLine.Y2 = LineGraphCanvas.ActualHeight;
+            DrawMeterLine(_meterPosition);
 
-            LineGraphCanvas.Children.Add(_meterLine);
+            var ids = new int[_deviceLastPoint.Keys.Count];
+            _deviceLastPoint.Keys.CopyTo(ids, 0);
 
-            var removeUiElements = new List<UIElement>();
-
-            var meterPositionBoundary = _meterPosition + _meterStrokeThickness + 6;
-
-            foreach (UIElement child in LineGraphCanvas.Children)
+            for (var i = _deviceLastPoint.Count - 1; i >= 0; i--)
             {
-
-                if (child is Ellipse)
-                {
-                    var x = child as Ellipse;
-                    var p = child.PointToScreen(new Point(0, 0));//Ellipse uses the parent canvas X,Y coord. it does not have its own
-                    var beforeX = p.X;
-                    p.X -= _windowPosition.X;
-                    //p.Y -= _windowPosition.Y;
-
-
-                    //Debug.WriteLine($"Meter: {_meterPosition}, Dot:{beforeX}, Window:{_windowPosition.X}, new Dot:{p.X}");
-
-                    if (Math.Abs(p.X - meterPositionBoundary) < .01)
-                    {
-                        removeUiElements.Add(x);
-                    }
-                }
-            }
-
-            foreach (var child in removeUiElements)
-            {
-                LineGraphCanvas.Children.Remove(child);
+                var key = ids[i];
+                var axis = _deviceLastPoint[key];
+                Draw1(key, axis.Item1, axis.Item2);
             }
 
         }
@@ -108,15 +171,9 @@ namespace SierraHOTAS.Views
             CalculateScale((int)LineGraphCanvas.ActualHeight);
         }
 
-        protected override void OnLocationChanged(EventArgs e)
-        {
-            _windowPosition = new Point(Left, Top);
-            base.OnLocationChanged(e);
-        }
-
         private void CalculateScale(int height)
         {
-            _graphScale = 65535 / (height - 80);
+            _graphScale = 65535 / (height); //34 = title bar plus inner window border
         }
 
         private void AxisChangedHandler(object sender, AxisChangedEventArgs e)
@@ -128,7 +185,6 @@ namespace SierraHOTAS.Views
         {
             var c = Colors.White;
             var scaledValue = e.Value / _graphScale;
-
 
             if (e.Device.Name.ToLower().Contains("stick"))
             {
@@ -181,18 +237,20 @@ namespace SierraHOTAS.Views
 
         private void Draw1(int axisId, int value, Color color)
         {
-            var dot = new Ellipse()
-            {
-                Stroke = new SolidColorBrush(color),
-                StrokeThickness = 1,
-                Fill = new SolidColorBrush(color),
-                Width = 2,
-                Height = 2
-            };
+            var x = _meterPosition - 1;
+            if (_meterPosition == 0) x = 0;
 
-            Canvas.SetLeft(dot, _meterPosition - _meterStrokeThickness);
-            Canvas.SetBottom(dot, value);
-            LineGraphCanvas.Children.Add(dot);
+            DrawPixel(x, value, color);
+
+            if (_deviceLastPoint.Keys.Contains(axisId))
+            {
+                _deviceLastPoint[axisId] = new Tuple<int, Color>(value, color);
+            }
+            else
+            {
+                _deviceLastPoint.Add(axisId, new Tuple<int, Color>(value, color));
+            }
+
         }
 
         protected override void OnClosed(EventArgs e)

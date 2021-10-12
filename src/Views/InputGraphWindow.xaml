@@ -4,12 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
+        ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         Title="Input Graph" Height="450" Width="800">
 
     <Border BorderBrush="{StaticResource GroupBorderBrush}" BorderThickness="1">
-        <Grid>
+        <Grid Name="grid">
             <Canvas Name="LineGraphCanvas" Background="{StaticResource WindowBackgroundBrush}"/>
+            <Image Name="LineGraphCanvasImage" />
         </Grid>
     </Border>
 
