@@ -311,7 +311,7 @@ namespace SierraHOTAS.Models
         public void SetMode(int mode)
         {
             if (Mode == mode) return;
-            Logging.Log.Info($"Mode Profile changed to: {mode}");
+            Logging.Log.Debug($"Mode Profile changed to: {mode}");
             Mode = mode;
 
             foreach (var d in Devices)

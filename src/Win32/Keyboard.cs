@@ -56,8 +56,6 @@ namespace SierraHOTAS
             public bool IsKeyUp { get; set; }
             public bool IsExtended { get; set; }
 
-            //public int Flags { get; set; }
-
             public KeystrokeEventArgs(uint code, bool isKeyUp, bool isExtended)
             {
                 Code = (int)code;
@@ -284,6 +282,8 @@ namespace SierraHOTAS
             //bufKey will hold both the scan code and the extended keyboard flag
             var bufKey = key.scanCode << 8;
             var ext = (key.flags & Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED);
+            var alt = (key.flags & Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_ALTDOWN);
+            
             bufKey |= (uint)ext;
             
             var isExtended = ext == Win32Structures.KBDLLHOOKSTRUCTFlags.LLKHF_EXTENDED;

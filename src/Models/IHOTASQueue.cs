@@ -22,5 +22,6 @@ namespace SierraHOTAS.Models
         IHotasBaseMap GetMap(int buttonOffset);
         void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap);
         void SetMode(int mode);
+        void SetModeProfiles(Dictionary<int, ObservableCollection<IHotasBaseMap>> modeProfiles);
     }
 }

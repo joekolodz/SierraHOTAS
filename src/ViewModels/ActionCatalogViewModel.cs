@@ -44,14 +44,13 @@ namespace SierraHOTAS.ViewModels
             var item = buttonMap.ActionItem;
             if (Catalog.Contains(item)) return;
 
-            Logging.Log.Info("Add to actions catalog");
             if (string.IsNullOrWhiteSpace(item.ActionName) || item.ActionName == NO_ACTION_TEXT)
             {
                 item.ActionName = $"Action for {buttonMap.ButtonName}";
             }
 
             Catalog.Add(item);
-            Logging.Log.Info($"{item.ActionName} - {buttonMap.ButtonName} added to actions catalog");
+            Logging.Log.Debug($"{item.ActionName} - {buttonMap.ButtonName} added to actions catalog");
         }
 
         private void AddEmptyItem()

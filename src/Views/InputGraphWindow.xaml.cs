@@ -34,9 +34,9 @@ namespace SierraHOTAS.Views
                 if (d.Capabilities.AxeCount <= 0) continue;
                 if (_axisDeviceList == null) _axisDeviceList = new List<IHOTASDevice>();
                 _axisDeviceList.Add(d);
-                //grab capabilities from device so we know what axes are available
+                //todo: grab capabilities from device so we know what axes are available
             }
-            //bind the names to a checkbox control and draw a canvas for each device selected?
+            //todo: bind the names to a checkbox control and draw a canvas for each device selected?
             //the devices in _axisDeviceList will have the names of the true axis that are actually on the device
 
             handler(AxisChangedHandler);
@@ -47,7 +47,7 @@ namespace SierraHOTAS.Views
 
             CalculateScale((int)LineGraphCanvas.Height);
 
-            _dispatcherTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 25), DispatcherPriority.Render, DrawLoop, Dispatcher.CurrentDispatcher);
+            _dispatcherTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 25), DispatcherPriority.Send, DrawLoop, Dispatcher.CurrentDispatcher);
 
         }
 
@@ -78,16 +78,13 @@ namespace SierraHOTAS.Views
 
             try
             {
-                // Reserve the back buffer for updates.
                 _writeableBitmap.Lock();
 
                 unsafe
                 {
-                    // Get a pointer to the back buffer.
-                    IntPtr pBackBuffer = _writeableBitmap.BackBuffer;
+                    var pBackBuffer = _writeableBitmap.BackBuffer;
                     var square = pBackBuffer;
 
-                    // Find the address of the pixel to draw.
                     square += row * _writeableBitmap.BackBufferStride;
                     square += column * 4;
 
@@ -100,7 +97,6 @@ namespace SierraHOTAS.Views
                 }
 
                 var strokeWidth = _meterStrokeThickness;
-                // Specify the area of the bitmap that changed.
                 if (column + _meterStrokeThickness > ActualWidth)
                 {
                     strokeWidth = (int)ActualWidth - _meterStrokeThickness;
@@ -110,7 +106,6 @@ namespace SierraHOTAS.Views
             }
             finally
             {
-                // Release the back buffer and make it available for display.
                 _writeableBitmap.Unlock();
             }
         }
@@ -190,7 +185,6 @@ namespace SierraHOTAS.Views
                         break;
                     case 8:
                         c = Colors.Fuchsia;
-                        //scaledValue = e.Value / 80;
                         break;
                 }
             }
@@ -201,15 +195,12 @@ namespace SierraHOTAS.Views
                 {
                     case 0:
                         c = Colors.Red;
-                        //scaledValue = e.Value / 80;
                         break;
                     case 4:
                         c = Colors.Yellow;
-                        //scaledValue = e.Value / 80;
                         break;
                     case 8:
                         c = Colors.Cyan;
-                        //scaledValue = e.Value / 80;
                         break;
                     case 12:
                         c = Colors.MediumPurple;

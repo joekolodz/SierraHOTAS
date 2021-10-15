@@ -157,8 +157,6 @@ namespace SierraHOTAS.Views
 
         private void Watcher_EventArrived(object sender, EventArrivedEventArgs e)
         {
-            //TODO remove log
-            Logging.Log.Info($"Watcher_EventArrived {e}");
             Dispatcher.Invoke(() => HotasCollectionViewModel.RefreshDeviceListCommand.Execute(null));
         }
 

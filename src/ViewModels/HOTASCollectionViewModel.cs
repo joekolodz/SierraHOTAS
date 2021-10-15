@@ -363,8 +363,13 @@ namespace SierraHOTAS.ViewModels
             if (map == null) return;
             var activity = new ActivityItem()
             {
-                Offset = offset, ButtonName = map.MapName, ScanCode = scanCode, IsKeyUp = isKeyUp, IsExtended = true,
-                ActionName = message, Time = DateTime.Now
+                Offset = offset,
+                ButtonName = map.MapName,
+                ScanCode = scanCode,
+                IsKeyUp = isKeyUp,
+                IsExtended = true,
+                ActionName = message,
+                Time = DateTime.Now
             };
 
             _appDispatcher?.Invoke(() => { Activity.Insert(0, activity); });

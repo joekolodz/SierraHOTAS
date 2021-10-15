@@ -264,6 +264,7 @@ namespace SierraHOTAS.Models
             }
 
             ModeProfiles = mergedModeProfiles;
+            _hotasQueue.SetModeProfiles(ModeProfiles);
         }
 
         private ObservableCollection<IHotasBaseMap> MergeMaps(ObservableCollection<IHotasBaseMap> sourceMap, ObservableCollection<IHotasBaseMap> destinationMap)

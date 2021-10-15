@@ -98,7 +98,7 @@ namespace SierraHOTAS.Models
                 }
                 catch (Exception e)
                 {
-                    Logging.Log.Info(e);
+                    Logging.Log.Info($"Stopping in HOTAS Queue ListenLoop: {e}");
                     _actionJobs.CompleteAdding();
                     _isStopRequested = true;
                     LostConnectionToDevice?.Invoke(this, EventArgs.Empty);
@@ -186,7 +186,7 @@ namespace SierraHOTAS.Models
                     }
                 }
             }
-
+            
             Logging.Log.Debug("Dequeue loop stopped");
         }
 
@@ -410,6 +410,10 @@ namespace SierraHOTAS.Models
             _mode = mode;
             _buttonMap = _modeProfiles[_mode];
         }
-    }
 
+        public void SetModeProfiles(Dictionary<int, ObservableCollection<IHotasBaseMap>> modeProfiles)
+        {
+            _modeProfiles = modeProfiles;
+        }
+    }
 }
