@@ -4,15 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:SierraHOTAS.ViewModels"
-        xmlns:profileViewModel="clr-namespace:SierraHOTAS.ViewModels"
         xmlns:controls="clr-namespace:SierraHOTAS.Controls"
-        xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:models="clr-namespace:SierraHOTAS.Models"
         d:DataContext="{d:DesignInstance viewModel:HOTASCollectionViewModel}"
         x:Class="SierraHOTAS.Views.MainWindow"
         mc:Ignorable="d"
         Title="Sierra HOTAS" 
-        Height="900" 
+        Height="1020" 
         Width="1220"
         WindowStartupLocation="CenterScreen">
 
@@ -65,7 +63,7 @@
             <TextBlock Name="txtLastFile" Text="{Binding ProfileSetFileName}" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextHeaderBrush}"/>
         </StackPanel>
 
-        <DockPanel DockPanel.Dock="Left" Width="330" LastChildFill="True" Margin="10,10,5,10" Background="{StaticResource WindowBackgroundBrush}">
+        <DockPanel DockPanel.Dock="Left" Width="335" LastChildFill="True" Margin="10,10,5,10" Background="{StaticResource WindowBackgroundBrush}">
             <StackPanel DockPanel.Dock="Top">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Devices" FontSize="15" Foreground="{StaticResource TextHeaderBrush}" VerticalAlignment="Bottom"/>
@@ -75,8 +73,24 @@
                         </Button.Content>
                     </Button>
                 </StackPanel>
-                <ListBox x:Name="lstDevices" DisplayMemberPath="NameWithIds" ItemsSource="{Binding Devices}" ItemContainerStyle="{StaticResource DeviceListBoxStyle}" Height="150" FontSize="13" Background="Transparent" BorderBrush="SlateGray" SelectionChanged="LstDevices_OnSelectionChanged">
-                </ListBox>
+                <ListView x:Name="lstDevices" 
+                         Style="{StaticResource DeviceListViewStyle}"
+                         ItemsSource="{Binding Devices}" 
+                         ItemContainerStyle="{StaticResource DeviceListViewItemStyle}" 
+                         Height="200" 
+                         FontSize="13"
+                         Background="Transparent" 
+                         BorderBrush="SlateGray" 
+                         AlternationCount="2" 
+                         SelectionChanged="LstDevices_OnSelectionChanged">
+                    <ListView.View>
+                        <GridView ColumnHeaderContainerStyle="{StaticResource DeviceListViewGridViewStyle}">
+                            <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="210"></GridViewColumn>
+                            <GridViewColumn Header="VID" DisplayMemberBinding="{Binding VID}" Width="50"></GridViewColumn>
+                            <GridViewColumn Header="PID" DisplayMemberBinding="{Binding PID}" Width="50" ></GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
             </StackPanel>
 
             <StackPanel DockPanel.Dock="Top">
@@ -92,7 +106,7 @@
 
                     <DataGrid Name="ModeActivationGrid" 
                               ItemsSource="{Binding ModeActivationItems}" 
-                              Height="145" 
+                              Height="150" 
                               Width="Auto" 
                               AutoGenerateColumns="False" 
                               Background="Transparent"
@@ -192,6 +206,8 @@
                                         <Label Style="{StaticResource RoundLabelStyle}" Width="48" Height="34" Margin="0,4,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" BorderBrush="{StaticResource HoverBorderBrush}" BorderThickness="2" Foreground="{StaticResource TextBrush}"/>
                                         <Label Content="{Binding Key}" Width="Auto" FontSize="10"  HorizontalContentAlignment="Center" VerticalContentAlignment="Top" Background="Transparent" Foreground="{StaticResource TextBrush}"/>
 
+                                        <!-- to calculate the total height of the app window... -->
+                                        <!-- each item plus padding top and bottom is 38px high. we want 8 full items to show, but the top of a 9th one. 38 * 8 = 304 + 10. Add this to 706 which is the minimum height showing no activity items. -->
                                         <Image Height="20" Width="20" VerticalAlignment="Center" Margin="0,16,0,0">
                                             <Image.Style>
                                                 <Style TargetType="{x:Type Image}">

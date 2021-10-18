@@ -168,18 +168,95 @@
             </Setter>
         </Style>
 
-        <!-- style for device listbox -->
-        <Style x:Key="DeviceListBoxStyle" TargetType="ListBoxItem">
+        <!-- style for the Device listview -->
+        <Style x:Key="DeviceListViewStyle" TargetType="{x:Type ListView}">
+            <Setter Property="BorderBrush" Value="{StaticResource GroupBorderBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
             <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource GroupBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="False">
+                    <Setter Property="BorderBrush" Value="{StaticResource GroupBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DeviceListViewItemStyle" TargetType="{x:Type ListViewItem}">
+            <Style.Triggers>
+                <!-- alternate row color  -->
+                <Trigger Property="ItemsControl.AlternationIndex"  Value="0">
+                    <Setter Property="Background" Value="{StaticResource RowBrush}" />
+                </Trigger>
+                <Trigger Property="ItemsControl.AlternationIndex"  Value="1">
+                    <Setter Property="Background" Value="{StaticResource RowAlternateBrush}" />
+                </Trigger>
+
+                <!-- highlight color (need ControlTemplate also) -->
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource HoverBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
+                </Trigger>
+
+                 <!-- highlighting the selected row -->
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource SelectedBorderBrush}"/>
+                    <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
+                </Trigger>
+
+                 <!-- if a device becomes unconnected, then grey out the item -->
                 <DataTrigger Binding="{Binding IsDeviceLoaded}" Value="false">
                     <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsDeviceLoaded}" Value="true">
                     <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
                 </DataTrigger>
+
             </Style.Triggers>
+
+            
+            
+            <!-- highlight color (needs mouseover trigger)-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Grid>
+                            <Border Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                                <GridViewRowPresenter Content="{TemplateBinding Content}" Margin="-3,2,2,2"/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+        
+        <!-- device list view column header style -->
+        <Style x:Key="DeviceListViewGridViewStyle" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Background" Value="{StaticResource HoverBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextHeaderBrush}"/>
+            <Setter Property="BorderBrush" Value="{x:Null}" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
+                        <Border BorderThickness="0,0,0,1"  Background="{StaticResource HoverBrush}">
+                            <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Padding="1,5,5,0" Width="{TemplateBinding Width}" TextAlignment="Left" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
         </Style>
 
+        <!-- data templates for main button map list box selectors -->
         <DataTemplate x:Key="ButtonMapTemplate">
             <WrapPanel>
                 <controls:ButtonMap Margin="1"/>
@@ -203,6 +280,8 @@
                                    ButtonDataTemplate="{StaticResource ButtonMapTemplate}"
                                    RadialDataTemplate="{StaticResource RadialAxisMapTemplate}"/>
 
+
+        <!-- style for the button mapping listview -->
         <Style TargetType="{x:Type ListView}" x:Key="CustomListView">
             <Setter Property="BorderBrush" Value="{StaticResource GroupBorderBrush}" />
             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />

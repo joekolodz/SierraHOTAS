@@ -344,6 +344,10 @@ namespace SierraHOTAS.ViewModels
             _appDispatcher?.Invoke(() =>
             {
                 Activity.Insert(0, activity);
+                if (Activity.Count >= 200)
+                {
+                    Activity.RemoveAt(Activity.Count-1);
+                }
             });
         }
 

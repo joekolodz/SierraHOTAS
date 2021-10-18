@@ -42,7 +42,7 @@ namespace SierraHOTAS.ViewModels
 
         public static string GetnNameWithIds(string vid, string pid, string deviceName)
         {
-            return string.Format($"VID:{vid} PID:{pid} {deviceName}");
+            return string.Format($"{deviceName}  -  (VID:{vid} PID:{pid})");
         }
 
 

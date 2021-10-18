@@ -180,6 +180,8 @@ namespace SierraHOTAS.Views
         private void CollectionViewModelButtonPressed(object sender, ButtonPressedViewModelEventArgs e)
         {
             if (e.Device == null) return;
+            var map = e.Device.ButtonMap.FirstOrDefault(m => m.ButtonId == e.ButtonId);
+            if (map == null) return;
 
             Dispatcher?.Invoke(() =>
             {
@@ -188,20 +190,15 @@ namespace SierraHOTAS.Views
                     var isActive = IsApplicationActive();
                     if (isActive)
                     {
-                        txtTestBox.Clear();
+                        //txtTestBox.Clear();
                         txtTestBox.Focus();
                     }
                 }
-                lstDevices.SelectedItem = e.Device;
-            });
 
-            var map = e.Device.ButtonMap.FirstOrDefault(m => m.ButtonId == e.ButtonId);
-            if (map == null) return;
-
-            Dispatcher?.Invoke(() =>
-            {
                 if (HotasCollectionViewModel.SnapToButton.GetValueOrDefault())
                 {
+                    lstDevices.SelectedItem = e.Device;
+                    lstDevices.ScrollIntoView(e.Device);
                     gridMap.SelectedItem = map;
                     gridMap.ScrollIntoView(map);
                 }
