@@ -14,6 +14,7 @@ namespace SierraHOTAS.Views
     /// </summary>
     public partial class InputGraphWindow : Window
     {
+        private static InputGraphWindow _thisWindow;
         private List<IHOTASDevice> _axisDeviceList;
         private int _graphScale;
         private readonly Action<EventHandler<AxisChangedEventArgs>> _callBackRemoveHandler;
@@ -23,13 +24,25 @@ namespace SierraHOTAS.Views
         private int _meterPosition = 0;
         private static WriteableBitmap _writeableBitmap;
 
-        public InputGraphWindow(IHOTASCollection deviceList, Action<EventHandler<AxisChangedEventArgs>> handler, Action<EventHandler<AxisChangedEventArgs>> callBackRemoveHandler)
+        public static void CreateWindow(Window parent, IHOTASCollection deviceList, Action<EventHandler<AxisChangedEventArgs>> handler, Action<EventHandler<AxisChangedEventArgs>> callBackRemoveHandler)
+        {
+            if (_thisWindow != null)
+            {
+                _thisWindow.Show();
+                return;
+            }
+
+            _thisWindow = new InputGraphWindow(deviceList, handler, callBackRemoveHandler) {Owner = parent};
+            _thisWindow.Show();
+        }
+
+        private InputGraphWindow(IHOTASCollection deviceList, Action<EventHandler<AxisChangedEventArgs>> handler, Action<EventHandler<AxisChangedEventArgs>> callBackRemoveHandler)
         {
             InitializeComponent();
 
             DataContext = this;
 
-            foreach (var d in deviceList.Devices)
+            foreach (var d in deviceList.Devices.Where(x=>x.IsDeviceLoaded))
             {
                 if (d.Capabilities.AxeCount <= 0) continue;
                 if (_axisDeviceList == null) _axisDeviceList = new List<IHOTASDevice>();
@@ -240,6 +253,7 @@ namespace SierraHOTAS.Views
         {
             _dispatcherTimer.Stop();
             _callBackRemoveHandler(AxisChangedHandler);
+            _thisWindow = null;
         }
     }
 }

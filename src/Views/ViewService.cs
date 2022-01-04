@@ -43,7 +43,7 @@ namespace SierraHOTAS.Views
 
         private void ShowInputGraphWindow(ShowInputGraphWindowEvent eventMessage)
         {
-            new InputGraphWindow(eventMessage.DeviceList, eventMessage.AxisChangedHandler, eventMessage.CancelCallbackRemoveHandler) { Owner = _mainWindow }.Show();
+            InputGraphWindow.CreateWindow(_mainWindow, eventMessage.DeviceList, eventMessage.AxisChangedHandler, eventMessage.CancelCallbackRemoveHandler);
         }
     }
 }

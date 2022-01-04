@@ -2,6 +2,7 @@
 using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.Windows;
@@ -23,6 +24,7 @@ namespace SierraHOTAS.Views
         private const string WQL_EVENT_QUERY = "SELECT * FROM Win32_DeviceChangeEvent WHERE EventType = 2";
 
         private readonly TaskbarIcon _taskbarIcon;
+        private WindowState _windowState;
 
         public HOTASCollectionViewModel HotasCollectionViewModel { get; }
 
@@ -70,7 +72,8 @@ namespace SierraHOTAS.Views
 
         private void MainWindow_StateChanged(object sender, EventArgs e)
         {
-            if (WindowState == WindowState.Minimized)
+            _windowState = WindowState;
+            if (_windowState == WindowState.Minimized)
             {
                 Visibility = Visibility.Hidden;
             }
@@ -78,6 +81,8 @@ namespace SierraHOTAS.Views
 
         private void HotasCollectionViewModel_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
         {
+            if (_windowState == WindowState.Minimized) return;
+
             Dispatcher?.Invoke(() =>
             {
                 var selectedProfile = HotasCollectionViewModel.ModeActivationItems.FirstOrDefault<ModeActivationItem>(x => x.Mode == e.Mode);
@@ -91,6 +96,7 @@ namespace SierraHOTAS.Views
         private DeviceViewModel _currentlySelectedDeviceVm;
         private void CollectionViewModelAxisChanged(object sender, AxisChangedViewModelEventArgs e)
         {
+            if (_windowState == WindowState.Minimized) return;
             if (e.Device == null) return;
             if (_currentlySelectedDeviceVm != e.Device) return;
 
@@ -179,6 +185,7 @@ namespace SierraHOTAS.Views
 
         private void CollectionViewModelButtonPressed(object sender, ButtonPressedViewModelEventArgs e)
         {
+            if (_windowState == WindowState.Minimized) return;
             if (e.Device == null) return;
             var map = e.Device.ButtonMap.FirstOrDefault(m => m.ButtonId == e.ButtonId);
             if (map == null) return;
