@@ -254,18 +254,18 @@ namespace SierraHOTAS.Tests
             var mreMacro = new ManualResetEventSlim();
             var mreKeyDown = new ManualResetEventSlim();
             var mreKeyUp = new ManualResetEventSlim();
-            
+
             queue.MacroStarted += (sender, e) => { isMacroStartedEventCalled = true; mreMacro.Set(); };
             queue.KeystrokeDownSent += (sender, e) => { isKeyDownEventCalled = true; mreKeyDown.Set(); };
             queue.KeystrokeUpSent += (sender, e) => { isKeyUpEventCalled = true; mreKeyUp.Set(); };
 
             Assert.False(isMacroStartedEventCalled);
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
-            
+
             mreMacro.Wait(5000);
             mreKeyDown.Wait(5000);
             mreKeyUp.Wait(5000);
-            
+
             Assert.True(isMacroStartedEventCalled);
             Assert.True(isKeyDownEventCalled);
             Assert.True(isKeyUpEventCalled);
@@ -349,13 +349,13 @@ namespace SierraHOTAS.Tests
             var actualScanCode = 0;
 
             var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
-            
+
             var activationList = new Dictionary<int, ModeActivationItem>();
-            activationList.Add(1, new ModeActivationItem(){Mode = 1});
-            activationList.Add(2, new ModeActivationItem(){Mode = 2, InheritFromMode = 1});
+            activationList.Add(1, new ModeActivationItem() { Mode = 1 });
+            activationList.Add(2, new ModeActivationItem() { Mode = 2, InheritFromMode = 1 });
 
             var mode1map = CreateTestHotasTestMapWithButton();
-            mode1map.Add(new HOTASButton(){MapId = (int)JoystickOffset.Button2, ActionCatalogItem = new ActionCatalogItem(){Actions = new ObservableCollection<ButtonAction>(){new ButtonAction(){ScanCode = 1}, new ButtonAction(){ScanCode = 1, IsKeyUp = true}}}});
+            mode1map.Add(new HOTASButton() { MapId = (int)JoystickOffset.Button2, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() { ScanCode = 1 }, new ButtonAction() { ScanCode = 1, IsKeyUp = true } } } });
             var mode2map = CreateTestHotasTestMapWithButton();
             var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
             modeProfiles.Add(1, mode1map);
@@ -363,7 +363,7 @@ namespace SierraHOTAS.Tests
 
             var queue = new HOTASQueue(Substitute.For<IKeyboard>());
             queue.Listen(joystick, modeProfiles, activationList);
-            
+
             //inherited key should be active
             queue.SetMode(2);
 
@@ -377,7 +377,7 @@ namespace SierraHOTAS.Tests
             };
 
             Assert.False(isEventCalled);
-            
+
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button2, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
             mre.Wait(5000);
 
@@ -404,7 +404,7 @@ namespace SierraHOTAS.Tests
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
             mre.Reset();
             mre.Wait(5000);
-            
+
             joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button2, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonReleased };
             mre.Reset();
             mre.Wait(5000);
@@ -725,6 +725,88 @@ namespace SierraHOTAS.Tests
                         {
                             new ButtonAction() {ScanCode = 17},
                             new ButtonAction() {ScanCode = 17, IsKeyUp = true}
+                        }
+                    }
+                }
+            };
+            return map;
+        }
+
+        [Fact]
+        public void test_one_shot()
+        {
+            var isFirstKeyDownPressed = false;
+            var isFirstKeyUpPressed = false;
+
+            var isSecondKeyOutOfOrder = false;
+
+
+            var joystick = new TestJoystick_BasicQueue(dataBufferSize: 1);
+            var map = CreateTestHotasTestMapWithButton(timeInMilliseconds: 1);
+            ((HOTASButton)map[0]).IsOneShot = true;
+
+            var subKeyboard = Substitute.For<IKeyboard>();
+            subKeyboard.KeyDownRepeatDelay.Returns(35);
+
+            var activationList = new Dictionary<int, ModeActivationItem>();
+            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            modeProfiles.Add(1, map);
+
+            var queue = new HOTASQueue(subKeyboard);
+            queue.Listen(joystick, modeProfiles, activationList);
+
+            var mreKeyDown = new ManualResetEventSlim();
+            var mreKeyUp = new ManualResetEventSlim();
+
+            queue.KeystrokeDownSent += (sender, e) =>
+            {
+                if (e.ScanCode == 28 && isFirstKeyDownPressed == false) isFirstKeyDownPressed = true;
+                
+                if (e.ScanCode == 29 && isFirstKeyDownPressed == false)
+                {
+                    isSecondKeyOutOfOrder = true;
+                    mreKeyDown.Set();
+                }
+            };
+
+            queue.KeystrokeUpSent += (sender, e) =>
+            {
+                if (e.ScanCode == 28 && e.IsKeyUp && isFirstKeyDownPressed) isFirstKeyUpPressed = true;
+
+                if (e.ScanCode == 29 && isFirstKeyUpPressed == false)
+                {
+                    isSecondKeyOutOfOrder = true;
+                    mreKeyUp.Set();
+                }
+            };
+
+            joystick.TestData[0] = new JoystickUpdate() { RawOffset = (int)JoystickOffset.Button1, Sequence = 0, Timestamp = 0, Value = (int)JoystickOffsetValues.ButtonState.ButtonPressed };
+
+            mreKeyDown.Wait(5000);
+            mreKeyUp.Wait(5000);
+
+            Assert.False(isSecondKeyOutOfOrder);
+            Assert.True(isFirstKeyDownPressed);
+            Assert.True(isFirstKeyUpPressed);
+
+            subKeyboard.Received().SendKeyPress(Arg.Any<int>(), Arg.Any<bool>(), Arg.Any<bool>());
+        }
+
+        private static ObservableCollection<IHotasBaseMap> CreateTestHotasTestMapWithButtonForOneShot()
+        {
+            var map = new ObservableCollection<IHotasBaseMap>()
+            {
+                new HOTASButton()
+                {
+                    MapId = (int) JoystickOffset.Button1, MapName = "trigger", Type = HOTASButton.ButtonType.Button,
+                    ActionName = "fire", ActionCatalogItem = new ActionCatalogItem()
+                    {
+                        ActionName = "fire", Actions = new ObservableCollection<ButtonAction>()
+                        {
+                            new ButtonAction() {ScanCode = 28},
+                            new ButtonAction() {ScanCode = 28, IsKeyUp = true},
+                            new ButtonAction() {ScanCode = 29},
+                            new ButtonAction() {ScanCode = 29, IsKeyUp = true}
                         }
                     }
                 }

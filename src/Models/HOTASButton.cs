@@ -20,6 +20,7 @@ namespace SierraHOTAS.Models
         public ButtonType Type { get; set; }
         public int ShiftModePage { get; set; }
         public bool IsShift { get; set; }
+        public bool IsOneShot { get; set; }
 
         [JsonIgnore]
         public string ActionName

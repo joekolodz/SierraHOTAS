@@ -186,7 +186,7 @@ namespace SierraHOTAS.Models
                     }
                 }
             }
-            
+
             Logging.Log.Debug("Dequeue loop stopped");
         }
 
@@ -238,7 +238,7 @@ namespace SierraHOTAS.Models
                 else
                 {
                     if (_modeProfileActivationButtons.ContainsKey(_mode) &&
-                        _modeProfileActivationButtons[_mode].InheritFromMode>0)
+                        _modeProfileActivationButtons[_mode].InheritFromMode > 0)
                     {
                         map = GetMapFromParentMode(_modeProfileActivationButtons[_mode].InheritFromMode, offset) as HOTASButton;
                         if (map != null)
@@ -260,6 +260,12 @@ namespace SierraHOTAS.Models
         private void HandleButtonPressed(HOTASButton button, int offset)
         {
             if (button == null) return;
+
+            if (button.IsOneShot)
+            {
+                HandleOneShot(button, offset);
+                return;
+            }
 
             if (button.IsMacro)
             {
@@ -327,6 +333,39 @@ namespace SierraHOTAS.Models
                 }
             }
             _activeMacros.TryRemove(offset, out _);
+        }
+
+        private void HandleOneShot(HOTASButton button, int offset)
+        {
+            Task.Run(() => PlayOneShot(offset, button.ActionCatalogItem.Actions));
+        }
+
+        private async Task PlayOneShot(int offset, ObservableCollection<ButtonAction> actions)
+        {
+            foreach (var action in actions)
+            {
+                if (action.TimeInMilliseconds > 0)
+                {
+                    //yes this is precise only to the nearest KeyDownRepeatDelay milliseconds. repeated keys are on a 60 millisecond boundary, so the UI could be locked to 60ms increments only
+                    var timeLeft = action.TimeInMilliseconds;
+                    while (timeLeft > 0)
+                    {
+                        await Task.Delay(Keyboard.KeyDownRepeatDelay);
+                        timeLeft -= Keyboard.KeyDownRepeatDelay;
+                    }
+                }
+
+                Keyboard.SendKeyPress(action.ScanCode, action.IsKeyUp, action.IsExtended);
+
+                if (action.IsKeyUp)
+                {
+                    KeystrokeUpSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.IsKeyUp, action.IsExtended));
+                }
+                else
+                {
+                    KeystrokeDownSent?.Invoke(this, new KeystrokeSentEventArgs(offset, offset, action.ScanCode, action.IsKeyUp, action.IsExtended));
+                }
+            }
         }
 
         private void HandleButtonReleased(HOTASButton button, int offset)
