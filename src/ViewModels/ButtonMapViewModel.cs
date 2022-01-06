@@ -51,7 +51,12 @@ namespace SierraHOTAS.ViewModels
         public bool IsOneShot
         {
             get => _hotasButton.IsOneShot;
-            set => _hotasButton.IsOneShot = value;
+            set
+            {
+                if (_hotasButton.IsOneShot == value) return;
+                _hotasButton.IsOneShot = value;
+                OnPropertyChanged(nameof(IsOneShot));
+            }
         }
 
         public string ActionName
