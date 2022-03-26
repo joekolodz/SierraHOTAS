@@ -20,7 +20,7 @@
         <SolidColorBrush x:Key="SelectedBrush" Color="#2f4c5a" />
         <SolidColorBrush x:Key="SelectedBorderBrush" Color="#26a0da" />
 
-        <SolidColorBrush x:Key="GroupBorderBrush" Color="#708090" />
+        <SolidColorBrush x:Key="GroupBorderBrush" Color="SlateGray" />
         <SolidColorBrush x:Key="NormalBorderBrush" Color="Azure" />
         <SolidColorBrush x:Key="RowBrush" Color="Transparent" />
         <SolidColorBrush x:Key="RowAlternateBrush" Color="#424242" />

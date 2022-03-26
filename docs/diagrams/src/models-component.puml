@@ -1,0 +1,65 @@
+@startuml
+
+!theme bluegray
+
+skinparam linetype ortho
+skinparam roundcorner 6
+
+skinparam rectangle{
+    bordercolor black
+}
+
+skinparam collections{
+    bordercolor black
+}
+
+skinparam note{
+    fontsize 9
+    BackgroundColor $PRIMARY-$PRIMARY_LIGHT
+}
+
+rectangle HOTASCollection
+collections HOTASDevice
+collections "ButtonMap\n(IHotasBaseMap)" as ButtonMap
+rectangle "HOTASQueue\n(read loop)" as HOTASQueue
+rectangle "Joystick\n(DirectInput)" as Joystick
+collections HOTASAxis
+collections "Button Map" as HOTASButton
+collections "Reverse Button Map" as ReverseButtonMap
+collections Segments
+
+note right of HOTASCollection
+KeystrokeDownSent
+KeystrokeUpSent
+MacroStarted
+MacroCancelled
+ButtonPressed
+AxisChanged
+ModeProfileChanged
+endnote
+
+
+note right of HOTASDevice
+KeystrokeDownSent
+KeystrokeUpSent
+MacroStarted
+MacroCancelled
+ButtonPressed
+AxisChanged
+ModeProfileSelected
+ShiftReleased
+
+endnote
+
+
+HOTASCollection --> HOTASDevice
+HOTASDevice --> ButtonMap
+HOTASDevice --> HOTASQueue
+HOTASDevice --> Joystick
+ButtonMap ..> HOTASAxis
+ButtonMap .left.> HOTASButton
+HOTASAxis --> HOTASButton
+HOTASAxis --> ReverseButtonMap
+HOTASAxis --> Segments
+
+@enduml

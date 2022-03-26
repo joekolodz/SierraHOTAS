@@ -1,0 +1,64 @@
+@startuml
+!include https://raw.githubusercontent.com/joekolodz/puml-themes/main/themes/sierrahotas/puml-theme-sierrahotas.puml
+
+title 
+
+SierraHOTAS
+Class Diagram
+
+Models
+
+end title
+
+interface IHOTASBaseMap
+
+class HOTASCollection {
+    + <<event>> KeystrokeDownSent
+    + <<event>> KeystrokeUpSent
+    + <<event>> MacroStarted
+    + <<event>> MacroCancelled
+    + <<event>> ButtonPressed
+    + <<event>> AxisChanged
+    + <<event>> ModeProfileChanged
+    + <<event>> LostConnectionToDevice
+}
+
+class HOTASDevice
+class "ButtonMap\nCollection" as ButtonMap
+class HOTASQueue {
+    read loop
+}
+
+class Joystick {
+    (DirectInput)
+}
+class HOTASAxis
+class HOTASButton
+class "Forward Button Map" as ForwardButtonMap
+class "Reverse Button Map" as ReverseButtonMap
+class Segments
+class ActionCatalogItem
+class ButtonAction {
+    scan codes
+    flags
+    etc
+}
+
+IHOTASBaseMap .right. ButtonMap
+
+HOTASCollection -- "0..*" HOTASDevice
+HOTASDevice -- "0..*" ButtonMap
+HOTASDevice -- "1"  HOTASQueue
+HOTASDevice -- "1" Joystick
+
+ButtonMap -- "0..*" HOTASAxis
+ButtonMap -- "0..*" HOTASButton
+
+HOTASAxis -- "0..*" Segments
+HOTASAxis -- "0..*" ForwardButtonMap
+HOTASAxis -- "0..*" ReverseButtonMap
+
+HOTASButton -- ActionCatalogItem
+ActionCatalogItem -- "0..*" ButtonAction
+
+@enduml

@@ -1,0 +1,112 @@
+@startuml
+!include https://raw.githubusercontent.com/joekolodz/puml-themes/main/themes/sierrahotas/puml-theme-sierrahotas.puml
+
+!$BLACK = "#000"
+
+!$TEXT_SECONDARY = $BLACK
+
+skinparam sequence {
+	BorderColor $OBJECT_BORDER
+	' For some reason sequence title font color does not pick up from global
+	TitleFontColor $TEXT
+	BackgroundColor $OBJECT_BACKGROUND
+	StartColor $PRIMARY
+	EndColor $PRIMARY
+	''
+	BoxBackgroundColor $BGCOLOR
+	BoxBorderColor $GRAY
+	BoxFontColor $DARK
+	''
+	DelayFontColor $DARK
+	''
+	LifeLineBorderColor $TEXT
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor $OBJECT_BACKGROUND
+	''
+	GroupBorderColor $OBJECT_BORDER
+	GroupFontColor $TEXT
+	GroupHeaderFontColor $TEXT_HEADER
+	GroupBackgroundColor $HEADER_BACKGROUND
+	GroupBodyBackgroundColor $OBJECT_BACKGROUND
+	GroupHeaderBackgroundColor $BACKGROUND
+	''
+	DividerBackgroundColor $OBJECT_BACKGROUND
+    DividerBorderColor $OBJECT_BORDER
+    DividerBorderThickness 2
+    DividerFontColor $GOLD
+	''
+	ReferenceBackgroundColor $OBJECT_BACKGROUND
+	ReferenceBorderColor $OBJECT_BORDER
+	ReferenceFontColor $DARK_BLUEGRAY
+	ReferenceHeaderFontColor $TEXT_HEADER
+	''
+	StereotypeFontColor $TEXT
+
+	AttributeFontColor $TEXT
+	AttributeFontSize 50
+
+}
+
+
+
+skinparam note{
+    FontColor $TEXT_SECONDARY
+}
+
+
+title 
+
+SierraHOTAS
+Sequence Diagram
+
+Models
+
+end title
+
+participant Participant as Foo
+actor       Actor       as Foo1
+boundary    Boundary    as Foo2
+control     Control     as Foo3
+entity      Entity      as Foo4
+database    Database    as Foo5
+collections Collections as Foo6
+queue       Queue       as Foo7
+Foo -> Foo1 : To actor 
+Foo -> Foo2 : To boundary
+Foo -> Foo3 : To control
+Foo -> Foo4 : To entity
+Foo -> Foo5 : To database
+Foo -> Foo6 : To collections
+Foo -> Foo7: To queue
+
+participant "Famous Bob" as Bob << Generated >>
+participant Alice << (C,$GOLD) Testable >>
+
+Alice -> Bob: Authentication Request
+
+alt successful case
+
+    Bob -> Alice: Authentication Accepted
+rnote left: this is a first note
+else some kind of failure
+
+    Bob -> Alice: Authentication Failure
+    group My own label
+    Alice -> Log : Log attack start
+        loop 1000 times
+            Alice -> Bob: DNS Attack
+        end
+    Alice -> Log : Log attack end
+    end
+
+else Another type of failure
+
+   Bob -> Alice: Please repeat
+
+end
+
+
+
+
+Bob->Alice: First message
+@enduml

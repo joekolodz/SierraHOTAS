@@ -251,6 +251,10 @@ namespace SierraHOTAS.Models
             _hotasQueue.LostConnectionToDevice -= OnLostConnectionToDevice;
         }
 
+        /// <summary>
+        /// Existing buttons in the profile will overlay buttons on the device. If a device has a button with matching profile, then we'll keep that button (otherwise we'd lose it if we just took profile buttons)
+        /// This allows a device to change without losing mappings (for instance when chaining a new Virpil device, or manually editing and removing buttons from the profile's JSON file)
+        /// </summary>
         public void OverlayAllProfilesToDevice()
         {
             var mergedModeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
@@ -267,6 +271,12 @@ namespace SierraHOTAS.Models
             _hotasQueue.SetModeProfiles(ModeProfiles);
         }
 
+        /// <summary>
+        /// Examine each button in the Source map. If that button is also found in the Destination map, then use the Destination map's button, otherwise use the Source map's button.
+        /// </summary>
+        /// <param name="sourceMap"></param>
+        /// <param name="destinationMap"></param>
+        /// <returns></returns>
         private ObservableCollection<IHotasBaseMap> MergeMaps(ObservableCollection<IHotasBaseMap> sourceMap, ObservableCollection<IHotasBaseMap> destinationMap)
         {
             var merged = new ObservableCollection<IHotasBaseMap>();
