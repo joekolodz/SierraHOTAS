@@ -12,7 +12,7 @@
 
             <TextBox Text="{Binding ButtonName}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Margin="0,0,2,0" Width="200" Height="30" FontSize="14" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
 
-            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStartCommand, IsAsync=True}" Margin="0,0,1,0" ToolTip="Record a new keystroke activity" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
+            <Button Style="{StaticResource MacroButton}" Command="{Binding RecordMacroStartCommand, IsAsync=True}" Margin="0,0,1,0" ToolTip="Record a new keystroke or key-chord activity" ToolTipService.InitialShowDelay="800" ToolTipService.ShowOnDisabled="True">
                 <Image>
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource MacroButtonImage}">

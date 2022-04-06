@@ -346,7 +346,7 @@ namespace SierraHOTAS.ViewModels
                 Activity.Insert(0, activity);
                 if (Activity.Count >= 200)
                 {
-                    Activity.RemoveAt(Activity.Count-1);
+                    Activity.RemoveAt(Activity.Count - 1);
                 }
             });
         }
@@ -405,7 +405,6 @@ namespace SierraHOTAS.ViewModels
                 {
                     Logging.Log.Warn($"Loaded mappings for {ld.Name}, but could not find the device attached!");
                     Logging.Log.Warn($"Mappings will be displayed, but they will not function");
-                    //deviceVm = new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, ld);
                     deviceVm = _deviceViewModelFactory.CreateDeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, ld);
                     Devices.Add(deviceVm);
                     _deviceList.AddDevice(ld);
@@ -415,8 +414,9 @@ namespace SierraHOTAS.ViewModels
                 {
                     d = _deviceList.GetDevice(ld.DeviceId);
                     if (d == null) continue;
+                    d.OverlayAllProfilesToDevice(ld.ModeProfiles);
+                    d.ApplyButtonMap(d.ModeProfiles[d.ModeProfiles.Keys.Min()].ToObservableCollection());
                 }
-                d.SetModeProfile(ld.ModeProfiles);
                 deviceVm.RebuildMap(d.ButtonMap);
             }
         }
@@ -524,8 +524,6 @@ namespace SierraHOTAS.ViewModels
             AddHandlers();
             ProfileSetFileName = _fileSystem.LastSavedFileName;
 
-            //since the JSON file may have less button maps than are on the device, we need to overlay them individually instead of replacing the whole collection
-            _deviceList.ApplyButtonMapToAllProfiles();
             _deviceList.AutoSetMode();
             _deviceList.ListenToAllDevices();
 
@@ -579,6 +577,11 @@ namespace SierraHOTAS.ViewModels
                                 }
                             case HOTASButton buttonMap:
                                 {
+                                    if (ActionCatalog.Contains(buttonMap.ActionName))
+                                    {
+                                        buttonMap.ActionCatalogItem = ActionCatalog.Get(buttonMap.ActionName);
+                                        break;
+                                    }
                                     AddButtonToCatalog(buttonMap.ActionName, buttonMap.ActionCatalogItem.Actions, buttonMap.MapName);
                                     break;
                                 }
@@ -592,6 +595,12 @@ namespace SierraHOTAS.ViewModels
         {
             foreach (var baseMap in mapList)
             {
+                if (ActionCatalog.Contains(baseMap.ActionName))
+                {
+                    //baseMap.ActionCatalogItem.Actions = ActionCatalog.Get(baseMap.ActionName).Actions;
+                    baseMap.ActionCatalogItem = ActionCatalog.Get(baseMap.ActionName);
+                    break;
+                }
                 AddButtonToCatalog(baseMap.ActionName, baseMap.ActionCatalogItem.Actions, baseMap.MapName);
             }
         }
