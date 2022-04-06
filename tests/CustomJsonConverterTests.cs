@@ -30,7 +30,7 @@ namespace SierraHOTAS.Tests
             joystickFactory.CreateJoystick(default, default).ReturnsForAnyArgs(subJoystick);
             var device = new HOTASDevice(directInput, joystickFactory, productId, deviceId, name, hotasQueue);
 
-            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), joystickFactory, Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>());
+            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), joystickFactory, Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>(), Substitute.For<ActionCatalog>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { device };
 
             hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { DeviceId = device.DeviceId, DeviceName = device.Name });

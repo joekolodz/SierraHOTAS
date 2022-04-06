@@ -28,7 +28,7 @@ namespace SierraHOTAS
 
             builder.RegisterType<HOTASCollectionViewModel>();
             builder.RegisterType<QuickProfilePanelViewModel>();
-            builder.RegisterType<ActionCatalogViewModel>();
+            builder.RegisterType<ActionCatalog>();
             
             builder.RegisterType<HOTASCollection>().As<IHOTASCollection>();
             builder.RegisterType<HOTASQueue>().As<IHOTASQueue>();

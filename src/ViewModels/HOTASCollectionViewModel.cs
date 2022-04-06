@@ -31,7 +31,16 @@ namespace SierraHOTAS.ViewModels
 
         public QuickProfilePanelViewModel QuickProfilePanelViewModel { get; set; }
 
-        public ActionCatalogViewModel ActionCatalog { get; set; }
+
+
+
+        //todo
+        //1. promote this to a MODEL.....it is not a viewmodel
+        //2. move it to _deviceList
+        //3. dereference it similar to ModeActivationItems below
+        //4. DONE!
+        //5. make sure this is saved to JSON
+        public ActionCatalog ActionCatalog => _deviceList.ActionCatalog;
         public ObservableCollection<ActivityItem> Activity { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeProfileActivationButtons.Values.ToObservableCollection();
@@ -107,14 +116,13 @@ namespace SierraHOTAS.ViewModels
         private ICommand _showInputGraphWindowCommand;
 
         public ICommand ShowInputGraphWindowCommand => _showInputGraphWindowCommand ?? (_showInputGraphWindowCommand = new CommandHandler(ShowInputGraphWindow));
-        public HOTASCollectionViewModel(DispatcherFactory dispatcherFactory, IEventAggregator eventAggregator, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel, QuickProfilePanelViewModel quickProfilePanelViewModel, DeviceViewModelFactory deviceViewModelFactory)
+        public HOTASCollectionViewModel(DispatcherFactory dispatcherFactory, IEventAggregator eventAggregator, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASCollection hotasCollection, QuickProfilePanelViewModel quickProfilePanelViewModel, DeviceViewModelFactory deviceViewModelFactory)
         {
             _fileSystem = fileSystem;
             _mediaPlayerFactory = mediaPlayerFactory;
             _deviceViewModelFactory = deviceViewModelFactory;
             _appDispatcher = dispatcherFactory.CreateDispatcher();
             _deviceList = hotasCollection;
-            ActionCatalog = actionCatalogViewModel;
             Activity = new ObservableCollection<ActivityItem>();
             QuickProfilePanelViewModel = quickProfilePanelViewModel;
 
@@ -628,7 +636,7 @@ namespace SierraHOTAS.ViewModels
         private void Device_RecordingStopped(object sender, EventArgs e)
         {
             if (!(sender is ButtonMapViewModel mapVm)) return;
-            ActionCatalog.Add(mapVm);
+            ActionCatalog.Add(mapVm.ActionItem, mapVm.ButtonName);
         }
 
         private void RemoveAllHandlers()

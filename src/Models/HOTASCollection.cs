@@ -40,6 +40,8 @@ namespace SierraHOTAS.Models
 
         private IHOTASDevice _selectedDevice;
 
+        public ActionCatalog ActionCatalog { get; }
+
         [JsonProperty]
         public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; private set; }
 
@@ -48,13 +50,14 @@ namespace SierraHOTAS.Models
             Initialize();
         }
 
-        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, HOTASDeviceFactory hotasDeviceFactory)
+        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, HOTASDeviceFactory hotasDeviceFactory, ActionCatalog actionCatalog)
         {
             _directInputFactory = directInputFactory ?? throw new ArgumentNullException(nameof(directInputFactory));
             _joystickFactory = joystickFactory ?? throw new ArgumentNullException(nameof(joystickFactory));
             _hotasQueueFactory = hotasQueueFactory ?? throw new ArgumentNullException(nameof(hotasQueueFactory));
             _hotasDeviceFactory = hotasDeviceFactory ?? throw new ArgumentNullException(nameof(hotasDeviceFactory));
             _directInput = _directInputFactory?.CreateDirectInput();
+            ActionCatalog = actionCatalog;
             Initialize();
         }
 

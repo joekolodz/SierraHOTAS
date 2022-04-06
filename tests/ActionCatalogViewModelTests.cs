@@ -9,14 +9,14 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void new_catalog_then_noActionItem_exists()
         {
-            var catalog = new ActionCatalogViewModel();
+            var catalog = new ActionCatalog();
             Assert.True(catalog.Contains("<No Action>"));
         }
 
         [Fact]
         public void add_item_then_value_exists()
         {
-            var catalog = new ActionCatalogViewModel();
+            var catalog = new ActionCatalog();
             var item = new ActionCatalogItem() { ActionName = "testitem1" };
             catalog.Add(item);
             Assert.True(catalog.Contains(item.ActionName));
@@ -25,7 +25,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void add_item_twice_then_not_added()
         {
-            var catalog = new ActionCatalogViewModel();
+            var catalog = new ActionCatalog();
             var item = new ActionCatalogItem() { ActionName = "testitem1" };
             catalog.Add(item);
             Assert.Equal(2, catalog.Catalog.Count);
@@ -37,7 +37,7 @@ namespace SierraHOTAS.Tests
         public void add_item_with_same_name_then_not_added()
         {
             var sameName = "samename";
-            var catalog = new ActionCatalogViewModel();
+            var catalog = new ActionCatalog();
             var item1 = new ActionCatalogItem() { ActionName = sameName };
             catalog.Add(item1);
             Assert.Equal(2, catalog.Catalog.Count);
@@ -50,29 +50,29 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void add_map_then_value_exists()
         {
-            var catalog = new ActionCatalogViewModel();
+            var catalog = new ActionCatalog();
             var item = new ButtonMapViewModel() { ActionItem = new ActionCatalogItem() { ActionName = "testitem", NoAction = false } };
-            catalog.Add(item);
+            catalog.Add(item.ActionItem, item.ButtonName);
             Assert.True(catalog.Contains(item.ActionName));
         }
 
         [Fact]
         public void add_map_twice_then_not_added()
         {
-            var catalog = new ActionCatalogViewModel();
+            var catalog = new ActionCatalog();
             var item = new ButtonMapViewModel() { ActionItem = new ActionCatalogItem() { ActionName = "testitem", NoAction = false } };
-            catalog.Add(item);
+            catalog.Add(item.ActionItem, item.ButtonName);
             Assert.Equal(2, catalog.Catalog.Count);
-            catalog.Add(item);
+            catalog.Add(item.ActionItem, item.ButtonName);
             Assert.Equal(2, catalog.Catalog.Count);
         }
 
         [Fact]
         public void add_map_with_blank_buttonName_generates_new_name()
         {
-            var catalog = new ActionCatalogViewModel();
+            var catalog = new ActionCatalog();
             var item = new ButtonMapViewModel() {ButtonName = "Buttons0", ActionItem = new ActionCatalogItem() { ActionName = "", NoAction = false } };
-            catalog.Add(item);
+            catalog.Add(item.ActionItem, item.ButtonName);
             Assert.Equal("Action for Buttons0",item.ActionName);
         }
     }

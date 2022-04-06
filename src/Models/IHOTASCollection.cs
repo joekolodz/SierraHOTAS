@@ -16,6 +16,7 @@ namespace SierraHOTAS.Models
         event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
         ObservableCollection<IHOTASDevice> Devices { get; set; }
         int Mode { get; set; }
+        ActionCatalog ActionCatalog { get; }
         Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
         void AddDevice(IHOTASDevice device);
         /// <summary>
