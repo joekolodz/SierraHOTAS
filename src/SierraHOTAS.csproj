@@ -227,7 +227,7 @@
     </Compile>
     <Compile Include="ViewModels\ModeProfileConfigWindowViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="ViewModels\ActionCatalogViewModel.cs" />
+    <Compile Include="Models\ActionCatalog.cs" />
     <Compile Include="ViewModels\AxisChangedViewModelEventArgs.cs" />
     <Compile Include="ViewModels\ButtonActionViewModel.cs" />
     <Compile Include="ViewModels\ButtonPressedViewModelEventArgs.cs" />

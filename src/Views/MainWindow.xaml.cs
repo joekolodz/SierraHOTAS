@@ -31,7 +31,7 @@ namespace SierraHOTAS.Views
 
 
         //inject HOTASCollectionViewModel to this consctructor
-        //the ctor for HOTASCollectionViewModel should take parameters for HOTASCollection, ActionCatalogViewModel, and whatever else
+        //the ctor for HOTASCollectionViewModel should take parameters for HOTASCollection, ActionCatalog, and whatever else
         //figure out how to inject for all the ViewModels
         //register the VMs in the container in the App Onstart
 

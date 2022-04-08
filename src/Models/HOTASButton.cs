@@ -22,6 +22,12 @@ namespace SierraHOTAS.Models
         public bool IsShift { get; set; }
         public bool IsOneShot { get; set; }
 
+        public Guid ActionId
+        {
+            get => ActionCatalogItem.Id;
+            set => ActionCatalogItem.Id = value;
+        }
+
         [JsonIgnore]
         public string ActionName
         {
@@ -29,6 +35,7 @@ namespace SierraHOTAS.Models
             set => ActionCatalogItem.ActionName = value;
         }
 
+        [JsonIgnore]
         public ActionCatalogItem ActionCatalogItem { get; set; }
 
         [JsonIgnore]

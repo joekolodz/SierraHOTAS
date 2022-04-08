@@ -191,12 +191,7 @@ namespace SierraHOTAS.Models
                 ShiftModePage = 0,
                 ActionName = map.ActionName,
                 Type = map.Type,
-                ActionCatalogItem = new ActionCatalogItem()
-                {
-                    ActionName = map.ActionCatalogItem.ActionName,
-                    NoAction = map.ActionCatalogItem.NoAction,
-                    Actions = map.ActionCatalogItem.Actions.ToObservableCollection()
-                }
+                ActionCatalogItem = map.ActionCatalogItem,
             };
             return newMap;
         }

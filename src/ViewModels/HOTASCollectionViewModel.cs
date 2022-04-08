@@ -5,6 +5,7 @@ using SierraHOTAS.ViewModels.Commands;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -31,7 +32,7 @@ namespace SierraHOTAS.ViewModels
 
         public QuickProfilePanelViewModel QuickProfilePanelViewModel { get; set; }
 
-        public ActionCatalogViewModel ActionCatalog { get; set; }
+        public ActionCatalog ActionCatalog => _deviceList.ActionCatalog;
         public ObservableCollection<ActivityItem> Activity { get; set; }
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeProfileActivationButtons.Values.ToObservableCollection();
@@ -107,14 +108,13 @@ namespace SierraHOTAS.ViewModels
         private ICommand _showInputGraphWindowCommand;
 
         public ICommand ShowInputGraphWindowCommand => _showInputGraphWindowCommand ?? (_showInputGraphWindowCommand = new CommandHandler(ShowInputGraphWindow));
-        public HOTASCollectionViewModel(DispatcherFactory dispatcherFactory, IEventAggregator eventAggregator, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASCollection hotasCollection, ActionCatalogViewModel actionCatalogViewModel, QuickProfilePanelViewModel quickProfilePanelViewModel, DeviceViewModelFactory deviceViewModelFactory)
+        public HOTASCollectionViewModel(DispatcherFactory dispatcherFactory, IEventAggregator eventAggregator, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASCollection hotasCollection, QuickProfilePanelViewModel quickProfilePanelViewModel, DeviceViewModelFactory deviceViewModelFactory)
         {
             _fileSystem = fileSystem;
             _mediaPlayerFactory = mediaPlayerFactory;
             _deviceViewModelFactory = deviceViewModelFactory;
             _appDispatcher = dispatcherFactory.CreateDispatcher();
             _deviceList = hotasCollection;
-            ActionCatalog = actionCatalogViewModel;
             Activity = new ObservableCollection<ActivityItem>();
             QuickProfilePanelViewModel = quickProfilePanelViewModel;
 
@@ -346,7 +346,7 @@ namespace SierraHOTAS.ViewModels
                 Activity.Insert(0, activity);
                 if (Activity.Count >= 200)
                 {
-                    Activity.RemoveAt(Activity.Count-1);
+                    Activity.RemoveAt(Activity.Count - 1);
                 }
             });
         }
@@ -396,6 +396,7 @@ namespace SierraHOTAS.ViewModels
 
         private void BuildDevicesViewModelFromLoadedDevices(IHOTASCollection loadedDevices)
         {
+
             foreach (var ld in loadedDevices.Devices)
             {
                 IHOTASDevice d;
@@ -405,7 +406,6 @@ namespace SierraHOTAS.ViewModels
                 {
                     Logging.Log.Warn($"Loaded mappings for {ld.Name}, but could not find the device attached!");
                     Logging.Log.Warn($"Mappings will be displayed, but they will not function");
-                    //deviceVm = new DeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, ld);
                     deviceVm = _deviceViewModelFactory.CreateDeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, ld);
                     Devices.Add(deviceVm);
                     _deviceList.AddDevice(ld);
@@ -417,6 +417,7 @@ namespace SierraHOTAS.ViewModels
                     if (d == null) continue;
                 }
                 d.SetModeProfile(ld.ModeProfiles);
+                ReBuildActionsFromCatalog(deviceVm);
                 deviceVm.RebuildMap(d.ButtonMap);
             }
         }
@@ -518,9 +519,10 @@ namespace SierraHOTAS.ViewModels
 
             RemoveUnconnectedDevices();
 
+            _deviceList.SetCatalog(loadedDeviceList.ActionCatalog);
+
             BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
             BuildModeProfileActivationListFromLoadedDevices(loadedDeviceList);
-            ReBuildActionCatalog();
             AddHandlers();
             ProfileSetFileName = _fileSystem.LastSavedFileName;
 
@@ -558,54 +560,44 @@ namespace SierraHOTAS.ViewModels
             OnPropertyChanged(nameof(ModeActivationItems));
         }
 
-        private void ReBuildActionCatalog()
+        private void ReBuildActionsFromCatalog(DeviceViewModel deviceVm)
         {
-            ActionCatalog.Clear();
-
-            foreach (var device in Devices)
+            foreach (var mode in deviceVm.ModeProfiles)
             {
-                foreach (var mode in device.ModeProfiles)
+                foreach (var m in mode.Value)
                 {
-                    foreach (var m in mode.Value)
+                    if (string.IsNullOrWhiteSpace(m.MapName)) continue;
+                    switch (m)
                     {
-                        if (string.IsNullOrWhiteSpace(m.MapName)) continue;
-                        switch (m)
-                        {
-                            case HOTASAxis axisMap:
-                                {
-                                    AddButtonListToCatalog(axisMap.ButtonMap);
-                                    AddButtonListToCatalog(axisMap.ReverseButtonMap);
-                                    break;
-                                }
-                            case HOTASButton buttonMap:
-                                {
-                                    AddButtonToCatalog(buttonMap.ActionName, buttonMap.ActionCatalogItem.Actions, buttonMap.MapName);
-                                    break;
-                                }
-                        }
+                        case HOTASAxis axisMap:
+                            {
+                                MapButtonListToCatalog(axisMap.ButtonMap);
+                                MapButtonListToCatalog(axisMap.ReverseButtonMap);
+                                break;
+                            }
+                        case HOTASButton buttonMap:
+                            {
+                                MapButtonToCatalog(buttonMap);
+                                break;
+                            }
                     }
                 }
             }
         }
 
-        private void AddButtonListToCatalog(ObservableCollection<HOTASButton> mapList)
+        private void MapButtonListToCatalog(ObservableCollection<HOTASButton> mapList)
         {
-            foreach (var baseMap in mapList)
+            foreach (var buttonMap in mapList)
             {
-                AddButtonToCatalog(baseMap.ActionName, baseMap.ActionCatalogItem.Actions, baseMap.MapName);
+                MapButtonToCatalog(buttonMap);
             }
         }
 
-        private void AddButtonToCatalog(string actionName, ObservableCollection<ButtonAction> actions, string buttonName)
+        private void MapButtonToCatalog(HOTASButton buttonMap)
         {
-            var item = new ActionCatalogItem()
-            {
-                ActionName = actionName,
-                Actions = actions
-            };
-            if (item.Actions.Count <= 0) return;
-            if (string.IsNullOrWhiteSpace(item.ActionName)) item.ActionName = $"<Un-named> - {buttonName}";
-            ActionCatalog.Add(item);
+            var item = ActionCatalog.Get(buttonMap.ActionId);
+            if (item == null) return;
+            buttonMap.ActionCatalogItem = item;
         }
 
         /// <summary>
@@ -628,7 +620,7 @@ namespace SierraHOTAS.ViewModels
         private void Device_RecordingStopped(object sender, EventArgs e)
         {
             if (!(sender is ButtonMapViewModel mapVm)) return;
-            ActionCatalog.Add(mapVm);
+            ActionCatalog.Add(mapVm.ActionItem, mapVm.ButtonName);
         }
 
         private void RemoveAllHandlers()

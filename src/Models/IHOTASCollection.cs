@@ -16,7 +16,9 @@ namespace SierraHOTAS.Models
         event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
         ObservableCollection<IHOTASDevice> Devices { get; set; }
         int Mode { get; set; }
+        ActionCatalog ActionCatalog { get; }
         Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
+        void SetCatalog(ActionCatalog catalog);
         void AddDevice(IHOTASDevice device);
         /// <summary>
         /// device is replaced based on the DeviceId

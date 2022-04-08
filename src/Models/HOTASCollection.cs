@@ -41,6 +41,9 @@ namespace SierraHOTAS.Models
         private IHOTASDevice _selectedDevice;
 
         [JsonProperty]
+        public ActionCatalog ActionCatalog { get; private set; }
+
+        [JsonProperty]
         public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; private set; }
 
         public HOTASCollection()
@@ -48,13 +51,14 @@ namespace SierraHOTAS.Models
             Initialize();
         }
 
-        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, HOTASDeviceFactory hotasDeviceFactory)
+        public HOTASCollection(DirectInputFactory directInputFactory, JoystickFactory joystickFactory, HOTASQueueFactory hotasQueueFactory, HOTASDeviceFactory hotasDeviceFactory, ActionCatalog actionCatalog)
         {
             _directInputFactory = directInputFactory ?? throw new ArgumentNullException(nameof(directInputFactory));
             _joystickFactory = joystickFactory ?? throw new ArgumentNullException(nameof(joystickFactory));
             _hotasQueueFactory = hotasQueueFactory ?? throw new ArgumentNullException(nameof(hotasQueueFactory));
             _hotasDeviceFactory = hotasDeviceFactory ?? throw new ArgumentNullException(nameof(hotasDeviceFactory));
             _directInput = _directInputFactory?.CreateDirectInput();
+            SetCatalog(actionCatalog);
             Initialize();
         }
 
@@ -63,6 +67,11 @@ namespace SierraHOTAS.Models
             Devices = new ObservableCollection<IHOTASDevice>();
             ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
             JsonFormatVersion = FileFormatVersion;
+        }
+
+        public void SetCatalog(ActionCatalog catalog)
+        {
+            ActionCatalog = catalog;
         }
 
         public void AddDevice(IHOTASDevice device)

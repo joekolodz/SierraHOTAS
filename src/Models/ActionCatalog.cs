@@ -1,16 +1,14 @@
-﻿using SierraHOTAS.Models;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace SierraHOTAS.ViewModels
+namespace SierraHOTAS.Models
 {
-    public class ActionCatalogViewModel
+    public class ActionCatalog
     {
         public ObservableCollection<ActionCatalogItem> Catalog { get; }
 
-        private const string NO_ACTION_TEXT = "<No Action>";
-
-        public ActionCatalogViewModel()
+        public ActionCatalog()
         {
             Catalog = new ObservableCollection<ActionCatalogItem>();
             AddEmptyItem();
@@ -27,6 +25,11 @@ namespace SierraHOTAS.ViewModels
             return Catalog.Any(i => i.ActionName == actionName);
         }
 
+        public ActionCatalogItem Get(Guid id)
+        {
+            return Catalog.FirstOrDefault(i => i.Id == id);
+        }
+
         public void Add(ActionCatalogItem item)
         {
             if (Catalog.Contains(item)) return;
@@ -36,26 +39,26 @@ namespace SierraHOTAS.ViewModels
                 var i = Catalog.First(x => x.ActionName == item.ActionName);
                 Catalog.Remove(i);
             }
+
             Catalog.Add(item);
         }
 
-        public void Add(ButtonMapViewModel buttonMap)
+        public void Add(ActionCatalogItem item, string buttonName)
         {
-            var item = buttonMap.ActionItem;
             if (Catalog.Contains(item)) return;
 
-            if (string.IsNullOrWhiteSpace(item.ActionName) || item.ActionName == NO_ACTION_TEXT)
+            if (string.IsNullOrWhiteSpace(item.ActionName) || item.Id == Guid.Empty)
             {
-                item.ActionName = $"Action for {buttonMap.ButtonName}";
+                item.ActionName = $"Action for {buttonName}";
             }
 
             Catalog.Add(item);
-            Logging.Log.Debug($"{item.ActionName} - {buttonMap.ButtonName} added to actions catalog");
+            Logging.Log.Debug($"{item.ActionName} - {buttonName} added to actions catalog");
         }
 
         private void AddEmptyItem()
         {
-            Add(new ActionCatalogItem() { NoAction = true, ActionName = NO_ACTION_TEXT, Actions = new ObservableCollection<ButtonAction>() });
+            Add(ActionCatalogItem.EmptyItem());
         }
     }
 }
