@@ -40,7 +40,8 @@ namespace SierraHOTAS.Models
 
         private IHOTASDevice _selectedDevice;
 
-        public ActionCatalog ActionCatalog { get; }
+        [JsonProperty]
+        public ActionCatalog ActionCatalog { get; private set; }
 
         [JsonProperty]
         public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; private set; }
@@ -57,7 +58,7 @@ namespace SierraHOTAS.Models
             _hotasQueueFactory = hotasQueueFactory ?? throw new ArgumentNullException(nameof(hotasQueueFactory));
             _hotasDeviceFactory = hotasDeviceFactory ?? throw new ArgumentNullException(nameof(hotasDeviceFactory));
             _directInput = _directInputFactory?.CreateDirectInput();
-            ActionCatalog = actionCatalog;
+            SetCatalog(actionCatalog);
             Initialize();
         }
 
@@ -66,6 +67,11 @@ namespace SierraHOTAS.Models
             Devices = new ObservableCollection<IHOTASDevice>();
             ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
             JsonFormatVersion = FileFormatVersion;
+        }
+
+        public void SetCatalog(ActionCatalog catalog)
+        {
+            ActionCatalog = catalog;
         }
 
         public void AddDevice(IHOTASDevice device)
