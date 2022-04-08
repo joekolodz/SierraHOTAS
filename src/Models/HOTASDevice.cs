@@ -263,7 +263,27 @@ namespace SierraHOTAS.Models
             }
 
             ModeProfiles = mergedModeProfiles;
-            _hotasQueue.SetModeProfiles(ModeProfiles);
+            _hotasQueue?.SetModeProfiles(ModeProfiles);
+        }
+
+        /// <summary>
+        /// Existing buttons in the profile will overlay buttons on the device. If a device has a button with matching profile, then we'll keep that button (otherwise we'd lose it if we just took profile buttons)
+        /// This allows a device to change without losing mappings (for instance when chaining a new Virpil device, or manually editing and removing buttons from the profile's JSON file)
+        /// </summary>
+        public void OverlayAllProfilesToDevice(Dictionary<int, ObservableCollection<IHotasBaseMap>> profilesToMergeIn)
+        {
+            var mergedModeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            var deviceButtons = new ObservableCollection<IHotasBaseMap>();
+            SeedButtonMapProfileFromDeviceCapabilities(deviceButtons);
+
+            foreach (var p in profilesToMergeIn)
+            {
+                var d = deviceButtons.ToObservableCollection();//make a copy since we could have more than 1 profile and we don't need to rescan caps
+                mergedModeProfiles.Add(p.Key, MergeMaps(d, p.Value));
+            }
+
+            ModeProfiles = mergedModeProfiles;
+            _hotasQueue?.SetModeProfiles(ModeProfiles);
         }
 
         /// <summary>

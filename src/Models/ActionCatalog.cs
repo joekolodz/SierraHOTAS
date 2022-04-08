@@ -56,6 +56,12 @@ namespace SierraHOTAS.Models
             Logging.Log.Debug($"{item.ActionName} - {buttonName} added to actions catalog");
         }
 
+        public ActionCatalogItem Get(string actionName)
+        {
+            if (!Contains(actionName)) return null;
+            return Catalog.First(x => x.ActionName == actionName);
+        }
+
         private void AddEmptyItem()
         {
             Add(ActionCatalogItem.EmptyItem());

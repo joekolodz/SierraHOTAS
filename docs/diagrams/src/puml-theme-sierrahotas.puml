@@ -1,0 +1,454 @@
+''
+'' A gray and yellow theme based on the SierraHOTAS color scheme
+''
+'' Author: Joe Kolodz
+'' Copyright (c) 2022 by Joe kOlodz
+!$THEME = "sierrahotas"
+
+!if %not(%variable_exists("$BGCOLOR"))
+!$BGCOLOR = "transparent"
+!endif
+
+'color definitions - do not use these directly
+!$GOLD = "#ffd700"
+!$AZURE = "#f0ffff"
+!$RED = "#f00"
+!$GREEN = "#7cfc00"
+
+!$BRIGHT_BLUE = "#80e5ff"
+
+''text header
+!$LIGHT_BLUE = "#7ac1ff"
+''selected border
+!$MEDIUM_BLUE = "#26a0da"
+''hover
+!$DARK_BLUE = "#2a7aa1"
+''group border
+!$SLATEGRAY = "#708090"
+
+''alternate row
+!$MEDIUM_GRAY = "#424242"
+''window background
+!$DARK_GRAY = "#323232"
+
+''hover border
+!$LIGHT_BLUEGRAY = "#2a7aa1"
+''selected
+!$MEDIUM_BLUEGRAY = "#2f4c5a"
+''hover
+!$DARK_BLUEGRAY = "#313f47"
+
+'definitions for color usages, do not use # values here for colors. define them above first
+!$BACKGROUND = $DARK_GRAY
+!$TEXT_HEADER = $LIGHT_BLUE
+!$TEXT = $AZURE
+!$ERROR = $RED
+!$HEADER_BACKGROUND = $DARK_BLUEGRAY
+!$OBJECT_BACKGROUND = $MEDIUM_GRAY
+!$OBJECT_BORDER = $SLATEGRAY
+
+!procedure $success($msg)
+  <font color=$GREEN><b>$msg
+!endprocedure
+
+!procedure $failure($msg)
+  <font color=$RED><b>$msg
+!endprocedure
+
+!procedure $warning($msg)
+  <font color=$GOLD><b>$msg
+!endprocedure
+
+!procedure $primary_scheme()
+	FontColor $TEXT_HEADER
+	BorderColor $OBJECT_BORDER
+	BackgroundColor $OBJECT_BACKGROUND
+!endprocedure
+
+!procedure $secondary_scheme()
+	FontColor $TEXT_HEADER
+	BorderColor $OBJECT_BORDER
+	BackgroundColor $WHITE-#fefefe
+!endprocedure
+
+skinparam BackgroundColor       $BACKGROUND
+skinparam useBetaStyle          false
+skinparam defaultFontName       "Arial"
+skinparam defaultFontSize       14
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           6
+skinparam ParticipantPadding    30
+skinparam BoxPadding            40
+skinparam Padding               1
+skinparam ArrowColor            $GOLD
+skinparam PackageBackgroundColor red
+
+skinparam stereotype {
+    'Class and Entity
+    CBackgroundColor $GREEN
+    CBorderColor $MEDIUM_GRAY
+    
+    'Abstract and Abstract Class
+    ABackgroundColor $MEDIUM_BLUE
+    ABorderColor $MEDIUM_GRAY
+    
+    'Interface
+    IBackgroundColor $GOLD
+    IBorderColor $MEDIUM_GRAY
+    
+    'Enum
+    EBackgroundColor $BRIGHT_BLUE
+    EBorderColor $MEDIUM_GRAY
+    
+    'Annotation
+    NBackgroundColor $BRIGHT_BLUE
+    NBorderColor $MEDIUM_GRAY
+}
+
+skinparam title {
+    $primary_scheme()
+    FontColor $GOLD
+}
+
+skinparam legend {
+	BackgroundColor $OBJECT_BACKGROUND
+	BorderColor $OBJECT_BORDER
+	FontColor $TEXT
+}
+
+!startsub swimlane
+skinparam swimlane {
+	BorderColor $INFO
+	BorderThickness 2
+	TitleBackgroundColor  $SECONDARY_LIGHT-$SECONDARY
+	TitleFontColor $PRIMARY
+}
+!endsub
+
+!startsub activity
+
+skinparam activity {
+	FontColor $PRIMARY_TEXT
+	BorderColor $PRIMARY
+	BackgroundColor $PRIMARY_LIGHT-$PRIMARY
+	BarColor $SUCCESS
+	StartColor $INFO
+	EndColor $INFO
+	DiamondBackgroundColor $HEADER_BACKGROUND
+  	DiamondBorderColor $OBJECT_BORDER
+	DiamondFontColor $TEXT
+}
+
+!endsub
+
+!startsub participant
+
+skinparam participant {
+	$primary_scheme()
+	ParticipantBorderThickness 2
+}
+!endsub
+
+!startsub actor
+
+skinparam actor {
+	$primary_scheme()
+	FontColor $PRIMARY
+}
+!endsub
+
+!startsub arrow
+
+skinparam arrow {
+	Thickness 1
+	Color $GOLD
+	FontColor $TEXT
+}
+
+!endsub
+
+!startsub sequence
+
+skinparam sequence {
+	BorderColor $PRIMARY
+	' For some reason sequence title font color does not pick up from global
+	TitleFontColor $PRIMARY
+	BackgroundColor $BGCOLOR
+	StartColor $PRIMARY
+	EndColor $PRIMARY
+	''
+	BoxBackgroundColor $BGCOLOR
+	BoxBorderColor $GRAY
+	BoxFontColor $DARK
+	''
+	DelayFontColor $DARK
+	''
+	LifeLineBorderColor $SECONDARY_DARK
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor $SECONDARY_LIGHT
+	''
+	GroupBorderColor $GRAY
+	GroupFontColor $DARK
+	GroupHeaderFontColor $INFO
+	GroupBackgroundColor $BGCOLOR
+	GroupBodyBackgroundColor $BGCOLOR
+	GroupHeaderBackgroundColor $BGCOLOR
+	''
+	DividerBackgroundColor $WHITE-$LIGHT
+    DividerBorderColor $GRAY
+    DividerBorderThickness 2
+    DividerFontColor $DARK
+	''
+	ReferenceBackgroundColor $BGCOLOR
+	ReferenceBorderColor $GRAY
+	ReferenceFontColor $DARK
+	ReferenceHeaderFontColor $INFO
+	''
+	StereotypeFontColor $PRIMARY_TEXT
+}
+!endsub
+
+!startsub partition
+
+skinparam partition {
+	BorderColor $PRIMARY
+	FontColor $PRIMARY
+	BackgroundColor $BGCOLOR
+}
+!endsub
+
+!startsub collections
+
+skinparam collections {
+	$primary_scheme()
+}
+!endsub
+
+!startsub control
+
+skinparam control {
+	$primary_scheme()
+	FontColor $PRIMARY
+}
+!endsub
+
+!startsub entity
+
+skinparam entity {
+	$primary_scheme()
+	FontColor $PRIMARY
+}
+!endsub
+
+!startsub boundary
+
+skinparam boundary {
+	$primary_scheme()
+	FontColor $PRIMARY
+}
+!endsub
+
+!startsub agent
+
+skinparam agent {
+	BackgroundColor #orange
+	BorderColor #999999
+	FontColor #333333
+}
+!endsub
+
+!startsub note
+
+skinparam note {
+	BorderThickness 1
+    BackgroundColor $GOLD
+	BorderColor $OBJECT_BORDER
+	FontColor $TEXT
+}
+
+!endsub
+
+!startsub artifact
+
+skinparam artifact {
+	BackgroundColor $PRIMARY-$PRIMARY_LIGHT
+	BorderColor $BORDER
+	FontColor $PRIMARY_TEXT
+}
+!endsub
+
+!startsub component
+
+skinparam component {
+	$primary_scheme()
+}
+!endsub
+
+!startsub interface
+
+skinparam interface {
+	BackgroundColor  $DANGER_LIGHT
+	BorderColor  $DANGER
+	FontColor $DARK
+}
+!endsub
+
+!startsub storage
+
+skinparam storage {
+	BackgroundColor $WARNING_LIGHT-$WARNING
+  	BorderColor $WARNING
+	FontColor $WARNING_TEXT
+}
+!endsub
+
+!startsub node
+
+skinparam node {
+	BackgroundColor $SECONDARY_LIGHT-$SECONDARY
+	BorderColor $SECONDARY_DARK
+	FontColor $PRIMARY
+}
+!endsub
+
+!startsub cloud
+
+skinparam cloud {
+	BackgroundColor transparent
+	BorderColor #F2FCFE
+	FontColor $PRIMARY
+}
+!endsub
+
+!startsub database
+
+skinparam database {
+	$primary_scheme()
+	' FontColor $PRIMARY
+	BorderColor $PRIMARY_DARK
+	' BackgroundColor  $BGCOLOR
+}
+!endsub
+
+!startsub class
+
+skinparam class{
+    $primary_scheme()
+
+    HeaderBackgroundColor $HEADER_BACKGROUND
+	StereotypeFontColor $PRIMARY_TEXT
+    FontSize 14
+    BorderThickness 1
+    AttributeFontColor $TEXT
+    AttributeFontSize 14
+}
+
+!endsub
+
+!startsub object
+
+skinparam object {
+	$primary_scheme()
+	StereotypeFontColor $PRIMARY_TEXT
+	BorderThickness 1
+	AttributeFontColor $PRIMARY_TEXT
+	AttributeFontSize 11
+}
+!endsub
+
+!startsub usecase
+
+skinparam usecase {
+	$primary_scheme()
+	BorderThickness 2
+	StereotypeFontColor $PRIMARY_TEXT
+}
+!endsub
+
+!startsub rectangle
+
+skinparam rectangle {
+	$secondary_scheme()
+	BorderThickness 2
+	StereotypeFontColor $PRIMARY_TEXT
+}
+!endsub
+
+!startsub package
+
+skinparam package {
+	FontColor $TEXT_HEADER
+	BorderColor $OBJECT_BORDER
+	BackgroundColor $OBJECT_BACKGROUND
+    StereotypeFontColor $TEXT
+    
+	BorderThickness 3
+}
+
+!endsub
+
+!startsub folder
+
+skinparam folder {
+	BackgroundColor $WHITE-$SECONDARY_LIGHT
+  	BorderColor $WARNING
+	FontColor $WARNING
+	BorderThickness 2
+}
+!endsub
+
+!startsub frame
+
+skinparam frame {
+	BackgroundColor $WHITE-$SECONDARY_LIGHT
+  	BorderColor $INFO
+	FontColor $INFO
+	BorderThickness 2
+}
+!endsub
+
+!startsub state
+
+skinparam state {
+	$primary_scheme()
+	BorderColor $PRIMARY_DARK
+	StartColor $INFO
+	EndColor $INFO
+	AttributeFontColor $PRIMARY_TEXT
+	AttributeFontSize 11
+}
+!endsub
+
+!startsub queue
+
+skinparam queue {
+	$primary_scheme()
+}
+!endsub
+
+!startsub card
+
+skinparam card {
+	BackgroundColor $INFO_LIGHT-$INFO
+	BorderColor $INFO
+	FontColor $INFO_TEXT
+}
+!endsub
+
+!startsub file
+
+skinparam file {
+	BackgroundColor $SECONDARY_LIGHT-$SECONDARY
+	BorderColor $INFO
+	FontColor $SECONDARY_TEXT
+
+}
+!endsub
+
+!startsub stack
+
+skinparam stack {
+	$primary_scheme()
+}
+!endsub

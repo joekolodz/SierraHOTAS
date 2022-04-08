@@ -930,7 +930,7 @@ namespace SierraHOTAS.Tests
         {
             var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out _, out _, out _, out _);
             hotasVm.Initialize();
-            
+
             IHOTASQueue queue = new HOTASQueue(Substitute.For<IKeyboard>());
             IHotasBaseMap map = new HOTASButton() { Type = HOTASButton.ButtonType.Button, ActionName = "test action" };
             queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { map });
@@ -1123,16 +1123,25 @@ namespace SierraHOTAS.Tests
 
             var hotasVm = CreateHotasCollectionViewModel(out var subFileSystem, out var subQuickProfilePanelVm);
 
+            var device = new HOTASDevice()
+            {
+                DeviceId = deviceId
+            };
+
+
+            var profile = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            var map = new ObservableCollection<IHotasBaseMap>()
+            {
+                new HOTASButton() { MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 1" } },
+                new HOTASButton() { MapId = 44, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 2" } }
+
+            };
+            profile.Add(1, map);
+
+            device.SetModeProfile(profile);
+
             var subHotasCollection = CreateHotasCollectionSubstitute();
-            subHotasCollection.Devices.Add(new HOTASDevice()
-            {
-                DeviceId = deviceId,
-                ButtonMap =
-            {
-                new HOTASButton(){MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 1"}},
-                new HOTASButton(){MapId = 44, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 2"}},
-            }
-            });
+            subHotasCollection.Devices.Add(device);
 
             subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
             subFileSystem.LastSavedFileName.Returns("last saved file");
@@ -1173,7 +1182,20 @@ namespace SierraHOTAS.Tests
                     new HOTASAxis() {MapName = "test2", MapId = 44, Type = HOTASButton.ButtonType.AxisLinear, ButtonMap = new ObservableCollection<HOTASButton>(){new HOTASButton(){MapName = "bm2", ActionName = "abm2", ActionCatalogItem = new ActionCatalogItem(){ActionName = "action2", Actions = new ObservableCollection<ButtonAction>(){new ButtonAction(){ScanCode = 2}}}}}},
                 }
             };
-            subDevice.ModeProfiles.Add(43, new ObservableCollection<IHotasBaseMap>());
+
+
+
+
+            var profile = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            var map = new ObservableCollection<IHotasBaseMap>()
+            {
+                new HOTASAxis() {MapName = "test1", MapId = 43, Type = HOTASButton.ButtonType.AxisLinear, ButtonMap = new ObservableCollection<HOTASButton>(){new HOTASButton(){MapName = "bm1", ActionName = "abm1", ActionCatalogItem = new ActionCatalogItem(){ActionName = "action1", Actions = new ObservableCollection<ButtonAction>(){new ButtonAction(){ScanCode = 1}}}}}},
+                new HOTASAxis() {MapName = "test2", MapId = 44, Type = HOTASButton.ButtonType.AxisLinear, ButtonMap = new ObservableCollection<HOTASButton>(){new HOTASButton(){MapName = "bm2", ActionName = "abm2", ActionCatalogItem = new ActionCatalogItem(){ActionName = "action2", Actions = new ObservableCollection<ButtonAction>(){new ButtonAction(){ScanCode = 2}}}}}},
+            };
+            profile.Add(1, map);
+
+            subDevice.SetModeProfile(profile);
+            
             subHotasCollection.Devices.Add(subDevice);
 
             subHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = 43, DeviceId = deviceId });

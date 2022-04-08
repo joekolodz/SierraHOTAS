@@ -126,6 +126,7 @@ namespace SierraHOTAS
                 if (button.Type == HOTASButton.ButtonType.Button && string.CompareOrdinal(button.MapName, JoystickOffsetValues.GetName(button.MapId)) != 0 ||
                     button.Type == HOTASButton.ButtonType.POV && string.CompareOrdinal(button.MapName, JoystickOffsetValues.GetPOVName(button.MapId)) != 0 ||
                     button.ActionCatalogItem?.Actions?.Count > 0 ||
+                    button.ShiftModePage >0 ||
                     button.IsShift)
                 {
                     SerializeButton(writer, serializer, button);
