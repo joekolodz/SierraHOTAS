@@ -434,11 +434,11 @@ namespace SierraHOTAS.Tests
         public void clear_unassigned_actions()
         {
             var map = new HOTASAxis();
-            map.ButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "<No Action>", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
+            map.ButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = ActionCatalogItem.NO_ACTION_TEXT, Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
             map.ButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 1", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
             map.ButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 2", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
 
-            map.ReverseButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "<No Action>", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
+            map.ReverseButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = ActionCatalogItem.NO_ACTION_TEXT, Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
             map.ReverseButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 1", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
             map.ReverseButtonMap.Add(new HOTASButton() { ActionCatalogItem = new ActionCatalogItem() { ActionName = "item 2", Actions = new ObservableCollection<ButtonAction>() { new ButtonAction(), new ButtonAction() } } });
 

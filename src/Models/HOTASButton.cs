@@ -123,7 +123,7 @@ namespace SierraHOTAS.Models
 
         public void ClearUnassignedActions()
         {
-            if (ActionName != "<No Action>") return;
+            if (ActionName != ActionCatalogItem.NO_ACTION_TEXT) return;
             ActionName = string.Empty;
             ActionCatalogItem.Actions.Clear();
         }

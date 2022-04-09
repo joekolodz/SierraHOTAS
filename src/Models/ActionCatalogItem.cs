@@ -9,7 +9,7 @@ namespace SierraHOTAS.Models
     public class ActionCatalogItem : INotifyPropertyChanged
     {
         private string _actionName;
-        private const string NO_ACTION_TEXT = "<No Action>";
+        public const string NO_ACTION_TEXT = "<No Action>";
 
         public Guid Id { get; set; }
 

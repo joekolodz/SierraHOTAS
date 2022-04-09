@@ -280,7 +280,7 @@ namespace SierraHOTAS.Tests
                 Type = HOTASButton.ButtonType.Button,
                 ActionCatalogItem = new ActionCatalogItem()
                 { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } },
-                ActionName = "<No Action>"
+                ActionName = ActionCatalogItem.NO_ACTION_TEXT
             };
             list.Add(testButton);
 

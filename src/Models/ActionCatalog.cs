@@ -58,8 +58,7 @@ namespace SierraHOTAS.Models
 
         public ActionCatalogItem Get(string actionName)
         {
-            if (!Contains(actionName)) return null;
-            return Catalog.First(x => x.ActionName == actionName);
+            return Catalog.FirstOrDefault(x => x.ActionName == actionName);
         }
 
         private void AddEmptyItem()

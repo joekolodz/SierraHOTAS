@@ -10,7 +10,7 @@ namespace SierraHOTAS.Tests
         public void new_catalog_then_noActionItem_exists()
         {
             var catalog = new ActionCatalog();
-            Assert.True(catalog.Contains("<No Action>"));
+            Assert.True(catalog.Contains(ActionCatalogItem.NO_ACTION_TEXT));
         }
 
         [Fact]

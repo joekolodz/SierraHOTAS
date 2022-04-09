@@ -315,7 +315,7 @@ namespace SierraHOTAS.Models
         {
             foreach (var b in map)
             {
-                if (b.ActionName != "<No Action>") continue;
+                if (b.ActionName != ActionCatalogItem.NO_ACTION_TEXT) continue;
                 b.ActionName = string.Empty;
                 b.ActionCatalogItem.Actions.Clear();
             }

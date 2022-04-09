@@ -518,7 +518,7 @@ namespace SierraHOTAS.Tests
 
             //check action catalog is rebuilt with the button loaded from file
             Assert.Equal(2, hotasVm.ActionCatalog.Catalog.Count);
-            Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == "<No Action>");
+            Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == ActionCatalogItem.NO_ACTION_TEXT);
             Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == "Release");
 
             subDeviceList.Received().Stop();
@@ -603,7 +603,7 @@ namespace SierraHOTAS.Tests
 
             //check action catalog is rebuilt with the button loaded from file
             Assert.Equal(2, hotasVm.ActionCatalog.Catalog.Count);
-            Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == "<No Action>");
+            Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == ActionCatalogItem.NO_ACTION_TEXT);
             Assert.Contains(hotasVm.ActionCatalog.Catalog, item => item.ActionName == "Release");
 
             subDeviceList.Received().Stop();
@@ -637,7 +637,7 @@ namespace SierraHOTAS.Tests
             Assert.NotEqual(loadedButtonMapId, hotasVm.Devices[0].ButtonMap[3].ButtonId);
 
             Assert.Single(hotasVm.ActionCatalog.Catalog);
-            Assert.Equal("<No Action>", hotasVm.ActionCatalog.Catalog[0].ActionName);
+            Assert.Equal(ActionCatalogItem.NO_ACTION_TEXT, hotasVm.ActionCatalog.Catalog[0].ActionName);
 
             subDeviceList.DidNotReceive().Stop();
             subFileSystem.Received().FileOpenDialog();
@@ -665,7 +665,7 @@ namespace SierraHOTAS.Tests
             existingDevice.DeviceId = deviceGuid;
             existingDevice.Name = "existing device";
             AddHotasButtonMap(existingDevice.ButtonMap, existingButtonMapId);
-            AddHotasButtonMap(existingDevice.ButtonMap, 0, HOTASButton.ButtonType.Button, "Button2 - remove my actions", "<No Action>", 1);
+            AddHotasButtonMap(existingDevice.ButtonMap, 0, HOTASButton.ButtonType.Button, "Button2 - remove my actions", ActionCatalogItem.NO_ACTION_TEXT, 1);
             subDeviceList.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
 
             subFileSystem.FileOpenDialog().Returns((HOTASCollection)null);
@@ -1169,7 +1169,7 @@ namespace SierraHOTAS.Tests
 
             var hotasVm = CreateHotasCollectionViewModel(out var subFileSystem, out var subQuickProfilePanelVm);
             Assert.Single(hotasVm.ActionCatalog.Catalog);
-            Assert.Equal("<No Action>", hotasVm.ActionCatalog.Catalog[0].ActionName);
+            Assert.Equal(ActionCatalogItem.NO_ACTION_TEXT, hotasVm.ActionCatalog.Catalog[0].ActionName);
 
             var subHotasCollection = CreateHotasCollectionSubstitute();
 
@@ -1209,7 +1209,7 @@ namespace SierraHOTAS.Tests
             hotasVm.Initialize();
 
             Assert.Equal(3, hotasVm.ActionCatalog.Catalog.Count);
-            Assert.Equal("<No Action>", hotasVm.ActionCatalog.Catalog[0].ActionName);
+            Assert.Equal(ActionCatalogItem.NO_ACTION_TEXT, hotasVm.ActionCatalog.Catalog[0].ActionName);
             Assert.Equal("action1", hotasVm.ActionCatalog.Catalog[1].ActionName);
             Assert.Equal("action2", hotasVm.ActionCatalog.Catalog[2].ActionName);
         }
