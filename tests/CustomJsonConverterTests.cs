@@ -33,7 +33,7 @@ namespace SierraHOTAS.Tests
             var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), joystickFactory, Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>(), Substitute.For<ActionCatalog>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { device };
 
-            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { DeviceId = device.DeviceId, DeviceName = device.Name });
+            hotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem() { DeviceId = device.DeviceId, DeviceName = device.Name });
             return hotasCollection;
         }
 
@@ -43,7 +43,7 @@ namespace SierraHOTAS.Tests
         {
             var converter = new CustomJsonConverter();
             var list = CreateHotasCollection(out _, out _, out _);
-            var axisMap = list.Devices[0].ModeProfiles[1][1] as HOTASAxis;
+            var axisMap = list.Devices[0].Modes[1][1] as HOTASAxis;
 
             axisMap.MapName = "X axis";
             axisMap.Segments = new ObservableCollection<Segment>() { new Segment(1, 50), new Segment(2, 500) };
@@ -85,7 +85,7 @@ namespace SierraHOTAS.Tests
             });
 
 
-            var povMap = list.Devices[0].ModeProfiles[1][28] as HOTASButton;
+            var povMap = list.Devices[0].Modes[1][28] as HOTASButton;
             povMap.MapName = "POVSouth";
             povMap.MapId = 4608032;
             povMap.Type = HOTASButton.ButtonType.POV;
@@ -108,16 +108,16 @@ namespace SierraHOTAS.Tests
             var newList = JsonConvert.DeserializeObject<HOTASCollection>(jsonResult, new JsonSerializerSettings() {Converters = new List<JsonConverter>() {new CustomJsonConverter()}});
             
             Assert.NotNull(newList);
-            Assert.Equal(2, newList.Devices[0].ModeProfiles[1].Count);
+            Assert.Equal(2, newList.Devices[0].Modes[1].Count);
 
             Assert.Equal("1.0.0", newList.JsonFormatVersion);
             Assert.Single(newList.Devices);
-            Assert.Single(newList.ModeProfileActivationButtons);
-            Assert.Equal("test device name", newList.ModeProfileActivationButtons[1].DeviceName);
-            Assert.Contains(newList.Devices[0].ModeProfiles[1], b =>b.MapName == "X axis");
-            Assert.Contains(newList.Devices[0].ModeProfiles[1], b =>b.MapName == "POVSouth");
+            Assert.Single(newList.ModeActivationButtons);
+            Assert.Equal("test device name", newList.ModeActivationButtons[1].DeviceName);
+            Assert.Contains(newList.Devices[0].Modes[1], b =>b.MapName == "X axis");
+            Assert.Contains(newList.Devices[0].Modes[1], b =>b.MapName == "POVSouth");
 
-            var axis = newList.Devices[0].ModeProfiles[1][0] as HOTASAxis;
+            var axis = newList.Devices[0].Modes[1][0] as HOTASAxis;
             Assert.NotNull(axis);
             Assert.Equal(30, axis.ButtonMap[0].ActionCatalogItem.Actions[1].ScanCode);
             Assert.True(axis.ButtonMap[0].ActionCatalogItem.Actions[1].IsKeyUp);
@@ -127,7 +127,7 @@ namespace SierraHOTAS.Tests
             Assert.True(axis.ReverseButtonMap[0].ActionCatalogItem.Actions[1].IsKeyUp);
             Assert.True(axis.ReverseButtonMap[0].ActionCatalogItem.Actions[1].IsExtended);
 
-            var pov = newList.Devices[0].ModeProfiles[1][1] as HOTASButton;
+            var pov = newList.Devices[0].Modes[1][1] as HOTASButton;
             Assert.NotNull(axis);
             Assert.Equal("POVSouth", pov.MapName);
             Assert.Equal(4608032, pov.MapId);

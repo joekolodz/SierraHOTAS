@@ -97,7 +97,7 @@
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Mode Profiles" Margin="0,10,0,0" FontSize="15" Foreground="{StaticResource TextHeaderBrush}"/>
-                        <Button Style="{StaticResource AddButton}" Command="{Binding CreateNewModeProfileCommand, IsAsync=True}" VerticalAlignment="Bottom" Margin="2,0,0,0" ToolTip="Create a new mode" ToolTipService.InitialShowDelay="800">
+                        <Button Style="{StaticResource AddButton}" Command="{Binding CreateNewModeCommand, IsAsync=True}" VerticalAlignment="Bottom" Margin="2,0,0,0" ToolTip="Create a new mode" ToolTipService.InitialShowDelay="800">
                             <Button.Content>
                                 <Image Source="../Images/add_green_22x22.png"/>
                             </Button.Content>
@@ -119,13 +119,13 @@
                               Style="{DynamicResource DataGridStyle}">
                         <DataGrid.Columns>
                             <!--<DataGridTextColumn Header="Mode" Binding="{Binding Mode}" MaxWidth="45"/>-->
-                            <DataGridTextColumn Header="Profile" Binding="{Binding ProfileName}" Width="75"/>
+                            <DataGridTextColumn Header="Profile" Binding="{Binding ModeName}" Width="75"/>
                             <DataGridTextColumn Header="Button" Binding="{Binding ButtonName}" Width="90"/>
                             <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="105"/>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.EditModeProfileCommand}"
+                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.EditModeCommand}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip="Edit mode" 
                                                 ToolTipService.InitialShowDelay="800" 
@@ -139,7 +139,7 @@
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate DataType="models:ModeActivationItem">
-                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.DeleteModeProfileCommand}"
+                                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.DeleteModeCommand}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip="Remove mode" 
                                                 ToolTipService.InitialShowDelay="800" 

@@ -9,23 +9,23 @@ using System.Windows.Input;
 namespace SierraHOTAS.Views
 {
     /// <summary>
-    /// Interaction logic for ModeProfileConfigWindow.xaml
+    /// Interaction logic for ModeConfigWindow.xaml
     /// </summary>
-    public partial class ModeProfileConfigWindow : Window
+    public partial class ModeConfigWindow : Window
     {
-        public ModeProfileConfigWindowViewModel ModeProfileConfigViewModel { get; }
+        public ModeConfigWindowViewModel ModeConfigViewModel { get; }
 
         private readonly Action _cancelCallback;
         private readonly Action<EventHandler<ButtonPressedEventArgs>> _removePressedHandler;
 
-        public ModeProfileConfigWindow(IEventAggregator eventAggregator, IDispatcher appDispatcher, int mode, Dictionary<int, ModeActivationItem> activationButtonList, Action<EventHandler<ButtonPressedEventArgs>> pressedHandler, Action<EventHandler<ButtonPressedEventArgs>> removePressedHandler, Action cancelCallback)
+        public ModeConfigWindow(IEventAggregator eventAggregator, IDispatcher appDispatcher, int mode, Dictionary<int, ModeActivationItem> activationButtonList, Action<EventHandler<ButtonPressedEventArgs>> pressedHandler, Action<EventHandler<ButtonPressedEventArgs>> removePressedHandler, Action cancelCallback)
         {
             InitializeComponent();
-            ModeProfileConfigViewModel = new ModeProfileConfigWindowViewModel(eventAggregator, appDispatcher, mode, activationButtonList);
-            ModeProfileConfigViewModel.SaveCancelled += SaveCancelled;
-            ModeProfileConfigViewModel.NewModeProfileSaved += NewModeProfileSaved;
+            ModeConfigViewModel = new ModeConfigWindowViewModel(eventAggregator, appDispatcher, mode, activationButtonList);
+            ModeConfigViewModel.SaveCancelled += SaveCancelled;
+            ModeConfigViewModel.NewModeSaved += newModeSaved;
             Closed += OnClosed;
-            DataContext = ModeProfileConfigViewModel;
+            DataContext = ModeConfigViewModel;
             pressedHandler(PressedHandler);
             _removePressedHandler = removePressedHandler;
             _cancelCallback = cancelCallback;
@@ -33,10 +33,10 @@ namespace SierraHOTAS.Views
 
         private void PressedHandler(object sender, ButtonPressedEventArgs e)
         {
-            ModeProfileConfigViewModel.DeviceList_ButtonPressed(sender, e);
+            ModeConfigViewModel.DeviceList_ButtonPressed(sender, e);
         }
 
-        private void NewModeProfileSaved(object sender, EventArgs e)
+        private void newModeSaved(object sender, EventArgs e)
         {
             DialogResult = true;
         }
@@ -50,8 +50,8 @@ namespace SierraHOTAS.Views
         private void RemoveHandlers()
         {
             Closed -= SaveCancelled;
-            ModeProfileConfigViewModel.SaveCancelled -= SaveCancelled;
-            ModeProfileConfigViewModel.NewModeProfileSaved -= NewModeProfileSaved;
+            ModeConfigViewModel.SaveCancelled -= SaveCancelled;
+            ModeConfigViewModel.NewModeSaved -= newModeSaved;
             _removePressedHandler(PressedHandler);
         }
 

@@ -53,9 +53,9 @@ namespace SierraHOTAS.Tests
             }
         }
 
-        private static HOTASCollectionViewModel CreateHotasCollectionViewModel(out IEventAggregator subEventAggregator, out IHOTASCollection subHotasCollection, out IFileSystem subFileSystem, out MediaPlayerFactory subMediaPlayerFactory, out Dictionary<int, ModeActivationItem> subModeProfileButtons)
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel(out IEventAggregator subEventAggregator, out IHOTASCollection subHotasCollection, out IFileSystem subFileSystem, out MediaPlayerFactory subMediaPlayerFactory, out Dictionary<int, ModeActivationItem> subModeButtons)
         {
-            return CreateHotasCollectionViewModel(out subEventAggregator, out subHotasCollection, out subFileSystem, out subMediaPlayerFactory, out subModeProfileButtons, out _);
+            return CreateHotasCollectionViewModel(out subEventAggregator, out subHotasCollection, out subFileSystem, out subMediaPlayerFactory, out subModeButtons, out _);
         }
 
         private static HOTASCollectionViewModel CreateHotasCollectionViewModel_WithEventAggregator(out IEventAggregator eventAggregator, out IHOTASCollection subHotasCollection)
@@ -68,8 +68,8 @@ namespace SierraHOTAS.Tests
             subHotasCollection = Substitute.For<IHOTASCollection>();
             subHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice(Substitute.For<IDirectInput>(), Guid.Empty, Guid.NewGuid(), "test device", Substitute.For<IHOTASQueue>()) };
 
-            var subModeProfileButtons = new Dictionary<int, ModeActivationItem>();
-            subHotasCollection.ModeProfileActivationButtons.Returns(subModeProfileButtons);
+            var subModeButtons = new Dictionary<int, ModeActivationItem>();
+            subHotasCollection.ModeActivationButtons.Returns(subModeButtons);
 
 
             eventAggregator = new EventAggregator();
@@ -93,7 +93,7 @@ namespace SierraHOTAS.Tests
 
             hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>(), Substitute.For<ActionCatalog>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
-            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+            hotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem());
 
             eventAggregator = new EventAggregator();
 
@@ -114,7 +114,7 @@ namespace SierraHOTAS.Tests
 
             hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>(), Substitute.For<ActionCatalog>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
-            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+            hotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem());
 
             var subEventAggregator = new EventAggregator();
 
@@ -136,7 +136,7 @@ namespace SierraHOTAS.Tests
 
             var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>(), Substitute.For<ActionCatalog>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
-            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+            hotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem());
 
             var subEventAggregator = new EventAggregator();
 
@@ -158,7 +158,7 @@ namespace SierraHOTAS.Tests
 
             var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>(), Substitute.For<ActionCatalog>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
-            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+            hotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem());
 
             var subEventAggregator = new EventAggregator();
 
@@ -177,7 +177,7 @@ namespace SierraHOTAS.Tests
 
             var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>(), Substitute.For<ActionCatalog>());
             hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
-            hotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem());
+            hotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem());
 
             var subEventAggregator = new EventAggregator();
             IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
@@ -189,7 +189,7 @@ namespace SierraHOTAS.Tests
             return hotasVm;
         }
 
-        private static HOTASCollectionViewModel CreateHotasCollectionViewModel(out IEventAggregator subEventAggregator, out IHOTASCollection subHotasCollection, out IFileSystem subFileSystem, out MediaPlayerFactory subMediaPlayerFactory, out Dictionary<int, ModeActivationItem> subModeProfileButtons, out QuickProfilePanelViewModel subQuickProfilePanelVm)
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel(out IEventAggregator subEventAggregator, out IHOTASCollection subHotasCollection, out IFileSystem subFileSystem, out MediaPlayerFactory subMediaPlayerFactory, out Dictionary<int, ModeActivationItem> subModeButtons, out QuickProfilePanelViewModel subQuickProfilePanelVm)
         {
             subFileSystem = Substitute.For<IFileSystem>();
             subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
@@ -209,8 +209,8 @@ namespace SierraHOTAS.Tests
             var subActionCatalaog = Substitute.For<ActionCatalog>();
             subHotasCollection.ActionCatalog.Returns(subActionCatalaog);
 
-            subModeProfileButtons = new Dictionary<int, ModeActivationItem>();
-            subHotasCollection.ModeProfileActivationButtons.Returns(subModeProfileButtons);
+            subModeButtons = new Dictionary<int, ModeActivationItem>();
+            subHotasCollection.ModeActivationButtons.Returns(subModeButtons);
 
             subEventAggregator = Substitute.For<IEventAggregator>();
             IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
@@ -334,7 +334,7 @@ namespace SierraHOTAS.Tests
             var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out _, out _, out _, out _);
             var receivedEvents = new List<int>();
 
-            hotasVm.ModeProfileChanged += delegate (object sender, ModeProfileChangedEventArgs e)
+            hotasVm.ModeChanged += delegate (object sender, ModeChangedEventArgs e)
             {
                 receivedEvents.Add(e.Mode);
             };
@@ -381,7 +381,7 @@ namespace SierraHOTAS.Tests
 
             var receivedEvents = new List<int>();
 
-            hotasVm.ModeProfileChanged += delegate (object sender, ModeProfileChangedEventArgs e)
+            hotasVm.ModeChanged += delegate (object sender, ModeChangedEventArgs e)
             {
                 receivedEvents.Add(e.Mode);
             };
@@ -487,7 +487,7 @@ namespace SierraHOTAS.Tests
             loadedHotasCollection.Devices[0].ButtonMap[i] = CreateHotasButtonMap(testMap.MapId, HOTASButton.ButtonType.Button, "Button1", "Release");
             testMap.ActionName = expectedActionName;
 
-            loadedHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
+            loadedHotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
 
             var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out var subFileSystem, out _, out _, out _);
 
@@ -510,7 +510,7 @@ namespace SierraHOTAS.Tests
             Assert.Equal(expectedActionName, actualMap.ActionName);
 
             //mode profiles should be loaded
-            Assert.Equal(modeActivationButtonId, subDeviceList.ModeProfileActivationButtons[1].ButtonId);
+            Assert.Equal(modeActivationButtonId, subDeviceList.ModeActivationButtons[1].ButtonId);
 
             //one device vm will have been created
             Assert.Single(hotasVm.Devices);
@@ -568,7 +568,7 @@ namespace SierraHOTAS.Tests
             loadedHotasCollection.Devices[0].ButtonMap[i] = CreateHotasButtonMap(testMap.MapId, HOTASButton.ButtonType.Button, "Button1", "Release");
             testMap.ActionName = expectedActionName;
 
-            loadedHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = loadedDeviceId });
+            loadedHotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = loadedDeviceId });
 
             var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out var subFileSystem, out _, out _, out _);
 
@@ -595,7 +595,7 @@ namespace SierraHOTAS.Tests
             Assert.Equal(expectedActionName, actualMap.ActionName);
 
             //mode profiles should be loaded
-            Assert.Equal(modeActivationButtonId, subDeviceList.ModeProfileActivationButtons[1].ButtonId);
+            Assert.Equal(modeActivationButtonId, subDeviceList.ModeActivationButtons[1].ButtonId);
 
             //one device vm will have been created
             Assert.Single(hotasVm.Devices);
@@ -666,7 +666,7 @@ namespace SierraHOTAS.Tests
             existingDevice.Name = "existing device";
             AddHotasButtonMap(existingDevice.ButtonMap, existingButtonMapId);
             AddHotasButtonMap(existingDevice.ButtonMap, 0, HOTASButton.ButtonType.Button, "Button2 - remove my actions", ActionCatalogItem.NO_ACTION_TEXT, 1);
-            subDeviceList.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
+            subDeviceList.ModeActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
 
             subFileSystem.FileOpenDialog().Returns((HOTASCollection)null);
 
@@ -679,7 +679,7 @@ namespace SierraHOTAS.Tests
             var expectedButtonMapVm = hotasVm.Devices[0].ButtonMap[0];
 
             Assert.NotEqual(expectedButtonMapVm, existingButtonmapVm);
-            Assert.Empty(subDeviceList.ModeProfileActivationButtons);
+            Assert.Empty(subDeviceList.ModeActivationButtons);
             Assert.Empty(((HOTASButton)existingDevice.ButtonMap[2]).ActionCatalogItem.Actions);
             Assert.Equal(2, receivedEvents.Count);
             Assert.Equal(expectedPropertyChanged, receivedEvents[0]);
@@ -764,16 +764,16 @@ namespace SierraHOTAS.Tests
             var hotasVm = CreateHotasCollectionViewModel(out var subEventAggregator, out var subDeviceList, out _, out _, out _, out _);
 
             var activationButtons = new Dictionary<int, ModeActivationItem>();
-            subDeviceList.ModeProfileActivationButtons.Returns(activationButtons);
+            subDeviceList.ModeActivationButtons.Returns(activationButtons);
 
             hotasVm.Initialize();
-            hotasVm.CreateNewModeProfileCommand.Execute(default);
+            hotasVm.CreateNewModeCommand.Execute(default);
 
-            subDeviceList.Received().SetupNewModeProfile();
+            subDeviceList.Received().SetupNewMode();
             subDeviceList.Received().SetMode(0);
             subDeviceList.Received().ApplyActivationButtonToAllProfiles();
             subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowMessageWindowEvent());
-            subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowModeProfileConfigWindowEvent(0, new Dictionary<int, ModeActivationItem>(), null, null, null));
+            subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowModeConfigWindowEvent(0, new Dictionary<int, ModeActivationItem>(), null, null, null));
         }
 
         [Fact]
@@ -783,16 +783,16 @@ namespace SierraHOTAS.Tests
             const int modeActivationButtonId = 1000;
 
             var hotasVm = CreateHotasCollectionViewModel(out var subEventAggregator, out var subDeviceList, out _, out _, out _, out _);
-            subDeviceList.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
+            subDeviceList.ModeActivationButtons.Add(1, new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid });
 
             hotasVm.Initialize();
-            hotasVm.CreateNewModeProfileCommand.Execute(default);
+            hotasVm.CreateNewModeCommand.Execute(default);
 
-            subDeviceList.Received().SetupNewModeProfile();
+            subDeviceList.Received().SetupNewMode();
             subDeviceList.Received().SetMode(0);
             subDeviceList.Received().ApplyActivationButtonToAllProfiles();
             subEventAggregator.DidNotReceiveWithAnyArgs().Publish(new ShowMessageWindowEvent());
-            subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowModeProfileConfigWindowEvent(0, new Dictionary<int, ModeActivationItem>(), null, null, null));
+            subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowModeConfigWindowEvent(0, new Dictionary<int, ModeActivationItem>(), null, null, null));
         }
 
         [Fact]
@@ -804,18 +804,18 @@ namespace SierraHOTAS.Tests
 
             var hotasVm = CreateHotasCollectionViewModel(out var subEventAggregator, out var subDeviceList, out _, out _, out _, out _);
             var item = new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid, Mode = expectedMode };
-            subDeviceList.ModeProfileActivationButtons.Add(expectedMode, item);
+            subDeviceList.ModeActivationButtons.Add(expectedMode, item);
 
 
             hotasVm.Initialize();
 
-            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => hotasVm.EditModeProfileCommand.Execute(item));
+            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => hotasVm.EditModeCommand.Execute(item));
 
-            subDeviceList.DidNotReceive().SetupNewModeProfile();
+            subDeviceList.DidNotReceive().SetupNewMode();
             subDeviceList.DidNotReceive().SetMode(0);
             subDeviceList.Received().ApplyActivationButtonToAllProfiles();
             subEventAggregator.DidNotReceiveWithAnyArgs().Publish(new ShowMessageWindowEvent());
-            subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowModeProfileConfigWindowEvent(0, new Dictionary<int, ModeActivationItem>(), null, null, null));
+            subEventAggregator.ReceivedWithAnyArgs().Publish(new ShowModeConfigWindowEvent(0, new Dictionary<int, ModeActivationItem>(), null, null, null));
         }
 
         [Fact]
@@ -826,14 +826,14 @@ namespace SierraHOTAS.Tests
 
             var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out _, out _, out _, out _);
             var item = new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid, Mode = 1 };
-            subDeviceList.ModeProfileActivationButtons.Add(1, item);
-            subDeviceList.RemoveModeProfile(item).Returns(true);
+            subDeviceList.ModeActivationButtons.Add(1, item);
+            subDeviceList.RemoveMode(item).Returns(true);
 
             hotasVm.Initialize();
 
-            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => hotasVm.DeleteModeProfileCommand.Execute(item));
+            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => hotasVm.DeleteModeCommand.Execute(item));
 
-            subDeviceList.Received().RemoveModeProfile(item);
+            subDeviceList.Received().RemoveMode(item);
         }
 
         [Fact]
@@ -843,12 +843,12 @@ namespace SierraHOTAS.Tests
             const int modeActivationButtonId = 1000;
             var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out var eventAggregator, out var subDeviceList);
             var item = new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid, Mode = 1 };
-            subDeviceList.ModeProfileActivationButtons.Add(1, item);
-            subDeviceList.RemoveModeProfile(item).Returns(true);
+            subDeviceList.ModeActivationButtons.Add(1, item);
+            subDeviceList.RemoveMode(item).Returns(true);
 
             hotasVm.Initialize();
-            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => eventAggregator.Publish(new DeleteModeProfileEvent(item)));
-            subDeviceList.Received().RemoveModeProfile(item);
+            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => eventAggregator.Publish(new DeleteModeEvent(item)));
+            subDeviceList.Received().RemoveMode(item);
         }
 
         [Fact]
@@ -858,14 +858,14 @@ namespace SierraHOTAS.Tests
             const int modeActivationButtonId = 1000;
             var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out var eventAggregator, out IHOTASCollection subDeviceList);
             var item = new ModeActivationItem() { ButtonId = modeActivationButtonId, DeviceId = deviceGuid, Mode = 1 };
-            subDeviceList.ModeProfileActivationButtons.Add(1, item);
-            subDeviceList.RemoveModeProfile(item).Returns(true);
+            subDeviceList.ModeActivationButtons.Add(1, item);
+            subDeviceList.RemoveMode(item).Returns(true);
 
             hotasVm.Initialize();
-            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => eventAggregator.Publish(new DeleteModeProfileEvent(item)));
-            subDeviceList.Received().RemoveModeProfile(item);
+            Assert.PropertyChanged(hotasVm, "ModeActivationItems", () => eventAggregator.Publish(new DeleteModeEvent(item)));
+            subDeviceList.Received().RemoveMode(item);
 
-            Assert.Equal(hotasVm.ModeActivationItems[0].DeviceId, subDeviceList.ModeProfileActivationButtons[item.Mode].DeviceId);
+            Assert.Equal(hotasVm.ModeActivationItems[0].DeviceId, subDeviceList.ModeActivationButtons[item.Mode].DeviceId);
         }
 
         [Fact]
@@ -874,15 +874,15 @@ namespace SierraHOTAS.Tests
             var hotasVm = CreateHotasCollectionViewModel(out var subEventAggregator, out var subDeviceList, out _, out _, out _, out _);
 
             var activationButtons = new Dictionary<int, ModeActivationItem>();
-            activationButtons.Add(1, new ModeActivationItem() { Mode = 1, ButtonName = "bob", ProfileName = "bobs profile" });
-            activationButtons.Add(2, new ModeActivationItem() { Mode = 2, ButtonName = "sponge", ProfileName = "sponges profile", TemplateMode = 1 });
-            subDeviceList.ModeProfileActivationButtons.Returns(activationButtons);
+            activationButtons.Add(1, new ModeActivationItem() { Mode = 1, ButtonName = "bob", ModeName = "bobs profile" });
+            activationButtons.Add(2, new ModeActivationItem() { Mode = 2, ButtonName = "sponge", ModeName = "sponges profile", TemplateMode = 1 });
+            subDeviceList.ModeActivationButtons.Returns(activationButtons);
 
-            subDeviceList.SetupNewModeProfile().Returns(2);
+            subDeviceList.SetupNewMode().Returns(2);
             hotasVm.Initialize();
-            hotasVm.CreateNewModeProfileCommand.Execute(default);
+            hotasVm.CreateNewModeCommand.Execute(default);
 
-            subDeviceList.Received().CopyModeProfileFromTemplate(1, 2);
+            subDeviceList.Received().CopyModeFromTemplate(1, 2);
         }
 
         [Fact]
@@ -1067,8 +1067,8 @@ namespace SierraHOTAS.Tests
             var newHotasCollection = Substitute.For<IHOTASCollection>();
             newHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = productId, DeviceId = deviceId } };
 
-            var subModeProfileButtons = new Dictionary<int, ModeActivationItem>();
-            newHotasCollection.ModeProfileActivationButtons.Returns(subModeProfileButtons);
+            var subModeButtons = new Dictionary<int, ModeActivationItem>();
+            newHotasCollection.ModeActivationButtons.Returns(subModeButtons);
 
             subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(newHotasCollection);
 
@@ -1138,7 +1138,7 @@ namespace SierraHOTAS.Tests
             };
             profile.Add(1, map);
 
-            device.SetModeProfile(profile);
+            device.SetMode(profile);
 
             var subHotasCollection = CreateHotasCollectionSubstitute();
             subHotasCollection.Devices.Add(device);
@@ -1194,12 +1194,12 @@ namespace SierraHOTAS.Tests
             };
             profile.Add(1, map);
 
-            subDevice.SetModeProfile(profile);
+            subDevice.SetMode(profile);
             
             subHotasCollection.Devices.Add(subDevice);
 
-            subHotasCollection.ModeProfileActivationButtons.Add(1, new ModeActivationItem() { ButtonId = 43, DeviceId = deviceId });
-            subHotasCollection.SetupNewModeProfile();
+            subHotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem() { ButtonId = 43, DeviceId = deviceId });
+            subHotasCollection.SetupNewMode();
 
 
             subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);

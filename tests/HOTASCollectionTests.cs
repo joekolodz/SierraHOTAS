@@ -35,7 +35,7 @@ namespace SierraHOTAS.Tests
         {
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>(), Substitute.For<ActionCatalog>());
             Assert.Empty(list.Devices);
-            Assert.Empty(list.ModeProfileActivationButtons);
+            Assert.Empty(list.ModeActivationButtons);
             Assert.Equal(HOTASCollection.FileFormatVersion, list.JsonFormatVersion);
         }
 
@@ -66,10 +66,10 @@ namespace SierraHOTAS.Tests
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), subDeviceFactory, Substitute.For<ActionCatalog>());
             var device = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.Empty, deviceId, "test device", Substitute.For<IHOTASQueue>());
             device.ButtonMap.Add(new HOTASButton() { MapId = 1, MapName = "first button", ActionName = "tes action", IsShift = true, ShiftModePage = 2, Type = HOTASButton.ButtonType.Button });
-            device.ModeProfiles.Add(43, new ObservableCollection<IHotasBaseMap>() { { new HOTASButton() { MapName = "mode profile map" } } });
+            device.Modes.Add(43, new ObservableCollection<IHotasBaseMap>() { { new HOTASButton() { MapName = "mode profile map" } } });
             list.AddDevice(device);
             var addedDevice = list.Devices.First(d => d.DeviceId == deviceId);
-            Assert.Equal("mode profile map", addedDevice.ModeProfiles[43][0].MapName);
+            Assert.Equal("mode profile map", addedDevice.Modes[43][0].MapName);
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace SierraHOTAS.Tests
         public void stop_null()
         {
             var subDevice = Substitute.For<IHOTASDevice>();
-            subDevice.SetupNewModeProfile().Returns(43);
+            subDevice.SetupNewMode().Returns(43);
             subDevice.ButtonMap.Returns(new ObservableCollection<IHotasBaseMap>());
 
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
@@ -145,7 +145,7 @@ namespace SierraHOTAS.Tests
         public void clear_button_map()
         {
             var subDevice = Substitute.For<IHOTASDevice>();
-            subDevice.SetupNewModeProfile().Returns(43);
+            subDevice.SetupNewMode().Returns(43);
             subDevice.ButtonMap.Returns(new ObservableCollection<IHotasBaseMap>());
 
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
@@ -210,7 +210,7 @@ namespace SierraHOTAS.Tests
         public void setup_new_mode_profile()
         {
             var subDevice = Substitute.For<IHOTASDevice>();
-            subDevice.SetupNewModeProfile().Returns(43);
+            subDevice.SetupNewMode().Returns(43);
             subDevice.ButtonMap.Returns(new ObservableCollection<IHotasBaseMap>());
 
             var subDeviceFactory = Substitute.For<HOTASDeviceFactory>();
@@ -218,9 +218,9 @@ namespace SierraHOTAS.Tests
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), subDeviceFactory, Substitute.For<ActionCatalog>());
             list.AddDevice(subDevice);
-            var newMode = list.SetupNewModeProfile();
+            var newMode = list.SetupNewMode();
             Assert.Equal(43, newMode);
-            subDevice.Received().SetupNewModeProfile();
+            subDevice.Received().SetupNewMode();
         }
 
         [Fact]
@@ -234,8 +234,8 @@ namespace SierraHOTAS.Tests
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), subDeviceFactory, Substitute.For<ActionCatalog>());
             list.AddDevice(subDevice);
-            list.CopyModeProfileFromTemplate(4, 5);
-            subDevice.Received().CopyModeProfileFromTemplate(4, 5);
+            list.CopyModeFromTemplate(4, 5);
+            subDevice.Received().CopyModeFromTemplate(4, 5);
         }
 
         [Fact]
@@ -252,9 +252,9 @@ namespace SierraHOTAS.Tests
             list.AddDevice(subDevice);
             list.ListenToDevice(subDevice);
 
-            Assert.Raises<ModeProfileChangedEventArgs>(a => list.ModeProfileChanged += a, a => list.ModeProfileChanged -= a,
-                () => subDevice.ModeProfileSelected += Raise.EventWith(subDevice,
-                    new ModeProfileSelectedEventArgs() { IsShift = true, Mode = 43 }));
+            Assert.Raises<ModeChangedEventArgs>(a => list.ModeChanged += a, a => list.ModeChanged -= a,
+                () => subDevice.ModeSelected += Raise.EventWith(subDevice,
+                    new ModeSelectedEventArgs() { IsShift = true, Mode = 43 }));
         }
 
         [Fact]
@@ -271,7 +271,7 @@ namespace SierraHOTAS.Tests
             list.ListenToDevice(subDevice);
 
             list.Mode = 1;
-            subDevice.ModeProfileSelected += Raise.EventWith(subDevice, new ModeProfileSelectedEventArgs() { IsShift = true, Mode = 43 });
+            subDevice.ModeSelected += Raise.EventWith(subDevice, new ModeSelectedEventArgs() { IsShift = true, Mode = 43 });
 
             //just proving Mode has changed since this test is verifying we get back to Mode = 1
             Assert.Equal(43, list.Mode);
@@ -505,7 +505,7 @@ namespace SierraHOTAS.Tests
             list.ListenToAllDevices();
 
 
-            Assert.Raises<ModeProfileChangedEventArgs>(a => list.ModeProfileChanged += a, a => list.ModeProfileChanged -= a,
+            Assert.Raises<ModeChangedEventArgs>(a => list.ModeChanged += a, a => list.ModeChanged -= a,
                 () => list.SetMode(43));
             Assert.Equal(43, list.Mode);
             subDevice.Received().SetMode(43);
@@ -547,10 +547,10 @@ namespace SierraHOTAS.Tests
             list.ListenToAllDevices();
 
             var item = new ModeActivationItem();
-            list.ModeProfileActivationButtons.Add(1, item);
-            var isRemoved = list.RemoveModeProfile(new ModeActivationItem());
+            list.ModeActivationButtons.Add(1, item);
+            var isRemoved = list.RemoveMode(new ModeActivationItem());
 
-            Assert.Same(item, list.ModeProfileActivationButtons[1]);
+            Assert.Same(item, list.ModeActivationButtons[1]);
             Assert.False(isRemoved);
         }
 
@@ -577,7 +577,7 @@ namespace SierraHOTAS.Tests
                 }
             };
 
-            subDevice.ModeProfiles.Returns(profile);
+            subDevice.Modes.Returns(profile);
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), subDeviceFactory, Substitute.For<ActionCatalog>());
             list.AddDevice(subDevice);
@@ -589,14 +589,14 @@ namespace SierraHOTAS.Tests
                 ButtonId = 1,
                 Mode = 1
             };
-            list.ModeProfileActivationButtons.Add(1, item);
+            list.ModeActivationButtons.Add(1, item);
 
             Assert.True(map.IsShift);
             Assert.Equal(1, map.ShiftModePage);
 
-            var isRemoved = list.RemoveModeProfile(item);
+            var isRemoved = list.RemoveMode(item);
 
-            Assert.Empty(list.ModeProfileActivationButtons);
+            Assert.Empty(list.ModeActivationButtons);
             Assert.True(isRemoved);
             Assert.False(map.IsShift);
             Assert.Equal(0, map.ShiftModePage);
@@ -631,7 +631,7 @@ namespace SierraHOTAS.Tests
                 }
             };
 
-            subDevice.ModeProfiles.Returns(profile);
+            subDevice.Modes.Returns(profile);
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), subDeviceFactory, Substitute.For<ActionCatalog>());
             list.AddDevice(subDevice);
@@ -651,13 +651,13 @@ namespace SierraHOTAS.Tests
                 Mode = 2
             };
 
-            list.ModeProfileActivationButtons.Add(1, item1);
-            list.ModeProfileActivationButtons.Add(2, item2);
+            list.ModeActivationButtons.Add(1, item1);
+            list.ModeActivationButtons.Add(2, item2);
 
-            var isRemoved = list.RemoveModeProfile(item1);
+            var isRemoved = list.RemoveMode(item1);
 
-            Assert.Single(list.ModeProfileActivationButtons);
-            Assert.Same(item2, list.ModeProfileActivationButtons[2]);
+            Assert.Single(list.ModeActivationButtons);
+            Assert.Same(item2, list.ModeActivationButtons[2]);
             Assert.True(isRemoved);
             Assert.False(map1.IsShift);
             Assert.Equal(0, map1.ShiftModePage);
@@ -710,7 +710,7 @@ namespace SierraHOTAS.Tests
                 }
             };
 
-            subDevice.ModeProfiles.Returns(profiles);
+            subDevice.Modes.Returns(profiles);
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), subDeviceFactory, Substitute.For<ActionCatalog>());
             list.AddDevice(subDevice);
@@ -737,9 +737,9 @@ namespace SierraHOTAS.Tests
                 Mode = 3
             };
 
-            list.ModeProfileActivationButtons.Add(1, item1);
-            list.ModeProfileActivationButtons.Add(2, item2);
-            list.ModeProfileActivationButtons.Add(3, item3);
+            list.ModeActivationButtons.Add(1, item1);
+            list.ModeActivationButtons.Add(2, item2);
+            list.ModeActivationButtons.Add(3, item3);
 
             Assert.Equal(0, button_2_1.ShiftModePage);
             Assert.Equal(0, button_2_2.ShiftModePage);

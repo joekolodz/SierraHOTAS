@@ -48,7 +48,7 @@ namespace SierraHOTAS.Views
             HotasCollectionViewModel.ButtonPressed += CollectionViewModelButtonPressed;
             HotasCollectionViewModel.AxisChanged += CollectionViewModelAxisChanged;
             HotasCollectionViewModel.FileOpened += HotasCollectionViewModel_FileOpened;
-            HotasCollectionViewModel.ModeProfileChanged += HotasCollectionViewModel_ModeProfileChanged;
+            HotasCollectionViewModel.ModeChanged += hotasCollectionViewModel_modeChanged;
             HotasCollectionViewModel.ShowMainWindow += HotasCollectionViewModel_ShowMainWindow;
             HotasCollectionViewModel.Close += HotasCollectionViewModel_Close;
 
@@ -79,7 +79,7 @@ namespace SierraHOTAS.Views
             }
         }
 
-        private void HotasCollectionViewModel_ModeProfileChanged(object sender, ModeProfileChangedEventArgs e)
+        private void hotasCollectionViewModel_modeChanged(object sender, ModeChangedEventArgs e)
         {
             if (_windowState == WindowState.Minimized) return;
 

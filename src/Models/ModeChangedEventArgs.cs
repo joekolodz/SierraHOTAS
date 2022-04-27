@@ -2,7 +2,7 @@
 
 namespace SierraHOTAS.Models
 {
-    public class ModeProfileChangedEventArgs : EventArgs
+    public class ModeChangedEventArgs : EventArgs
     {
         public int Mode { get; set; }
     }

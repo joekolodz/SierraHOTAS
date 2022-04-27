@@ -8,7 +8,7 @@ using Xunit;
 
 namespace SierraHOTAS.Tests
 {
-    public class ModeProfileConfigWindowViewModelTests
+    public class ModeConfigWindowViewModelTests
     {
         private class TestDispatcher : IDispatcher
         {
@@ -21,13 +21,13 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void basic_constructor_null()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), 1, null));
+            var exception = Assert.Throws<ArgumentNullException>(() => new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), 1, null));
             Assert.Equal("Value cannot be null.\r\nParameter name: activationButtonList", exception.Message);
 
-            exception = Assert.Throws<ArgumentNullException>(() => new ModeProfileConfigWindowViewModel(null, Substitute.For<IDispatcher>(), 1, new Dictionary<int, ModeActivationItem>()));
+            exception = Assert.Throws<ArgumentNullException>(() => new ModeConfigWindowViewModel(null, Substitute.For<IDispatcher>(), 1, new Dictionary<int, ModeActivationItem>()));
             Assert.Equal("Value cannot be null.\r\nParameter name: eventAggregator", exception.Message);
 
-            exception = Assert.Throws<ArgumentNullException>(() => new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), null, 1, new Dictionary<int, ModeActivationItem>()));
+            exception = Assert.Throws<ArgumentNullException>(() => new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), null, 1, new Dictionary<int, ModeActivationItem>()));
             Assert.Equal("Value cannot be null.\r\nParameter name: appDispatcher", exception.Message);
         }
 
@@ -40,24 +40,24 @@ namespace SierraHOTAS.Tests
                 {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button"}}
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             Assert.Equal(2, profileVm.TemplateModes.Count);
             Assert.True(profileVm.IsTemplateModeVisible);
-            Assert.Null(profileVm.ProfileName);
+            Assert.Null(profileVm.ModeName);
         }
 
         [Fact]
         public void basic_constructor_template_not_visible_by_mode()
         {
             const int mode = 1;
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>());
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>());
             Assert.False(profileVm.IsTemplateModeVisible);
         }
 
         [Fact]
         public void basic_constructor_template_not_visible_by_null_activation_button_list()
         {
-            var profileVm = new ModeProfileConfigWindowViewModel();
+            var profileVm = new ModeConfigWindowViewModel();
             Assert.False(profileVm.IsTemplateModeVisible);
         }
 
@@ -65,7 +65,7 @@ namespace SierraHOTAS.Tests
         public void basic_constructor_template_not_visible_activation_button_list_has_items()
         {
             const int mode = 1;
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>(){ {1,new ModeActivationItem()}});
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>(){ {1,new ModeActivationItem()}});
             Assert.False(profileVm.IsTemplateModeVisible);
         }
 
@@ -76,18 +76,18 @@ namespace SierraHOTAS.Tests
             var deviceId = Guid.NewGuid();
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
-                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ProfileName = "select combat mode", IsShift = true, DeviceId = deviceId}}
+                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ModeName = "select combat mode", IsShift = true, DeviceId = deviceId}}
             };
 
             var dispatcher = new TestDispatcher();
 
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), dispatcher, mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), dispatcher, mode, activationButtonList);
 
 
             Assert.Equal(2, profileVm.TemplateModes.Count);
             Assert.False(profileVm.IsTemplateModeVisible);
-            Assert.Equal("select combat mode", profileVm.ProfileName);
+            Assert.Equal("select combat mode", profileVm.ModeName);
             Assert.Equal("test button", profileVm.ActivationButtonName);
             Assert.True(profileVm.IsShift);
         }
@@ -98,10 +98,10 @@ namespace SierraHOTAS.Tests
             const int mode = 1;
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
-                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ProfileName = "select combat mode"}}
+                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ModeName = "select combat mode"}}
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             Assert.False(profileVm.IsShift);
         }
 
@@ -111,17 +111,17 @@ namespace SierraHOTAS.Tests
             const int mode = 1;
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
-                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ProfileName = "select combat mode"}}
+                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ModeName = "select combat mode"}}
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
-            profileVm.ProfileName = string.Empty;
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            profileVm.ModeName = string.Empty;
             profileVm.DeviceName = string.Empty;
             profileVm.ActivationButtonName = string.Empty;
             profileVm.IsActivationErrorVisible = false;
             profileVm.IsShift = false;
 
-            Assert.PropertyChanged(profileVm, "ProfileName", () => profileVm.ProfileName = "changed'");
+            Assert.PropertyChanged(profileVm, "ModeName", () => profileVm.ModeName = "changed'");
             Assert.PropertyChanged(profileVm, "DeviceName", () => profileVm.DeviceName = "changed'");
             Assert.PropertyChanged(profileVm, "ActivationButtonName", () => profileVm.ActivationButtonName = "changed'");
             Assert.PropertyChanged(profileVm, "IsActivationErrorVisible", () => profileVm.IsActivationErrorVisible = true);
@@ -132,12 +132,12 @@ namespace SierraHOTAS.Tests
         public void is_shift_visible()
         {
             var mode = 0;
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>());
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>());
 
             Assert.True(profileVm.IsShiftVisible);
 
             mode = 1;
-            profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>());
+            profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, new Dictionary<int, ModeActivationItem>());
             Assert.False(profileVm.IsShiftVisible);
         }
 
@@ -148,10 +148,10 @@ namespace SierraHOTAS.Tests
             const string expectedDeviceName = "not set";
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
-                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ProfileName = "select combat mode"}}
+                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ModeName = "select combat mode"}}
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             profileVm.DeviceName = expectedDeviceName;
 
             var device = new HOTASDevice();
@@ -166,10 +166,10 @@ namespace SierraHOTAS.Tests
             const int mode = 1;
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
-                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ProfileName = "select combat mode"}}
+                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ModeName = "select combat mode"}}
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), new TestDispatcher(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), new TestDispatcher(), mode, activationButtonList);
             profileVm.DeviceName = "not set";
 
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "test device 1", Substitute.For<IHOTASQueue>());
@@ -210,8 +210,8 @@ namespace SierraHOTAS.Tests
         {
             const int modeToRemove = 2;
 
-            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ProfileName = "select combat mode" };
-            var removeThisItem = new ModeActivationItem() { ButtonId = 2, ButtonName = "test button 2", ProfileName = "select nav mode" };
+            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ModeName = "select combat mode" };
+            var removeThisItem = new ModeActivationItem() { ButtonId = 2, ButtonName = "test button 2", ModeName = "select nav mode" };
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
                 {1, activationButton},
@@ -219,9 +219,9 @@ namespace SierraHOTAS.Tests
             };
 
             var subEventAggregator = Substitute.For<IEventAggregator>();
-            var profileVm = new ModeProfileConfigWindowViewModel(subEventAggregator, Substitute.For<IDispatcher>(), modeToRemove, activationButtonList);
-            profileVm.SaveModeProfileCommand.Execute(default);
-            subEventAggregator.Received().Publish(Arg.Any<DeleteModeProfileEvent>());
+            var profileVm = new ModeConfigWindowViewModel(subEventAggregator, Substitute.For<IDispatcher>(), modeToRemove, activationButtonList);
+            profileVm.SaveModeCommand.Execute(default);
+            subEventAggregator.Received().Publish(Arg.Any<DeleteModeEvent>());
         }
 
         [Fact]
@@ -229,13 +229,13 @@ namespace SierraHOTAS.Tests
         {
             const int mode = 1;
 
-            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ProfileName = "select combat mode" };
+            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ModeName = "select combat mode" };
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
                 {1, activationButton},
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "test device 1", Substitute.For<IHOTASQueue>());
             var button = new HOTASButton() { MapId = 1, ShiftModePage = 0 };
             device1.ButtonMap.Add(button);
@@ -243,7 +243,7 @@ namespace SierraHOTAS.Tests
             //shift mode test needs a button to have been pressed
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = 1, Device = device1 });
 
-            profileVm.SaveModeProfileCommand.Execute(default);
+            profileVm.SaveModeCommand.Execute(default);
             Assert.Equal(mode, button.ShiftModePage);
         }
 
@@ -252,13 +252,13 @@ namespace SierraHOTAS.Tests
         {
             const int mode = 1;
 
-            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ProfileName = "select combat mode", DeviceName = "original device" };
+            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ModeName = "select combat mode", DeviceName = "original device" };
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
                 {1, activationButton},
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "new device 1", Substitute.For<IHOTASQueue>());
             var button = new HOTASButton() { MapId = 43, ShiftModePage = 0, ActionName = "new action", MapName = "new map" };
             device1.ButtonMap.Add(button);
@@ -266,7 +266,7 @@ namespace SierraHOTAS.Tests
             //test needs a button to have been pressed
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = 43, Device = device1 });
 
-            profileVm.SaveModeProfileCommand.Execute(default);
+            profileVm.SaveModeCommand.Execute(default);
 
             Assert.Single(activationButtonList);
             Assert.Equal(43, activationButtonList[1].ButtonId);
@@ -279,13 +279,13 @@ namespace SierraHOTAS.Tests
         {
             const int mode = 1;
 
-            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ProfileName = "select combat mode", DeviceName = "original device" };
+            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ModeName = "select combat mode", DeviceName = "original device" };
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
                 {1, activationButton},
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "new device 1", Substitute.For<IHOTASQueue>());
             var button = new HOTASButton() { MapId = 43, ShiftModePage = 0, ActionName = "new action", MapName = "new map" };
             device1.ButtonMap.Add(button);
@@ -293,7 +293,7 @@ namespace SierraHOTAS.Tests
             //test needs a button to have been pressed
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = 43, Device = device1 });
 
-            Assert.Raises<EventArgs>(a => profileVm.NewModeProfileSaved += a, a => profileVm.NewModeProfileSaved -= a, () => profileVm.SaveModeProfileCommand.Execute(default));
+            Assert.Raises<EventArgs>(a => profileVm.NewModeSaved += a, a => profileVm.NewModeSaved -= a, () => profileVm.SaveModeCommand.Execute(default));
 
         }
 
@@ -302,13 +302,13 @@ namespace SierraHOTAS.Tests
         {
             const int mode = 1;
 
-            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ProfileName = "select combat mode", DeviceName = "original device" };
+            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ModeName = "select combat mode", DeviceName = "original device" };
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
                 {1, activationButton},
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
 
             Assert.Raises<EventArgs>(a => profileVm.SaveCancelled += a, a => profileVm.SaveCancelled -= a, () => profileVm.CancelCommand.Execute(default));
         }
@@ -321,11 +321,11 @@ namespace SierraHOTAS.Tests
             const int mode = 1;
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
-                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ProfileName = "select combat mode", DeviceId = device1Id, DeviceName = "first device"}},
-                {2, new ModeActivationItem() {ButtonId = 2, ButtonName = "test button", ProfileName = "already mapped", DeviceId = device2Id, DeviceName = "second device"}}
+                {1, new ModeActivationItem() {ButtonId = 1, ButtonName = "test button", ModeName = "select combat mode", DeviceId = device1Id, DeviceName = "first device"}},
+                {2, new ModeActivationItem() {ButtonId = 2, ButtonName = "test button", ModeName = "already mapped", DeviceId = device2Id, DeviceName = "second device"}}
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), new TestDispatcher(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), new TestDispatcher(), mode, activationButtonList);
 
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), device1Id, "first device", Substitute.For<IHOTASQueue>());
             device1.ButtonMap.Add(new HOTASButton() { MapId = 1 });
@@ -337,7 +337,7 @@ namespace SierraHOTAS.Tests
             //press a button on a device tha is already in the activation list
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = device2.ButtonMap[0].MapId, Device = device2 });
             Assert.True(profileVm.IsActivationErrorVisible);
-            Assert.False(profileVm.SaveModeProfileCommand.CanExecute(default));
+            Assert.False(profileVm.SaveModeCommand.CanExecute(default));
         }
 
         [Fact]
@@ -345,14 +345,14 @@ namespace SierraHOTAS.Tests
         {
             const int mode = 1;
 
-            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ProfileName = "select combat mode", DeviceName = "original device" };
+            var activationButton = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ModeName = "select combat mode", DeviceName = "original device" };
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
                 {1, activationButton},
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
-            Assert.True(profileVm.SaveModeProfileCommand.CanExecute(default));
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            Assert.True(profileVm.SaveModeCommand.CanExecute(default));
         }
 
         [Fact]
@@ -361,22 +361,22 @@ namespace SierraHOTAS.Tests
             const int mode = 1;
             const int selectThisTemplateMode = 2;
 
-            var activationButton1 = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ProfileName = "select combat mode", DeviceName = "original device" };
-            var activationButton2 = new ModeActivationItem() { ButtonId = 2, ButtonName = "test button 2", ProfileName = "select nav mode", DeviceName = "original device" };
+            var activationButton1 = new ModeActivationItem() { ButtonId = 1, ButtonName = "test button 1", ModeName = "select combat mode", DeviceName = "original device" };
+            var activationButton2 = new ModeActivationItem() { ButtonId = 2, ButtonName = "test button 2", ModeName = "select nav mode", DeviceName = "original device" };
             var activationButtonList = new Dictionary<int, ModeActivationItem>
             {
                 {1, activationButton1},
                 {selectThisTemplateMode, activationButton2}
             };
 
-            var profileVm = new ModeProfileConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
+            var profileVm = new ModeConfigWindowViewModel(Substitute.For<IEventAggregator>(), Substitute.For<IDispatcher>(), mode, activationButtonList);
             var device1 = new HOTASDevice(Substitute.For<IDirectInput>(), Guid.NewGuid(), Guid.NewGuid(), "new device 1", Substitute.For<IHOTASQueue>());
             var button = new HOTASButton() { MapId = 43, ShiftModePage = 0, ActionName = "new action 1", MapName = "new map 1" };
             device1.ButtonMap.Add(button);
 
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = 43, Device = device1 });
             
-            profileVm.SaveModeProfileCommand.Execute(default);
+            profileVm.SaveModeCommand.Execute(default);
             Assert.Equal(0, activationButtonList[1].TemplateMode);//template mode is unselected by default
 
             profileVm.CopyTemplateMode = selectThisTemplateMode;
@@ -386,7 +386,7 @@ namespace SierraHOTAS.Tests
 
             profileVm.DeviceList_ButtonPressed(new object(), new ButtonPressedEventArgs() { ButtonId = 44, Device = device1 });
 
-            profileVm.SaveModeProfileCommand.Execute(default);
+            profileVm.SaveModeCommand.Execute(default);
 
             Assert.Equal(selectThisTemplateMode, activationButtonList[1].TemplateMode);//template mode is now selected
         }
@@ -394,7 +394,7 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void addicted_to_code_coverage()
         {
-            var _ = new ModeProfileConfigWindowViewModel();
+            var _ = new ModeConfigWindowViewModel();
         }
     }
 }

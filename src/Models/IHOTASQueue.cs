@@ -13,15 +13,15 @@ namespace SierraHOTAS.Models
         event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         event EventHandler<AxisChangedEventArgs> AxisChanged;
-        event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
+        event EventHandler<ModeSelectedEventArgs> ModeSelected;
         event EventHandler<EventArgs> ShiftReleased;
         event EventHandler<EventArgs> LostConnectionToDevice;
-        void Listen(IJoystick joystick, Dictionary<int, ObservableCollection<IHotasBaseMap>> modeProfiles, Dictionary<int, ModeActivationItem> modeProfileActivationButtons);
+        void Listen(IJoystick joystick, Dictionary<int, ObservableCollection<IHotasBaseMap>> modes, Dictionary<int, ModeActivationItem> modeActivationButtons);
         void ForceButtonPress(JoystickOffset offset, bool isDown);
         void Stop();
         IHotasBaseMap GetMap(int buttonOffset);
         void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap);
         void SetMode(int mode);
-        void SetModeProfiles(Dictionary<int, ObservableCollection<IHotasBaseMap>> modeProfiles);
+        void SetModes(Dictionary<int, ObservableCollection<IHotasBaseMap>> modes);
     }
 }

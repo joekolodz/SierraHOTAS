@@ -10,19 +10,19 @@ using System.Windows.Input;
 
 namespace SierraHOTAS.ViewModels
 {
-    public class ModeProfileConfigWindowViewModel : INotifyPropertyChanged
+    public class ModeConfigWindowViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler<EventArgs> NewModeProfileSaved;
+        public event EventHandler<EventArgs> NewModeSaved;
         public event EventHandler<EventArgs> SaveCancelled;
 
-        public string ProfileName
+        public string ModeName
         {
-            get => _profileName;
+            get => _modeName;
             set
             {
-                if (value == _profileName) return;
-                _profileName = value;
+                if (value == _modeName) return;
+                _modeName = value;
                 OnPropertyChanged();
             }
         }
@@ -106,7 +106,7 @@ namespace SierraHOTAS.ViewModels
         private Guid _deviceId;
         private ModeActivationItem _activationItem;
         private bool _isActivationButtonValid = false;
-        private string _profileName;
+        private string _modeName;
         private string _deviceName;
         private string _activationButtonName;
         private bool _isActivationErrorVisible;
@@ -118,18 +118,18 @@ namespace SierraHOTAS.ViewModels
         private HOTASButton _button;
         private IEventAggregator _eventAggregator;
 
-        private CommandHandler _saveModeProfileCommand;
-        public ICommand SaveModeProfileCommand => _saveModeProfileCommand ?? (_saveModeProfileCommand = new CommandHandler(SaveModeProfile, CanExecuteSaveMode));
+        private CommandHandler _saveModeCommand;
+        public ICommand SaveModeCommand => _saveModeCommand ?? (_saveModeCommand = new CommandHandler(SaveMode, CanExecuteSaveMode));
 
         private CommandHandler _cancelCommand;
 
         public ICommand CancelCommand => _cancelCommand ?? (_cancelCommand = new CommandHandler(Cancel));
 
-        public ModeProfileConfigWindowViewModel()
+        public ModeConfigWindowViewModel()
         {
         }
 
-        public ModeProfileConfigWindowViewModel(IEventAggregator eventAggregator, IDispatcher appDispatcher, int mode, Dictionary<int, ModeActivationItem> activationButtonList)
+        public ModeConfigWindowViewModel(IEventAggregator eventAggregator, IDispatcher appDispatcher, int mode, Dictionary<int, ModeActivationItem> activationButtonList)
         {
             _appDispatcher = appDispatcher ?? throw new ArgumentNullException(nameof(appDispatcher));
             _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
@@ -142,7 +142,7 @@ namespace SierraHOTAS.ViewModels
             //if there is no activation item, then we are creating a new one for the mode supplied. there will be nothing to assign here.
             if (!_activationButtonList.TryGetValue(_mode, out _activationItem)) return;
 
-            ProfileName = _activationItem.ProfileName;
+            ModeName = _activationItem.ModeName;
             DeviceName = _activationItem.DeviceName;
             ActivationButtonName = _activationItem.ButtonName;
             IsShift = _activationItem.IsShift;
@@ -154,7 +154,7 @@ namespace SierraHOTAS.ViewModels
 
             _appDispatcher.Invoke(() =>
             {
-                ((CommandHandler)SaveModeProfileCommand).ForceCanExecuteChanged();
+                ((CommandHandler)SaveModeCommand).ForceCanExecuteChanged();
             });
         }
 
@@ -180,7 +180,7 @@ namespace SierraHOTAS.ViewModels
             {
                 OnPropertyChanged(nameof(TemplateModes));
                 OnPropertyChanged(nameof(InheritModes));
-                _saveModeProfileCommand.ForceCanExecuteChanged();
+                _saveModeCommand.ForceCanExecuteChanged();
             });
         }
 
@@ -189,7 +189,7 @@ namespace SierraHOTAS.ViewModels
             TemplateModes = new Dictionary<int, string> { { 0, "- Empty -" } };
             foreach (var kv in _activationButtonList)
             {
-                TemplateModes.Add(kv.Key, kv.Value.ProfileName);
+                TemplateModes.Add(kv.Key, kv.Value.ModeName);
             }
         }
 
@@ -199,18 +199,18 @@ namespace SierraHOTAS.ViewModels
             foreach (var kv in _activationButtonList)
             {
                 if (kv.Key == _mode) continue;
-                InheritModes.Add(kv.Key, kv.Value.ProfileName);
+                InheritModes.Add(kv.Key, kv.Value.ModeName);
             }
         }
 
-        private void SaveModeProfile()
+        private void SaveMode()
         {
             if (_activationButtonList.ContainsKey(_mode))
             {
                 var isRemoved = _activationButtonList.Remove(_mode);
                 if (isRemoved)
                 {
-                    _eventAggregator.Publish(new DeleteModeProfileEvent(_activationItem));
+                    _eventAggregator.Publish(new DeleteModeEvent(_activationItem));
                 }
             }
 
@@ -224,7 +224,7 @@ namespace SierraHOTAS.ViewModels
                 Mode = _mode,
                 InheritFromMode = _inheritFromMode,
                 IsShift = _isShift,
-                ProfileName = _profileName,
+                ModeName = _modeName,
                 DeviceName = _deviceName,
                 DeviceId = _deviceId,
                 ButtonName = _activationButtonName,
@@ -234,9 +234,9 @@ namespace SierraHOTAS.ViewModels
 
             _activationButtonList.Add(_mode, _activationItem);
 
-            Logging.Log.Info($"Profile name: {ProfileName}, Device: {DeviceName}, Button: {_activationButtonId}");
+            Logging.Log.Info($"Mode name: {ModeName}, Device: {DeviceName}, Button: {_activationButtonId}");
 
-            NewModeProfileSaved?.Invoke(this, new EventArgs());
+            NewModeSaved?.Invoke(this, new EventArgs());
         }
 
         private void Cancel()

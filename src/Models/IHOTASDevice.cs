@@ -12,7 +12,7 @@ namespace SierraHOTAS.Models
         event EventHandler<MacroStartedEventArgs> MacroStarted;
         event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         event EventHandler<ButtonPressedEventArgs> ButtonPressed;
-        event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
+        event EventHandler<ModeSelectedEventArgs> ModeSelected;
         event EventHandler<EventArgs> ShiftReleased;
         event EventHandler<AxisChangedEventArgs> AxisChanged;
         event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
@@ -25,22 +25,22 @@ namespace SierraHOTAS.Models
         Capabilities Capabilities { get; set; }
         bool IsDeviceLoaded { get; }
         ObservableCollection<IHotasBaseMap> ButtonMap { get; }
-        Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles { get; }
+        Dictionary<int, ObservableCollection<IHotasBaseMap>> Modes { get; }
 
-        void SetModeProfile(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile);
-        int SetupNewModeProfile();
-        void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode);
+        void SetMode(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile);
+        int SetupNewMode();
+        void CopyModeFromTemplate(int templateModeSource, int destinationMode);
         void ListenAsync();
-        void OverlayAllProfilesToDevice();
-        void OverlayAllProfilesToDevice(Dictionary<int, ObservableCollection<IHotasBaseMap>> profilesToMergeIn);
+        void OverlayAllModesToDevice();
+        void OverlayAllModesToDevice(Dictionary<int, ObservableCollection<IHotasBaseMap>> profilesToMergeIn);
         void ApplyButtonMap(ObservableCollection<IHotasBaseMap> existingButtonMap);
         void SetMode(int mode);
         void ForceButtonPress(JoystickOffset offset, bool isDown);
         void Stop();
         void ClearUnassignedActions();
-        void RemoveModeProfile(int mode);
+        void RemoveMode(int mode);
         void ClearButtonMap();
         bool GetButtonState(int mapId);
-        void SetModeActivation(Dictionary<int, ModeActivationItem> modeProfileActivationButtons);
+        void SetModeActivation(Dictionary<int, ModeActivationItem> modeActivationButtons);
     }
 }

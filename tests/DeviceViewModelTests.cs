@@ -339,15 +339,15 @@ namespace SierraHOTAS.Tests
 
 
             var activationList = new Dictionary<int, ModeActivationItem>();
-            var modeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            var modes = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
 
             var map = new ObservableCollection<IHotasBaseMap>();
             map.Add(new HOTASButton() { MapId = 48, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { Actions = new ObservableCollection<ButtonAction>() { new ButtonAction() } }, ActionName = "first" });
-            modeProfiles.Add(1, map);
+            modes.Add(1, map);
 
             deviceVm.RebuildMap(map);
 
-            hotasQueue.Listen(subJoystick, modeProfiles, activationList);
+            hotasQueue.Listen(subJoystick, modes, activationList);
 
             Assert.Raises<ButtonPressedEventArgs>(
                 a => hotasQueue.ButtonPressed += a,

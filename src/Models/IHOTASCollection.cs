@@ -12,12 +12,12 @@ namespace SierraHOTAS.Models
         event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         event EventHandler<AxisChangedEventArgs> AxisChanged;
-        event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
+        event EventHandler<ModeChangedEventArgs> ModeChanged;
         event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
         ObservableCollection<IHOTASDevice> Devices { get; set; }
         int Mode { get; set; }
         ActionCatalog ActionCatalog { get; }
-        Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; }
+        Dictionary<int, ModeActivationItem> ModeActivationButtons { get; }
         void SetCatalog(ActionCatalog catalog);
         void AddDevice(IHOTASDevice device);
         /// <summary>
@@ -31,8 +31,8 @@ namespace SierraHOTAS.Models
         void ApplyButtonMapToAllProfiles();
         void ListenToAllDevices();
         void ListenToDevice(IHOTASDevice device);
-        int SetupNewModeProfile();
-        void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode);
+        int SetupNewMode();
+        void CopyModeFromTemplate(int templateModeSource, int destinationMode);
         void ForceButtonPress(IHOTASDevice device, JoystickOffset offset, bool isDown);
         IHOTASDevice GetDevice(Guid instanceId);
         void ClearUnassignedActions();
@@ -49,7 +49,7 @@ namespace SierraHOTAS.Models
         /// </summary>
         void AutoSetMode();
 
-        bool RemoveModeProfile(ModeActivationItem item);
+        bool RemoveMode(ModeActivationItem item);
 
         /// <summary>
         /// The activation button should be applied across all profiles in the set to ensure the new mode can be reached from any device.

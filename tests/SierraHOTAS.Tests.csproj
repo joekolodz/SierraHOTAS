@@ -109,7 +109,7 @@
     <Compile Include="HOTASQueueTests.cs" />
     <Compile Include="JitterDetectionTests.cs" />
     <Compile Include="JoystickOffsetValuesTests.cs" />
-    <Compile Include="ModeProfileConfigWindowViewModelTests.cs" />
+    <Compile Include="ModeConfigWindowViewModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuickProfilePanelViewModelTests.cs" />
   </ItemGroup>

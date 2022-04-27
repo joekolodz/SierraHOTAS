@@ -21,7 +21,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
-        public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
+        public event EventHandler<ModeSelectedEventArgs> ModeSelected;
         public event EventHandler<EventArgs> ShiftReleased;
         public event EventHandler<EventArgs> LostConnectionToDevice;
 
@@ -31,27 +31,27 @@ namespace SierraHOTAS.Models
 
         private Dictionary<int, JitterDetection> _jitterDetectionDictionary;
 
-        private Dictionary<int, ModeActivationItem> _modeProfileActivationButtons;
+        private Dictionary<int, ModeActivationItem> _modeActivationButtons;
 
         private int _mode;
 
         private IKeyboard Keyboard { get; set; }
         private IJoystick Joystick { get; set; }
         private ObservableCollection<IHotasBaseMap> _buttonMap;
-        private Dictionary<int, ObservableCollection<IHotasBaseMap>> _modeProfiles;
+        private Dictionary<int, ObservableCollection<IHotasBaseMap>> _modes;
 
         public HOTASQueue(IKeyboard keyboard)
         {
             Keyboard = keyboard;
         }
 
-        public void Listen(IJoystick joystick, Dictionary<int, ObservableCollection<IHotasBaseMap>> modeProfiles, Dictionary<int, ModeActivationItem> modeProfileActivationButtons)
+        public void Listen(IJoystick joystick, Dictionary<int, ObservableCollection<IHotasBaseMap>> modes, Dictionary<int, ModeActivationItem> modeActivationButtons)
         {
             Joystick = joystick;
-            _modeProfiles = modeProfiles;
-            _modeProfileActivationButtons = modeProfileActivationButtons;
+            _modes = modes;
+            _modeActivationButtons = modeActivationButtons;
 
-            if (_modeProfiles.Count > 0) _buttonMap = _modeProfiles[1];
+            if (_modes.Count > 0) _buttonMap = _modes[1];
 
             _jitterDetectionDictionary = new Dictionary<int, JitterDetection>();
 
@@ -237,10 +237,10 @@ namespace SierraHOTAS.Models
                 }
                 else
                 {
-                    if (_modeProfileActivationButtons.ContainsKey(_mode) &&
-                        _modeProfileActivationButtons[_mode].InheritFromMode > 0)
+                    if (_modeActivationButtons.ContainsKey(_mode) &&
+                        _modeActivationButtons[_mode].InheritFromMode > 0)
                     {
-                        map = GetMapFromParentMode(_modeProfileActivationButtons[_mode].InheritFromMode, offset) as HOTASButton;
+                        map = GetMapFromParentMode(_modeActivationButtons[_mode].InheritFromMode, offset) as HOTASButton;
                         if (map != null)
                         {
                             HandleButtonPressed(map, offset);
@@ -298,7 +298,7 @@ namespace SierraHOTAS.Models
 
         private void HandleShiftMode(int mode, bool isShift)
         {
-            ModeProfileSelected?.Invoke(this, new ModeProfileSelectedEventArgs() { Mode = mode, IsShift = isShift });
+            ModeSelected?.Invoke(this, new ModeSelectedEventArgs() { Mode = mode, IsShift = isShift });
         }
 
         private async Task PlayMacroOnce(int offset, ObservableCollection<ButtonAction> actions)
@@ -419,11 +419,11 @@ namespace SierraHOTAS.Models
 
         private IHotasBaseMap GetMapFromParentMode(int parentModeId, int buttonOffset)
         {
-            var parentMode = _modeProfiles[parentModeId];
+            var parentMode = _modes[parentModeId];
             var map = parentMode.FirstOrDefault(m => m.MapId == buttonOffset) as HOTASButton;
             //if (map.ActionCatalogItem.Actions.Count > 0 && map.ShiftModePage <= 0)
             //{
-            //    ModeProfileSelected?.Invoke(this, new ModeProfileSelectedEventArgs(){IsShift = true, Mode = parentModeId });
+            //    ModeSelected?.Invoke(this, new ModeSelectedEventArgs(){IsShift = true, Mode = parentModeId });
             //}
             return map;
         }
@@ -447,12 +447,12 @@ namespace SierraHOTAS.Models
         public void SetMode(int mode)
         {
             _mode = mode;
-            _buttonMap = _modeProfiles[_mode];
+            _buttonMap = _modes[_mode];
         }
 
-        public void SetModeProfiles(Dictionary<int, ObservableCollection<IHotasBaseMap>> modeProfiles)
+        public void SetModes(Dictionary<int, ObservableCollection<IHotasBaseMap>> modes)
         {
-            _modeProfiles = modeProfiles;
+            _modes = modes;
         }
     }
 }

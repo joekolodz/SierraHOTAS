@@ -47,7 +47,7 @@ namespace SierraHOTAS.ViewModels
 
 
         public ObservableCollection<IBaseMapViewModel> ButtonMap { get; set; }
-        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles => _hotasDevice.ModeProfiles;
+        public Dictionary<int, ObservableCollection<IHotasBaseMap>> Modes => _hotasDevice.Modes;
 
         public bool IsDeviceLoaded => _hotasDevice?.Capabilities != null;
 

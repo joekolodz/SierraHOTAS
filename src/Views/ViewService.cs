@@ -19,7 +19,7 @@ namespace SierraHOTAS.Views
             _appDispatcher = dispatcherFactory.CreateDispatcher();
 
             _eventAggregator.Subscribe<ShowMessageWindowEvent>(ShowMessageWindow);
-            _eventAggregator.Subscribe<ShowModeProfileConfigWindowEvent>(ShowModeProfileConfigWindow);
+            _eventAggregator.Subscribe<ShowModeConfigWindowEvent>(ShowModeConfigWindow);
             _eventAggregator.Subscribe<ShowInputGraphWindowEvent>(ShowInputGraphWindow);
         }
 
@@ -29,9 +29,9 @@ namespace SierraHOTAS.Views
             modeMessageWindow.ShowDialog();
         }
 
-        private void ShowModeProfileConfigWindow(ShowModeProfileConfigWindowEvent eventMessage)
+        private void ShowModeConfigWindow(ShowModeConfigWindowEvent eventMessage)
         {
-            var modeMessageWindow = new ModeProfileConfigWindow(_eventAggregator, _appDispatcher, eventMessage.Mode, eventMessage.ActivationButtonList, eventMessage.PressedHandler, eventMessage.RemovePressedHandler, eventMessage.CancelCallback);
+            var modeMessageWindow = new ModeConfigWindow(_eventAggregator, _appDispatcher, eventMessage.Mode, eventMessage.ActivationButtonList, eventMessage.PressedHandler, eventMessage.RemovePressedHandler, eventMessage.CancelCallback);
             modeMessageWindow.Owner = _mainWindow;
             
             var result = modeMessageWindow.ShowDialog();

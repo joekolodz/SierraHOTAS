@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SierraHOTAS.ViewModels
 {
-    public class ShowModeProfileConfigWindowEvent
+    public class ShowModeConfigWindowEvent
     {
         public int Mode { get; set; }
         public Dictionary<int, ModeActivationItem> ActivationButtonList { get; set; }
@@ -12,7 +12,7 @@ namespace SierraHOTAS.ViewModels
         public Action<EventHandler<ButtonPressedEventArgs>> RemovePressedHandler { get; set; }
         public Action CancelCallback { get; set; }
 
-        public ShowModeProfileConfigWindowEvent(int mode, Dictionary<int, ModeActivationItem> activationButtonList, Action<EventHandler<ButtonPressedEventArgs>> pressedHandler, Action<EventHandler<ButtonPressedEventArgs>> removePressedHandler, Action cancelCallback)
+        public ShowModeConfigWindowEvent(int mode, Dictionary<int, ModeActivationItem> activationButtonList, Action<EventHandler<ButtonPressedEventArgs>> pressedHandler, Action<EventHandler<ButtonPressedEventArgs>> removePressedHandler, Action cancelCallback)
         {
             Mode = mode;
             ActivationButtonList = activationButtonList;

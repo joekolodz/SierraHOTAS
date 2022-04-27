@@ -123,14 +123,14 @@ namespace SierraHOTAS.Tests
             Assert.Equal("test 1", device.Name);
             Assert.Equal(productId, device.ProductId);
             Assert.Equal(deviceId, device.DeviceId);
-            Assert.NotNull(device.ModeProfiles);
+            Assert.NotNull(device.Modes);
         }
 
         [Fact]
         public void initialize_device_default_constructor()
         {
             var test = new HOTASDevice();
-            Assert.NotNull(test.ModeProfiles);
+            Assert.NotNull(test.Modes);
             Assert.NotNull(test.ButtonMap);
         }
 
@@ -147,9 +147,9 @@ namespace SierraHOTAS.Tests
 
             Assert.Equal(deviceId, device.DeviceId);
             Assert.Equal(name, device.Name);
-            Assert.Single(device.ModeProfiles);
-            Assert.NotNull(device.ModeProfiles[1]);
-            Assert.Same(device.ModeProfiles[1], device.ButtonMap);
+            Assert.Single(device.Modes);
+            Assert.NotNull(device.Modes[1]);
+            Assert.Same(device.Modes[1], device.ButtonMap);
         }
 
         [Fact]
@@ -199,9 +199,9 @@ namespace SierraHOTAS.Tests
 
             Assert.Equal(deviceId, device.DeviceId);
             Assert.Equal(name, device.Name);
-            Assert.Single(device.ModeProfiles);
-            Assert.NotNull(device.ModeProfiles[1]);
-            Assert.Same(device.ModeProfiles[1], device.ButtonMap);
+            Assert.Single(device.Modes);
+            Assert.NotNull(device.Modes[1]);
+            Assert.Same(device.Modes[1], device.ButtonMap);
             Assert.Equal(4096, subJoystick.BufferSize);
         }
 
@@ -224,12 +224,12 @@ namespace SierraHOTAS.Tests
             var newProfile = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
             var previousButtonMap = device.ButtonMap;
 
-            Assert.Single(device.ModeProfiles);
-            Assert.Empty(device.ModeProfiles[1]);
+            Assert.Single(device.Modes);
+            Assert.Empty(device.Modes[1]);
 
-            device.SetModeProfile(newProfile);
+            device.SetMode(newProfile);
 
-            Assert.Empty(device.ModeProfiles);
+            Assert.Empty(device.Modes);
             Assert.Same(previousButtonMap, device.ButtonMap);
         }
 
@@ -255,19 +255,19 @@ namespace SierraHOTAS.Tests
             };
 
 
-            Assert.Single(device.ModeProfiles);
-            Assert.Equal(3, device.ModeProfiles[1].Count);
-            Assert.Equal("Y", device.ModeProfiles[1][1].MapName);
+            Assert.Single(device.Modes);
+            Assert.Equal(3, device.Modes[1].Count);
+            Assert.Equal("Y", device.Modes[1][1].MapName);
 
-            device.SetModeProfile(newProfile);
+            device.SetMode(newProfile);
 
-            Assert.Equal(2, device.ModeProfiles.Count);
-            Assert.Single(device.ModeProfiles[1]);
-            Assert.Equal(2, device.ModeProfiles[2].Count);
-            Assert.Equal("test map 2,2", device.ModeProfiles[2][1].MapName);
+            Assert.Equal(2, device.Modes.Count);
+            Assert.Single(device.Modes[1]);
+            Assert.Equal(2, device.Modes[2].Count);
+            Assert.Equal("test map 2,2", device.Modes[2][1].MapName);
 
             //assert that ApplyButtonMap is called
-            Assert.NotNull(device.ModeProfiles);
+            Assert.NotNull(device.Modes);
             Assert.Equal(3, device.ButtonMap.Count);
             Assert.Equal("test map 1,1", device.ButtonMap[2].MapName);
         }
@@ -283,19 +283,19 @@ namespace SierraHOTAS.Tests
                 new HOTASButton() {MapName = "test map 2,1", MapId = 0},
             };
 
-            device.ModeProfiles.Add(2, newMapProfile);
+            device.Modes.Add(2, newMapProfile);
 
-            Assert.Equal(2, device.ModeProfiles.Count);
-            Assert.Equal(3, device.ModeProfiles[1].Count);
-            Assert.Equal("Y", device.ModeProfiles[1][1].MapName);
-            Assert.Equal("test map 2,1", device.ModeProfiles[2][0].MapName);
+            Assert.Equal(2, device.Modes.Count);
+            Assert.Equal(3, device.Modes[1].Count);
+            Assert.Equal("Y", device.Modes[1][1].MapName);
+            Assert.Equal("test map 2,1", device.Modes[2][0].MapName);
 
-            device.RemoveModeProfile(1);
+            device.RemoveMode(1);
 
             //removing the last one should result in creating a new default one
-            Assert.Single(device.ModeProfiles);
-            Assert.Single(device.ModeProfiles[2]);
-            Assert.Equal("test map 2,1", device.ModeProfiles[2][0].MapName);
+            Assert.Single(device.Modes);
+            Assert.Single(device.Modes[2]);
+            Assert.Equal("test map 2,1", device.Modes[2][0].MapName);
         }
 
 
@@ -304,16 +304,16 @@ namespace SierraHOTAS.Tests
         {
             var device = CreateHotasDevice();
 
-            Assert.Single(device.ModeProfiles);
-            Assert.Equal(3, device.ModeProfiles[1].Count);
-            Assert.Equal("Y", device.ModeProfiles[1][1].MapName);
+            Assert.Single(device.Modes);
+            Assert.Equal(3, device.Modes[1].Count);
+            Assert.Equal("Y", device.Modes[1][1].MapName);
 
-            device.RemoveModeProfile(1);
+            device.RemoveMode(1);
 
             //removing the last one should result in creating a new default one
-            Assert.Single(device.ModeProfiles);
-            Assert.Equal(3, device.ModeProfiles[1].Count);
-            Assert.Equal("Y", device.ModeProfiles[1][1].MapName);
+            Assert.Single(device.Modes);
+            Assert.Equal(3, device.Modes[1].Count);
+            Assert.Equal("Y", device.Modes[1][1].MapName);
         }
 
         [Fact]
@@ -327,15 +327,15 @@ namespace SierraHOTAS.Tests
                 {2, new ObservableCollection<IHotasBaseMap>() {new HOTASButton() {MapName = "test map 2,1", MapId = 0} }},
             };
 
-            device.SetModeProfile(newProfile);
+            device.SetMode(newProfile);
 
-            Assert.Single(device.ModeProfiles[2]);
-            Assert.Equal("test map 2,1", device.ModeProfiles[2][0].MapName);
-            device.CopyModeProfileFromTemplate(1, 2);
+            Assert.Single(device.Modes[2]);
+            Assert.Equal("test map 2,1", device.Modes[2][0].MapName);
+            device.CopyModeFromTemplate(1, 2);
 
-            Assert.Equal(2, device.ModeProfiles[2].Count);
-            Assert.Equal("test map 1,1", device.ModeProfiles[2][0].MapName);
-            Assert.Equal("test map 1,2", device.ModeProfiles[2][1].MapName);
+            Assert.Equal(2, device.Modes[2].Count);
+            Assert.Equal("test map 1,1", device.Modes[2][0].MapName);
+            Assert.Equal("test map 1,2", device.Modes[2][1].MapName);
         }
 
         [Fact]
@@ -348,15 +348,15 @@ namespace SierraHOTAS.Tests
                 {1, new ObservableCollection<IHotasBaseMap>() {new HOTASButton() {MapName = "test map 1,1", MapId = 0}, new HOTASButton() {MapName = "test map 1,2", MapId = 4}}},
             };
 
-            device.SetModeProfile(newProfile);
+            device.SetMode(newProfile);
 
-            Assert.Single(device.ModeProfiles);
+            Assert.Single(device.Modes);
 
-            device.CopyModeProfileFromTemplate(1, 2);
+            device.CopyModeFromTemplate(1, 2);
 
-            Assert.Equal(2, device.ModeProfiles[2].Count);
-            Assert.Equal("test map 1,1", device.ModeProfiles[2][0].MapName);
-            Assert.Equal("test map 1,2", device.ModeProfiles[2][1].MapName);
+            Assert.Equal(2, device.Modes[2].Count);
+            Assert.Equal("test map 1,1", device.Modes[2][0].MapName);
+            Assert.Equal("test map 1,2", device.Modes[2][1].MapName);
         }
 
         [Fact]
@@ -433,10 +433,10 @@ namespace SierraHOTAS.Tests
                 a => device.AxisChanged -= a,
                 () => hotasQueue.AxisChanged += Raise.EventWith(hotasQueue, new AxisChangedEventArgs()));
 
-            Assert.Raises<ModeProfileSelectedEventArgs>(
-                a => device.ModeProfileSelected += a,
-                a => device.ModeProfileSelected -= a,
-                () => hotasQueue.ModeProfileSelected += Raise.EventWith(hotasQueue, new ModeProfileSelectedEventArgs()));
+            Assert.Raises<ModeSelectedEventArgs>(
+                a => device.ModeSelected += a,
+                a => device.ModeSelected -= a,
+                () => hotasQueue.ModeSelected += Raise.EventWith(hotasQueue, new ModeSelectedEventArgs()));
 
             Assert.Raises<EventArgs>(
                 a => device.ShiftReleased += a,
@@ -538,7 +538,7 @@ namespace SierraHOTAS.Tests
             };
 
 
-            device.SetModeProfile(newProfile);
+            device.SetMode(newProfile);
 
             device.SetMode(1);
 
@@ -586,7 +586,7 @@ namespace SierraHOTAS.Tests
             };
 
 
-            device.SetModeProfile(newProfile);
+            device.SetMode(newProfile);
 
             //verify this is the state we want to get back
             Assert.Equal(3, device.ButtonMap.Count);
@@ -616,9 +616,9 @@ namespace SierraHOTAS.Tests
         public void overlay_all_profiles_to_device()
         {
             var device = CreateHotasDevice();
-            device.ModeProfiles[1].RemoveAt(0);
-            device.ModeProfiles[1].RemoveAt(0);
-            var button = device.ModeProfiles[1][0] as HOTASButton;
+            device.Modes[1].RemoveAt(0);
+            device.Modes[1].RemoveAt(0);
+            var button = device.Modes[1][0] as HOTASButton;
 
             //baseline
             Assert.NotNull(button);
@@ -636,17 +636,17 @@ namespace SierraHOTAS.Tests
             };
 
             //baseline
-            Assert.Single(device.ModeProfiles);
+            Assert.Single(device.Modes);
 
-            device.OverlayAllProfilesToDevice();
+            device.OverlayAllModesToDevice();
 
             //verify 2 axis and a button are in the profile and that the button retained its values
-            Assert.Equal(3, device.ModeProfiles[1].Count);
-            Assert.Equal(HOTASButton.ButtonType.AxisLinear, device.ModeProfiles[1][0].Type);
-            Assert.Equal(HOTASButton.ButtonType.AxisLinear, device.ModeProfiles[1][1].Type);
-            Assert.Equal(HOTASButton.ButtonType.Button, device.ModeProfiles[1][2].Type);
+            Assert.Equal(3, device.Modes[1].Count);
+            Assert.Equal(HOTASButton.ButtonType.AxisLinear, device.Modes[1][0].Type);
+            Assert.Equal(HOTASButton.ButtonType.AxisLinear, device.Modes[1][1].Type);
+            Assert.Equal(HOTASButton.ButtonType.Button, device.Modes[1][2].Type);
 
-            button = device.ModeProfiles[1][2] as HOTASButton;
+            button = device.Modes[1][2] as HOTASButton;
             Assert.NotNull(button);
             Assert.Equal(2, button.ActionCatalogItem.Actions.Count);
             Assert.Equal(1, button.ActionCatalogItem.Actions[0].ScanCode);

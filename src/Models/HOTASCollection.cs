@@ -27,7 +27,7 @@ namespace SierraHOTAS.Models
         public virtual event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         public virtual event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public virtual event EventHandler<AxisChangedEventArgs> AxisChanged;
-        public virtual event EventHandler<ModeProfileChangedEventArgs> ModeProfileChanged;
+        public virtual event EventHandler<ModeChangedEventArgs> ModeChanged;
         public virtual event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
         [JsonProperty]
@@ -44,7 +44,7 @@ namespace SierraHOTAS.Models
         public ActionCatalog ActionCatalog { get; private set; }
 
         [JsonProperty]
-        public Dictionary<int, ModeActivationItem> ModeProfileActivationButtons { get; private set; }
+        public Dictionary<int, ModeActivationItem> ModeActivationButtons { get; private set; }
 
         public HOTASCollection()
         {
@@ -65,7 +65,7 @@ namespace SierraHOTAS.Models
         private void Initialize()
         {
             Devices = new ObservableCollection<IHOTASDevice>();
-            ModeProfileActivationButtons = new Dictionary<int, ModeActivationItem>();
+            ModeActivationButtons = new Dictionary<int, ModeActivationItem>();
             JsonFormatVersion = FileFormatVersion;
         }
 
@@ -93,8 +93,8 @@ namespace SierraHOTAS.Models
         private void RebuildMapForNewDevice(IHOTASDevice device, IHOTASDevice newDevice)
         {
             newDevice.ApplyButtonMap(device.ButtonMap.ToObservableCollection());
-            newDevice.SetModeProfile(device.ModeProfiles);
-            newDevice.SetModeActivation(ModeProfileActivationButtons);
+            newDevice.SetMode(device.Modes);
+            newDevice.SetModeActivation(ModeActivationButtons);
             Devices.Add(newDevice);
         }
 
@@ -126,7 +126,7 @@ namespace SierraHOTAS.Models
             device.KeystrokeUpSent -= Device_KeystrokeUpSent;
             device.MacroStarted -= Device_MacroStarted;
             device.MacroCancelled -= Device_MacroCancelled;
-            device.ModeProfileSelected -= Device_ModeProfileSelected;
+            device.ModeSelected -= device_modeSelected;
             device.ShiftReleased -= Device_ShiftReleased;
             device.LostConnectionToDevice -= Device_LostConnectionToDevice;
 
@@ -145,7 +145,7 @@ namespace SierraHOTAS.Models
         {
             foreach (var d in Devices)
             {
-                d.OverlayAllProfilesToDevice();
+                d.OverlayAllModesToDevice();
             }
         }
 
@@ -165,11 +165,11 @@ namespace SierraHOTAS.Models
             device.KeystrokeUpSent += Device_KeystrokeUpSent;
             device.MacroStarted += Device_MacroStarted;
             device.MacroCancelled += Device_MacroCancelled;
-            device.ModeProfileSelected += Device_ModeProfileSelected;
+            device.ModeSelected += device_modeSelected;
             device.ShiftReleased += Device_ShiftReleased;
             device.LostConnectionToDevice += Device_LostConnectionToDevice;
             
-            device.SetModeActivation(ModeProfileActivationButtons);
+            device.SetModeActivation(ModeActivationButtons);
             device.ListenAsync();
         }
 
@@ -188,27 +188,27 @@ namespace SierraHOTAS.Models
             Devices.Remove(device);
         }
 
-        public int SetupNewModeProfile()
+        public int SetupNewMode()
         {
             var newMode = 0;
             foreach (var d in Devices)
             {
-                newMode = d.SetupNewModeProfile();
+                newMode = d.SetupNewMode();
             }
 
             return newMode;
         }
 
-        public void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode)
+        public void CopyModeFromTemplate(int templateModeSource, int destinationMode)
         {
             foreach (var d in Devices)
             {
-                d.CopyModeProfileFromTemplate(templateModeSource, destinationMode);
+                d.CopyModeFromTemplate(templateModeSource, destinationMode);
             }
         }
 
 
-        private void Device_ModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
+        private void device_modeSelected(object sender, ModeSelectedEventArgs e)
         {
             if (!(sender is IHOTASDevice)) return;
 
@@ -327,7 +327,7 @@ namespace SierraHOTAS.Models
             {
                 d.SetMode(mode);
             }
-            ModeProfileChanged?.Invoke(this, new ModeProfileChangedEventArgs() { Mode = mode });
+            ModeChanged?.Invoke(this, new ModeChangedEventArgs() { Mode = mode });
         }
 
         /// <summary>
@@ -351,23 +351,23 @@ namespace SierraHOTAS.Models
             }
         }
 
-        public bool RemoveModeProfile(ModeActivationItem item)
+        public bool RemoveMode(ModeActivationItem item)
         {
-            if (ModeProfileActivationButtons.ContainsValue(item))
+            if (ModeActivationButtons.ContainsValue(item))
             {
                 RemoveActivationButtonModeFromAllProfiles(item);
-                ModeProfileActivationButtons.Remove(item.Mode);
+                ModeActivationButtons.Remove(item.Mode);
 
                 foreach (var d in Devices)
                 {
-                    d.RemoveModeProfile(item.Mode);
+                    d.RemoveMode(item.Mode);
                 } 
 
                 Logging.Log.Debug($"DELETED Mode {item.Mode}!");
                 
-                if (ModeProfileActivationButtons.Count <= 0) return true;
+                if (ModeActivationButtons.Count <= 0) return true;
 
-                var firstMode = ModeProfileActivationButtons.Keys.FirstOrDefault();
+                var firstMode = ModeActivationButtons.Keys.FirstOrDefault();
                 SetMode(firstMode);
                 Logging.Log.Debug($"Setting Mode to {firstMode}!");
                 return true;
@@ -377,12 +377,12 @@ namespace SierraHOTAS.Models
 
         private void RemoveActivationButtonModeFromAllProfiles(ModeActivationItem item)
         {
-            foreach (var button in ModeProfileActivationButtons)
+            foreach (var button in ModeActivationButtons)
             {
                 var device = Devices.FirstOrDefault(d => d.DeviceId == button.Value.DeviceId);
                 if (device == null) continue;
 
-                foreach (var profile in device.ModeProfiles)
+                foreach (var profile in device.Modes)
                 {
                     var map = profile.Value.FirstOrDefault(m => m.MapId == item.ButtonId);
 
@@ -410,7 +410,7 @@ namespace SierraHOTAS.Models
         public void ApplyActivationButtonToAllProfiles()
         {
             //new profiles wont have the link to previous profiles, so we iterate the entire dictionary to sync them all 
-            foreach (var item in ModeProfileActivationButtons)
+            foreach (var item in ModeActivationButtons)
             {
                 var buttonId = item.Value.ButtonId;
                 var isShift = item.Value.IsShift;
@@ -420,7 +420,7 @@ namespace SierraHOTAS.Models
                 var device = Devices.FirstOrDefault(d => d.DeviceId == deviceId);
                 if (device == null) continue;
 
-                foreach (var profile in device.ModeProfiles)
+                foreach (var profile in device.Modes)
                 {
                     var map = profile.Value.FirstOrDefault(m => m.MapId == buttonId);
 

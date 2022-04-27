@@ -171,8 +171,8 @@
     <Compile Include="Models\JoystickWrapper.cs" />
     <Compile Include="Models\LostConnectionToDeviceEventArgs.cs" />
     <Compile Include="Models\MediaPlayerWrapper.cs" />
-    <Compile Include="Models\ModeProfileChangedEventArgs.cs" />
-    <Compile Include="Models\ModeProfileSelectedEventArgs.cs" />
+    <Compile Include="Models\ModeChangedEventArgs.cs" />
+    <Compile Include="Models\ModeSelectedEventArgs.cs" />
     <Compile Include="Models\ActivityItem.cs" />
     <Compile Include="Models\AxisDirectionChangedEventArgs.cs" />
     <Compile Include="Models\AxisSegmentChangedEventArgs.cs" />
@@ -197,11 +197,11 @@
     <Compile Include="Logging.cs" />
     <Compile Include="Models\QuickProfileItem.cs" />
     <Compile Include="Models\SaveFileDialogWrapper.cs" />
-    <Compile Include="ViewModels\DeleteModeProfileEvent.cs" />
+    <Compile Include="ViewModels\DeleteModeEvent.cs" />
     <Compile Include="ViewModels\InputGraphWindowViewModel.cs" />
     <Compile Include="ViewModels\ShowInputGraphWindowEvent.cs" />
     <Compile Include="ViewModels\ShowMessageWindowEvent.cs" />
-    <Compile Include="ViewModels\ShowModeProfileConfigWindowEvent.cs" />
+    <Compile Include="ViewModels\ShowModeConfigWindowEvent.cs" />
     <Compile Include="Views\InputGraphWindow.xaml.cs">
       <DependentUpon>InputGraphWindow.xaml</DependentUpon>
     </Compile>
@@ -218,14 +218,14 @@
     <Compile Include="Models\JoystickOffsetValues.cs" />
     <Compile Include="Models\KeystrokeSentEventArgs.cs" />
     <Compile Include="Models\Segment.cs" />
-    <Compile Include="Views\ModeProfileConfigWindow.xaml.cs">
-      <DependentUpon>ModeProfileConfigWindow.xaml</DependentUpon>
+    <Compile Include="Views\ModeConfigWindow.xaml.cs">
+      <DependentUpon>ModeConfigWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\ModeActivationItem.cs" />
     <Compile Include="Views\MessageWindow.xaml.cs">
       <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\ModeProfileConfigWindowViewModel.cs" />
+    <Compile Include="ViewModels\ModeConfigWindowViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Models\ActionCatalog.cs" />
     <Compile Include="ViewModels\AxisChangedViewModelEventArgs.cs" />
@@ -349,7 +349,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\ModeProfileConfigWindow.xaml">
+    <Page Include="Views\ModeConfigWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

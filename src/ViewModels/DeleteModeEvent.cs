@@ -2,11 +2,11 @@
 
 namespace SierraHOTAS.ViewModels
 {
-    public class DeleteModeProfileEvent
+    public class DeleteModeEvent
     {
         public ModeActivationItem ActivationItem { get; set; }
 
-        public DeleteModeProfileEvent(ModeActivationItem activationItem)
+        public DeleteModeEvent(ModeActivationItem activationItem)
         {
             ActivationItem = activationItem;
         }

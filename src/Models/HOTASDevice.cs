@@ -18,7 +18,7 @@ namespace SierraHOTAS.Models
         public event EventHandler<MacroStartedEventArgs> MacroStarted;
         public event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
-        public event EventHandler<ModeProfileSelectedEventArgs> ModeProfileSelected;
+        public event EventHandler<ModeSelectedEventArgs> ModeSelected;
         public event EventHandler<EventArgs> ShiftReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
         public event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
@@ -41,12 +41,12 @@ namespace SierraHOTAS.Models
 
         [JsonProperty]
         [JsonConverter(typeof(CustomJsonConverter))]
-        public Dictionary<int, ObservableCollection<IHotasBaseMap>> ModeProfiles { get; private set; } = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+        public Dictionary<int, ObservableCollection<IHotasBaseMap>> Modes { get; private set; } = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
 
         private readonly IDirectInput _directInput;
         private IJoystick Joystick { get; set; }
         private IHOTASQueue _hotasQueue;
-        private Dictionary<int, ModeActivationItem> _modeProfileActivationButtons;
+        private Dictionary<int, ModeActivationItem> _modeActivationButtons;
 
         public HOTASDevice() { }
 
@@ -61,7 +61,7 @@ namespace SierraHOTAS.Models
             DeviceId = deviceId;
             ProductId = productGuid;
             Name = name;
-            InitializeModeProfile();
+            InitializeMode();
         }
 
         public HOTASDevice(IDirectInput directInput, JoystickFactory joystickFactory, Guid productGuid, Guid deviceId, string name, IHOTASQueue hotasQueue) :
@@ -78,60 +78,60 @@ namespace SierraHOTAS.Models
             LoadCapabilitiesMapping();
         }
 
-        public void RemoveModeProfile(int mode)
+        public void RemoveMode(int mode)
         {
-            ModeProfiles.Remove(mode);
-            if (ModeProfiles.Count == 0)
+            Modes.Remove(mode);
+            if (Modes.Count == 0)
             {
-                InitializeModeProfile();
+                InitializeMode();
             }
         }
 
-        private void InitializeModeProfile()
+        private void InitializeMode()
         {
-            ModeProfiles.Add(1, ButtonMap);
+            Modes.Add(1, ButtonMap);
         }
 
-        public void SetModeProfile(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile)
+        public void SetMode(Dictionary<int, ObservableCollection<IHotasBaseMap>> profile)
         {
-            ModeProfiles = profile;
-            if (ModeProfiles.Count < 1) return;
-            ApplyButtonMap(profile[ModeProfiles.Keys.Min()].ToObservableCollection());
+            Modes = profile;
+            if (Modes.Count < 1) return;
+            ApplyButtonMap(profile[Modes.Keys.Min()].ToObservableCollection());
         }
 
         //todo pass in the mode profile key for the profile you want to template from
-        public int SetupNewModeProfile()
+        public int SetupNewMode()
         {
-            var maxKey = ModeProfiles.OrderByDescending(x => x.Key).First();
+            var maxKey = Modes.OrderByDescending(x => x.Key).First();
             var newMode = maxKey.Key + 1;
 
             var newButtonMap = new ObservableCollection<IHotasBaseMap>();
-            ModeProfiles.Add(newMode, newButtonMap);
+            Modes.Add(newMode, newButtonMap);
 
             //create an empty button map, but do not switch to it yet
-            SeedButtonMapProfileFromDeviceCapabilities(newButtonMap);
+            SeedButtonMapFromDeviceCapabilities(newButtonMap);
 
             return newMode;
         }
 
-        public void CopyModeProfileFromTemplate(int templateModeSource, int destinationMode)
+        public void CopyModeFromTemplate(int templateModeSource, int destinationMode)
         {
-            if (!ModeProfiles.ContainsKey(templateModeSource)) return;
+            if (!Modes.ContainsKey(templateModeSource)) return;
 
-            var sourceMap = ModeProfiles[templateModeSource];
+            var sourceMap = Modes[templateModeSource];
 
-            var isDestinationMapFound = ModeProfiles.TryGetValue(destinationMode, out var destinationMap);
+            var isDestinationMapFound = Modes.TryGetValue(destinationMode, out var destinationMap);
             if (!isDestinationMapFound)
             {
                 //if a mode is expected to be there but isn't. rebuild its profile list from the first entry (mode=1)
-                var firstMap = ModeProfiles[1];
-                var modeCount = ModeProfiles.Count;
+                var firstMap = Modes[1];
+                var modeCount = Modes.Count;
                 var missingMapCount = destinationMode - modeCount;
                 for (var i = 1; i <= missingMapCount; i++)
                 {
-                    ModeProfiles.Add(i + modeCount, firstMap.ToObservableCollection());
+                    Modes.Add(i + modeCount, firstMap.ToObservableCollection());
                 }
-                destinationMap = ModeProfiles[destinationMode];
+                destinationMap = Modes[destinationMode];
             }
 
             destinationMap.Clear();
@@ -213,11 +213,11 @@ namespace SierraHOTAS.Models
 
         public void ListenAsync()
         {
-            if (_modeProfileActivationButtons == null) throw new InvalidOperationException("ModeProfileActivationButtons must be set before listening to device");
+            if (_modeActivationButtons == null) throw new InvalidOperationException("ModeActivationButtons must be set before listening to device");
 
             RemoveQueueHandlers();
             AddQueueHandlers();
-            _hotasQueue.Listen(Joystick, ModeProfiles, _modeProfileActivationButtons);
+            _hotasQueue.Listen(Joystick, Modes, _modeActivationButtons);
         }
 
         private void AddQueueHandlers()
@@ -228,7 +228,7 @@ namespace SierraHOTAS.Models
             _hotasQueue.MacroCancelled += OnMacroCancelled;
             _hotasQueue.ButtonPressed += OnButtonPress;
             _hotasQueue.AxisChanged += OnAxisChanged;
-            _hotasQueue.ModeProfileSelected += OnModeProfileSelected;
+            _hotasQueue.ModeSelected += onModeSelected;
             _hotasQueue.ShiftReleased += OnShiftReleased;
             _hotasQueue.LostConnectionToDevice += OnLostConnectionToDevice;
         }
@@ -241,7 +241,7 @@ namespace SierraHOTAS.Models
             _hotasQueue.MacroCancelled -= OnMacroCancelled;
             _hotasQueue.ButtonPressed -= OnButtonPress;
             _hotasQueue.AxisChanged -= OnAxisChanged;
-            _hotasQueue.ModeProfileSelected -= OnModeProfileSelected;
+            _hotasQueue.ModeSelected -= onModeSelected;
             _hotasQueue.ShiftReleased -= OnShiftReleased;
             _hotasQueue.LostConnectionToDevice -= OnLostConnectionToDevice;
         }
@@ -250,40 +250,40 @@ namespace SierraHOTAS.Models
         /// Existing buttons in the profile will overlay buttons on the device. If a device has a button with matching profile, then we'll keep that button (otherwise we'd lose it if we just took profile buttons)
         /// This allows a device to change without losing mappings (for instance when chaining a new Virpil device, or manually editing and removing buttons from the profile's JSON file)
         /// </summary>
-        public void OverlayAllProfilesToDevice()
+        public void OverlayAllModesToDevice()
         {
-            var mergedModeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            var mergedModes = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
             var deviceButtons = new ObservableCollection<IHotasBaseMap>();
-            SeedButtonMapProfileFromDeviceCapabilities(deviceButtons);
+            SeedButtonMapFromDeviceCapabilities(deviceButtons);
 
-            foreach (var p in ModeProfiles)
+            foreach (var p in Modes)
             {
                 var d = deviceButtons.ToObservableCollection();//make a copy since we could have more than 1 profile and we don't need to rescan caps
-                mergedModeProfiles.Add(p.Key, MergeMaps(d, p.Value));
+                mergedModes.Add(p.Key, MergeMaps(d, p.Value));
             }
 
-            ModeProfiles = mergedModeProfiles;
-            _hotasQueue?.SetModeProfiles(ModeProfiles);
+            Modes = mergedModes;
+            _hotasQueue?.SetModes(Modes);
         }
 
         /// <summary>
         /// Existing buttons in the profile will overlay buttons on the device. If a device has a button with matching profile, then we'll keep that button (otherwise we'd lose it if we just took profile buttons)
         /// This allows a device to change without losing mappings (for instance when chaining a new Virpil device, or manually editing and removing buttons from the profile's JSON file)
         /// </summary>
-        public void OverlayAllProfilesToDevice(Dictionary<int, ObservableCollection<IHotasBaseMap>> profilesToMergeIn)
+        public void OverlayAllModesToDevice(Dictionary<int, ObservableCollection<IHotasBaseMap>> profilesToMergeIn)
         {
-            var mergedModeProfiles = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            var mergedModes = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
             var deviceButtons = new ObservableCollection<IHotasBaseMap>();
-            SeedButtonMapProfileFromDeviceCapabilities(deviceButtons);
+            SeedButtonMapFromDeviceCapabilities(deviceButtons);
 
             foreach (var p in profilesToMergeIn)
             {
                 var d = deviceButtons.ToObservableCollection();//make a copy since we could have more than 1 profile and we don't need to rescan caps
-                mergedModeProfiles.Add(p.Key, MergeMaps(d, p.Value));
+                mergedModes.Add(p.Key, MergeMaps(d, p.Value));
             }
 
-            ModeProfiles = mergedModeProfiles;
-            _hotasQueue?.SetModeProfiles(ModeProfiles);
+            Modes = mergedModes;
+            _hotasQueue?.SetModes(Modes);
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace SierraHOTAS.Models
                 //Any buttons that don't match means that the device has more buttons than are in the existingButtonMap list and so there is nothing to copy
                 //If the device has fewer buttons than exist on the existingButtonMap, then those buttons are not copied over and lost
                 ButtonMap = new ObservableCollection<IHotasBaseMap>();
-                SeedButtonMapProfileFromDeviceCapabilities(ButtonMap);
+                SeedButtonMapFromDeviceCapabilities(ButtonMap);
                 foreach (var source in existingButtonMap)
                 {
                     var i = ButtonMap.FirstOrDefault(b => b.MapId == source.MapId);
@@ -338,18 +338,18 @@ namespace SierraHOTAS.Models
 
         public void SetMode(int mode)
         {
-            if (!ModeProfiles.ContainsKey(mode))
+            if (!Modes.ContainsKey(mode))
             {
                 Logging.Log.Debug($"Tried to change device to Mode {mode}, but there was no profile for it. Profile will remain unchanged. Device ID: {DeviceId}, Device Name: {Name}");
                 return;
             }
-            ButtonMap = ModeProfiles[mode];
+            ButtonMap = Modes[mode];
             _hotasQueue.SetMode(mode);
         }
 
-        public void SetModeActivation(Dictionary<int, ModeActivationItem> modeProfileActivationButtons)
+        public void SetModeActivation(Dictionary<int, ModeActivationItem> modeActivationButtons)
         {
-            _modeProfileActivationButtons = modeProfileActivationButtons;
+            _modeActivationButtons = modeActivationButtons;
         }
 
         public void ForceButtonPress(JoystickOffset offset, bool isDown)
@@ -360,10 +360,10 @@ namespace SierraHOTAS.Models
         private void LoadCapabilitiesMapping()
         {
             LoadCapabilities();
-            SeedButtonMapProfileFromDeviceCapabilities(ButtonMap);
+            SeedButtonMapFromDeviceCapabilities(ButtonMap);
         }
 
-        private void SeedButtonMapProfileFromDeviceCapabilities(ObservableCollection<IHotasBaseMap> buttonMap)
+        private void SeedButtonMapFromDeviceCapabilities(ObservableCollection<IHotasBaseMap> buttonMap)
         {
             if (Capabilities?.AxeCount > 0) SeedAxisMap(Capabilities.AxeCount, buttonMap);
             if (Capabilities?.ButtonCount > 0) SeedButtonMap(JoystickOffset.Button1, Capabilities.ButtonCount, HOTASButton.ButtonType.Button, buttonMap);
@@ -487,9 +487,9 @@ namespace SierraHOTAS.Models
             _hotasQueue?.Stop();
         }
 
-        private void OnModeProfileSelected(object sender, ModeProfileSelectedEventArgs e)
+        private void onModeSelected(object sender, ModeSelectedEventArgs e)
         {
-            ModeProfileSelected?.Invoke(this, e);
+            ModeSelected?.Invoke(this, e);
         }
 
         private void OnShiftReleased(object sender, EventArgs e)
