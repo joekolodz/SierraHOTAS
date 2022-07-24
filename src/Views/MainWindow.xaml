@@ -50,7 +50,7 @@
             <Button  Style="{StaticResource MenuButton}" Command="{Binding SaveFileAsCommand, IsAsync=True}" ToolTip="Save As..." ToolTipService.InitialShowDelay="800">
                 <Image Source="../Images/saveas_blue_32x32.png"/>
             </Button>
-            <Button  Style="{StaticResource MenuButton}" Command="{Binding ClearActiveProfileSetCommand, IsAsync=True}" ToolTip="Clear Active Profile Set" ToolTipService.InitialShowDelay="800">
+            <Button  Style="{StaticResource MenuButton}" Command="{Binding ResetProfileCommand, IsAsync=True}" ToolTip="Clear Active Profile Set" ToolTipService.InitialShowDelay="800">
                 <Image Source="../Images/cancel_blue_32x32.png"/>
             </Button>
 

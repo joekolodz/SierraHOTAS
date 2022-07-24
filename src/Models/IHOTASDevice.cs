@@ -39,7 +39,7 @@ namespace SierraHOTAS.Models
         void Stop();
         void ClearUnassignedActions();
         void RemoveMode(int mode);
-        void ClearButtonMap();
+        void Reset();
         bool GetButtonState(int mapId);
         void SetModeActivation(Dictionary<int, ModeActivationItem> modeActivationButtons);
     }

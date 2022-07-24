@@ -565,11 +565,11 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
-        public void clear_button_map()
+        public void reset()
         {
             var device = CreateHotasDevice(out _, out _, out var hotasQueue);
 
-            var newProfile = new Dictionary<int, ObservableCollection<IHotasBaseMap>>()
+            var newMode = new Dictionary<int, ObservableCollection<IHotasBaseMap>>()
             {
                 {
                     1,
@@ -585,12 +585,17 @@ namespace SierraHOTAS.Tests
                 }
             };
 
+            device.SetMode(newMode);
+            device.Modes.Add(3, new ObservableCollection<IHotasBaseMap>());
+            device.Modes.Add(4, new ObservableCollection<IHotasBaseMap>());
 
-            device.SetMode(newProfile);
+
+            device.SetModeActivation(new Dictionary<int, ModeActivationItem>());
 
             //verify this is the state we want to get back
             Assert.Equal(3, device.ButtonMap.Count);
             Assert.Equal(0, device.ButtonMap[0].MapId);
+            Assert.Equal(4, device.Modes.Count);
 
             device.SetMode(1);
 
@@ -598,10 +603,11 @@ namespace SierraHOTAS.Tests
             Assert.Single(device.ButtonMap);
             Assert.Equal(48, device.ButtonMap[0].MapId);
 
-            device.ClearButtonMap();
+            device.Reset();
 
             Assert.Equal(3, device.ButtonMap.Count);
             Assert.Equal(0, device.ButtonMap[0].MapId);
+            Assert.Single(device.Modes); 
         }
 
         [Fact]

@@ -512,7 +512,18 @@ namespace SierraHOTAS.Models
             }
         }
 
-        public void ClearButtonMap()
+        public void Reset()
+        {
+            ClearButtonMap();
+            Modes.Clear();
+            InitializeMode();
+            _modeActivationButtons.Clear();
+            
+            //Modes = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            _hotasQueue.SetModes(Modes);
+        }
+
+        private void ClearButtonMap()
         {
             ButtonMap.Clear();
             if (App.IsDebug) return;

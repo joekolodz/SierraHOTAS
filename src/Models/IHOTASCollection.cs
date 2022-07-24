@@ -27,7 +27,7 @@ namespace SierraHOTAS.Models
         void ReplaceDevice(IHOTASDevice newDevice);
         void Start();
         void Stop();
-        void ClearButtonMap();
+        void ResetProfile();
         void ApplyButtonMapToAllProfiles();
         void ListenToAllDevices();
         void ListenToDevice(IHOTASDevice device);

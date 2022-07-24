@@ -674,17 +674,16 @@ namespace SierraHOTAS.Tests
 
             var existingButtonmapVm = hotasVm.Devices[0].ButtonMap[0];
 
-            hotasVm.ClearActiveProfileSetCommand.Execute(default);
+            hotasVm.ResetProfileCommand.Execute(default);
 
             var expectedButtonMapVm = hotasVm.Devices[0].ButtonMap[0];
 
             Assert.NotEqual(expectedButtonMapVm, existingButtonmapVm);
-            Assert.Empty(subDeviceList.ModeActivationButtons);
             Assert.Empty(((HOTASButton)existingDevice.ButtonMap[2]).ActionCatalogItem.Actions);
             Assert.Equal(2, receivedEvents.Count);
             Assert.Equal(expectedPropertyChanged, receivedEvents[0]);
             Assert.Empty(hotasVm.ProfileSetFileName);
-            subDeviceList.Received().ClearButtonMap();
+            subDeviceList.Received().ResetProfile();
         }
 
         [Fact]

@@ -142,7 +142,7 @@ namespace SierraHOTAS.Tests
         }
 
         [Fact]
-        public void clear_button_map()
+        public void reset_profile()
         {
             var subDevice = Substitute.For<IHOTASDevice>();
             subDevice.SetupNewMode().Returns(43);
@@ -153,8 +153,8 @@ namespace SierraHOTAS.Tests
 
             var list = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), subDeviceFactory, Substitute.For<ActionCatalog>());
             list.AddDevice(subDevice);
-            list.ClearButtonMap();
-            subDevice.Received().ClearButtonMap();
+            list.ResetProfile();
+            subDevice.Received().Reset();
         }
 
         [Fact]

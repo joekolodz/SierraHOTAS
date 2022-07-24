@@ -133,12 +133,16 @@ namespace SierraHOTAS.Models
             device.Stop();
         }
 
-        public void ClearButtonMap()
+        public void ResetProfile()
         {
             foreach (var d in Devices)
             {
-                d.ClearButtonMap();
+                d.Reset();
             }
+            
+            Mode = 1;
+            ActionCatalog.Clear();
+            ModeActivationButtons.Clear();
         }
 
         public void ApplyButtonMapToAllProfiles()

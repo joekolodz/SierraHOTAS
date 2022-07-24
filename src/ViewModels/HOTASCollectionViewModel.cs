@@ -81,9 +81,9 @@ namespace SierraHOTAS.ViewModels
 
         public ICommand SelectionChangedCommand => _selectionChangedCommand ?? (_selectionChangedCommand = new CommandHandlerWithParameter<DeviceViewModel>(lstDevices_OnSelectionChanged));
 
-        private ICommand _clearActiveProfileSetCommand;
+        private ICommand _resetProfileCommand;
 
-        public ICommand ClearActiveProfileSetCommand => _clearActiveProfileSetCommand ?? (_clearActiveProfileSetCommand = new CommandHandler(ClearActiveProfileSet));
+        public ICommand ResetProfileCommand => _resetProfileCommand ?? (_resetProfileCommand = new CommandHandler(ResetProfile));
 
         private ICommand _refreshDeviceListCommand;
 
@@ -476,18 +476,26 @@ namespace SierraHOTAS.ViewModels
             Activity.Clear();
         }
 
-        private void ClearActiveProfileSet()
+        private void ResetProfile()
         {
-            _deviceList.ClearButtonMap();
-            _deviceList.ActionCatalog.Clear();
+            _deviceList.ResetProfile();
+            //_deviceList.Mode = 1;
+            //foreach (var device in _deviceList.Devices)
+            //{
+            //    device.Modes.Clear();
+            //    //device.Modes = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
+            //}
+            //_deviceList.ResetProfile();
+            //_deviceList.ActionCatalog.Clear();
+            //_deviceList.ModeActivationButtons.Clear();
+            //OnPropertyChanged(nameof(ModeActivationItems));
 
             foreach (var deviceVm in Devices)
             {
                 deviceVm.ClearButtonMap();
                 deviceVm.RebuildMap();
             }
-
-            _deviceList.ModeActivationButtons.Clear();
+            
             OnPropertyChanged(nameof(ModeActivationItems));
 
             _fileSystem.LastSavedFileName = "";
