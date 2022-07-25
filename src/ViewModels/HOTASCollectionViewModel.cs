@@ -417,8 +417,8 @@ namespace SierraHOTAS.ViewModels
                     if (d == null) continue;
                 }
                 d.SetMode(ld.Modes);
-                ReBuildActionsFromCatalog(deviceVm);
-                deviceVm.RebuildMap(d.ButtonMap);
+                ReBuildActionsFromCatalog(deviceVm);//assign each button their actions
+                deviceVm.RebuildMap(d.ButtonMap);//recreate the view model for each button now that the actions are assigned
             }
         }
 
@@ -495,7 +495,7 @@ namespace SierraHOTAS.ViewModels
                 deviceVm.ClearButtonMap();
                 deviceVm.RebuildMap();
             }
-            
+
             OnPropertyChanged(nameof(ModeActivationItems));
 
             _fileSystem.LastSavedFileName = "";

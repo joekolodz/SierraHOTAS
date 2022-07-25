@@ -96,7 +96,9 @@ namespace SierraHOTAS.Models
         {
             Modes = profile;
             if (Modes.Count < 1) return;
-            ApplyButtonMap(profile[Modes.Keys.Min()].ToObservableCollection());
+
+            ApplyButtonMap(Modes[Modes.Keys.Min()].ToObservableCollection());
+            Modes[Modes.Keys.Min()] = ButtonMap;
         }
 
         //todo pass in the mode profile key for the profile you want to template from
@@ -318,7 +320,7 @@ namespace SierraHOTAS.Models
                 //existingButtonMap is assumed to have less button entries in this scenario. So we want to copy the data from existingButtonMap for any buttons that match between the two lists
                 //Any buttons that don't match means that the device has more buttons than are in the existingButtonMap list and so there is nothing to copy
                 //If the device has fewer buttons than exist on the existingButtonMap, then those buttons are not copied over and lost
-                ButtonMap = new ObservableCollection<IHotasBaseMap>();
+                ButtonMap?.Clear();
                 SeedButtonMapFromDeviceCapabilities(ButtonMap);
                 foreach (var source in existingButtonMap)
                 {
