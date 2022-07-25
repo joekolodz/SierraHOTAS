@@ -262,7 +262,7 @@ namespace SierraHOTAS.Tests
             device.SetMode(newProfile);
 
             Assert.Equal(2, device.Modes.Count);
-            Assert.Single(device.Modes[1]);
+            Assert.Equal(3, device.Modes[1].Count);
             Assert.Equal(2, device.Modes[2].Count);
             Assert.Equal("test map 2,2", device.Modes[2][1].MapName);
 
@@ -333,7 +333,7 @@ namespace SierraHOTAS.Tests
             Assert.Equal("test map 2,1", device.Modes[2][0].MapName);
             device.CopyModeFromTemplate(1, 2);
 
-            Assert.Equal(2, device.Modes[2].Count);
+            Assert.Equal(3, device.Modes[2].Count);
             Assert.Equal("test map 1,1", device.Modes[2][0].MapName);
             Assert.Equal("test map 1,2", device.Modes[2][1].MapName);
         }
@@ -354,7 +354,7 @@ namespace SierraHOTAS.Tests
 
             device.CopyModeFromTemplate(1, 2);
 
-            Assert.Equal(2, device.Modes[2].Count);
+            Assert.Equal(3, device.Modes[2].Count);
             Assert.Equal("test map 1,1", device.Modes[2][0].MapName);
             Assert.Equal("test map 1,2", device.Modes[2][1].MapName);
         }
@@ -542,8 +542,8 @@ namespace SierraHOTAS.Tests
 
             device.SetMode(1);
 
-            Assert.Single(device.ButtonMap);
-            Assert.Equal("test map 1,1", device.ButtonMap[0].MapName);
+            Assert.Equal(3, device.ButtonMap.Count);
+            Assert.Equal("test map 1,1", device.ButtonMap[2].MapName);
 
             device.SetMode(2);
 
@@ -600,8 +600,8 @@ namespace SierraHOTAS.Tests
             device.SetMode(1);
 
             //baseline - verify we actually still have different values. set_mode test should also fail if this fails
-            Assert.Single(device.ButtonMap);
-            Assert.Equal(48, device.ButtonMap[0].MapId);
+            Assert.Equal(3, device.ButtonMap.Count);
+            Assert.Equal(48, device.ButtonMap[2].MapId);
 
             device.Reset();
 
