@@ -44,7 +44,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Unit Test Results
-        path: sierrahotas-test-results.html
+        path: TestResults\sierrahotas-test-results.html
     
     - name: Create Setup
       run: msbuild SierraHOTASSetup\SierraHOTASSetup.wixproj -m /p:Configuration=Release
