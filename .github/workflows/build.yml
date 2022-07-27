@@ -30,15 +30,21 @@ jobs:
     - name: Build
       run: msbuild SierraHOTAS.sln -m /p:Configuration=Release
     
+#    - name: Test
+#      run: packages\xunit.runner.console.2.4.1\tools\net472\xunit.console.exe tests\bin\Release\SierraHOTAS.Tests.dll -xml sierrahotas-test-results.xml
+    
     - name: Test
-      run: packages\xunit.runner.console.2.4.1\tools\net472\xunit.console.exe tests\bin\Release\SierraHOTAS.Tests.dll -xml sierrahotas-test-results.xml
+      run: dotnet test tests\bin\Release\SierraHOTAS.Tests.dll --logger "html;logfilename=sierrahotas-test-results.html"
+
+#    - name: Test
+#      run: dotnet test tests\bin\Release\SierraHOTAS.Tests.dll --logger "trx;logfilename=sierrahotas-test-results.xml"
 
     - name: Upload Unit Test Results
       if: always()
       uses: actions/upload-artifact@v2
       with:
         name: Unit Test Results
-        path: sierrahotas-test-results.xml
+        path: sierrahotas-test-results.html
     
     - name: Create Setup
       run: msbuild SierraHOTASSetup\SierraHOTASSetup.wixproj -m /p:Configuration=Release
