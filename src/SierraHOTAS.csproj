@@ -166,6 +166,8 @@
     <Compile Include="Models\FileSystem.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="Models\QuickProfileItem.cs" />
+    <Compile Include="Models\RecordStartedEventArgs.cs" />
+    <Compile Include="Models\RepeatCancelledEventArgs.cs" />
     <Compile Include="Models\SaveFileDialogWrapper.cs" />
     <Compile Include="ViewModels\DeleteModeEvent.cs" />
     <Compile Include="ViewModels\InputGraphWindowViewModel.cs" />

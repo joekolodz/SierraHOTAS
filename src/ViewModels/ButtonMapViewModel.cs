@@ -59,6 +59,17 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
+        public int RepeatCount
+        {
+            get => _hotasButton.RepeatCount;
+            set
+            {
+                if (_hotasButton.RepeatCount == value) return;
+                _hotasButton.RepeatCount = value;
+                OnPropertyChanged(nameof(RepeatCount));
+            }
+        }
+
         public string ActionName
         {
             get => ActionItem.ActionName;

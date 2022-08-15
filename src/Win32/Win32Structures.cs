@@ -883,7 +883,9 @@ namespace SierraHOTAS
             //PA1 = 0,
             //OEM_CLEAR = 0,
             MACRO_STARTED = -1, //custom addition for sierraHOTAS
-            MACRO_CANCELLED = -2 //custom addition for sierraHOTAS
+            MACRO_CANCELLED = -2, //custom addition for sierraHOTAS
+            REPEAT_STARTED = -3, //custom addition for sierraHOTAS
+            REPEAT_CANCELLED = -4 //custom addition for sierraHOTAS
         }
 
         [StructLayout(LayoutKind.Sequential)]

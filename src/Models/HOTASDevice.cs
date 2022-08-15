@@ -17,6 +17,8 @@ namespace SierraHOTAS.Models
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public event EventHandler<MacroStartedEventArgs> MacroStarted;
         public event EventHandler<MacroCancelledEventArgs> MacroCancelled;
+        public event EventHandler<RepeatStartedEventArgs> RepeatStarted;
+        public event EventHandler<RepeatCancelledEventArgs> RepeatCancelled;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ModeSelectedEventArgs> ModeSelected;
         public event EventHandler<EventArgs> ShiftReleased;
@@ -228,6 +230,8 @@ namespace SierraHOTAS.Models
             _hotasQueue.KeystrokeUpSent += OnKeystrokeUpSent;
             _hotasQueue.MacroStarted += OnMacroStarted;
             _hotasQueue.MacroCancelled += OnMacroCancelled;
+            _hotasQueue.RepeatStarted += OnRepeatStarted;
+            _hotasQueue.RepeatCancelled += OnRepeatCancelled;
             _hotasQueue.ButtonPressed += OnButtonPress;
             _hotasQueue.AxisChanged += OnAxisChanged;
             _hotasQueue.ModeSelected += onModeSelected;
@@ -241,6 +245,8 @@ namespace SierraHOTAS.Models
             _hotasQueue.KeystrokeUpSent -= OnKeystrokeUpSent;
             _hotasQueue.MacroStarted -= OnMacroStarted;
             _hotasQueue.MacroCancelled -= OnMacroCancelled;
+            _hotasQueue.RepeatStarted -= OnRepeatStarted;
+            _hotasQueue.RepeatCancelled -= OnRepeatCancelled;
             _hotasQueue.ButtonPressed -= OnButtonPress;
             _hotasQueue.AxisChanged -= OnAxisChanged;
             _hotasQueue.ModeSelected -= onModeSelected;
@@ -471,6 +477,16 @@ namespace SierraHOTAS.Models
         private void OnMacroCancelled(object sender, MacroCancelledEventArgs e)
         {
             MacroCancelled?.Invoke(sender, e);
+        }
+
+        private void OnRepeatStarted(object sender, RepeatStartedEventArgs e)
+        {
+            Logging.Log.Debug("HOTASDevice - repeat started event");
+            RepeatStarted?.Invoke(sender, e);
+        }
+        private void OnRepeatCancelled(object sender, RepeatCancelledEventArgs e)
+        {
+            RepeatCancelled?.Invoke(sender, e);
         }
 
         private void OnButtonPress(object sender, ButtonPressedEventArgs e)

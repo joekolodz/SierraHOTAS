@@ -276,6 +276,8 @@ namespace SierraHOTAS.ViewModels
             _deviceList.KeystrokeDownSent += DeviceList_KeystrokeDownSent;
             _deviceList.MacroStarted += DeviceList_MacroStarted;
             _deviceList.MacroCancelled += DeviceList_MacroCancelled;
+            _deviceList.RepeatStarted += DeviceList_RepeatStarted;
+            _deviceList.RepeatCancelled += DeviceList_RepeatCancelled;
             _deviceList.KeystrokeUpSent += DeviceList_KeystrokeUpSent;
             _deviceList.ModeChanged += OnModeChanged;
             _deviceList.LostConnectionToDevice += DeviceList_LostConnectionToDevice;
@@ -353,15 +355,26 @@ namespace SierraHOTAS.ViewModels
 
         private void DeviceList_MacroStarted(object sender, MacroStartedEventArgs e)
         {
-            AddMacroActivity(sender, e.Offset, e.Code, false, "Macro Started");
+            AddCustomActivity(sender, e.Offset, e.Code, false, "Macro Started");
         }
 
         private void DeviceList_MacroCancelled(object sender, MacroCancelledEventArgs e)
         {
-            AddMacroActivity(sender, e.Offset, e.Code, true, "Macro Cancelled");
+            AddCustomActivity(sender, e.Offset, e.Code, true, "Macro Cancelled");
         }
 
-        private void AddMacroActivity(object sender, int offset, int scanCode, bool isKeyUp, string message)
+        private void DeviceList_RepeatStarted(object sender, RepeatStartedEventArgs e)
+        {
+            Logging.Log.Debug("HOTASCollectionVM - repeat started event");
+            AddCustomActivity(sender, e.Offset, e.Code, false, "Repeat Started");
+        }
+
+        private void DeviceList_RepeatCancelled(object sender, RepeatCancelledEventArgs e)
+        {
+            AddCustomActivity(sender, e.Offset, e.Code, true, "Repeat Cancelled");
+        }
+
+        private void AddCustomActivity(object sender, int offset, int scanCode, bool isKeyUp, string message)
         {
             var map = (sender as HOTASQueue)?.GetMap(offset);
             if (map == null) return;

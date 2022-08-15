@@ -97,7 +97,9 @@ namespace SierraHOTAS
                 {Win32Structures.ScanCodeShort.LEFT, "LEFT"},
                 {Win32Structures.ScanCodeShort.RETURN, "NUM ENTR"},
                 {Win32Structures.ScanCodeShort.MACRO_STARTED, "MACRO"},
-                {Win32Structures.ScanCodeShort.MACRO_CANCELLED, "MACRO"}
+                {Win32Structures.ScanCodeShort.MACRO_CANCELLED, "MACRO"},
+                {Win32Structures.ScanCodeShort.REPEAT_STARTED, "REPEAT"},
+                {Win32Structures.ScanCodeShort.REPEAT_CANCELLED, "REPEAT"}
             };
         }
 

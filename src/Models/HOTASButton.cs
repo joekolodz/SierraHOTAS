@@ -21,6 +21,7 @@ namespace SierraHOTAS.Models
         public int ShiftModePage { get; set; }
         public bool IsShift { get; set; }
         public bool IsOneShot { get; set; }
+        public int RepeatCount{ get; set; }
 
         public Guid ActionId
         {

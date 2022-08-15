@@ -10,6 +10,8 @@ namespace SierraHOTAS.Models
         event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         event EventHandler<MacroCancelledEventArgs> MacroCancelled;
         event EventHandler<MacroStartedEventArgs> MacroStarted;
+        event EventHandler<RepeatStartedEventArgs> RepeatStarted;
+        event EventHandler<RepeatCancelledEventArgs> RepeatCancelled;
         event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         event EventHandler<AxisChangedEventArgs> AxisChanged;

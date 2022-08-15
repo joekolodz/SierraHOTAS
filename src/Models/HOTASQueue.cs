@@ -18,6 +18,8 @@ namespace SierraHOTAS.Models
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
         public event EventHandler<MacroStartedEventArgs> MacroStarted;
         public event EventHandler<MacroCancelledEventArgs> MacroCancelled;
+        public event EventHandler<RepeatStartedEventArgs> RepeatStarted;
+        public event EventHandler<RepeatCancelledEventArgs> RepeatCancelled;
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public event EventHandler<ButtonPressedEventArgs> ButtonReleased;
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
@@ -82,7 +84,7 @@ namespace SierraHOTAS.Models
             return translatedOffset;
         }
 
-        private void ListenLoop()
+        private async Task ListenLoop()
         {
             while (!_isStopRequested)
             {
@@ -110,7 +112,7 @@ namespace SierraHOTAS.Models
                     if (offset >= JoystickOffset.Button1 && offset <= JoystickOffset.Button128)
                     {
                         Logging.Log.Debug($"Offset:{offset}({state.RawOffset}), Seq:{state.Sequence}, Value:{state.Value}");
-                        HandleStandardButton((int)offset, state.Value);
+                        await HandleStandardButton((int)offset, state.Value);
                         continue;
                     }
 
@@ -120,7 +122,7 @@ namespace SierraHOTAS.Models
                         offset == JoystickOffset.POV4)
                     {
                         Logging.Log.Debug($"Offset:{offset}({state.RawOffset}), POV:{TranslatePointOfViewOffset(offset, state.Value)}, Seq:{state.Sequence}, Value:{state.Value}");
-                        HandlePovButton((JoystickOffset)state.Offset, state.Value);
+                        await HandlePovButton((JoystickOffset)state.Offset, state.Value);
                         continue;
                     }
 
@@ -141,7 +143,7 @@ namespace SierraHOTAS.Models
                         }
                         if (_jitterDetectionDictionary[state.RawOffset].IsJitter(state.Value)) continue;
 
-                        HandleAxis(state);
+                        await HandleAxis(state);
                         OnAxisChanged(state);
                         continue;
                     }
@@ -196,7 +198,7 @@ namespace SierraHOTAS.Models
         }
 
         private static readonly ConcurrentDictionary<JoystickOffset, int> _lastPovButton = new ConcurrentDictionary<JoystickOffset, int>();
-        private void HandlePovButton(JoystickOffset offset, int value)
+        private async Task HandlePovButton(JoystickOffset offset, int value)
         {
             if (_lastPovButton.ContainsKey(offset) || value == (int)JoystickOffsetValues.PointOfViewPositionValues.Released)
             {
@@ -218,14 +220,15 @@ namespace SierraHOTAS.Models
 
                 if (!(GetMap(translatedOffset) is HOTASButton map)) return;
 
-                HandleButtonPressed(map, translatedOffset);
+                await HandleButtonPressed(map, translatedOffset);
                 OnButtonPress(translatedOffset);
             }
         }
 
+        private static readonly ConcurrentDictionary<int, bool> _activeRepeat = new ConcurrentDictionary<int, bool>();
         private static readonly ConcurrentDictionary<int, bool> _activeMacros = new ConcurrentDictionary<int, bool>();
         private static readonly ConcurrentDictionary<int, Task> _activeButtons = new ConcurrentDictionary<int, Task>();
-        private void HandleStandardButton(int offset, int value)
+        private async Task HandleStandardButton(int offset, int value)
         {
             var map = GetMap(offset) as HOTASButton;
             if (IsButtonDown(value))
@@ -233,7 +236,7 @@ namespace SierraHOTAS.Models
                 if (map != null && (map.ActionCatalogItem.Actions.Count > 0 || map.ShiftModePage > 0))
                 {
                     //if action list has a timer in it, then it is a macro and executes on another thread independently. does not interrupt other buttons
-                    HandleButtonPressed(map, offset);
+                    await HandleButtonPressed(map, offset);
                 }
                 else
                 {
@@ -243,7 +246,7 @@ namespace SierraHOTAS.Models
                         map = GetMapFromParentMode(_modeActivationButtons[_mode].InheritFromMode, offset) as HOTASButton;
                         if (map != null)
                         {
-                            HandleButtonPressed(map, offset);
+                            await HandleButtonPressed(map, offset);
                         }
                     }
                 }
@@ -257,9 +260,16 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private void HandleButtonPressed(HOTASButton button, int offset)
+        private async Task HandleButtonPressed(HOTASButton button, int offset)
         {
             if (button == null) return;
+
+            //macros and oneshots can be repeated so check repeats first
+            if (button.RepeatCount != 0)
+            {
+                HandleRepeat(button, offset);
+                return;
+            }
 
             if (button.IsOneShot)
             {
@@ -281,6 +291,80 @@ namespace SierraHOTAS.Models
 
             _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = button.MapId, Actions = button.ActionCatalogItem.Actions });
         }
+
+        private void HandleRepeat(HOTASButton button, int offset)
+        {
+            if (_activeRepeat.TryGetValue(offset, out _))
+            {
+                //cancel a repeat already in progress
+                _activeRepeat.TryRemove(offset, out _);
+                RepeatCancelled?.Invoke(this, new RepeatCancelledEventArgs(offset, (int)Win32Structures.ScanCodeShort.REPEAT_CANCELLED));
+                return;
+            }
+
+            _activeRepeat.TryAdd(offset, true);
+
+            Task.Run(() => PlayRepeat(button, offset));
+        }
+
+        private async Task PlayRepeat(HOTASButton button, int offset)
+        {
+            Logging.Log.Debug("HOTASQueue - repeat started event");
+            RepeatStarted?.Invoke(this, new RepeatStartedEventArgs(offset, (int)Win32Structures.ScanCodeShort.REPEAT_STARTED));
+
+            var repeatedButton = new HOTASButton()
+            {
+                RepeatCount = 0,
+                ActionCatalogItem = button.ActionCatalogItem,
+                ActionId = button.ActionId,
+                ActionName = button.ActionName,
+                IsOneShot = button.IsOneShot,
+                IsShift = button.IsShift,
+                MapId = button.MapId,
+                MapName = button.MapName,
+                ShiftModePage = button.ShiftModePage,
+                Type = button.Type
+            };
+
+
+            var repeatsLeft = button.RepeatCount;
+
+            if (repeatsLeft == -1)
+            {
+                while (true)
+                {
+                    if (await BaseRepeat(button, offset, repeatedButton)) break;
+                }
+            }
+            else
+            {
+                while (repeatsLeft-- > 0)
+                {
+                    if (await BaseRepeat(button, offset, repeatedButton)) break;
+                }
+            }
+
+            _activeRepeat.TryRemove(offset, out _);
+        }
+
+        private async Task<bool> BaseRepeat(HOTASButton button, int offset, HOTASButton repeatedButton)
+        {
+            await HandleButtonPressed(repeatedButton, offset);
+
+            if (_activeRepeat.ContainsKey(offset) == false) return true;
+
+            if (button.IsMacro)
+            {
+                while (_activeMacros.ContainsKey(offset))
+                {
+                    await Task.Delay(500);
+                    if (_activeRepeat.ContainsKey(offset) == false) break;
+                }
+            }
+
+            return false;
+        }
+
 
         private void HandleMacro(HOTASButton button, int offset)
         {
@@ -382,7 +466,7 @@ namespace SierraHOTAS.Models
             _actionJobs.Add(new ActionJobItem() { Offset = offset, MapId = mapId, Actions = null });
         }
 
-        private void HandleAxis(JoystickUpdate state)
+        private async Task HandleAxis(JoystickUpdate state)
         {
             var offset = (int)state.Offset;
 
@@ -393,7 +477,7 @@ namespace SierraHOTAS.Models
             if (!axis.IsSegmentChanged) return;
 
             var map = axis.GetButtonMapFromRawValue(state.Value);
-            HandleButtonPressed(map, offset);
+            await HandleButtonPressed(map, offset);
             HandleButtonReleased(map, offset);
         }
 

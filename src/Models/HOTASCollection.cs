@@ -25,6 +25,8 @@ namespace SierraHOTAS.Models
         public virtual event EventHandler<KeystrokeSentEventArgs> KeystrokeUpSent;
         public virtual event EventHandler<MacroStartedEventArgs> MacroStarted;
         public virtual event EventHandler<MacroCancelledEventArgs> MacroCancelled;
+        public virtual event EventHandler<RepeatStartedEventArgs> RepeatStarted;
+        public virtual event EventHandler<RepeatCancelledEventArgs> RepeatCancelled;
         public virtual event EventHandler<ButtonPressedEventArgs> ButtonPressed;
         public virtual event EventHandler<AxisChangedEventArgs> AxisChanged;
         public virtual event EventHandler<ModeChangedEventArgs> ModeChanged;
@@ -120,15 +122,7 @@ namespace SierraHOTAS.Models
         {
             if (device == null) return;
 
-            device.ButtonPressed -= Device_ButtonPressed;
-            device.AxisChanged -= Device_AxisChanged;
-            device.KeystrokeDownSent -= Device_KeystrokeDownSent;
-            device.KeystrokeUpSent -= Device_KeystrokeUpSent;
-            device.MacroStarted -= Device_MacroStarted;
-            device.MacroCancelled -= Device_MacroCancelled;
-            device.ModeSelected -= device_modeSelected;
-            device.ShiftReleased -= Device_ShiftReleased;
-            device.LostConnectionToDevice -= Device_LostConnectionToDevice;
+            RemoveHandlers(device);
 
             device.Stop();
         }
@@ -163,18 +157,37 @@ namespace SierraHOTAS.Models
 
         public void ListenToDevice(IHOTASDevice device)
         {
+            RemoveHandlers(device);
+
             device.ButtonPressed += Device_ButtonPressed;
             device.AxisChanged += Device_AxisChanged;
             device.KeystrokeDownSent += Device_KeystrokeDownSent;
             device.KeystrokeUpSent += Device_KeystrokeUpSent;
             device.MacroStarted += Device_MacroStarted;
             device.MacroCancelled += Device_MacroCancelled;
+            device.RepeatStarted += Device_RepeatStarted;
+            device.RepeatCancelled += Device_RepeatCancelled;
             device.ModeSelected += device_modeSelected;
             device.ShiftReleased += Device_ShiftReleased;
             device.LostConnectionToDevice += Device_LostConnectionToDevice;
             
             device.SetModeActivation(ModeActivationButtons);
             device.ListenAsync();
+        }
+
+        private void RemoveHandlers(IHOTASDevice device)
+        {
+            device.ButtonPressed -= Device_ButtonPressed;
+            device.AxisChanged -= Device_AxisChanged;
+            device.KeystrokeDownSent -= Device_KeystrokeDownSent;
+            device.KeystrokeUpSent -= Device_KeystrokeUpSent;
+            device.MacroStarted -= Device_MacroStarted;
+            device.MacroCancelled -= Device_MacroCancelled;
+            device.RepeatStarted -= Device_RepeatStarted;
+            device.RepeatCancelled -= Device_RepeatCancelled;
+            device.ModeSelected -= device_modeSelected;
+            device.ShiftReleased -= Device_ShiftReleased;
+            device.LostConnectionToDevice -= Device_LostConnectionToDevice;
         }
 
         private void Device_LostConnectionToDevice(object sender, LostConnectionToDeviceEventArgs e)
@@ -251,6 +264,15 @@ namespace SierraHOTAS.Models
         private void Device_MacroCancelled(object sender, MacroCancelledEventArgs e)
         {
             MacroCancelled?.Invoke(sender, e);
+        }
+        private void Device_RepeatStarted(object sender, RepeatStartedEventArgs e)
+        {
+            Logging.Log.Debug("HOTASCollection - repeat started event");
+            RepeatStarted?.Invoke(sender, e);
+        }
+        private void Device_RepeatCancelled(object sender, RepeatCancelledEventArgs e)
+        {
+            RepeatCancelled?.Invoke(sender, e);
         }
 
         public void ForceButtonPress(IHOTASDevice device, JoystickOffset offset, bool isDown)
