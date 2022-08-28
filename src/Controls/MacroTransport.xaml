@@ -67,7 +67,7 @@
                   VerticalAlignment="Center"/>
 
         <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0,0,0,0">
-            <CheckBox Margin="0,2,0,0" IsChecked="{Binding IsOneShot}">One Shot</CheckBox>
+            <CheckBox Margin="0,2,0,0" IsChecked="{Binding IsOneShot}" ToolTip="Play all keystrokes in order. Do not wait for button release" ToolTipService.InitialShowDelay="800">One Shot</CheckBox>
             <Label Content="Repeats" Foreground="{StaticResource TextBrush}" Margin="81,0,0,0"/>
             <TextBox Text="{Binding RepeatCount}" ToolTip="Number of times to repeat this button press. -1 for infinite" ToolTipService.InitialShowDelay="800" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Margin="0,0,2,0" Width="100" Height="20" FontSize="12" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
         </StackPanel>

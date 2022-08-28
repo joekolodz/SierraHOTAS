@@ -531,7 +531,11 @@ namespace SierraHOTAS.ViewModels
         private void FileOpenDialog()
         {
             var loadedDeviceList = _fileSystem.FileOpenDialog();
-            if (loadedDeviceList == null) return;
+            if (loadedDeviceList == null)
+            {
+                ProfileSetFileName = _fileSystem.LastSavedFileName; 
+                return;
+            }
             LoadHotas(loadedDeviceList);
         }
 

@@ -10,7 +10,7 @@ namespace SierraHOTAS.Win32
         public static void Initialize(Views.MainWindow main)
         {
             if (!(PresentationSource.FromVisual(main) is HwndSource source))
-                throw new ArgumentNullException(nameof(main), @"Can't found a handle to the main window. Application stopping.");
+                throw new ArgumentNullException(nameof(main), @"Can't find a handle to the main window. Application stopping.");
 
             source.AddHook(WndProc);
         }

@@ -158,6 +158,12 @@ namespace SierraHOTAS
                         collection = (HOTASCollection)serializer.Deserialize(new JTokenReader(o), typeof(HOTASCollection));
                     }
                     //else - based on version, use factory to get old version and convert/map to latest version, then re-save
+                    else
+                    {
+                        LastSavedFileName = "Version not supported. Auto conversion not implemented for this version.";
+                        Logging.Log.Warn($"Warning opening file: {LastSavedFileName} Path:{path}");
+                        return null;
+                    }
                 }
                 catch (JsonReaderException readerException)
                 {
