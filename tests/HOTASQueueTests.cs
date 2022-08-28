@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Threading;
-using Castle.Core.Smtp;
-using NSubstitute;
+﻿using NSubstitute;
 using SharpDX.DirectInput;
 using SierraHOTAS.Models;
 using SierraHOTAS.Win32;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
 using JoystickOffset = SierraHOTAS.Models.JoystickOffset;
