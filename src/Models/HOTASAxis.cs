@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using SierraHOTAS.ViewModels;
+﻿using SierraHOTAS.ViewModels;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
@@ -23,7 +23,7 @@ namespace SierraHOTAS.Models
         public double SoundVolume { get; set; } = 1.0d;
         public ObservableCollection<Segment> Segments { get; set; }
 
-        [JsonIgnore]
+        [SierraJsonIgnore]
         public bool IsSegmentChanged { get; set; }
 
         private int _currentSegment;
@@ -31,7 +31,7 @@ namespace SierraHOTAS.Models
         private int _lastAvg;
         private readonly int[] _previousValues;
 
-        [JsonIgnore]
+        [SierraJsonIgnore]
         public AxisDirection Direction { get; private set; }
 
         public HOTASAxis()

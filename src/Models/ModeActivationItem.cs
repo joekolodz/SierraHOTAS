@@ -1,5 +1,5 @@
 ﻿using System;
-using Newtonsoft.Json;
+using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
@@ -13,7 +13,7 @@ namespace SierraHOTAS.Models
         public Guid DeviceId { get; set; }
         public string ButtonName { get; set; }
         public int ButtonId { get; set; }
-        [JsonIgnore]
+        [SierraJsonIgnore]
         public int TemplateMode { get; set; }
     }
 }

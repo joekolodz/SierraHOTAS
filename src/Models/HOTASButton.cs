@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
@@ -29,17 +29,17 @@ namespace SierraHOTAS.Models
             set => ActionCatalogItem.Id = value;
         }
 
-        [JsonIgnore]
+        [SierraJsonIgnore]
         public string ActionName
         {
             get => ActionCatalogItem.ActionName;
             set => ActionCatalogItem.ActionName = value;
         }
 
-        [JsonIgnore]
+        [SierraJsonIgnore]
         public ActionCatalogItem ActionCatalogItem { get; set; }
 
-        [JsonIgnore]
+        [SierraJsonIgnore]
         public bool IsMacro => ActionCatalogItem.Actions.Any(a => a.TimeInMilliseconds > 0);
 
         private bool _isRecording;

@@ -1,14 +1,14 @@
-﻿using Newtonsoft.Json;
-using SharpDX.DirectInput;
+﻿using SharpDX.DirectInput;
 using SierraHOTAS.Factories;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
-    [JsonObject(MemberSerialization.OptIn)]
+    [SierraJsonObject(SierraJsonObject.MemberSerialization.OptIn)]
     public class HOTASDevice : IHOTASDevice
     {
         private readonly JoystickFactory _joystickFactory;
@@ -25,24 +25,26 @@ namespace SierraHOTAS.Models
         public event EventHandler<AxisChangedEventArgs> AxisChanged;
         public event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
-        [JsonProperty]
+        [SierraJsonProperty]
         public Guid DeviceId { get; set; }
 
-        [JsonProperty]
+        [SierraJsonProperty]
         public Guid ProductId { get; set; }
 
-        [JsonProperty]
+        [SierraJsonProperty]
         public string Name { get; set; }
 
+        [SierraJsonIgnore]
         public Capabilities Capabilities { get; set; }
 
+        [SierraJsonIgnore]
         public bool IsDeviceLoaded => Capabilities != null;
 
+        [SierraJsonIgnore]
         public ObservableCollection<IHotasBaseMap> ButtonMap { get; private set; } = new ObservableCollection<IHotasBaseMap>();
 
 
-        [JsonProperty]
-        [JsonConverter(typeof(CustomJsonConverter))]
+        [SierraJsonProperty]
         public Dictionary<int, ObservableCollection<IHotasBaseMap>> Modes { get; private set; } = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
 
         private readonly IDirectInput _directInput;

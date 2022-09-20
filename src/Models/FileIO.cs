@@ -37,6 +37,11 @@ namespace SierraHOTAS.Models
             return File.OpenText(path);
         }
 
+        public string ReadAllText(string path)
+        {
+            return File.ReadAllText(path);
+        }
+
         public bool FileExists(string path)
         {
             return File.Exists(path);

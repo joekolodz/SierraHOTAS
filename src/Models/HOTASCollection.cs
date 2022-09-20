@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json;
-using SharpDX.DirectInput;
+﻿using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using SierraHOTAS.Factories;
+using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
-    [JsonObject(MemberSerialization.OptIn)]
+    [SierraJsonObject(SierraJsonObject.MemberSerialization.OptIn)]
     public class HOTASCollection : IHOTASCollection
     {
         public const string FileFormatVersion = "1.0.0";
@@ -32,20 +32,21 @@ namespace SierraHOTAS.Models
         public virtual event EventHandler<ModeChangedEventArgs> ModeChanged;
         public virtual event EventHandler<LostConnectionToDeviceEventArgs> LostConnectionToDevice;
 
-        [JsonProperty]
+        [SierraJsonProperty]
         public string JsonFormatVersion { get; set; }
 
-        [JsonProperty]
+        [SierraJsonProperty]
         public ObservableCollection<IHOTASDevice> Devices { get; set; }
 
+        [SierraJsonIgnore]
         public int Mode { get; set; } = 1;
 
         private IHOTASDevice _selectedDevice;
 
-        [JsonProperty]
+        [SierraJsonProperty]
         public ActionCatalog ActionCatalog { get; private set; }
 
-        [JsonProperty]
+        [SierraJsonProperty]
         public Dictionary<int, ModeActivationItem> ModeActivationButtons { get; private set; }
 
         public HOTASCollection()

@@ -1,9 +1,8 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SierraHOTAS.Factories;
+﻿using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using System;
 using System.Collections.Generic;
+using SierraJSON;
 
 namespace SierraHOTAS
 {
@@ -35,10 +34,15 @@ namespace SierraHOTAS
         {
             fileName = BuildCurrentPath(fileName);
             Logging.Log.Debug($"Saving Quick List as :{fileName}");
-            using (var file = _fileIo.CreateText(fileName))
+            
+            try
             {
-                var serializer = new JsonSerializer { Formatting = Formatting.Indented };
-                serializer.Serialize(file, list);
+                _fileIo.WriteAllText(fileName, Serializer.ToJSON(list, new CustomSierraJsonConverter()));
+            }
+            catch (Exception e)
+            {
+                Logging.Log.Debug(e);
+                throw;
             }
         }
 
@@ -48,25 +52,16 @@ namespace SierraHOTAS
 
             if (!_fileIo.FileExists(path)) return null;
 
-            using (var file = _fileIo.OpenText(path))
+            try
             {
-                var serializer = new JsonSerializer();
-                serializer.Converters.Add(new CustomJsonConverter());
-                try
-                {
-                    var list = (Dictionary<int, QuickProfileItem>)serializer.Deserialize(file, typeof(Dictionary<int, QuickProfileItem>));
-                    return list;
-                }
-                catch (JsonException jsonException)
-                {
-                    Logging.Log.Error($"Could not deserialize {file}\nPlease verify this a SierraHOTAS compatible JSON file.\n\nStack:{jsonException}");
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    Logging.Log.Error($"Could not deserialize {fileName}\nStack:{e}");
-                    throw;
-                }
+                var json = _fileIo.ReadAllText(path);
+                var list = Serializer.ToObject<Dictionary<int, QuickProfileItem>>(json, null);
+                return list;
+            }
+            catch (Serializer.SierraJSONException e)
+            {
+                Logging.Log.Error($"Could not deserialize {fileName}\nStack:{e}");
+                throw;
             }
         }
 
@@ -114,7 +109,7 @@ namespace SierraHOTAS
 
             try
             {
-                _fileIo.WriteAllText(fileName, JsonConvert.SerializeObject(deviceList, Formatting.Indented, new CustomJsonConverter()));
+                _fileIo.WriteAllText(fileName, Serializer.ToJSON(deviceList, new CustomSierraJsonConverter()));
             }
             catch (Exception e)
             {
@@ -140,45 +135,32 @@ namespace SierraHOTAS
         {
             if (string.IsNullOrWhiteSpace(path)) return null;
 
-            using (var file = _fileIo.OpenText(path))
+            IHOTASCollection collection;
+            try
             {
-                Logging.Log.Info($"Reading profile from :{path}");
+                var json = _fileIo.ReadAllText(path);
+                var version = (string)Serializer.GetToken("JsonFormatVersion", json);
 
-                var serializer = new JsonSerializer();
-                serializer.Converters.Add(new CustomJsonConverter());
-
-                IHOTASCollection collection = null;
-                try
+                if (version == HOTASCollection.FileFormatVersion)
                 {
-                    var o = (JObject)JToken.ReadFrom(new JsonTextReader(file));
-                    var version = (string)o["JsonFormatVersion"];
-
-                    if (version == HOTASCollection.FileFormatVersion)
-                    {
-                        collection = (HOTASCollection)serializer.Deserialize(new JTokenReader(o), typeof(HOTASCollection));
-                    }
-                    //else - based on version, use factory to get old version and convert/map to latest version, then re-save
-                    else
-                    {
-                        LastSavedFileName = "Version not supported. Auto conversion not implemented for this version.";
-                        Logging.Log.Warn($"Warning opening file: {LastSavedFileName} Path:{path}");
-                        return null;
-                    }
+                    collection = Serializer.ToObject<HOTASCollection>(json, new CustomSierraJsonConverter());
                 }
-                catch (JsonReaderException readerException)
+                //else - based on version, use factory to get old version and convert/map to latest version, then re-save
+                else
                 {
-                    Logging.Log.Error($"Could not deserialize {file}\nPlease verify this a SierraHOTAS compatible JSON file.\n\nStack:{readerException}");
+                    LastSavedFileName = "Version not supported. Auto conversion not implemented for this version.";
+                    Logging.Log.Warn($"Warning opening file: {LastSavedFileName} Path:{path}");
                     return null;
                 }
-                catch (Exception e)
-                {
-                    Logging.Log.Error($"Could not deserialize {file}\nStack:{e}");
-                    return null;
-                }
-
-                LastSavedFileName = path;
-                return collection;
             }
+            catch (Exception readerException)
+            {
+                Logging.Log.Error($"Could not deserialize {path}\nPlease verify this a SierraHOTAS compatible JSON file.\n\nStack:{readerException}");
+                return null;
+            }
+
+            LastSavedFileName = path;
+            return collection;
         }
 
         public string GetSoundFileName()

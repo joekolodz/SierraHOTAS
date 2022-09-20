@@ -1,9 +1,9 @@
 ﻿using System;
-using Newtonsoft.Json;
+using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
-    [JsonObject(MemberSerialization.OptIn)]
+    [SierraJsonObject(SierraJsonObject.MemberSerialization.OptIn)]
     public class ButtonPressedEventArgs : EventArgs
     {
         public int ButtonId { get; set; }

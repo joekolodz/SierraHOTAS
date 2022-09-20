@@ -8,7 +8,6 @@ namespace SierraHOTAS
 {
     public class IoCContainer
     {
-        public static  AutofacContractResolver ContractResolver { get; set; }
 
         public static IContainer GetContainer()
         {
@@ -38,7 +37,6 @@ namespace SierraHOTAS
 
             var container =  builder.Build();
 
-            ContractResolver = new AutofacContractResolver(container);
 
             return container;
         }

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SierraHOTAS.Tests", "tests\
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "SierraHOTASSetup", "SierraHOTASSetup\SierraHOTASSetup.wixproj", "{F5F1FAE3-26C1-45FA-B30E-8CD0668886C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SierraJSON", "SierraJSON\SierraJSON.csproj", "{083E2C98-C271-46D3-98B5-B6C5A032AE63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
@@ -53,6 +55,18 @@ Global
 		{F5F1FAE3-26C1-45FA-B30E-8CD0668886C6}.Release|x64.Build.0 = Release|x64
 		{F5F1FAE3-26C1-45FA-B30E-8CD0668886C6}.Release|x86.ActiveCfg = Release|x86
 		{F5F1FAE3-26C1-45FA-B30E-8CD0668886C6}.Release|x86.Build.0 = Release|x86
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Debug|x64.Build.0 = Debug|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Debug|x86.Build.0 = Debug|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Release|x64.ActiveCfg = Release|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Release|x64.Build.0 = Release|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Release|x86.ActiveCfg = Release|Any CPU
+		{083E2C98-C271-46D3-98B5-B6C5A032AE63}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

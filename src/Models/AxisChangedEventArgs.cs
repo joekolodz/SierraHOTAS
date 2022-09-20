@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
-    [JsonObject(MemberSerialization.OptIn)]
+    [SierraJsonObject(SierraJsonObject.MemberSerialization.OptIn)]
     public class AxisChangedEventArgs : EventArgs
     {
         public int AxisId { get; set; }

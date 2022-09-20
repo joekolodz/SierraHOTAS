@@ -76,7 +76,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AutofacContractResolver.cs" />
     <Compile Include="Controls\AxisValueToPercentageConverter.cs" />
     <Compile Include="Controls\ButtonMap.xaml.cs">
       <DependentUpon>ButtonMap.xaml</DependentUpon>
@@ -92,6 +91,7 @@
     <Compile Include="Controls\QuickProfilePanel.xaml.cs">
       <DependentUpon>QuickProfilePanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomSierraJsonConverter.cs" />
     <Compile Include="EventAggregator.cs" />
     <Compile Include="Factories\DeviceViewModelFactory.cs" />
     <Compile Include="Factories\DirectInputFactory.cs" />
@@ -148,7 +148,6 @@
     <Compile Include="Controls\RadialAxisMap.xaml.cs">
       <DependentUpon>RadialAxisMap.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CustomJsonConverter.cs" />
     <Compile Include="DataProvider.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Models\FileSystem.cs" />
@@ -386,9 +385,6 @@
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf">
       <Version>1.0.8</Version>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.1</Version>
-    </PackageReference>
     <PackageReference Include="NLog">
       <Version>4.6.7</Version>
     </PackageReference>
@@ -398,6 +394,12 @@
     <PackageReference Include="System.ValueTuple">
       <Version>4.5.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SierraJSON\SierraJSON.csproj">
+      <Project>{083e2c98-c271-46d3-98b5-b6c5a032ae63}</Project>
+      <Name>SierraJSON</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -38,7 +38,7 @@ namespace SierraHOTAS.Tests
             subFileIO.Received().GetExecutingAssemblyLocation();
             subFileIO.Received().GetDirectoryName(Arg.Any<string>());
             subFileIO.Received().Combine(Arg.Any<string>(), fileName);
-            subFileIO.Received().CreateText(fileName);
+            subFileIO.Received().WriteAllText(fileName, Arg.Any<string>());
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace SierraHOTAS.Tests
         {
             const string fileName = "some path";
             const bool fileExists = true;
-            const string fileContents = @"{""0"":{""Path"":""C:\\temp\\DCS BS2 - Virpil.json"",""AutoLoad"":false},""4"":{""Path"":""C:\\temp\\Star Citizen.json"",""AutoLoad"":true}}";
+            const string fileContents = @"{""0"":{""Path"":""C:\temp\DCS BS2 - Virpil.json"",""AutoLoad"":false},""4"":{""Path"":""C:\temp\Star Citizen.json"",""AutoLoad"":true}}";
             var subFileIO = Substitute.For<IFileIO>();
             var subDialogFactory = Substitute.For<FileDialogFactory>();
 
@@ -71,12 +71,12 @@ namespace SierraHOTAS.Tests
             subFileIO.Combine(Arg.Any<string>(), fileName).Returns(fileName);
             subFileIO.FileExists(fileName).Returns(fileExists);
 
-            subFileIO.OpenText(Arg.Any<string>()).Returns(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(fileContents))));
+            subFileIO.ReadAllText(Arg.Any<string>()).Returns(fileContents);
 
             var fs = new FileSystem(subFileIO, subDialogFactory);
             var list = fs.LoadQuickProfilesList(fileName);
 
-            subFileIO.Received(1).OpenText(fileName);
+            subFileIO.Received(1).ReadAllText(fileName);
 
             Assert.Equal(2, list.Count);
             Assert.NotNull(list[0]);
@@ -101,20 +101,21 @@ namespace SierraHOTAS.Tests
 
             var fs = new FileSystem(subFileIO, subDialogFactory);
 
-            subFileIO.OpenText(Arg.Any<string>()).Returns(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(fileContents))));
+            subFileIO.ReadAllText(Arg.Any<string>()).Returns(fileContents);
             var list = fs.LoadQuickProfilesList(fileName);
             Assert.Null(list);
 
             fileContents = "x";
-            subFileIO.OpenText(Arg.Any<string>()).Returns(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(fileContents))));
-            Assert.Throws<JsonReaderException>(() => fs.LoadQuickProfilesList(fileName));
+            subFileIO.ReadAllText(Arg.Any<string>()).Returns(fileContents);
+            list = fs.LoadQuickProfilesList(fileName);
+            Assert.Null(list);
 
             //missing a bracket
             fileContents = @"{""0"":{""Path"":""C:\\temp\\DCS BS2 - Virpil.json"",""AutoLoad"":false,""4"":{""Path"":""C:\\temp\\Star Citizen.json"",""AutoLoad"":true}}";
-            subFileIO.OpenText(Arg.Any<string>()).Returns(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(fileContents))));
-            Assert.Throws<JsonSerializationException>(() => fs.LoadQuickProfilesList(fileName));
+            subFileIO.ReadAllText(Arg.Any<string>()).Returns(fileContents);
+            Assert.Throws<SierraJSON.Serializer.SierraJSONException>(() => fs.LoadQuickProfilesList(fileName));
 
-            subFileIO.OpenText(Arg.Any<string>()).Returns(x => null);
+            subFileIO.ReadAllText(Arg.Any<string>()).Returns(x => null);
             Assert.Throws<ArgumentNullException>(() => fs.LoadQuickProfilesList(fileName));
         }
 
@@ -255,9 +256,9 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void file_open_dialog_true()
         {
-            const string fileContents = @"{""JsonFormatVersion"": ""1.0.0"",""Devices"":[{""DeviceId"":""3905f630-ed1c-11e9-8001-444553540000"",},{""DeviceId"":""ffeaf2a0-9145-11ea-8001-444553540000""}]}";
+            const string fileContents = @"{""JsonFormatVersion"": ""1.0.0"",""Devices"":[{""DeviceId"":""3905f630-ed1c-11e9-8001-444553540000""},{""DeviceId"":""ffeaf2a0-9145-11ea-8001-444553540000""}]}";
             var subFileIO = Substitute.For<IFileIO>();
-            subFileIO.OpenText(Arg.Any<string>()).Returns(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(fileContents))));
+            subFileIO.ReadAllText(Arg.Any<string>()).Returns(fileContents);
 
             var subFileStream = Substitute.For<IFileStream>();
             subFileIO.CreateFileStream(Arg.Any<string>(), Arg.Any<FileMode>(), Arg.Any<FileAccess>()).Returns(subFileStream);
@@ -289,9 +290,9 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void file_open_no_exception()
         {
-            const string fileContents = @"{""JsonFormatVersion"": ""1.0.0"",""Devices"":[{""DeviceId"":""3905f630-ed1c-11e9-8001-444553540000"",},{""DeviceId"":""ffeaf2a0-9145-11ea-8001-444553540000""}]}";
+            const string fileContents = @"{""JsonFormatVersion"": ""1.0.0"",""Devices"":[{""DeviceId"":""3905f630-ed1c-11e9-8001-444553540000""},{""DeviceId"":""ffeaf2a0-9145-11ea-8001-444553540000""}]}";
             var subFileIO = Substitute.For<IFileIO>();
-            subFileIO.OpenText(Arg.Any<string>()).Returns(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(fileContents))));
+            subFileIO.ReadAllText(Arg.Any<string>()).Returns(fileContents);
 
             var subFileStream = Substitute.For<IFileStream>();
             subFileIO.CreateFileStream(Arg.Any<string>(), Arg.Any<FileMode>(), Arg.Any<FileAccess>()).Returns(subFileStream);
