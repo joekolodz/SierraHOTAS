@@ -69,10 +69,6 @@
     <Compile Include="QuickProfilePanelViewModelTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SierraJSON\SierraJSON.csproj">
-      <Project>{083e2c98-c271-46d3-98b5-b6c5a032ae63}</Project>
-      <Name>SierraJSON</Name>
-    </ProjectReference>
     <ProjectReference Include="..\src\SierraHOTAS.csproj">
       <Project>{5f2e2862-7836-4512-aa06-5f5eae943aee}</Project>
       <Name>SierraHOTAS</Name>
