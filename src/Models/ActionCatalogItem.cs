@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace SierraHOTAS.Models
 {
-    public class ActionCatalogItem : INotifyPropertyChanged
+    public class ActionCatalogItem : INotifyPropertyChanged, IComparable<ActionCatalogItem>
     {
         private string _actionName;
         public const string NO_ACTION_TEXT = "<No Action>";
@@ -30,6 +30,14 @@ namespace SierraHOTAS.Models
         public ObservableCollection<ButtonAction> Actions { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public int CompareTo(ActionCatalogItem other)
+        {
+            if (other == null) return 1;
+            var value = string.CompareOrdinal(other.ActionName, ActionName) * -1;
+            Logging.Log.Info($"Comparing:'{other.ActionName}' to '{ActionName}': {value}");
+            return value;
+        }
 
         public override string ToString()
         {

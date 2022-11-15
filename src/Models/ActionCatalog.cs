@@ -1,18 +1,75 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 
 namespace SierraHOTAS.Models
 {
-    public class ActionCatalog
+    public class ActionCatalog : INotifyCollectionChanged
     {
-        public ObservableCollection<ActionCatalogItem> Catalog { get; }
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        public ObservableCollection<ActionCatalogItem> Catalog { get; private set; }
 
         public ActionCatalog()
         {
             Catalog = new ObservableCollection<ActionCatalogItem>();
             AddEmptyItem();
+
+            Catalog.CollectionChanged += Catalog_CollectionChanged;
         }
+
+        private void Catalog_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (INotifyPropertyChanged item in e.OldItems)
+                {
+                    item.PropertyChanged -= Item_PropertyChanged;
+                }
+            }
+
+            if (e.NewItems != null)
+            {
+                foreach (INotifyPropertyChanged item in e.NewItems)
+                {
+                    item.PropertyChanged += Item_PropertyChanged;
+                }
+            }
+        }
+
+        private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (sender is ActionCatalogItem item)
+            {
+                ReSortItem(item);
+            }
+        }
+
+        private void ReSortItem(ActionCatalogItem item)
+        {
+            var index = Catalog.IndexOf(item);
+            Catalog.RemoveAt(index);
+            Insert(item);
+        }
+
+        private int GetSortPosition(ActionCatalogItem item)
+        {
+            IComparer<ActionCatalogItem> comparer = Comparer<ActionCatalogItem>.Default;
+            var i = 0;
+            while (i < Catalog.Count && comparer.Compare(Catalog[i], item) <= 0)
+            {
+                i++;
+            }
+            return i;
+        }
+
+        //public void Sort()
+        //{
+        //    Catalog = Catalog.OrderBy(x => x.ActionName).ToObservableCollection();
+        //}
 
         public void Clear()
         {
@@ -51,9 +108,14 @@ namespace SierraHOTAS.Models
             {
                 item.ActionName = $"Action for {buttonName}";
             }
+            Insert(item);
+        }
 
-            Catalog.Add(item);
-            Logging.Log.Debug($"{item.ActionName} - {buttonName} added to actions catalog");
+        private void Insert(ActionCatalogItem item)
+        {
+            var index = GetSortPosition(item);
+            Catalog.Insert(index, item);
+            Logging.Log.Debug($"[{item.ActionName}] added to actions catalog at position: {index}");
         }
 
         public ActionCatalogItem Get(string actionName)
