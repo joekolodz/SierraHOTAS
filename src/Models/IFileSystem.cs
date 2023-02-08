@@ -14,5 +14,7 @@ namespace SierraHOTAS.Models
         IHOTASCollection FileOpenDialog();
         IHOTASCollection FileOpen(string path);
         string GetSoundFileName();
+        void SaveModeOverlayScreenPosition(string path, int x, int y);
+        string ReadModeOverlayScreenPosition(string path);
     }
 }

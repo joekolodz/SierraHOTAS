@@ -1,8 +1,9 @@
 ﻿using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
+using SierraJSON;
 using System;
 using System.Collections.Generic;
-using SierraJSON;
+using System.IO;
 
 namespace SierraHOTAS
 {
@@ -113,7 +114,7 @@ namespace SierraHOTAS
             }
             catch (Exception e)
             {
-                Logging.Log.Debug(e);
+                Logging.Log.Fatal(e);
                 throw;
             }
         }
@@ -173,6 +174,43 @@ namespace SierraHOTAS
 
             var result = dlg.ShowDialog();
             return result != true ? null : dlg.FileName;
+        }
+
+        public void SaveModeOverlayScreenPosition(string path, int x, int y)
+        {
+            try
+            {
+                _fileIo.WriteAllText(path, $"{x},{y}");
+            }
+            catch (IOException ioe)
+            {
+                Logging.Log.Error(ioe);
+            }
+            catch (Exception e)
+            {
+                Logging.Log.Fatal(e);
+                throw;
+            }
+        }
+
+        public string ReadModeOverlayScreenPosition(string path)
+        {
+            if (!_fileIo.FileExists(path)) return string.Empty;
+
+            try
+            {
+                return _fileIo.ReadAllText(path);
+            }
+            catch (IOException ioe)
+            {
+                Logging.Log.Error(ioe);
+                return string.Empty;
+            }
+            catch (Exception e)
+            {
+                Logging.Log.Fatal(e);
+                throw;
+            }
         }
     }
 }

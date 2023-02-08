@@ -108,6 +108,11 @@ namespace SierraHOTAS.ViewModels
         private ICommand _showInputGraphWindowCommand;
 
         public ICommand ShowInputGraphWindowCommand => _showInputGraphWindowCommand ?? (_showInputGraphWindowCommand = new CommandHandler(ShowInputGraphWindow));
+
+        private ICommand _toggleModeOverlayCommand;
+
+        public ICommand ToggleModeOverlayCommand => _toggleModeOverlayCommand ?? (_toggleModeOverlayCommand = new CommandHandler(ToggleModeOverlay));
+
         public HOTASCollectionViewModel(DispatcherFactory dispatcherFactory, IEventAggregator eventAggregator, IFileSystem fileSystem, MediaPlayerFactory mediaPlayerFactory, IHOTASCollection hotasCollection, QuickProfilePanelViewModel quickProfilePanelViewModel, DeviceViewModelFactory deviceViewModelFactory)
         {
             _fileSystem = fileSystem;
@@ -487,6 +492,11 @@ namespace SierraHOTAS.ViewModels
         private void ClearActivityList()
         {
             Activity.Clear();
+        }
+
+        private void ToggleModeOverlay()
+        {
+            _eventAggregator.Publish(new ShowModeOverlayWindowEvent(_deviceList.ModeActivationButtons, _deviceList.Mode, h =>_deviceList.ModeChanged += h, h => _deviceList.ModeChanged -= h));
         }
 
         private void ResetProfile()

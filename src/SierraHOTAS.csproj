@@ -167,6 +167,7 @@
     <Compile Include="ViewModels\ShowInputGraphWindowEvent.cs" />
     <Compile Include="ViewModels\ShowMessageWindowEvent.cs" />
     <Compile Include="ViewModels\ShowModeConfigWindowEvent.cs" />
+    <Compile Include="ViewModels\ShowModeOverlayWindowEvent.cs" />
     <Compile Include="Views\InputGraphWindow.xaml.cs">
       <DependentUpon>InputGraphWindow.xaml</DependentUpon>
     </Compile>
@@ -206,6 +207,9 @@
     <Compile Include="ViewModels\DataTemplates\MapDataTemplateSelector.cs" />
     <Compile Include="ViewModels\QuickProfilePanelViewModel.cs" />
     <Compile Include="ViewModels\QuickProfileSelectedEvent.cs" />
+    <Compile Include="Views\ModeOverlayWindow.xaml.cs">
+      <DependentUpon>ModeOverlayWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ViewService.cs" />
     <Compile Include="Win32\IKeyboard.cs" />
     <Compile Include="Win32\Win32Structures.cs" />
@@ -242,6 +246,7 @@
     <Resource Include="Images\graph_22x22.png" />
     <Resource Include="Images\favorite_23x22.png" />
     <Resource Include="Images\unfavorite_23x22.png" />
+    <Resource Include="Images\overlay_32x32.png" />
     <Content Include="Sounds\click01.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -318,6 +323,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MessageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ModeOverlayWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

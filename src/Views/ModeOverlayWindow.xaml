@@ -1,0 +1,25 @@
+﻿<Window x:Class="SierraHOTAS.Views.ModeOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SierraHOTAS.Views"
+        mc:Ignorable="d"
+        Title=""
+        Height="25" 
+        Width="100">
+
+    <Grid x:Name="grid" Background="Transparent">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="105" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Active Mode:" VerticalAlignment="Center" Style="{StaticResource ModeOverlayTextBlock}" HorizontalAlignment="Left"/>
+        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtMessage" VerticalAlignment="Center" Style="{StaticResource ModeOverlayTextBlock}" HorizontalAlignment="Left"/>
+
+    </Grid>
+</Window>

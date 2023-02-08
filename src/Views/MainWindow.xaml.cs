@@ -2,7 +2,6 @@
 using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.Windows;
@@ -142,6 +141,8 @@ namespace SierraHOTAS.Views
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
+            var existingWindow = Application.Current.Windows.Cast<Window>().SingleOrDefault(w => w.Name == ModeOverlayWindow.WINDOW_NAME);
+            existingWindow?.Close();
             _watcher.EventArrived -= Watcher_EventArrived;
             _watcher.Stop();
             _watcher.Dispose();

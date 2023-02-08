@@ -60,6 +60,12 @@
             <Setter Property="FontSize" Value="15"/>
         </Style>
 
+        <Style TargetType="TextBlock" x:Key="ModeOverlayTextBlock">
+            <Setter Property="Foreground" Value="{StaticResource AxisForwardBrush}"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
         <Style TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Left" />
         </Style>
