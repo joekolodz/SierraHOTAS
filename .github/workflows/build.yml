@@ -40,8 +40,8 @@ jobs:
     - name: Create Setup
       run: msbuild SierraHOTASSetup\SierraHOTASSetup.wixproj -m /p:Configuration=Release
     
-#    - name: Display structure of downloaded files
-#      run: ls -R
+    - name: Display structure of downloaded files
+      run: ls -R
 
     - name: Create release
       uses: softprops/action-gh-release@v1
