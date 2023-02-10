@@ -40,13 +40,15 @@ jobs:
     - name: Create Setup
       run: msbuild SierraHOTASSetup\SierraHOTASSetup.wixproj -m /p:Configuration=Release
     
-    - name: Display structure of downloaded files
-      run: ls -R
+#    - name: Display structure of downloaded files
+#      run: ls -R
 
     - name: Create release
-      uses: softprops/action-gh-release@v1
+      uses: marvinpinto/action-automatic-releases@latest
       with:
-        tag_name: v${{ github.run_number }}
-        name: Release ${{ github.run_number }}
-        files: SierraHOTASSetup\Installer\SierraHOTAS-Release-*
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        automatic_release_tag: v${{ github.run_number }}
+        title: Release ${{ github.run_number }}
+        files: SierraHOTASSetup\Installer\SierraHOTAS-Release-*.msi
     
