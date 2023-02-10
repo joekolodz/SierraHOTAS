@@ -13,19 +13,13 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.0.2
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      uses: microsoft/setup-msbuild@v1.1
 
     - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.2
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      uses: nuget/setup-nuget@v1
              
     - name: Restore NuGet Packages
       run: nuget restore SierraHOTAS.sln
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     
     - name: Build
       run: msbuild SierraHOTAS.sln -m /p:Configuration=Release
@@ -35,9 +29,6 @@ jobs:
     
     - name: Test
       run: dotnet test tests\bin\Release\SierraHOTAS.Tests.dll --logger "html;logfilename=sierrahotas-test-results.html"
-
-#    - name: Test
-#      run: dotnet test tests\bin\Release\SierraHOTAS.Tests.dll --logger "trx;logfilename=sierrahotas-test-results.xml"
 
     - name: Upload Unit Test Results
       if: always()
