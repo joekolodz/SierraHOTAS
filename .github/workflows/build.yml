@@ -44,23 +44,8 @@ jobs:
 #      run: ls -R
 
     - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: ncipollo/release-action@v1
       with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
-          draft: false
-          prerelease: false
-    - name: Upload MSI
-      id: upload-msi
-      uses: actions/upload-release-asset@v1
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: .\SierraHOTASSetup\Installer\SierraHOTAS-Release-${{ github.run_number }}.msi
-        asset_name: SierraHOTAS-Release-${{ github.run_number }}.msi 
-        
-    
+        tag: v${{ github.run_number }}
+        name: Release ${{ github.run_number }}
+        artifacts: SierraHOTASSetup\Installer\SierraHOTAS-Release-${{ github.run_number }}.msi        
