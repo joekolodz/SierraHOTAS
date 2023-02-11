@@ -44,7 +44,7 @@ jobs:
 #      run: ls -R
 
     - name: Create release
-    - uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@v1
       with:
         tag: v${{ github.run_number }}
         name: Release ${{ github.run_number }}
