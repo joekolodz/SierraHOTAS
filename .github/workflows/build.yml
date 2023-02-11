@@ -48,4 +48,4 @@ jobs:
       with:
         tag: v${{ github.run_number }}
         name: Release ${{ github.run_number }}
-        artifacts: SierraHOTASSetup\Installer\SierraHOTAS-Release-${{ github.run_number }}.msi        
+        artifacts: SierraHOTASSetup\Installer\SierraHOTAS-Release-*.msi        
