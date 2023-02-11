@@ -44,11 +44,23 @@ jobs:
 #      run: ls -R
 
     - name: Create release
-      uses: marvinpinto/action-automatic-releases@latest
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
-        automatic_release_tag: v${{ github.run_number }}
-        title: Release ${{ github.run_number }}
-        files: SierraHOTASSetup\Installer\SierraHOTAS-Release-*.msi
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+    - name: Upload MSI
+      id: upload-msi
+      uses: actions/upload-release-asset@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: .\SierraHOTASSetup\Installer\SierraHOTAS-Release-${{ github.run_number }}.msi
+        asset_name: SierraHOTAS-Release-${{ github.run_number }}.msi 
+        
     
