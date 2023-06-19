@@ -56,8 +56,11 @@
             <Button  Style="{StaticResource MenuButton}" Command="{Binding ToggleModeOverlayCommand, IsAsync=True}" ToolTip="Toggle Mode Name Overlay" ToolTipService.InitialShowDelay="800">
                 <Image Source="../Images/overlay_32x32.png"/>
             </Button>
+            <Button  Style="{StaticResource MenuButton}" Command="{Binding ShowAboutWindowCommand, IsAsync=True}" ToolTip="About SierraHOTAS" ToolTipService.InitialShowDelay="800">
+                <Image Source="../Images/about_blue_32x32.png"/>
+            </Button>
 
-            <controls:QuickProfilePanel DataContext="{Binding QuickProfilePanelViewModel}" Margin="190,0,0,0"/>
+            <controls:QuickProfilePanel DataContext="{Binding QuickProfilePanelViewModel}" Margin="126,0,0,0"/>
 
         </StackPanel>
 

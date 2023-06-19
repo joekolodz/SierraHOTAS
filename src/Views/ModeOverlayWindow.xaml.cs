@@ -17,19 +17,22 @@ namespace SierraHOTAS.Views
     public partial class ModeOverlayWindow : Window
     {
         public const string WINDOW_NAME = "ModeOverlay";
+        private readonly IDispatcher _appDispatcher;
         private readonly Action<EventHandler<ModeChangedEventArgs>> _removeModeChangedHandler;
         private readonly Dictionary<int, ModeActivationItem> _modeDictionary;
         private bool _isMouseDown = false;
         private Point _mouseOffset;
         private readonly IFileSystem _fileSystem;
         private string _settingFileName;
+        private Typeface _face;
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern int MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, [MarshalAs(UnmanagedType.Bool)] bool bRepaint);
 
-        public ModeOverlayWindow(IFileSystem fileSystem, Dictionary<int, ModeActivationItem> modeDictionary, int mode, Action<EventHandler<ModeChangedEventArgs>> modeChangedHandler, Action<EventHandler<ModeChangedEventArgs>> removeModeChangedHandler)
+        public ModeOverlayWindow(IDispatcher appDispatcher, IFileSystem fileSystem, Dictionary<int, ModeActivationItem> modeDictionary, int mode, Action<EventHandler<ModeChangedEventArgs>> modeChangedHandler, Action<EventHandler<ModeChangedEventArgs>> removeModeChangedHandler)
         {
             InitializeComponent();
+            _appDispatcher = appDispatcher ?? throw new ArgumentNullException(nameof(appDispatcher));
 
             _removeModeChangedHandler = removeModeChangedHandler;
             modeChangedHandler(ModeChangedHandler);
@@ -47,6 +50,8 @@ namespace SierraHOTAS.Views
             b.Opacity = 0.0;
             Background = b;
 
+            _face = new Typeface(new FontFamily("Segoe UI"), new FontStyle(), FontWeights.Bold, FontStretches.Normal);
+            
             SetModeName(mode);
 
             StateChanged += ModeOverlayWindow_StateChanged;
@@ -131,26 +136,25 @@ namespace SierraHOTAS.Views
         {
             if (_modeDictionary.ContainsKey(mode))
             {
-                txtMessage.Text = _modeDictionary[mode].ModeName;
-                SetWidthFromContent();
+                _appDispatcher.Invoke(() =>
+                {
+                    Width = 98;
+                    txtMessage.Text = _modeDictionary[mode].ModeName;
+                    SetWidthFromContent();
+                });
             }
         }
         private void SetWidthFromContent()
         {
-            var face = new Typeface(new FontFamily("Segoe UI"),
-                                    new FontStyle(),
-                                    FontWeights.Bold,
-                                    FontStretches.Normal);
-
             var formattedText = new FormattedText(txtMessage.Text,
                                                   CultureInfo.GetCultureInfo("en-us"),
                                                   FlowDirection.LeftToRight,
-                                                  face,
+                                                  _face,
                                                   15,
                                                   Brushes.Gold,
                                                   1.25);
 
-            Width = (int)formattedText.Width + 110;
+            Width = (int)formattedText.Width + 98;
         }
     }
 }

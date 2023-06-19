@@ -164,10 +164,14 @@
     <Compile Include="Serializer\Write.cs" />
     <Compile Include="ViewModels\DeleteModeEvent.cs" />
     <Compile Include="ViewModels\InputGraphWindowViewModel.cs" />
+    <Compile Include="ViewModels\ShowAboutWindowEvent.cs" />
     <Compile Include="ViewModels\ShowInputGraphWindowEvent.cs" />
     <Compile Include="ViewModels\ShowMessageWindowEvent.cs" />
     <Compile Include="ViewModels\ShowModeConfigWindowEvent.cs" />
     <Compile Include="ViewModels\ShowModeOverlayWindowEvent.cs" />
+    <Compile Include="Views\AboutWindow.xaml.cs">
+      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\InputGraphWindow.xaml.cs">
       <DependentUpon>InputGraphWindow.xaml</DependentUpon>
     </Compile>
@@ -235,6 +239,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Resource Include="icon64x64.ico" />
+    <Resource Include="Images\about_blue_32x32.png" />
     <Resource Include="Images\profile_unset_32x32.png" />
     <Resource Include="Images\refresh_32x32.png" />
     <Resource Include="Images\add_green_22x22.png" />
@@ -247,6 +252,7 @@
     <Resource Include="Images\favorite_23x22.png" />
     <Resource Include="Images\unfavorite_23x22.png" />
     <Resource Include="Images\overlay_32x32.png" />
+    <Resource Include="Images\about_banner.png" />
     <Content Include="Sounds\click01.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -307,6 +313,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\RadialAxisMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

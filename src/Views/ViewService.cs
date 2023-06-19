@@ -25,6 +25,7 @@ namespace SierraHOTAS.Views
             _eventAggregator.Subscribe<ShowModeConfigWindowEvent>(ShowModeConfigWindow);
             _eventAggregator.Subscribe<ShowInputGraphWindowEvent>(ShowInputGraphWindow);
             _eventAggregator.Subscribe<ShowModeOverlayWindowEvent>(ShowModeOverlayWindow);
+            _eventAggregator.Subscribe<ShowAboutWindowEvent>(ShowAboutWindow);
         }
 
         private void ShowMessageWindow(ShowMessageWindowEvent eventMessage)
@@ -56,7 +57,7 @@ namespace SierraHOTAS.Views
 
             if (existingWindow == null)
             {
-                var profile = new ModeOverlayWindow(_fileSystem, eventMessage.ModeDictionary, eventMessage.Mode, eventMessage.ModeChangedHandler, eventMessage.RemoveModeChangedHandler);
+                var profile = new ModeOverlayWindow(_appDispatcher, _fileSystem, eventMessage.ModeDictionary, eventMessage.Mode, eventMessage.ModeChangedHandler, eventMessage.RemoveModeChangedHandler);
                 profile.Name = ModeOverlayWindow.WINDOW_NAME;
                 profile.Show();
             }
@@ -73,5 +74,13 @@ namespace SierraHOTAS.Views
             }
             _mainWindow.Focus();
         }
+
+        private void ShowAboutWindow(ShowAboutWindowEvent eventMessage)
+        {
+            var aboutWindow = new AboutWindow();
+            aboutWindow.Owner = _mainWindow;
+            aboutWindow.ShowDialog();
+        }
+
     }
 }

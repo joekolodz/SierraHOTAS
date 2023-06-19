@@ -7,11 +7,11 @@
         mc:Ignorable="d"
         Title=""
         Height="25" 
-        Width="100">
+        Width="98">
 
     <Grid x:Name="grid" Background="Transparent">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="105" />
+            <ColumnDefinition Width="98" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
