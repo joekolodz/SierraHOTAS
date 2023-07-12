@@ -77,10 +77,12 @@ namespace SierraHOTAS.Models
             ActionCatalog = catalog;
         }
 
-        public void AddDevice(IHOTASDevice device)
+        public IHOTASDevice AddDevice(IHOTASDevice device)
         {
             var newDevice = _hotasDeviceFactory.CreateHOTASDevice(_directInput, device.ProductId, device.DeviceId, device.Name, _hotasQueueFactory.CreateHOTASQueue());
             RebuildMapForNewDevice(device, newDevice);
+            Devices.Add(newDevice);
+            return newDevice;
         }
 
         public void ReplaceDevice(IHOTASDevice newDevice)
@@ -91,6 +93,8 @@ namespace SierraHOTAS.Models
 
             Devices.Remove(deviceToReplace);
             RebuildMapForNewDevice(deviceToReplace, newDevice);
+            newDevice.OverlayAllModesToDevice();
+            Devices.Add(newDevice);
         }
 
         private void RebuildMapForNewDevice(IHOTASDevice device, IHOTASDevice newDevice)
@@ -98,7 +102,6 @@ namespace SierraHOTAS.Models
             newDevice.ApplyButtonMap(device.ButtonMap.ToObservableCollection());
             newDevice.SetMode(device.Modes);
             newDevice.SetModeActivation(ModeActivationButtons);
-            Devices.Add(newDevice);
         }
 
         public void Start()

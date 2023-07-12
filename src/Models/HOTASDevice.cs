@@ -11,6 +11,8 @@ namespace SierraHOTAS.Models
     [SierraJsonObject(SierraJsonObject.MemberSerialization.OptIn)]
     public class HOTASDevice : IHOTASDevice
     {
+        public Guid ObjectId { get; private set; } = Guid.Empty;
+
         private readonly JoystickFactory _joystickFactory;
 
         public event EventHandler<KeystrokeSentEventArgs> KeystrokeDownSent;
@@ -52,7 +54,18 @@ namespace SierraHOTAS.Models
         private IHOTASQueue _hotasQueue;
         private Dictionary<int, ModeActivationItem> _modeActivationButtons;
 
-        public HOTASDevice() { }
+        public HOTASDevice()
+        {
+            SetObjectId();
+        }
+
+        private void SetObjectId()
+        {
+            if (ObjectId == Guid.Empty)
+            {
+                ObjectId = Guid.NewGuid();
+            }
+        }
 
         public HOTASDevice(IDirectInput directInput, Guid productGuid, Guid deviceId, string name, IHOTASQueue hotasQueue)
         {
@@ -66,16 +79,13 @@ namespace SierraHOTAS.Models
             ProductId = productGuid;
             Name = name;
             InitializeMode();
+            SetObjectId();
         }
 
         public HOTASDevice(IDirectInput directInput, JoystickFactory joystickFactory, Guid productGuid, Guid deviceId, string name, IHOTASQueue hotasQueue) :
             this(directInput, productGuid, deviceId, name, hotasQueue)
         {
-            _directInput = directInput ?? throw new ArgumentNullException(nameof(directInput));
             _joystickFactory = joystickFactory ?? throw new ArgumentNullException(nameof(joystickFactory));
-            _hotasQueue = hotasQueue ?? throw new ArgumentNullException(nameof(hotasQueue));
-            if (deviceId == Guid.Empty) throw new ArgumentNullException(nameof(deviceId));
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
             if (App.IsDebug) return;
             AcquireJoystick();
@@ -262,6 +272,8 @@ namespace SierraHOTAS.Models
         /// </summary>
         public void OverlayAllModesToDevice()
         {
+            if (!IsDeviceLoaded) return;
+
             var mergedModes = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
             var deviceButtons = new ObservableCollection<IHotasBaseMap>();
             SeedButtonMapFromDeviceCapabilities(deviceButtons);

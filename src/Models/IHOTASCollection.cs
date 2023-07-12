@@ -21,7 +21,7 @@ namespace SierraHOTAS.Models
         ActionCatalog ActionCatalog { get; }
         Dictionary<int, ModeActivationItem> ModeActivationButtons { get; }
         void SetCatalog(ActionCatalog catalog);
-        void AddDevice(IHOTASDevice device);
+        IHOTASDevice AddDevice(IHOTASDevice device);
         /// <summary>
         /// device is replaced based on the DeviceId
         /// </summary>

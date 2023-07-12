@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Threading;
+using NLog.LayoutRenderers;
 using SierraHOTAS.Win32;
 using Xunit;
 using Xunit.Abstractions;
@@ -84,25 +85,23 @@ namespace SierraHOTAS.Tests
             return hotasVm;
         }
 
-        private static HOTASCollectionViewModel CreateHotasCollectionViewModel_WithEventAggregator(out IEventAggregator eventAggregator, out IHOTASCollection hotasCollection, out IFileSystem subFileSystem)
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel_WithEventAggregator(IFileIO subFileIo, out IEventAggregator eventAggregator)
         {
-            subFileSystem = Substitute.For<IFileSystem>();
             var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
             var subDispatcherFactory = Substitute.For<DispatcherFactory>();
             var deviceViewModelFactory = new DeviceViewModelFactory();
 
-            hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), Substitute.For<HOTASDeviceFactory>(), Substitute.For<ActionCatalog>());
-            hotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = Guid.NewGuid(), DeviceId = Guid.NewGuid() } };
-            hotasCollection.ModeActivationButtons.Add(1, new ModeActivationItem());
+            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), new HOTASDeviceFactory(), new ActionCatalog());
 
             eventAggregator = new EventAggregator();
 
             IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
             subDispatcherFactory.CreateDispatcher().Returns(d => testDispatcher);
 
-            var subQuickProfilePanelVm = new QuickProfilePanelViewModel(eventAggregator, subFileSystem);
+            var subQuickProfilePanelVm = Substitute.For<QuickProfilePanelViewModel>();
+            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
 
-            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, eventAggregator, subFileSystem, subMediaPlayerFactory, hotasCollection, subQuickProfilePanelVm, deviceViewModelFactory);
+            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, eventAggregator, new FileSystem(subFileIo, Substitute.For<FileDialogFactory>()), subMediaPlayerFactory, hotasCollection, subQuickProfilePanelVm, deviceViewModelFactory);
             return hotasVm;
         }
         private static HOTASCollectionViewModel CreateHotasCollectionViewModel(out IHOTASCollection hotasCollection, out IFileSystem subFileSystem, out QuickProfilePanelViewModel subQuickProfilePanelVm)
@@ -146,6 +145,26 @@ namespace SierraHOTAS.Tests
             subQuickProfilePanelVm = Substitute.For<QuickProfilePanelViewModel>();
 
             var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, subEventAggregator, subFileSystem, subMediaPlayerFactory, hotasCollection, subQuickProfilePanelVm, deviceViewModelFactory);
+            return hotasVm;
+        }
+
+        private static HOTASCollectionViewModel CreateHotasCollectionViewModel_OnlySubFileIO(IFileIO subFileIo)
+        {
+            var subMediaPlayerFactory = Substitute.For<MediaPlayerFactory>();
+            var subDispatcherFactory = Substitute.For<DispatcherFactory>();
+            var deviceViewModelFactory = new DeviceViewModelFactory();
+
+            var hotasCollection = new HOTASCollection(Substitute.For<DirectInputFactory>(), Substitute.For<JoystickFactory>(), Substitute.For<HOTASQueueFactory>(Substitute.For<IKeyboard>()), new HOTASDeviceFactory(), new ActionCatalog());
+
+            var subEventAggregator = new EventAggregator();
+
+            IDispatcher testDispatcher = new TestDispatcher_AxisChanged();
+            subDispatcherFactory.CreateDispatcher().Returns(d => testDispatcher);
+
+            var subQuickProfilePanelVm = Substitute.For<QuickProfilePanelViewModel>();
+            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
+
+            var hotasVm = new HOTASCollectionViewModel(subDispatcherFactory, subEventAggregator, new FileSystem(subFileIo, Substitute.For<FileDialogFactory>()), subMediaPlayerFactory, hotasCollection, subQuickProfilePanelVm, deviceViewModelFactory);
             return hotasVm;
         }
 
@@ -1051,11 +1070,15 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void quick_load_profile_via_publish()
         {
-            var productId = Guid.NewGuid();
-            var deviceId = Guid.NewGuid();
+            var fileContents = GetJsonFile();
+            var subFileIo = Substitute.For<IFileIO>();
+            subFileIo.ReadAllText(Arg.Any<string>()).Returns(fileContents);
 
-            var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(out var eventAggregator, out _, out IFileSystem subFileSystem);
-            hotasVm.Initialize();
+            var hotasVm = CreateHotasCollectionViewModel_WithEventAggregator(subFileIo, out var eventAggregator);
+            hotasVm.Devices = new ObservableCollection<DeviceViewModel>();
+
+            var deviceId = new Guid("3905f630-ed1c-11e9-8001-444553540000");
+
             var profileEvent = new QuickProfileSelectedEvent()
             {
                 Id = 43,
@@ -1063,16 +1086,9 @@ namespace SierraHOTAS.Tests
                 Path = "not null"
             };
 
-            var newHotasCollection = Substitute.For<IHOTASCollection>();
-            newHotasCollection.Devices = new ObservableCollection<IHOTASDevice>() { new HOTASDevice() { ProductId = productId, DeviceId = deviceId } };
-
-            var subModeButtons = new Dictionary<int, ModeActivationItem>();
-            newHotasCollection.ModeActivationButtons.Returns(subModeButtons);
-
-            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(newHotasCollection);
-
             Assert.Empty(hotasVm.Devices);
             eventAggregator.Publish(profileEvent);
+            Assert.NotNull(hotasVm.Devices);
             Assert.Equal(deviceId, hotasVm.Devices[0].InstanceId);
         }
 
@@ -1115,46 +1131,173 @@ namespace SierraHOTAS.Tests
             Assert.Equal("Invalid device found in profile. Check logs", hotasVm.ProfileSetFileName);
         }
 
+
+
+        private string GetJsonFile()
+        {
+            var json = @"
+                {
+                  ""JsonFormatVersion"": ""1.0.0"",
+                  ""Devices"": [
+                    {
+                      ""DeviceId"": ""3905f630-ed1c-11e9-8001-444553540000"",
+                      ""ProductId"": ""204603eb-0000-0000-0000-504944564944"",
+                      ""Name"": ""RIGHT VPC Stick MT-50CM"",
+                      ""Modes"": {
+                        ""1"": [
+                          {
+                            ""MapId"": 48,
+                            ""MapName"": ""Button1"",
+                            ""Type"": 3,
+                            ""ActionId"": ""7cf8c1da-b58c-4ee7-acf0-22847bf36cc3""
+                          },
+                          {
+                            ""MapId"": 49,
+                            ""MapName"": ""Button2"",
+                            ""Type"": 3,
+                            ""ActionId"": ""2f65169a-b89d-4716-ab64-5b431a2e67e2""
+                          }
+                        ],
+                        ""3"": [
+                          {
+                            ""MapId"": 57,
+                            ""MapName"": ""Button10"",
+                            ""Type"": 3,
+                            ""ActionId"": ""7cf8c1da-b58c-4ee7-acf0-22847bf36cc3""
+                          },
+                          {
+                            ""MapId"": 63,
+                            ""MapName"": ""Button16"",
+                            ""Type"": 3,
+                            ""ActionId"": ""2f65169a-b89d-4716-ab64-5b431a2e67e2""
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      ""DeviceId"": ""ffeaf2a0-9145-11ea-8001-444553540000"",
+                      ""ProductId"": ""205503eb-0000-0000-0000-504944564944"",
+                      ""Name"": ""VPC Throttle MT-50 CM2"",
+                      ""Modes"": {
+                        ""1"": [
+                          {
+                            ""MapId"": 48,
+                            ""MapName"": ""Button1"",
+                            ""Type"": 3,
+                            ""ActionId"": ""7cf8c1da-b58c-4ee7-acf0-22847bf36cc3""
+                          },
+                          {
+                            ""MapId"": 52,
+                            ""MapName"": ""Button5"",
+                            ""Type"": 3,
+                            ""ActionId"": ""2f65169a-b89d-4716-ab64-5b431a2e67e2""
+                          }
+                        ],
+                        ""3"": [
+                          {
+                            ""MapId"": 51,
+                            ""MapName"": ""Button4"",
+                            ""Type"": 3,
+                            ""ActionId"": ""7cf8c1da-b58c-4ee7-acf0-22847bf36cc3""
+                          },
+                          {
+                            ""MapId"": 53,
+                            ""MapName"": ""Button6"",
+                            ""Type"": 3,
+                            ""ActionId"": ""2f65169a-b89d-4716-ab64-5b431a2e67e2""
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  ""ActionCatalog"": {
+                    ""Catalog"": [
+                      {
+                        ""Id"": ""7cf8c1da-b58c-4ee7-acf0-22847bf36cc3"",
+                        ""ActionName"": ""APU Pushbutton - Start/Stop"",
+                        ""Actions"": [
+                          {
+                            ""ScanCode"": 42
+                          },
+                          {
+                            ""ScanCode"": 30
+                          },
+                          {
+                            ""ScanCode"": 30,
+                            ""IsKeyUp"": true
+                          },
+                          {
+                            ""ScanCode"": 42,
+                            ""IsKeyUp"": true
+                          }
+                        ]
+                      },
+                      {
+                        ""Id"": ""2f65169a-b89d-4716-ab64-5b431a2e67e2"",
+                        ""ActionName"": ""APU Pushbutton Cover - Open/Close"",
+                        ""Actions"": [
+                          {
+                            ""ScanCode"": 29
+                          },
+                          {
+                            ""ScanCode"": 30
+                          },
+                          {
+                            ""ScanCode"": 30,
+                            ""IsKeyUp"": true
+                          },
+                          {
+                            ""ScanCode"": 29,
+                            ""IsKeyUp"": true
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  ""ModeActivationButtons"": {
+                    ""1"": {
+                      ""Mode"": 1,
+                      ""ModeName"": ""Pilot"",
+                      ""DeviceName"": ""VPC Throttle MT-50 CM2"",
+                      ""DeviceId"": ""ffeaf2a0-9145-11ea-8001-444553540000"",
+                      ""ButtonName"": ""Button56"",
+                      ""ButtonId"": 103
+                    },
+                    ""2"": {
+                      ""Mode"": 2,
+                      ""InheritFromMode"": 1,
+                      ""ModeName"": ""George"",
+                      ""DeviceName"": ""VPC Throttle MT-50 CM2"",
+                      ""DeviceId"": ""ffeaf2a0-9145-11ea-8001-444553540000"",
+                      ""ButtonName"": ""Button57"",
+                      ""ButtonId"": 104
+                    }
+                  }
+                }
+                ";
+
+            return json;
+        }
+
+
         [Fact]
         public void load_profile()
         {
-            var deviceId = Guid.NewGuid();
+            var fileContents = GetJsonFile();
+            var subFileIo = Substitute.For<IFileIO>();
+            subFileIo.ReadAllText(Arg.Any<string>()).Returns(fileContents);
 
-            var hotasVm = CreateHotasCollectionViewModel(out var subFileSystem, out var subQuickProfilePanelVm);
-
-            var device = new HOTASDevice()
-            {
-                DeviceId = deviceId
-            };
-
-
-            var profile = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
-            var map = new ObservableCollection<IHotasBaseMap>()
-            {
-                new HOTASButton() { MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 1" } },
-                new HOTASButton() { MapId = 44, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 2" } }
-
-            };
-            profile.Add(1, map);
-
-            device.SetMode(profile);
-
+            var hotasVm = CreateHotasCollectionViewModel_OnlySubFileIO(subFileIo);
             var subHotasCollection = CreateHotasCollectionSubstitute();
-            subHotasCollection.Devices.Add(device);
-
-            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
-            subFileSystem.LastSavedFileName.Returns("last saved file");
-            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
 
             Assert.Single(hotasVm.ActionCatalog.Catalog);
             Assert.Null(hotasVm.Devices);
 
             Assert.PropertyChanged(hotasVm, "ModeActivationItems", hotasVm.Initialize);
 
-            Assert.NotEmpty(hotasVm.Devices);
-            Assert.Equal("last saved file", hotasVm.ProfileSetFileName);
-            Assert.Single(hotasVm.ActionCatalog.Catalog);
-
+            Assert.NotNull(hotasVm.Devices);
+            Assert.Equal(2, hotasVm.Devices.Count);
+            Assert.Equal(3, hotasVm.ActionCatalog.Catalog.Count);
 
             subHotasCollection.Received().Stop();
         }
@@ -1217,82 +1360,65 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void device_recording_stopped_no_map()
         {
-            var deviceId = Guid.NewGuid();
+            var fileContents = GetJsonFile();
+            var subFileIo = Substitute.For<IFileIO>();
+            subFileIo.ReadAllText(Arg.Any<string>()).Returns(fileContents);
 
-            var hotasVm = CreateHotasCollectionViewModel_DeviceVmFactorySub(out var subFileSystem, out var subQuickProfilePanelVm, out var deviceViewModelFactory);
-
-
-            var subHotasCollection = CreateHotasCollectionSubstitute();
-            subHotasCollection.Devices.Add(new HOTASDevice()
-            {
-                DeviceId = deviceId,
-                ButtonMap =
-                {
-                    new HOTASButton(){MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 1"}},
-                    new HOTASButton(){MapId = 44, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 2"}},
-
-                }
-            });
-
-            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
-            subFileSystem.LastSavedFileName.Returns("last saved file");
-            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
-
-            var subDevice = Substitute.For<HOTASDevice>();
-            subDevice.DeviceId = Guid.NewGuid();
-            subDevice.Name = "sub device";
-            subDevice.ButtonMap.Add(new HOTASButton() { MapId = 45, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 3" } });
-
-            var subDeviceVm = Substitute.For<DeviceViewModel>(Substitute.For<IDispatcher>(), subFileSystem, Substitute.For<MediaPlayerFactory>(), subDevice);
-
-            deviceViewModelFactory.CreateDeviceViewModel(Arg.Any<IDispatcher>(), Arg.Any<IFileSystem>(), Arg.Any<MediaPlayerFactory>(), Arg.Any<IHOTASDevice>()).Returns(subDeviceVm);
+            var hotasVm = CreateHotasCollectionViewModel_OnlySubFileIO(subFileIo);
 
             hotasVm.Initialize();
+            var deviceVm = hotasVm.Devices.FirstOrDefault();
 
-            subDeviceVm.RecordingStopped += Raise.Event();
-            Assert.Single(hotasVm.ActionCatalog.Catalog);
+            Assert.NotNull(deviceVm);
+            deviceVm.RecordingStopped += Raise.Event();
+            Assert.Equal(3, hotasVm.ActionCatalog.Catalog.Count);
         }
 
         [Fact]
         public void device_recording_stopped_with_map()
         {
-            var deviceId = Guid.NewGuid();
+            //var deviceId = Guid.NewGuid();
 
-            var hotasVm = CreateHotasCollectionViewModel_DeviceVmFactorySub(out var subFileSystem, out var subQuickProfilePanelVm, out var deviceViewModelFactory);
-
-
-            var subHotasCollection = CreateHotasCollectionSubstitute();
-            subHotasCollection.Devices.Add(new HOTASDevice()
-            {
-                DeviceId = deviceId,
-                ButtonMap =
-                {
-                    new HOTASButton(){MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 1"}},
-                    new HOTASButton(){MapId = 44, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 2"}},
-                }
-            });
-
-            subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
-            subFileSystem.LastSavedFileName.Returns("last saved file");
-            subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
-
-            var subDevice = Substitute.For<HOTASDevice>();
-            subDevice.DeviceId = Guid.NewGuid();
-            subDevice.Name = "sub device";
-            subDevice.ButtonMap.Add(new HOTASButton() { MapId = 45, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 3" } });
-            subHotasCollection.Devices.Add(subDevice);
-
-            var subDeviceVm = Substitute.For<DeviceViewModel>(Substitute.For<IDispatcher>(), subFileSystem, Substitute.For<MediaPlayerFactory>(), subDevice);
+            //var hotasVm = CreateHotasCollectionViewModel_DeviceVmFactorySub(out var subFileSystem, out var subQuickProfilePanelVm, out var deviceViewModelFactory);
 
 
-            deviceViewModelFactory.CreateDeviceViewModel(Arg.Any<IDispatcher>(), Arg.Any<IFileSystem>(), Arg.Any<MediaPlayerFactory>(), Arg.Any<IHOTASDevice>()).Returns(subDeviceVm);
+            //var subHotasCollection = CreateHotasCollectionSubstitute();
+            //subHotasCollection.Devices.Add(new HOTASDevice()
+            //{
+            //    DeviceId = deviceId,
+            //    ButtonMap =
+            //    {
+            //        new HOTASButton(){MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 1"}},
+            //        new HOTASButton(){MapId = 44, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 2"}},
+            //    }
+            //});
+
+            //subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
+            //subFileSystem.LastSavedFileName.Returns("last saved file");
+            //subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
+
+            //var subDevice = Substitute.For<HOTASDevice>();
+            //subDevice.DeviceId = Guid.NewGuid();
+            //subDevice.Name = "sub device";
+            //subDevice.ButtonMap.Add(new HOTASButton() { MapId = 45, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 3" } });
+            //subHotasCollection.Devices.Add(subDevice);
+
+            //var subDeviceVm = Substitute.For<DeviceViewModel>(Substitute.For<IDispatcher>(), subFileSystem, Substitute.For<MediaPlayerFactory>(), subDevice);
+
+
+            //deviceViewModelFactory.CreateDeviceViewModel(Arg.Any<IDispatcher>(), Arg.Any<IFileSystem>(), Arg.Any<MediaPlayerFactory>(), Arg.Any<IHOTASDevice>()).Returns(subDeviceVm);
+            var fileContents = GetJsonFile();
+            var subFileIo = Substitute.For<IFileIO>();
+            subFileIo.ReadAllText(Arg.Any<string>()).Returns(fileContents);
+
+            var hotasVm = CreateHotasCollectionViewModel_OnlySubFileIO(subFileIo);
 
             hotasVm.Initialize();
-            subDeviceVm.RecordingStopped += Raise.EventWith(new ButtonMapViewModel() { ActionName = "test button map" }, new EventArgs());
-            Assert.Equal(2, hotasVm.ActionCatalog.Catalog.Count);
 
-
-            hotasVm.Initialize();//trigger remove handlers for code coverage, can't test
+            var deviceVm = hotasVm.Devices.FirstOrDefault();
+            Assert.NotNull(deviceVm);
+            deviceVm.RecordingStopped += Raise.EventWith(new ButtonMapViewModel() { ActionName = "test button map" }, new EventArgs());
+            Assert.Equal(3, hotasVm.ActionCatalog.Catalog.Count);
         }
 
         [Fact]

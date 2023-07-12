@@ -14,7 +14,7 @@ namespace SierraHOTAS.ViewModels
 {
     public class HOTASCollectionViewModel : IDisposable, INotifyPropertyChanged
     {
-        private const string ASSIGN_FIRST_PROFILE_MESSAGE = "Before creating a new profile, you must first assign an activation button to the existing profile.";
+        private const string ASSIGN_FIRST_PROFILE_MESSAGE = "Before creating a new profile, you must first assign an activation button to the base profile.";
 
         private readonly IDispatcher _appDispatcher;
         private readonly IFileSystem _fileSystem;
@@ -34,6 +34,7 @@ namespace SierraHOTAS.ViewModels
 
         public ActionCatalog ActionCatalog => _deviceList.ActionCatalog;
         public ObservableCollection<ActivityItem> Activity { get; set; }
+
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeActivationButtons.Values.ToObservableCollection();
 
@@ -428,17 +429,16 @@ namespace SierraHOTAS.ViewModels
                 {
                     Logging.Log.Warn($"Loaded mappings for {ld.Name}, but could not find the device attached!");
                     Logging.Log.Warn($"Mappings will be displayed, but they will not function");
-                    deviceVm = _deviceViewModelFactory.CreateDeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, ld);
+                    d = _deviceList.AddDevice(ld);
+                    deviceVm = _deviceViewModelFactory.CreateDeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, d);
                     Devices.Add(deviceVm);
-                    _deviceList.AddDevice(ld);
-                    d = ld;
                 }
                 else
                 {
                     d = _deviceList.GetDevice(ld.DeviceId);
                     if (d == null) continue;
+                    d.SetMode(ld.Modes);
                 }
-                d.SetMode(ld.Modes);
                 ReBuildActionsFromCatalog(deviceVm);//assign each button their actions
                 deviceVm.RebuildMap(d.ButtonMap);//recreate the view model for each button now that the actions are assigned
             }
@@ -474,6 +474,11 @@ namespace SierraHOTAS.ViewModels
                 if (newDevice == null) continue;
 
                 newDevices.Remove(newDevice);
+
+
+
+                //TODO - find out why connecting a device after a profile is loaded doesn't re-populate all buttons 
+                //Not all HOTASDevice Modes are being reseeded
 
                 _deviceList.ReplaceDevice(newDevice);
                 _deviceList.ListenToDevice(newDevice);
