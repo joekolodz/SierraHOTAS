@@ -1377,36 +1377,6 @@ namespace SierraHOTAS.Tests
         [Fact]
         public void device_recording_stopped_with_map()
         {
-            //var deviceId = Guid.NewGuid();
-
-            //var hotasVm = CreateHotasCollectionViewModel_DeviceVmFactorySub(out var subFileSystem, out var subQuickProfilePanelVm, out var deviceViewModelFactory);
-
-
-            //var subHotasCollection = CreateHotasCollectionSubstitute();
-            //subHotasCollection.Devices.Add(new HOTASDevice()
-            //{
-            //    DeviceId = deviceId,
-            //    ButtonMap =
-            //    {
-            //        new HOTASButton(){MapId = 43, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 1"}},
-            //        new HOTASButton(){MapId = 44, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem(){ActionName = "test action 2"}},
-            //    }
-            //});
-
-            //subFileSystem.FileOpen(Arg.Any<string>()).ReturnsForAnyArgs(subHotasCollection);
-            //subFileSystem.LastSavedFileName.Returns("last saved file");
-            //subQuickProfilePanelVm.GetAutoLoadPath().Returns("test path");
-
-            //var subDevice = Substitute.For<HOTASDevice>();
-            //subDevice.DeviceId = Guid.NewGuid();
-            //subDevice.Name = "sub device";
-            //subDevice.ButtonMap.Add(new HOTASButton() { MapId = 45, Type = HOTASButton.ButtonType.Button, ActionCatalogItem = new ActionCatalogItem() { ActionName = "test action 3" } });
-            //subHotasCollection.Devices.Add(subDevice);
-
-            //var subDeviceVm = Substitute.For<DeviceViewModel>(Substitute.For<IDispatcher>(), subFileSystem, Substitute.For<MediaPlayerFactory>(), subDevice);
-
-
-            //deviceViewModelFactory.CreateDeviceViewModel(Arg.Any<IDispatcher>(), Arg.Any<IFileSystem>(), Arg.Any<MediaPlayerFactory>(), Arg.Any<IHOTASDevice>()).Returns(subDeviceVm);
             var fileContents = GetJsonFile();
             var subFileIo = Substitute.For<IFileIO>();
             subFileIo.ReadAllText(Arg.Any<string>()).Returns(fileContents);

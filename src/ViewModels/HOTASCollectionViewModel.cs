@@ -34,7 +34,6 @@ namespace SierraHOTAS.ViewModels
 
         public ActionCatalog ActionCatalog => _deviceList.ActionCatalog;
         public ObservableCollection<ActivityItem> Activity { get; set; }
-
         public ObservableCollection<DeviceViewModel> Devices { get; set; }
         public ObservableCollection<ModeActivationItem> ModeActivationItems => _deviceList.ModeActivationButtons.Values.ToObservableCollection();
 
