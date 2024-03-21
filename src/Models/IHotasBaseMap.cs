@@ -8,5 +8,6 @@
         void ClearUnassignedActions();
         void CalculateSegmentRange(int segments);
         void ClearSegments();
+        IHotasBaseMap Clone();
     }
 }

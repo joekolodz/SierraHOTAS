@@ -3,17 +3,25 @@ using SierraHOTAS.Annotations;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using SierraHOTAS.ViewModels.Commands;
+using System.Windows.Input;
+using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
     public class ActionCatalogItem : INotifyPropertyChanged, IComparable<ActionCatalogItem>
     {
+        public event EventHandler<ActionCatalogItemRemovedRequestedEventArgs> RemoveRequested;
+
         private string _actionName;
         public const string NO_ACTION_TEXT = "<No Action>";
 
         public Guid Id { get; set; }
 
+        [SierraJsonIgnore] 
         public bool NoAction { get; set; } = false;
+
+        [SierraJsonIgnore] public bool IsRemovable => !NoAction;
         
         [DefaultValue("")]
         public string ActionName
@@ -34,21 +42,30 @@ namespace SierraHOTAS.Models
         public int CompareTo(ActionCatalogItem other)
         {
             if (other == null) return 1;
-            var value = string.CompareOrdinal(other.ActionName, ActionName) * -1;
+            var value = string.Compare(other.ActionName, ActionName, comparisonType: StringComparison.OrdinalIgnoreCase) * -1;
             Logging.Log.Info($"Comparing:'{other.ActionName}' to '{ActionName}': {value}");
             return value;
         }
 
         public override string ToString()
         {
-            return $"{ActionName} - {Actions.Count}";
+            return $"{ActionName} ({Actions.Count} button actions)";
         }
+
+        private ICommand _removeActionCatalogItemCommand;
+
+        public ICommand RemoveActionCatalogItemCommand => _removeActionCatalogItemCommand ?? (_removeActionCatalogItemCommand = new CommandHandlerWithParameter<ActionCatalogItem>(RemoveActionCatalogItem));
 
         public ActionCatalogItem()
         {
             ActionName = "";
             Actions = new ObservableCollection<ButtonAction>();
             Id = Guid.NewGuid();
+        }
+
+        private void RemoveActionCatalogItem(ActionCatalogItem item)
+        {
+            RemoveRequested?.Invoke(this, new ActionCatalogItemRemovedRequestedEventArgs(item));
         }
 
         public static ActionCatalogItem EmptyItem()

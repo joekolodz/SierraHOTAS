@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using SierraJSON;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
@@ -43,11 +43,31 @@ namespace SierraHOTAS.Models
         public bool IsMacro => ActionCatalogItem.Actions.Any(a => a.TimeInMilliseconds > 0);
 
         private bool _isRecording;
-        private ObservableCollection<ButtonAction> _actionsHistory;
+        private List<ButtonAction> _actionsHistory;
 
         public HOTASButton()
         {
             ActionCatalogItem = new ActionCatalogItem();
+        }
+
+        /// <summary>
+        /// All properties are copied except for ActionCatalogItem because ActionCatalogItem is a reference to an entry in a global dictionary that we don't want to duplicate
+        /// </summary>
+        /// <returns></returns>
+        public IHotasBaseMap Clone()
+        {
+            var clone = new HOTASButton()
+            {
+                MapId = MapId,
+                MapName = MapName,
+                Type = Type,
+                ShiftModePage = ShiftModePage,
+                IsShift = IsShift,
+                IsOneShot = IsOneShot,
+                RepeatCount = RepeatCount,
+                ActionCatalogItem = ActionCatalogItem //copy reference, DO NOT want a deep clone
+            };
+            return clone;
         }
 
         private void SetRecordState(bool isRecording)
@@ -66,7 +86,7 @@ namespace SierraHOTAS.Models
 
         public void Record()
         {
-            _actionsHistory = ActionCatalogItem.Actions.ToList().ToObservableCollection();//make an actual copy
+            _actionsHistory = ActionCatalogItem.Actions.ToList();
             ActionCatalogItem.Actions.Clear();
             SetRecordState(true);
         }

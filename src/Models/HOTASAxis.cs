@@ -1,8 +1,8 @@
 ﻿using SierraHOTAS.ViewModels;
+using SierraJSON;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
@@ -40,6 +40,51 @@ namespace SierraHOTAS.Models
             ButtonMap = new ObservableCollection<HOTASButton>();
             ReverseButtonMap = new ObservableCollection<HOTASButton>();
             _previousValues = new int[_arraySize];
+        }
+
+        /// <summary>
+        /// All properties are copied except for ActionCatalogItem because ActionCatalogItem is a reference to an entry in a global dictionary that we don't want to duplicate
+        /// New Segment property changed handlers are added, not re-referenced.
+        /// </summary>
+        /// <returns></returns>
+        public IHotasBaseMap Clone()
+        {
+            var cloneButtonMap = new ObservableCollection<HOTASButton>();
+            foreach (var b in ButtonMap)
+            {
+                cloneButtonMap.Add((HOTASButton)b.Clone());
+            }
+
+            var cloneReverseButtonMap = new ObservableCollection<HOTASButton>();
+            foreach (var b in ReverseButtonMap)
+            {
+                cloneButtonMap.Add((HOTASButton)b.Clone());
+            }
+
+            var cloneSegments = new ObservableCollection<Segment>();
+            foreach (var s in Segments)
+            {
+                cloneSegments.Add(s.Clone());
+            }
+
+            var clone = new HOTASAxis()
+            {
+                MapId = MapId,
+                MapName = MapName,
+                Type = Type,
+                ButtonMap = cloneButtonMap,
+                ReverseButtonMap = cloneReverseButtonMap,
+                IsDirectional = IsDirectional,
+                IsMultiAction = IsMultiAction,
+                SoundFileName = SoundFileName,
+                SoundVolume = SoundVolume,
+                Segments = cloneSegments,
+                Direction = Direction
+            };
+
+            clone.AddSegmentBoundaryHandlers();
+
+            return clone;
         }
 
         public void SetAxis(int value)
@@ -115,7 +160,7 @@ namespace SierraHOTAS.Models
             }
         }
 
-        private void AddSegmentBoundaryHandlers()
+        public void AddSegmentBoundaryHandlers()
         {
             foreach (var item in Segments)
             {

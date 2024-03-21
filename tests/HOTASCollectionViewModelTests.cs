@@ -71,7 +71,7 @@ namespace SierraHOTAS.Tests
 
             var subModeButtons = new Dictionary<int, ModeActivationItem>();
             subHotasCollection.ModeActivationButtons.Returns(subModeButtons);
-
+            subHotasCollection.ActionCatalog.Returns(Substitute.For<ActionCatalog>());
 
             eventAggregator = new EventAggregator();
 

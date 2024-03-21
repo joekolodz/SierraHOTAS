@@ -1,9 +1,11 @@
 ﻿using SierraHOTAS.Annotations;
+using SierraHOTAS.Controls;
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels.Commands;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -112,7 +114,7 @@ namespace SierraHOTAS.ViewModels
         private ICommand _toggleModeOverlayCommand;
 
         public ICommand ToggleModeOverlayCommand => _toggleModeOverlayCommand ?? (_toggleModeOverlayCommand = new CommandHandler(ToggleModeOverlay));
-        
+
         private ICommand _showAboutWindowCommand;
 
         public ICommand ShowAboutWindowCommand => _showAboutWindowCommand ?? (_showAboutWindowCommand = new CommandHandler(ShowAboutWindow));
@@ -293,6 +295,8 @@ namespace SierraHOTAS.ViewModels
 
             _deviceList.Start();
 
+            ActionCatalog.CollectionChanged += ActionCatalog_CollectionChanged;
+
             BuildDevicesViewModel();
             AddHandlers();//TODO remove? addhandlers gets called in LoadHotas
 
@@ -446,7 +450,9 @@ namespace SierraHOTAS.ViewModels
         private void BuildDevicesViewModel()
         {
             RemoveAllHandlers();
-            Devices = _deviceList.Devices.Select(device => _deviceViewModelFactory.CreateDeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory, device)).ToObservableCollection();
+            Devices = _deviceList.Devices.Select(device =>
+                _deviceViewModelFactory.CreateDeviceViewModel(_appDispatcher, _fileSystem, _mediaPlayerFactory,
+                    device)).ToObservableCollection();
         }
 
         private void DeviceList_ButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -556,7 +562,7 @@ namespace SierraHOTAS.ViewModels
             var loadedDeviceList = _fileSystem.FileOpenDialog();
             if (loadedDeviceList == null)
             {
-                ProfileSetFileName = _fileSystem.LastSavedFileName; 
+                ProfileSetFileName = _fileSystem.LastSavedFileName;
                 return;
             }
             LoadHotas(loadedDeviceList);
@@ -568,7 +574,7 @@ namespace SierraHOTAS.ViewModels
 
             RemoveUnconnectedDevices();
 
-            _deviceList.SetCatalog(loadedDeviceList.ActionCatalog);
+            SetCatalog(loadedDeviceList.ActionCatalog);
 
             BuildDevicesViewModelFromLoadedDevices(loadedDeviceList);
             BuildModeActivationListFromLoadedDevices(loadedDeviceList);
@@ -580,7 +586,7 @@ namespace SierraHOTAS.ViewModels
             _deviceList.AutoSetMode();
             _deviceList.ListenToAllDevices();
 
-            FileOpened?.Invoke(this, new EventArgs());
+            FileOpened?.Invoke(this, EventArgs.Empty);
 
             Logging.Log.Info($"Loaded a device set...");
             foreach (var d in Devices)
@@ -588,6 +594,124 @@ namespace SierraHOTAS.ViewModels
                 Logging.Log.Info($"{d.InstanceId}, {d.Name}");
             }
         }
+
+        public void SetCatalog(ActionCatalog catalog)
+        {
+            if (ActionCatalog != null)
+            {
+                ActionCatalog.CollectionChanged -= ActionCatalog_CollectionChanged;
+            }
+
+            _deviceList.SetCatalog(catalog);
+            if (ActionCatalog == null) return;
+
+            ActionCatalog.CollectionChanged += ActionCatalog_CollectionChanged;
+        }
+
+        #region ActionCatalog Management
+        //
+        // When a CatalogActionItem is removed in the UI, clean up all the ButtonMap view models and all the the Mode models
+        // This ensures that the item that is removed is removed from the UI in all locations
+        //
+        private void ActionCatalog_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action != NotifyCollectionChangedAction.Remove) return;
+            if (e.OldItems == null || e.OldItems.Count != 1) return;
+            var removedItem = e.OldItems[0] as ActionCatalogItem;
+
+            RemoveActionCatalogItemFromButtonMap(removedItem);
+            RemoveActionCatalogItemFromAllModes(removedItem);
+        }
+
+        private void RemoveActionCatalogItemFromAllModes(ActionCatalogItem removedItem)
+        {
+            foreach (var d in Devices)
+            {
+                foreach (var mode in d.Modes)
+                {
+                    var mapList = mode.Value;
+
+                    foreach (var map in mapList)
+                    {
+                        switch (map.Type)
+                        {
+                            case HOTASButton.ButtonType.AxisLinear:
+                            case HOTASButton.ButtonType.AxisRadial:
+                                var axisMap = map as HOTASAxis;
+                                foreach (var forwardMap in axisMap.ButtonMap)
+                                {
+                                    AssignEmptyIfMatch(forwardMap, removedItem);
+                                }
+
+                                foreach (var reverseMap in axisMap.ReverseButtonMap)
+                                {
+                                    AssignEmptyIfMatch(reverseMap, removedItem);
+                                }
+                                break;
+                            case HOTASButton.ButtonType.POV:
+                            case HOTASButton.ButtonType.Button:
+                                AssignEmptyIfMatch(map as HOTASButton, removedItem);
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                }
+            }
+        }
+
+        private void RemoveActionCatalogItemFromButtonMap(ActionCatalogItem removedItem)
+        {
+            if (removedItem == null) return;
+
+            foreach (var d in Devices)
+            {
+                foreach (var m in d.ButtonMap)
+                {
+                    switch (m.Type)
+                    {
+                        case HOTASButton.ButtonType.AxisLinear:
+                        case HOTASButton.ButtonType.AxisRadial:
+                            var axisMap = m as AxisMapViewModel;
+                            foreach (var forwardMap in axisMap.ButtonMap)
+                            {
+                                AssignEmptyIfMatch(forwardMap, removedItem);
+                            }
+
+                            foreach (var reverseMap in axisMap.ReverseButtonMap)
+                            {
+                                AssignEmptyIfMatch(reverseMap, removedItem);
+                            }
+                            break; 
+                        case HOTASButton.ButtonType.POV:
+                        case HOTASButton.ButtonType.Button:
+
+                            var buttonMap = m as ButtonMapViewModel;
+                            AssignEmptyIfMatch(buttonMap, removedItem);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+        }
+
+        private static void AssignEmptyIfMatch(ButtonMapViewModel buttonMap, ActionCatalogItem removedItem)
+        {
+            if (buttonMap?.ActionItem.Id == removedItem.Id)
+            {
+                buttonMap.AssignActions(ActionCatalogItem.EmptyItem());
+            }
+        }
+
+        private static void AssignEmptyIfMatch(HOTASButton buttonMap, ActionCatalogItem removedItem)
+        {
+            if (buttonMap?.ActionId == removedItem.Id)
+            {
+                buttonMap.ActionCatalogItem = ActionCatalogItem.EmptyItem();
+            }
+        }
+        #endregion
 
         private void RemoveUnconnectedDevices()
         {

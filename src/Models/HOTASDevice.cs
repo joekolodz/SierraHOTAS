@@ -374,6 +374,16 @@ namespace SierraHOTAS.Models
             _modeActivationButtons = modeActivationButtons;
         }
 
+        public ObservableCollection<IHotasBaseMap> CloneButtonMap()
+        {
+            var clone = new ObservableCollection<IHotasBaseMap>();
+            foreach (var b in ButtonMap)
+            {
+                clone.Add(b.Clone());
+            }
+            return clone;
+        }
+
         public void ForceButtonPress(JoystickOffset offset, bool isDown)
         {
             _hotasQueue.ForceButtonPress(offset, isDown);

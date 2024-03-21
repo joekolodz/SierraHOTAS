@@ -33,5 +33,10 @@ namespace SierraHOTAS.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public Segment Clone()
+        {
+            return new Segment(Id, Value);
+        }
     }
 }

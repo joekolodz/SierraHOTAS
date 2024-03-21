@@ -15,7 +15,7 @@ namespace SierraHOTAS.ViewModels
 
         public ActionCatalogItem ActionItem
         {
-            get => _hotasButton.ActionCatalogItem; 
+            get => _hotasButton.ActionCatalogItem;
             set => _hotasButton.ActionCatalogItem = value;
         }
 

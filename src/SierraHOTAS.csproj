@@ -102,6 +102,7 @@
     <Compile Include="Factories\MediaPlayerFactory.cs" />
     <Compile Include="IEventAggregator.cs" />
     <Compile Include="IoCContainer.cs" />
+    <Compile Include="Models\ActionCatalogItemRemovedRequestedEventArgs.cs" />
     <Compile Include="Models\ActionJobItem.cs" />
     <Compile Include="Models\DirectInputWrapper.cs" />
     <Compile Include="Factories\DispatcherFactory.cs" />

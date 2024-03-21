@@ -21,6 +21,14 @@ namespace SierraHOTAS.Models
             Catalog.CollectionChanged += Catalog_CollectionChanged;
         }
 
+        public void PostDeserializeProcess()
+        {
+            foreach (var item in Catalog)
+            {
+                item.RemoveRequested += RemoveRequested_Handler;
+            }
+        }
+
         private void Catalog_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.OldItems != null)
@@ -38,6 +46,8 @@ namespace SierraHOTAS.Models
                     item.PropertyChanged += Item_PropertyChanged;
                 }
             }
+
+            CollectionChanged?.Invoke(sender, e);
         }
 
         private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -45,6 +55,7 @@ namespace SierraHOTAS.Models
             if (sender is ActionCatalogItem item)
             {
                 ReSortItem(item);
+                //Catalog = Catalog.OrderBy(x => x.ActionName).ToObservableCollection();
             }
         }
 
@@ -65,11 +76,6 @@ namespace SierraHOTAS.Models
             }
             return i;
         }
-
-        //public void Sort()
-        //{
-        //    Catalog = Catalog.OrderBy(x => x.ActionName).ToObservableCollection();
-        //}
 
         public void Clear()
         {
@@ -95,8 +101,10 @@ namespace SierraHOTAS.Models
             {
                 var i = Catalog.First(x => x.ActionName == item.ActionName);
                 Catalog.Remove(i);
+                i.RemoveRequested -= RemoveRequested_Handler;
             }
 
+            item.RemoveRequested += RemoveRequested_Handler;
             Catalog.Add(item);
         }
 
@@ -108,13 +116,26 @@ namespace SierraHOTAS.Models
             {
                 item.ActionName = $"Action for {buttonName}";
             }
+
+            item.RemoveRequested += RemoveRequested_Handler;
             Insert(item);
+        }
+
+        private void RemoveRequested_Handler(object sender, ActionCatalogItemRemovedRequestedEventArgs e)
+        {
+            if (Catalog.Contains(e.ActionCatalogItem))
+            {
+                if (e.ActionCatalogItem.NoAction) return;
+                Catalog.Remove(e.ActionCatalogItem);
+            }
+            e.ActionCatalogItem.RemoveRequested -= RemoveRequested_Handler;
         }
 
         private void Insert(ActionCatalogItem item)
         {
             var index = GetSortPosition(item);
             Catalog.Insert(index, item);
+            item.RemoveRequested += RemoveRequested_Handler;
             Logging.Log.Debug($"[{item.ActionName}] added to actions catalog at position: {index}");
         }
 

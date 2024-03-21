@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:tb="http://www.hardcodet.net/taskbar"
              xmlns:controls="clr-namespace:SierraHOTAS.Controls"
-             xmlns:dataTemplates="clr-namespace:SierraHOTAS.ViewModels.DataTemplates">
+             xmlns:dataTemplates="clr-namespace:SierraHOTAS.ViewModels.DataTemplates"
+             xmlns:models="clr-namespace:SierraHOTAS.Models">
 
     <Application.Resources>
 
@@ -35,6 +36,8 @@
         <controls:AxisValueToPercentageConverter x:Key="AxisValueToPercentageConverter"/>
         <controls:FileNameConverter x:Key="FileNameConverter"/>
         <controls:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
 
         <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
 
@@ -208,14 +211,14 @@
                     <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
                 </Trigger>
 
-                 <!-- highlighting the selected row -->
+                <!-- highlighting the selected row -->
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="BorderThickness" Value="1"/>
                     <Setter Property="BorderBrush" Value="{StaticResource SelectedBorderBrush}"/>
                     <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
                 </Trigger>
 
-                 <!-- if a device becomes unconnected, then grey out the item -->
+                <!-- if a device becomes unconnected, then grey out the item -->
                 <DataTrigger Binding="{Binding IsDeviceLoaded}" Value="false">
                     <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}"/>
                 </DataTrigger>
@@ -225,8 +228,8 @@
 
             </Style.Triggers>
 
-            
-            
+
+
             <!-- highlight color (needs mouseover trigger)-->
             <Setter Property="Template">
                 <Setter.Value>
@@ -241,7 +244,7 @@
             </Setter>
 
         </Style>
-        
+
         <!-- device list view column header style -->
         <Style x:Key="DeviceListViewGridViewStyle" TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="Height" Value="24"/>
@@ -445,11 +448,40 @@
         </ControlTemplate>
 
         <Style x:Key="{x:Type ComboBox}" TargetType="ComboBox">
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate DataType="{x:Type models:ActionCatalogItem}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock 
+                                Text="{Binding ActionName}"
+                                HorizontalAlignment="Left" 
+                                VerticalAlignment="Center" 
+                                Focusable="True" 
+                                Background="Transparent"
+                                Foreground="{StaticResource TextBrush}"
+                                Width="300"
+                                />
+                            <Button Command="{Binding RemoveActionCatalogItemCommand}"
+                                    CommandParameter="{Binding}"
+                                    Visibility="{Binding IsRemovable, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    ToolTip="Remove Action" 
+                                    ToolTipService.InitialShowDelay="800" 
+                                    HorizontalContentAlignment="Right"
+                                    HorizontalAlignment="Right"
+                                    Background="Transparent" 
+                                    BorderBrush="Transparent">
+                                <Image Source="../Images/remove_red_26x26.png" Height="12" Width="12"/>
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
+                            <CheckBox></CheckBox>
                             <ToggleButton 
                                  Name="ToggleButton" 
                                  Template="{StaticResource ComboBoxToggleButton}" 
@@ -563,7 +595,7 @@
             <Setter Property="Foreground" Value="{StaticResource TextHeaderBrush}"/>
             <Setter Property="Margin" Value="2"/>
         </Style>
-        
+
         <Style x:Key="DataGridCellStyle" TargetType="{x:Type DataGridCell}">
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
@@ -573,7 +605,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
+
         <Style x:Key="DataGridRowStyle" TargetType="{x:Type DataGridRow}">
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>

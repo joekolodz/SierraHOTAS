@@ -1,11 +1,13 @@
 ﻿using SharpDX.DirectInput;
+using SierraHOTAS.Factories;
+using SierraJSON;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using SierraHOTAS.Factories;
-using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
@@ -99,7 +101,7 @@ namespace SierraHOTAS.Models
 
         private void RebuildMapForNewDevice(IHOTASDevice device, IHOTASDevice newDevice)
         {
-            newDevice.ApplyButtonMap(device.ButtonMap.ToObservableCollection());
+            newDevice.ApplyButtonMap(device.CloneButtonMap());
             newDevice.SetMode(device.Modes);
             newDevice.SetModeActivation(ModeActivationButtons);
         }
@@ -137,7 +139,7 @@ namespace SierraHOTAS.Models
             {
                 d.Reset();
             }
-            
+
             Mode = 1;
             ActionCatalog.Clear();
             ModeActivationButtons.Clear();
@@ -174,7 +176,7 @@ namespace SierraHOTAS.Models
             device.ModeSelected += device_modeSelected;
             device.ShiftReleased += Device_ShiftReleased;
             device.LostConnectionToDevice += Device_LostConnectionToDevice;
-            
+
             device.SetModeActivation(ModeActivationButtons);
             device.ListenAsync();
         }
@@ -391,10 +393,10 @@ namespace SierraHOTAS.Models
                 foreach (var d in Devices)
                 {
                     d.RemoveMode(item.Mode);
-                } 
+                }
 
                 Logging.Log.Debug($"DELETED Mode {item.Mode}!");
-                
+
                 if (ModeActivationButtons.Count <= 0) return true;
 
                 var firstMode = ModeActivationButtons.Keys.FirstOrDefault();

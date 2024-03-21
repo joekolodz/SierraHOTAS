@@ -44,5 +44,6 @@ namespace SierraHOTAS.Models
         void Reset();
         bool GetButtonState(int mapId);
         void SetModeActivation(Dictionary<int, ModeActivationItem> modeActivationButtons);
+        ObservableCollection<IHotasBaseMap> CloneButtonMap();
     }
 }
