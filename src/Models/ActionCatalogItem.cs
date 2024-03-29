@@ -9,6 +9,7 @@ using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
+    [SierraJsonObject(SierraJsonObject.MemberSerialization.OptIn)]
     public class ActionCatalogItem : INotifyPropertyChanged, IComparable<ActionCatalogItem>
     {
         public event EventHandler<ActionCatalogItemRemovedRequestedEventArgs> RemoveRequested;
@@ -16,14 +17,15 @@ namespace SierraHOTAS.Models
         private string _actionName;
         public const string NO_ACTION_TEXT = "<No Action>";
 
+        [SierraJsonProperty]
         public Guid Id { get; set; }
 
-        [SierraJsonIgnore] 
         public bool NoAction { get; set; } = false;
 
-        [SierraJsonIgnore] public bool IsRemovable => !NoAction;
+        public bool IsRemovable => !NoAction;
         
         [DefaultValue("")]
+        [SierraJsonProperty]
         public string ActionName
         {
             get => _actionName;
@@ -35,6 +37,7 @@ namespace SierraHOTAS.Models
             }
         }
 
+        [SierraJsonProperty]
         public ObservableCollection<ButtonAction> Actions { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;

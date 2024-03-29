@@ -65,7 +65,7 @@
                                         </Image.Style>
                                     </Image>
                                 </Grid>
-                                <TextBox Text="{Binding TimeInMilliseconds}" Width="66" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="{StaticResource HoverBorderBrush}"/>
+                                <TextBox Text="{Binding TimeInMilliseconds}" ToolTip="Time in milliseconds that should pass before this keystroke action should take place" Width="66" HorizontalAlignment="Stretch" TextAlignment="Center" BorderBrush="{StaticResource HoverBorderBrush}"/>
                             </StackPanel>
                         </Grid>
 

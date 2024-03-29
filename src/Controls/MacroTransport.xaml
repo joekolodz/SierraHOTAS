@@ -56,7 +56,6 @@
                   SelectionChanged="ActionList_OnSelectionChanged" 
                   Text="{Binding ActionName, UpdateSourceTrigger=LostFocus}" 
                   ItemsSource="{Binding DataContext.ActionCatalog.Catalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" 
-                  DisplayMemberPath="ActionName" 
                   IsEditable="True" 
                   IsTextSearchEnabled="False" 
                   FontSize="14" 
@@ -64,12 +63,39 @@
                   Width="300"
                   Margin="0,2,0,0" 
                   HorizontalAlignment="Left" 
-                  VerticalAlignment="Center"/>
+                  VerticalAlignment="Center">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock 
+                              Text="{Binding ActionName}"
+                              HorizontalAlignment="Left" 
+                              VerticalAlignment="Center" 
+                              Focusable="True" 
+                              Background="Transparent"
+                              Foreground="{StaticResource TextBrush}"
+                              Width="300"
+                              />
+                        <Button Command="{Binding RemoveActionCatalogItemCommand}"
+                                  CommandParameter="{Binding}"
+                                  Visibility="{Binding IsRemovable, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                  ToolTip="Remove Action" 
+                                  ToolTipService.InitialShowDelay="800" 
+                                  HorizontalContentAlignment="Right"
+                                  HorizontalAlignment="Right"
+                                  Background="Transparent" 
+                                  BorderBrush="Transparent">
+                            <Image Source="../Images/remove_red_26x26.png" Height="12" Width="12"/>
+                        </Button>
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
 
         <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0,0,0,0">
             <CheckBox Margin="0,2,0,0" IsChecked="{Binding IsOneShot}" ToolTip="Play all keystrokes in order. Do not wait for button release" ToolTipService.InitialShowDelay="800">One Shot</CheckBox>
             <Label Content="Repeats" Foreground="{StaticResource TextBrush}" Margin="81,0,0,0"/>
-            <TextBox Text="{Binding RepeatCount}" ToolTip="Number of times to repeat this button press. -1 for infinite" ToolTipService.InitialShowDelay="800" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Margin="0,0,2,0" Width="100" Height="20" FontSize="12" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
+            <TextBox Text="{Binding RepeatCount}" ToolTip="Number of times to repeat this button press. -1 for infinite" ToolTipService.InitialShowDelay="800" Foreground="{StaticResource TextBrush}" CaretBrush="{StaticResource TextBrush}" Margin="0,0,2,0" Width="101" Height="20" FontSize="12" Background="{StaticResource WindowBackgroundBrush}" BorderBrush="{StaticResource NormalBorderBrush}"/>
         </StackPanel>
     </StackPanel>
 </UserControl>

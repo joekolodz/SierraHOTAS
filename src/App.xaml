@@ -448,34 +448,7 @@
         </ControlTemplate>
 
         <Style x:Key="{x:Type ComboBox}" TargetType="ComboBox">
-            <Setter Property="ItemTemplate">
-                <Setter.Value>
-                    <DataTemplate DataType="{x:Type models:ActionCatalogItem}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock 
-                                Text="{Binding ActionName}"
-                                HorizontalAlignment="Left" 
-                                VerticalAlignment="Center" 
-                                Focusable="True" 
-                                Background="Transparent"
-                                Foreground="{StaticResource TextBrush}"
-                                Width="300"
-                                />
-                            <Button Command="{Binding RemoveActionCatalogItemCommand}"
-                                    CommandParameter="{Binding}"
-                                    Visibility="{Binding IsRemovable, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    ToolTip="Remove Action" 
-                                    ToolTipService.InitialShowDelay="800" 
-                                    HorizontalContentAlignment="Right"
-                                    HorizontalAlignment="Right"
-                                    Background="Transparent" 
-                                    BorderBrush="Transparent">
-                                <Image Source="../Images/remove_red_26x26.png" Height="12" Width="12"/>
-                            </Button>
-                        </StackPanel>
-                    </DataTemplate>
-                </Setter.Value>
-            </Setter>
+ 
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -483,53 +456,53 @@
                         <Grid>
                             <CheckBox></CheckBox>
                             <ToggleButton 
-                                 Name="ToggleButton" 
-                                 Template="{StaticResource ComboBoxToggleButton}" 
-                                 Grid.Column="2" 
-                                 Focusable="false"
-                                 IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
-                                 ClickMode="Press">
+                                Name="ToggleButton" 
+                                Template="{StaticResource ComboBoxToggleButton}" 
+                                Grid.Column="2" 
+                                Focusable="false"
+                                IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+                                ClickMode="Press">
                             </ToggleButton>
                             <ContentPresenter
-                                Name="ContentSite"
-                                Content="{TemplateBinding ComboBox.SelectionBoxItem}" 
-                                ContentTemplate="{TemplateBinding ComboBox.SelectionBoxItemTemplate}" 
-                                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                IsHitTestVisible="False" 
-                                Margin="3,3,23,3"
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Left" />
+                               Name="ContentSite"
+                               Content="{TemplateBinding ComboBox.SelectionBoxItem}" 
+                               ContentTemplate="{TemplateBinding ComboBox.SelectionBoxItemTemplate}" 
+                               ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                               IsHitTestVisible="False" 
+                               Margin="3,3,23,3"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Left" />
                             <TextBox x:Name="PART_EditableTextBox"
-                                     Style="{x:Null}" 
-                                     Template="{StaticResource ComboBoxTextBox}" 
-                                     HorizontalAlignment="Left" 
-                                     VerticalAlignment="Center" 
-                                     SelectionBrush="{StaticResource SelectedBorderBrush}"
-                                     CaretBrush="{StaticResource TextBrush}"
-                                     Margin="3,3,23,3"
-                                     Focusable="True" 
-                                     Background="Transparent"
-                                     Foreground="{TemplateBinding Foreground}"
-                                     FontSize="14"
-                                     Visibility="Hidden"
-                                     IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                                    Style="{x:Null}" 
+                                    Template="{StaticResource ComboBoxTextBox}" 
+                                    HorizontalAlignment="Left" 
+                                    VerticalAlignment="Center" 
+                                    SelectionBrush="{StaticResource SelectedBorderBrush}"
+                                    CaretBrush="{StaticResource TextBrush}"
+                                    Margin="3,3,23,3"
+                                    Focusable="True" 
+                                    Background="Transparent"
+                                    Foreground="{TemplateBinding Foreground}"
+                                    FontSize="14"
+                                    Visibility="Hidden"
+                                    IsReadOnly="{TemplateBinding IsReadOnly}"/>
                             <Popup 
-                                Name="Popup"
-                                Placement="Bottom"
-                                IsOpen="{TemplateBinding IsDropDownOpen}"
-                                AllowsTransparency="True" 
-                                Focusable="False"
-                                PopupAnimation="Slide">
+                               Name="Popup"
+                               Placement="Bottom"
+                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                               AllowsTransparency="True" 
+                               Focusable="False"
+                               PopupAnimation="Slide">
                                 <Grid 
-                                  Name="DropDown"
-                                  Background="Azure"
-                                  SnapsToDevicePixels="True"                
-                                  MinWidth="{TemplateBinding ActualWidth}"
-                                  MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                 Name="DropDown"
+                                 Background="Azure"
+                                 SnapsToDevicePixels="True"                
+                                 MinWidth="{TemplateBinding ActualWidth}"
+                                 MaxHeight="{TemplateBinding MaxDropDownHeight}">
                                     <Border 
-                                    x:Name="DropDownBorder"
-                                    Background="{StaticResource SelectedBrush}"
-                                    BorderThickness="1"/>
+                                   x:Name="DropDownBorder"
+                                   Background="{StaticResource SelectedBrush}"
+                                   BorderThickness="1"/>
                                     <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
                                         <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
                                     </ScrollViewer>
@@ -560,6 +533,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+
 
         <Style TargetType="TabItem" x:Key="CustomTabItem">
             <Setter Property="Template">

@@ -177,8 +177,12 @@ namespace SierraJSON
 
         private static void WriteCollection(ICollection collection)
         {
-            if (collection.Count == 0) return;
-
+            if (collection.Count == 0)
+            {
+                _resultJSON.Append(ARRAY_START);
+                _resultJSON.Append(ARRAY_END);
+                return;
+            }
             _resultJSON.Append(ARRAY_START);
             pendingCollectionStartFormat = true;
 

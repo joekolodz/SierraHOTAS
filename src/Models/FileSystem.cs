@@ -35,7 +35,7 @@ namespace SierraHOTAS
         {
             fileName = BuildCurrentPath(fileName);
             Logging.Log.Debug($"Saving Quick List as :{fileName}");
-            
+
             try
             {
                 _fileIo.WriteAllText(fileName, Serializer.ToJSON(list, new CustomSierraJsonConverter()));
@@ -145,6 +145,10 @@ namespace SierraHOTAS
                 if (version == HOTASCollection.FileFormatVersion)
                 {
                     collection = Serializer.ToObject<HOTASCollection>(json, new CustomSierraJsonConverter());
+                    if (collection.ActionCatalog == null)
+                    {
+                        collection.SetCatalog(new ActionCatalog());
+                    }
                     collection.ActionCatalog.PostDeserializeProcess();
                 }
                 //else - based on version, use factory to get old version and convert/map to latest version, then re-save
