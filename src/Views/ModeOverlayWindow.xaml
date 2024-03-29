@@ -7,19 +7,21 @@
         mc:Ignorable="d"
         Title=""
         Height="25" 
-        Width="98">
+        Width="200">
 
     <Grid x:Name="grid" Background="Transparent">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="98" />
+            <ColumnDefinition Width="15" />
+            <ColumnDefinition Width="100" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Active Mode:" VerticalAlignment="Center" Style="{StaticResource ModeOverlayTextBlock}" HorizontalAlignment="Left"/>
-        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtMessage" VerticalAlignment="Center" Style="{StaticResource ModeOverlayTextBlock}" HorizontalAlignment="Left"/>
+        <Rectangle Grid.Row="0" Grid.Column="0" Width="14" Height="14" Fill="{StaticResource AxisForwardBrush}" Stroke="{StaticResource HoverBorderBrush}" StrokeThickness="1" Cursor="Hand" />
+        <TextBlock Grid.Row="0" Grid.Column="1" Margin="2,0,0,0" Text="Active Mode:" VerticalAlignment="Center" Style="{StaticResource ModeOverlayTextBlock}" HorizontalAlignment="Left" Cursor="Hand"/>
+        <TextBlock Grid.Row="0" Grid.Column="2" x:Name="txtMessage" VerticalAlignment="Center" Style="{StaticResource ModeOverlayTextBlock}" HorizontalAlignment="Left" Cursor="Hand"/>
 
     </Grid>
 </Window>

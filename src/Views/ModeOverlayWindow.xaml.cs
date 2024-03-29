@@ -138,7 +138,7 @@ namespace SierraHOTAS.Views
             {
                 _appDispatcher.Invoke(() =>
                 {
-                    Width = 98;
+                    Width = 115;
                     txtMessage.Text = _modeDictionary[mode].ModeName;
                     SetWidthFromContent();
                 });
@@ -154,7 +154,7 @@ namespace SierraHOTAS.Views
                                                   Brushes.Gold,
                                                   1.25);
 
-            Width = (int)formattedText.Width + 98;
+            Width = (int)formattedText.Width + 115;
         }
     }
 }

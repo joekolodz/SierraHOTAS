@@ -1,8 +1,6 @@
 ﻿using SierraHOTAS.Models;
 using SierraJSON;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace SierraHOTAS
@@ -140,6 +138,7 @@ namespace SierraHOTAS
 //                if (prop.Name == nameof(button.RepeatCount) && (int)prop.GetValue(button) == 0) continue;
                 if (prop.Name == nameof(button.IsShift) && (bool)prop.GetValue(button) == false) continue;
                 if (prop.Name == nameof(button.IsOneShot) && (bool)prop.GetValue(button) == false) continue;
+                if (prop.Name == nameof(button.ActionId) && !button.ActionCatalogItem.Actions.Any()) continue;
 
                 Serializer.WriteKeyValue(prop.Name, value);
             }
