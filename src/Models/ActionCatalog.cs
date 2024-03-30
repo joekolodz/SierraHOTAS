@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Data;
+using SierraJSON;
 
 namespace SierraHOTAS.Models
 {
@@ -12,10 +14,16 @@ namespace SierraHOTAS.Models
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         public ObservableCollection<ActionCatalogItem> Catalog { get; private set; }
+        
+        [SierraJsonIgnore]
+        public ICollectionViewLiveShaping CatalogView { get; private set; }
 
         public ActionCatalog()
         {
             Catalog = new ObservableCollection<ActionCatalogItem>();
+            CatalogView = (ICollectionViewLiveShaping)CollectionViewSource.GetDefaultView(Catalog);
+            CatalogView.IsLiveSorting = true;
+
             AddEmptyItem();
 
             Catalog.CollectionChanged += Catalog_CollectionChanged;
@@ -54,7 +62,7 @@ namespace SierraHOTAS.Models
         {
             if (sender is ActionCatalogItem item)
             {
-                ReSortItem(item);
+                //ReSortItem(item);
                 //Catalog = Catalog.OrderBy(x => x.ActionName).ToObservableCollection();
             }
         }
@@ -62,8 +70,10 @@ namespace SierraHOTAS.Models
         private void ReSortItem(ActionCatalogItem item)
         {
             var index = Catalog.IndexOf(item);
+            var newIndex = GetSortPosition(item);
+            if (index == newIndex) return;
             Catalog.RemoveAt(index);
-            Insert(item);
+            Catalog.Insert(newIndex, item);
         }
 
         private int GetSortPosition(ActionCatalogItem item)

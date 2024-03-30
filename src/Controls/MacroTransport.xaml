@@ -55,7 +55,7 @@
                   ToolTip="Select or rename an existing keystroke activity" ToolTipService.InitialShowDelay="800"
                   SelectionChanged="ActionList_OnSelectionChanged" 
                   Text="{Binding ActionName, UpdateSourceTrigger=LostFocus}" 
-                  ItemsSource="{Binding DataContext.ActionCatalog.Catalog, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" 
+                  ItemsSource="{Binding DataContext.ActionCatalog.CatalogView, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}}" 
                   IsEditable="True" 
                   IsTextSearchEnabled="False" 
                   FontSize="14" 
