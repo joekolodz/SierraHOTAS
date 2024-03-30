@@ -52,7 +52,7 @@ namespace SierraHOTAS.Models
 
         public override string ToString()
         {
-            return $"{ActionName} ({Actions.Count} button actions)";
+            return $"{ActionName}";
         }
 
         private ICommand _removeActionCatalogItemCommand;
