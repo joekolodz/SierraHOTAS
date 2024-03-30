@@ -107,12 +107,10 @@ namespace SierraHOTAS
 
         private static void SerializeButtonAction(ButtonAction action)
         {
-            var propList = typeof(ButtonAction).GetProperties();
+             var propList = SierraJsonAttributes.GetSerializableProperties(action);
             Serializer.WriteObjectStart();
             foreach (var prop in propList)
             {
-                if (prop.GetCustomAttributes(true).Any(x => x is SierraJsonIgnore)) continue;
-
                 var value = prop.GetValue(action);
 
                 if (prop.Name == nameof(action.IsKeyUp) && (bool)prop.GetValue(action) == false) continue;
@@ -126,12 +124,10 @@ namespace SierraHOTAS
 
         private static void SerializeButton(HOTASButton button)
         {
-            var propList = typeof(HOTASButton).GetProperties();
+            var propList = SierraJsonAttributes.GetSerializableProperties(button);
             Serializer.WriteObjectStart();
             foreach (var prop in propList)
             {
-                if (prop.GetCustomAttributes(true).Any(x => x is SierraJsonIgnore)) continue;
-
                 var value = prop.GetValue(button);
 
 //                if (prop.Name == nameof(button.ShiftModePage) && (int)prop.GetValue(button) == 0) continue;
@@ -147,12 +143,10 @@ namespace SierraHOTAS
 
         private static void SerializeAxis(HOTASAxis axis)
         {
-            var propList = typeof(HOTASAxis).GetProperties();
+            var propList = SierraJsonAttributes.GetSerializableProperties(axis);
             Serializer.WriteObjectStart();
             foreach (var prop in propList)
             {
-                if (prop.GetCustomAttributes(true).Any(x => x is SierraJsonIgnore)) continue;
-
                 var value = prop.GetValue(axis);
 
                 if (prop.Name == nameof(axis.IsDirectional) && (bool)prop.GetValue(axis) == true) continue;
@@ -167,12 +161,10 @@ namespace SierraHOTAS
 
         private static void SerializeCatalogActionItem(ActionCatalogItem item)
         {
-            var propList = typeof(ActionCatalogItem).GetProperties();
+            var propList = SierraJsonAttributes.GetSerializableProperties(item);
             Serializer.WriteObjectStart();
             foreach (var prop in propList)
             {
-                if (prop.GetCustomAttributes(true).Any(x => x is SierraJsonIgnore)) continue;
-
                 var value = prop.GetValue(item);
 
                 Serializer.WriteKeyValue(prop.Name, value);
