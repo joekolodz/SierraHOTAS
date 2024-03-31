@@ -223,7 +223,6 @@ namespace SierraHOTAS.Models
 
         private static readonly ConcurrentDictionary<int, bool> _activeRepeat = new ConcurrentDictionary<int, bool>();
         private static readonly ConcurrentDictionary<int, bool> _activeMacros = new ConcurrentDictionary<int, bool>();
-        private static readonly ConcurrentDictionary<int, Task> _activeButtons = new ConcurrentDictionary<int, Task>();
         private async Task HandleStandardButton(int offset, int value)
         {
             var map = GetMap(offset) as HOTASButton;
