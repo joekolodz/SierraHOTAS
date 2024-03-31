@@ -207,9 +207,8 @@ namespace SierraHOTAS.Models
                 var success = _lastPovButton.TryRemove(offset, out var translatedOffset);
 
                 if (!success) return;
-                if (!(GetMap(translatedOffset) is HOTASButton map)) return;
-                HandleButtonReleased(map, translatedOffset);
-                OnButtonRelease(translatedOffset);
+
+                await HandleStandardButton(translatedOffset, (int)JoystickOffsetValues.ButtonState.ButtonReleased);
             }
             else
             {
@@ -218,10 +217,7 @@ namespace SierraHOTAS.Models
                 _lastPovButton.TryAdd(offset, translatedOffset);
                 Logging.Log.Debug($"Pressing POV button: {offset} - {value}");
 
-                if (!(GetMap(translatedOffset) is HOTASButton map)) return;
-
-                await HandleButtonPressed(map, translatedOffset);
-                OnButtonPress(translatedOffset);
+                await HandleStandardButton(translatedOffset, (int)JoystickOffsetValues.ButtonState.ButtonPressed);
             }
         }
 
@@ -244,7 +240,7 @@ namespace SierraHOTAS.Models
                         _modeActivationButtons[_mode].InheritFromMode > 0)
                     {
                         map = GetMapFromParentMode(_modeActivationButtons[_mode].InheritFromMode, offset) as HOTASButton;
-                        if (map != null)
+                        ;if (map != null)
                         {
                             await HandleButtonPressed(map, offset);
                         }
