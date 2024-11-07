@@ -1,5 +1,4 @@
 ﻿using SierraHOTAS.Annotations;
-using SierraHOTAS.Controls;
 using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels.Commands;
@@ -7,7 +6,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;

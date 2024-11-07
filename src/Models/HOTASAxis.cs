@@ -20,7 +20,7 @@ namespace SierraHOTAS.Models
         public bool IsDirectional { get; set; } = true;
         public bool IsMultiAction { get; set; } = false;
         public string SoundFileName { get; set; }
-        public double SoundVolume { get; set; } = 1.0d;
+        public float SoundVolume { get; set; } = 1.0f;
         public ObservableCollection<Segment> Segments { get; set; }
 
         [SierraJsonIgnore]

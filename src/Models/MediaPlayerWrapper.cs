@@ -1,54 +1,45 @@
-﻿using System;
+﻿using NAudio.Wave;
 using System.Diagnostics.CodeAnalysis;
-using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace SierraHOTAS.Models
 {
     [ExcludeFromCodeCoverage]
     public class MediaPlayerWrapper : IMediaPlayer
     {
-        private readonly MediaPlayer _mediaPlayer;
+        private readonly WaveOutEvent _outputDevice;
+        private AudioFileReader _audioFile;
 
-        public MediaPlayerWrapper(MediaPlayer mediaPlayer)
+        public MediaPlayerWrapper(WaveOutEvent outputDevice)
         {
-            _mediaPlayer = mediaPlayer;
+            _outputDevice = outputDevice;
         }
 
         public void Play()
         {
-            _mediaPlayer.Play();
+            _outputDevice.Play();
         }
 
         public void Close()
         {
-            _mediaPlayer.Close();
+            _audioFile.Close();
         }
 
-        public void Open(Uri source)
+        public void Open(string sourceFilePath)
         {
-            _mediaPlayer.Open(source);
+            _audioFile = new AudioFileReader(sourceFilePath);
+            _outputDevice.Init(_audioFile);
         }
 
-        public Dispatcher Dispatcher => _mediaPlayer.Dispatcher;
-        
-
-        public bool IsMuted
+        public float Volume
         {
-            get => _mediaPlayer.IsMuted;
-            set => _mediaPlayer.IsMuted = value;
+            get => _outputDevice.Volume;
+            set => _outputDevice.Volume = value;
         }
 
-        public double Volume
+        public long Position
         {
-            get => _mediaPlayer.Volume;
-            set => _mediaPlayer.Volume = value;
-        }
-
-        public TimeSpan Position
-        {
-            get => _mediaPlayer.Position;
-            set => _mediaPlayer.Position = value;
+            get => _audioFile.Position;
+            set => _audioFile.Position = value;
         }
     }
 }

@@ -104,6 +104,9 @@ namespace SierraJSON
                 case double d:
                     WriteDouble(d);
                     break;
+                case float f:
+                    WriteFloat(f);
+                    break;
                 case bool b:
                     WriteBool(b);
                     break;
@@ -135,6 +138,8 @@ namespace SierraJSON
                     return i == 0;
                 case double d:
                     return Math.Abs(d - 1.0d) < 0.01;
+                case float f:
+                    return Math.Abs(f - 1.0d) < 0.01;
                 case bool b:
                     return b == false;
                 case string s:
@@ -167,6 +172,11 @@ namespace SierraJSON
         private static void WriteDouble(double d)
         {
             _resultJSON.Append(d);
+        }
+
+        private static void WriteFloat(float f)
+        {
+            _resultJSON.Append(f);
         }
 
         private static void WriteBool(bool b)

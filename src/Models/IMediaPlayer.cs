@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Threading;
 
 namespace SierraHOTAS.Models
 {
@@ -7,10 +6,8 @@ namespace SierraHOTAS.Models
     {
         void Play();
         void Close();
-        void Open(Uri source);
-        Dispatcher Dispatcher { get; }
-        bool IsMuted { get; set; }
-        double Volume { get; set; }
-        TimeSpan Position { get; set; }
+        void Open(string sourceFilePath);
+        float Volume { get; set; }
+        long Position { get; set; }
     }
 }

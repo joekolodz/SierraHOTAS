@@ -214,7 +214,7 @@ namespace SierraJSON
             return s.ToString();
         }
 
-        private static Int32 TokenizeNumber()
+        private static string TokenizeNumber()
         {
             StringBuilder s = new StringBuilder();
 
@@ -226,7 +226,7 @@ namespace SierraJSON
             }
 
             index--; //roll back one index otherwise the for loop will advance over the comma which is being pointed at currently
-            return Convert.ToInt32(s.ToString());
+            return s.ToString();
         }
 
         private static void TokenizeBoolTrue()
@@ -261,7 +261,7 @@ namespace SierraJSON
         }
 
 
-        static object ParseValue(JsonToken token)
+        static object ParseValue(JsonToken token, Type type)
         {
             switch (token.Token)
             {
@@ -284,7 +284,9 @@ namespace SierraJSON
                     break;
 
                 case Tokens.NUMBER:
-                    return Convert.ToInt32(token.Value);
+                    if(int.TryParse(token.Value, out var i)) return i;
+                    if(float.TryParse(token.Value, out var f)) return f;
+                    throw new InvalidCastException($"ParseValue not implemented to handle type {type}.");
 
                 case Tokens.COMMA:
                     break;
@@ -311,7 +313,15 @@ namespace SierraJSON
             }
 
             //treat as class
-            var obj = Activator.CreateInstance(type);
+            object obj = null;
+            try
+            {
+                obj = Activator.CreateInstance(type);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("can't instantiate");
+            }
             return ParseObject(obj);
         }
 
@@ -398,7 +408,7 @@ namespace SierraJSON
                         value = TryCustomConverter(propInfo.PropertyType, tok.Value);
                         if (value == null)
                         {
-                            value = ParseValue(tok);
+                            value = ParseValue(tok, propInfo.PropertyType);
                         }
                     }
 

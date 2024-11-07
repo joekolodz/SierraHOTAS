@@ -118,7 +118,7 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
-        public double SoundVolume
+        public float SoundVolume
         {
             get => _hotasAxis.SoundVolume;
             set
@@ -176,13 +176,9 @@ namespace SierraHOTAS.ViewModels
             _mediaPlayer = mediaPlayerFactory.CreateMediaPlayer();
             _mediaPlayer.Volume = 0f;
 
-            if (string.IsNullOrWhiteSpace(SoundFileName))
+            if (!string.IsNullOrWhiteSpace(SoundFileName))
             {
-                _mediaPlayer.IsMuted = true;
-            }
-            else
-            {
-                _mediaPlayer.Open(new Uri(map.SoundFileName, UriKind.Relative));
+                _mediaPlayer.Open(map.SoundFileName);
             }
             RebuildAllButtonMapViewModels();
         }
@@ -341,9 +337,9 @@ namespace SierraHOTAS.ViewModels
             {
                 _appDispatcher?.Invoke(() =>
                 {
-                    _mediaPlayer.Volume = axisMap.SoundVolume;
+                    _mediaPlayer.Volume = axisMap.SoundVolume > 1.0f ? 1.0f : axisMap.SoundVolume;
+                    _mediaPlayer.Position = 0;
                     _mediaPlayer.Play();
-                    _mediaPlayer.Position = TimeSpan.Zero;
                 });
             }
         }
@@ -428,14 +424,13 @@ namespace SierraHOTAS.ViewModels
             if (string.IsNullOrWhiteSpace(soundFileName)) return;
             SoundFileName = soundFileName;
             _mediaPlayer.Close();
-            _mediaPlayer.Open(new Uri(SoundFileName, UriKind.Relative));
-            _mediaPlayer.IsMuted = false;
+            _mediaPlayer.Open(SoundFileName);
+            _mediaPlayer.Play();
         }
 
         private void RemoveSound()
         {
             SoundFileName = string.Empty;
-            _mediaPlayer.IsMuted = true;
         }
     }
 }

@@ -523,13 +523,13 @@ namespace SierraHOTAS.Models
             _buttonMap = buttonMap;
         }
 
-        public void SetMode(int mode)
+        public void ActivateMode(int mode)
         {
             _mode = mode;
             _buttonMap = _modes[_mode];
         }
 
-        public void SetModes(Dictionary<int, ObservableCollection<IHotasBaseMap>> modes)
+        public void SetModesCollection(Dictionary<int, ObservableCollection<IHotasBaseMap>> modes)
         {
             _modes = modes;
         }

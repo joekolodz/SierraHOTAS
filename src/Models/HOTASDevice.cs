@@ -285,7 +285,7 @@ namespace SierraHOTAS.Models
             }
 
             Modes = mergedModes;
-            _hotasQueue?.SetModes(Modes);
+            _hotasQueue?.SetModesCollection(Modes);
         }
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace SierraHOTAS.Models
             }
 
             Modes = mergedModes;
-            _hotasQueue?.SetModes(Modes);
+            _hotasQueue?.SetModesCollection(Modes);
         }
 
         /// <summary>
@@ -366,7 +366,7 @@ namespace SierraHOTAS.Models
                 return;
             }
             ButtonMap = Modes[mode];
-            _hotasQueue.SetMode(mode);
+            _hotasQueue.ActivateMode(mode);
         }
 
         public void SetModeActivation(Dictionary<int, ModeActivationItem> modeActivationButtons)
@@ -562,7 +562,8 @@ namespace SierraHOTAS.Models
             _modeActivationButtons.Clear();
             
             //Modes = new Dictionary<int, ObservableCollection<IHotasBaseMap>>();
-            _hotasQueue.SetModes(Modes);
+            _hotasQueue.SetModesCollection(Modes);
+            _hotasQueue.ActivateMode(1);
         }
 
         private void ClearButtonMap()

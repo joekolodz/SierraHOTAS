@@ -152,7 +152,7 @@ namespace SierraHOTAS
                 if (prop.Name == nameof(axis.IsDirectional) && (bool)prop.GetValue(axis) == true) continue;
                 if (prop.Name == nameof(axis.IsMultiAction) && (bool)prop.GetValue(axis) == false) continue;
                 if (prop.Name == nameof(axis.SoundFileName) && string.IsNullOrEmpty((string)prop.GetValue(axis))) continue;
-                if (prop.Name == nameof(axis.SoundVolume) && Math.Abs((double)prop.GetValue(axis) - 1.0d) < 0.01) continue;
+                if (prop.Name == nameof(axis.SoundVolume) && Math.Abs((float)prop.GetValue(axis) - 1.0d) < 0.01) continue;
 
                 Serializer.WriteKeyValue(prop.Name, value);
             }

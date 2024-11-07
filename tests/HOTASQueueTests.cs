@@ -363,7 +363,7 @@ namespace SierraHOTAS.Tests
             queue.Listen(joystick, modes, activationList);
 
             //inherited key should be active
-            queue.SetMode(2);
+            queue.ActivateMode(2);
 
             var mre = new ManualResetEventSlim();
             queue.KeystrokeDownSent += (sender, e) =>

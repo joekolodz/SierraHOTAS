@@ -1,12 +1,11 @@
 ﻿namespace SierraHOTAS.Tests
 {
     using NSubstitute;
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Windows.Threading;
     using SierraHOTAS.Factories;
     using SierraHOTAS.Models;
     using SierraHOTAS.ViewModels;
+    using System;
+    using System.Collections.ObjectModel;
     using Xunit;
 
     public class AxisMapViewModelTests
@@ -158,7 +157,7 @@
         public void constructor_test_valid_sound_file_from_deserialization()
         {
             var map = new HOTASAxis();
-            map.SoundFileName = "file name";
+            map.SoundFileName = "D:\\Development\\SierraHOTAS\\src\\Sounds\\click05.mp3";
             CreateAxisMapViewModel(out var subMediaPlayer, map);
             map.SoundFileName = "bob";
 

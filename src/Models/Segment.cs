@@ -20,6 +20,10 @@ namespace SierraHOTAS.Models
             }
         }
 
+        public Segment()
+        {
+        }
+
         public Segment(int id, int value)
         {
             Id = id;
