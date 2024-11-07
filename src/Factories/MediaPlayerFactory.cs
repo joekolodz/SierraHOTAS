@@ -1,5 +1,5 @@
-﻿using SierraHOTAS.Models;
-using System.Windows.Media;
+﻿using NAudio.Wave;
+using SierraHOTAS.Models;
 
 namespace SierraHOTAS.Factories
 {
@@ -7,7 +7,7 @@ namespace SierraHOTAS.Factories
     {
         public virtual IMediaPlayer CreateMediaPlayer()
         {
-            return new MediaPlayerWrapper(new MediaPlayer());
+            return new MediaPlayerWrapper(new WaveOutEvent());
         }
     }
 }
