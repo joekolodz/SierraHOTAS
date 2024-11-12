@@ -8,11 +8,12 @@ namespace SierraHOTAS.Models
 {
     public class HOTASAxis : IHotasBaseMap
     {
-        public event EventHandler<AxisDirectionChangedEventArgs> OnAxisDirectionChanged;
-        public event EventHandler<AxisSegmentChangedEventArgs> OnAxisSegmentChanged;
+        public event EventHandler<AxisDirectionChangedEventArgs> AxisDirectionChanged;
+        public event EventHandler<AxisSegmentChangedEventArgs> AxisSegmentChanged;
 
         public int MapId { get; set; }
         public string MapName { get; set; }
+        [SierraJsonNoHide]
         public HOTASButton.ButtonType Type { get; set; }
         public ObservableCollection<HOTASButton> ButtonMap { get; set; }
         public ObservableCollection<HOTASButton> ReverseButtonMap { get; set; }
@@ -106,7 +107,7 @@ namespace SierraHOTAS.Models
                 Direction = AxisDirection.Forward;
             }
 
-            OnAxisDirectionChanged?.Invoke(this, new AxisDirectionChangedEventArgs() { NewDirection = Direction });
+            AxisDirectionChanged?.Invoke(this, new AxisDirectionChangedEventArgs() { NewDirection = Direction });
         }
 
         private void DetectSelectedSegment(int value)
@@ -121,7 +122,7 @@ namespace SierraHOTAS.Models
 
             _currentSegment = newSegment;
             IsSegmentChanged = true;
-            OnAxisSegmentChanged?.Invoke(this, new AxisSegmentChangedEventArgs() { NewSegment = _currentSegment });
+            AxisSegmentChanged?.Invoke(this, new AxisSegmentChangedEventArgs() { NewSegment = _currentSegment });
         }
 
         public void CalculateSegmentRange(int segments)

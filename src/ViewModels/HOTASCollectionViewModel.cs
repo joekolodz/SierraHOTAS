@@ -318,12 +318,14 @@ namespace SierraHOTAS.ViewModels
 
         private void DeviceList_KeystrokeUpSent(object sender, KeystrokeSentEventArgs e)
         {
-            AddActivity((sender as HOTASQueue)?.GetMap(e.Offset), e);
+            if (!(sender is IHOTASQueue q)) return;
+            AddActivity(q.GetMap(e.Offset), e);
         }
 
         private void DeviceList_KeystrokeDownSent(object sender, KeystrokeSentEventArgs e)
         {
-            AddActivity((sender as HOTASQueue)?.GetMap(e.Offset), e);
+            if (!(sender is IHOTASQueue q)) return;
+            AddActivity(q.GetMap(e.Offset), e);
         }
 
         private void AddActivity(IHotasBaseMap map, KeystrokeSentEventArgs e)
@@ -478,13 +480,10 @@ namespace SierraHOTAS.ViewModels
 
                 newDevices.Remove(newDevice);
 
-
-
-                //TODO - find out why connecting a device after a profile is loaded doesn't re-populate all buttons 
-                //Not all HOTASDevice Modes are being reseeded
-
                 _deviceList.ReplaceDevice(newDevice);
                 _deviceList.ListenToDevice(newDevice);
+                _deviceList.Stop();
+
 
                 deviceViewModel.ReplaceDevice(newDevice);
                 deviceViewModel.RebuildMap();

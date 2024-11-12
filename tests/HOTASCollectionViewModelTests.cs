@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Threading;
 using NLog.LayoutRenderers;
+using SierraHOTAS.Controls;
 using SierraHOTAS.Win32;
 using Xunit;
 using Xunit.Abstractions;
@@ -951,7 +952,8 @@ namespace SierraHOTAS.Tests
 
             IHOTASQueue queue = new HOTASQueue(Substitute.For<IKeyboard>());
             IHotasBaseMap map = new HOTASButton() { Type = HOTASButton.ButtonType.Button, ActionName = "test action" };
-            queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { map });
+            queue.SetModesCollection(new Dictionary<int, ObservableCollection<IHotasBaseMap>> { { 1, new ObservableCollection<IHotasBaseMap>(){map} } });
+            queue.ActivateMode(1);
 
             subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
@@ -966,7 +968,8 @@ namespace SierraHOTAS.Tests
 
             IHOTASQueue queue = new HOTASQueue(Substitute.For<IKeyboard>());
             var map = new HOTASButton() { Type = HOTASButton.ButtonType.Button, ActionName = "test action" };
-            queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { map });
+            queue.SetModesCollection(new Dictionary<int, ObservableCollection<IHotasBaseMap>> { { 1, new ObservableCollection<IHotasBaseMap>(){map} } });
+            queue.ActivateMode(1);
 
             subDeviceList.KeystrokeUpSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
@@ -981,8 +984,8 @@ namespace SierraHOTAS.Tests
 
             IHOTASQueue queue = new HOTASQueue(Substitute.For<IKeyboard>());
             var map = new HOTASButton() { Type = HOTASButton.ButtonType.AxisLinear };
-
-            queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { map });
+            queue.SetModesCollection(new Dictionary<int, ObservableCollection<IHotasBaseMap>> { { 1, new ObservableCollection<IHotasBaseMap>() { map } } });
+            queue.ActivateMode(1);
 
             subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
@@ -1000,8 +1003,8 @@ namespace SierraHOTAS.Tests
             var axisMap = new HOTASAxis() { Type = HOTASButton.ButtonType.AxisLinear, MapName = "forward", IsDirectional = false };
             axisMap.ButtonMap = new ObservableCollection<HOTASButton>() { new HOTASButton() { ActionName = "button 1", MapName = "forward" } };
             axisMap.ReverseButtonMap = new ObservableCollection<HOTASButton>() { new HOTASButton() { ActionName = "button 2", MapName = "reverse" } };
-
-            queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { axisMap });
+            queue.SetModesCollection(new Dictionary<int, ObservableCollection<IHotasBaseMap>> { { 1, new ObservableCollection<IHotasBaseMap>() { axisMap } } });
+            queue.ActivateMode(1);
 
             subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
@@ -1036,7 +1039,9 @@ namespace SierraHOTAS.Tests
 
             Assert.True(axisMap.Direction == AxisDirection.Backward);
 
-            queue.SetButtonMap(new ObservableCollection<IHotasBaseMap>() { axisMap });
+            queue.SetModesCollection(new Dictionary<int, ObservableCollection<IHotasBaseMap>> { { 1, new ObservableCollection<IHotasBaseMap>() { axisMap } } });
+            queue.ActivateMode(1);
+
             subDeviceList.KeystrokeDownSent += Raise.EventWith(queue, new KeystrokeSentEventArgs(0, 0, 0, false, false));
 
             Assert.Single(hotasVm.Activity);
@@ -1056,7 +1061,8 @@ namespace SierraHOTAS.Tests
         public void quick_profile_show_main_window()
         {
             var hotasVm = CreateHotasCollectionViewModel(out _, out var subDeviceList, out _, out _, out _, out var subQuickProfilePanelVm);
-            hotasVm.Initialize();            Assert.Raises<EventArgs>(a => hotasVm.ShowMainWindow += a, a => hotasVm.ShowMainWindow -= a, () => subQuickProfilePanelVm.ShowWindow());
+            hotasVm.Initialize();            
+            Assert.Raises<EventArgs>(a => hotasVm.ShowMainWindow += a, a => hotasVm.ShowMainWindow -= a, () => subQuickProfilePanelVm.ShowWindow());
         }
 
         [Fact]

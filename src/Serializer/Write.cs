@@ -61,9 +61,9 @@ namespace SierraJSON
             _converterRequiresKeyValueSeparator = false;
         }
 
-        public static void WriteKeyValue(string key, object value)
+        public static void WriteKeyValue(string key, object value, bool isNoHide = false)
         {
-            if (HideValue(value)) return;
+            if (!isNoHide && HideValue(value)) return;
 
 
             if (_converterRequiresKeyValueSeparator)
@@ -272,8 +272,7 @@ namespace SierraJSON
 
             var sierraObjectAttribute = (SierraJsonObject)type.GetCustomAttribute(typeof(SierraJsonObject));
             var isOptIn = sierraObjectAttribute?.Option == SierraJsonObject.MemberSerialization.OptIn;
-
-
+            
             PropertyInfo[] propList;
             if (isOptIn)
             {

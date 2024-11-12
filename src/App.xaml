@@ -274,13 +274,13 @@
 
         <DataTemplate x:Key="LinearAxisMapTemplate">
             <WrapPanel>
-                <controls:LinearAxisMap Margin="1"/>
+                <controls:LinearAxisMap Margin="1" AxisHand="{Binding AxisValue}" IsMultiAction="{Binding IsMultiAction}" SegmentCount="{Binding SegmentCount}" SegmentBoundary="{Binding SegmentBoundary}"/>
             </WrapPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="RadialAxisMapTemplate">
             <WrapPanel>
-                <controls:RadialAxisMap Margin="1"/>
+                <controls:RadialAxisMap Margin="1" AxisHand="{Binding AxisValue}" IsMultiAction="{Binding IsMultiAction}" SegmentCount="{Binding SegmentCount}" SegmentBoundary="{Binding SegmentBoundary}"/>
             </WrapPanel>
         </DataTemplate>
 

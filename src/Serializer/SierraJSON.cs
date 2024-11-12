@@ -51,9 +51,9 @@ namespace SierraJSON
             Write.WriteObjectEnd();
         }
 
-        public static void WriteKeyValue(string key, object value)
+        public static void WriteKeyValue(string key, object value, bool isNoHide = false)
         {
-            Write.WriteKeyValue(key, value);
+            Write.WriteKeyValue(key, value, isNoHide);
         }
 
         public class SierraJSONException : Exception

@@ -22,7 +22,6 @@ namespace SierraHOTAS.Models
         void ForceButtonPress(JoystickOffset offset, bool isDown);
         void Stop();
         IHotasBaseMap GetMap(int buttonOffset);
-        void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap);
         void ActivateMode(int mode);
         void SetModesCollection(Dictionary<int, ObservableCollection<IHotasBaseMap>> modes);
     }

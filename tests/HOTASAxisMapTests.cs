@@ -39,7 +39,7 @@ namespace SierraHOTAS.Tests
             map.SetAxis(800);
             map.SetAxis(800);
             Assert.True(map.Direction == AxisDirection.Forward);
-            Assert.Raises<AxisDirectionChangedEventArgs>(a => map.OnAxisDirectionChanged += a, a => map.OnAxisDirectionChanged -= a, () => map.SetAxis(700));
+            Assert.Raises<AxisDirectionChangedEventArgs>(a => map.AxisDirectionChanged += a, a => map.AxisDirectionChanged -= a, () => map.SetAxis(700));
             Assert.True(map.Direction == AxisDirection.Backward);
         }
 
@@ -85,7 +85,7 @@ namespace SierraHOTAS.Tests
             map.Segments.Add(new Segment(1, 0));
             map.Segments.Add(new Segment(2, 10));
             map.Segments.Add(new Segment(3, 20));
-            Assert.Raises<AxisSegmentChangedEventArgs>(a => map.OnAxisSegmentChanged += a, a => map.OnAxisSegmentChanged -= a, () => map.SetAxis(5));
+            Assert.Raises<AxisSegmentChangedEventArgs>(a => map.AxisSegmentChanged += a, a => map.AxisSegmentChanged -= a, () => map.SetAxis(5));
             Assert.True(map.IsSegmentChanged);
         }
 

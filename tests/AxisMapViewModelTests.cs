@@ -494,7 +494,7 @@
         {
             var mapVm = CreateAxisMapViewModel();
 
-            Assert.Raises<AxisChangedViewModelEventArgs>(a => mapVm.OnAxisValueChanged += a, a => mapVm.OnAxisValueChanged -= a, () => mapVm.SetAxis(0));
+            Assert.Raises<AxisChangedViewModelEventArgs>(a => mapVm.AxisValueChanged += a, a => mapVm.AxisValueChanged -= a, () => mapVm.SetAxis(0));
         }
 
         [Fact]
@@ -598,7 +598,6 @@
 
             mapVm.OpenFileCommand.Execute(default);
             Assert.NotEmpty(mapVm.SoundFileName);
-            Assert.False(subMediaPlayer.IsMuted);
         }
 
         [Fact]
@@ -610,16 +609,6 @@
             mapVm.OpenFileCommand.Execute(default);
             mapVm.RemoveSoundCommand.Execute(default);
             Assert.Empty(mapVm.SoundFileName);
-            Assert.True(subMediaPlayer.IsMuted);
-        }
-
-        [Fact]
-        public void segments_property_changed()
-        {
-            var mapVm = CreateAxisMapViewModel();
-            mapVm.SegmentCount = 4;
-            Assert.Raises<EventArgs>(a => mapVm.SegmentBoundaryChanged += a, a => mapVm.SegmentBoundaryChanged -= a, () => mapVm.Segments[0].Value = 1);
-
         }
     }
 }

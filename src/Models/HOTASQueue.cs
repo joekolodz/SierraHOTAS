@@ -1,14 +1,13 @@
 ﻿//todo can remove sharpdx dependency...replace JoystickUpdate with custom array. can do this in the joystickwrapper for the call to GetCurrentState
 using SharpDX.DirectInput;
+using SierraHOTAS.Win32;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SierraHOTAS.Win32;
 
 namespace SierraHOTAS.Models
 {
@@ -39,7 +38,6 @@ namespace SierraHOTAS.Models
 
         private IKeyboard Keyboard { get; set; }
         private IJoystick Joystick { get; set; }
-        private ObservableCollection<IHotasBaseMap> _buttonMap;
         private Dictionary<int, ObservableCollection<IHotasBaseMap>> _modes;
 
         public HOTASQueue(IKeyboard keyboard)
@@ -51,9 +49,8 @@ namespace SierraHOTAS.Models
         {
             Joystick = joystick;
             _modes = modes;
+            _mode = (_modes != null && _modes.Any()) ? _modes.First().Key : 1;
             _modeActivationButtons = modeActivationButtons;
-
-            if (_modes.Count > 0) _buttonMap = _modes[1];
 
             _jitterDetectionDictionary = new Dictionary<int, JitterDetection>();
 
@@ -481,29 +478,15 @@ namespace SierraHOTAS.Models
             AxisChanged?.Invoke(this, new AxisChangedEventArgs() { AxisId = (int)state.Offset, Value = state.Value, Device = null });
         }
 
-        //public IHotasBaseMap GetMap(int buttonOffset)
-        //{
-        //    return _buttonMap.FirstOrDefault(m => m.MapId == buttonOffset);
-        //}
-
         public IHotasBaseMap GetMap(int buttonOffset)
         {
-            var map = _buttonMap.FirstOrDefault(m => m.MapId == buttonOffset);
-            if (map == null)
-            {
-                Debug.WriteLine("fuck");
-            }
-            return map;
+            return _modes[_mode].FirstOrDefault(m => m.MapId == buttonOffset);
         }
 
         private IHotasBaseMap GetMapFromParentMode(int parentModeId, int buttonOffset)
         {
             var parentMode = _modes[parentModeId];
             var map = parentMode.FirstOrDefault(m => m.MapId == buttonOffset) as HOTASButton;
-            //if (map.ActionCatalogItem.Actions.Count > 0 && map.ShiftModePage <= 0)
-            //{
-            //    ModeSelected?.Invoke(this, new ModeSelectedEventArgs(){IsShift = true, Mode = parentModeId });
-            //}
             return map;
         }
 
@@ -517,16 +500,9 @@ namespace SierraHOTAS.Models
             ButtonReleased?.Invoke(this, new ButtonPressedEventArgs() { ButtonId = buttonId, Device = null });
         }
 
-        [Obsolete]
-        public void SetButtonMap(ObservableCollection<IHotasBaseMap> buttonMap)
-        {
-            _buttonMap = buttonMap;
-        }
-
         public void ActivateMode(int mode)
         {
             _mode = mode;
-            _buttonMap = _modes[_mode];
         }
 
         public void SetModesCollection(Dictionary<int, ObservableCollection<IHotasBaseMap>> modes)

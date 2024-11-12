@@ -1,4 +1,5 @@
 ﻿using SierraHOTAS.Annotations;
+using SierraHOTAS.Factories;
 using SierraHOTAS.Models;
 using SierraHOTAS.ViewModels.Commands;
 using System;
@@ -6,9 +7,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Threading;
-using SierraHOTAS.Factories;
 
 namespace SierraHOTAS.ViewModels
 {
@@ -25,9 +23,8 @@ namespace SierraHOTAS.ViewModels
         private IMediaPlayer _mediaPlayer;
         private readonly IDispatcher _appDispatcher;
         public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler<AxisChangedViewModelEventArgs> OnAxisValueChanged;
+        public event EventHandler<AxisChangedViewModelEventArgs> AxisValueChanged;
         public event EventHandler RecordingStopped;
-        public event EventHandler<EventArgs> SegmentBoundaryChanged;
 
         public bool IsDisabledForced { get; set; }
         public bool IsRecording { get; set; }
@@ -82,6 +79,19 @@ namespace SierraHOTAS.ViewModels
             set => _hotasAxis.Segments = value;
         }
 
+        //not a real property that stores data. This is used only for triggering binding to the AxisMap ViewModels
+        private int _segmentBoundary;
+        public int SegmentBoundary
+        {
+            get => _segmentBoundary;
+            set
+            {
+                if (_segmentBoundary == value) return;
+                _segmentBoundary = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsMultiAction
         {
             get => _hotasAxis.IsMultiAction;
@@ -129,6 +139,18 @@ namespace SierraHOTAS.ViewModels
             }
         }
 
+        private int _axisValue;
+        public int AxisValue
+        {
+            get => _axisValue;
+            set
+            {
+                if (value == _axisValue) return;
+                _axisValue = value;
+                OnPropertyChanged();
+            }
+        }
+
         public AxisDirection Direction { get; set; } = AxisDirection.Forward;
 
         private ObservableCollection<ButtonMapViewModel> _buttonMap;
@@ -170,8 +192,8 @@ namespace SierraHOTAS.ViewModels
             _hotasAxis = map;
             _segmentCount = _hotasAxis.Segments.Count;
 
-            _hotasAxis.OnAxisDirectionChanged += OnAxisDirectionChanged;
-            _hotasAxis.OnAxisSegmentChanged += OnAxisSegmentChanged;
+            _hotasAxis.AxisDirectionChanged += axisDirectionChanged;
+            _hotasAxis.AxisSegmentChanged += axisSegmentChanged;
 
             _mediaPlayer = mediaPlayerFactory.CreateMediaPlayer();
             _mediaPlayer.Volume = 0f;
@@ -310,7 +332,7 @@ namespace SierraHOTAS.ViewModels
 
         private void Segment_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            SegmentBoundaryChanged?.Invoke(this, new EventArgs());
+            SegmentBoundary = ((Segment)sender).Value;
         }
 
         /// <summary>
@@ -319,18 +341,20 @@ namespace SierraHOTAS.ViewModels
         /// <param name="value"></param>
         public void SetAxis(int value)
         {
+            _axisValue = value;
+            OnPropertyChanged(nameof(AxisValue));
             _appDispatcher?.Invoke(() =>
             {
-                OnAxisValueChanged?.Invoke(this, new AxisChangedViewModelEventArgs() { Value = value });
+                AxisValueChanged?.Invoke(this, new AxisChangedViewModelEventArgs() { Value = value });
             });
         }
 
-        private void OnAxisDirectionChanged(object sender, AxisDirectionChangedEventArgs e)
+        private void axisDirectionChanged(object sender, AxisDirectionChangedEventArgs e)
         {
             Direction = e.NewDirection;
         }
 
-        private void OnAxisSegmentChanged(object sender, AxisSegmentChangedEventArgs e)
+        private void axisSegmentChanged(object sender, AxisSegmentChangedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(SoundFileName)) return;
             if (sender is HOTASAxis axisMap)

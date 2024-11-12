@@ -35,7 +35,15 @@ namespace SierraJSON
         {
         }
     }
-    
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class SierraJsonNoHide : Attribute
+    {
+        public SierraJsonNoHide()
+        {
+        }
+    }
+
     public class SierraJsonAttributes
     {
         public static PropertyInfo[] GetSerializableProperties(Object obj)

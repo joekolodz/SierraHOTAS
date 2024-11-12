@@ -377,8 +377,8 @@ namespace SierraHOTAS.Tests
             var deviceVm = CreateDeviceViewMode_AxesChanged(out _, out var hotasDevice);
             var axis = deviceVm.ButtonMap.First(m => m.ButtonId == (int)JoystickOffset.Slider1) as AxisMapViewModel;
             Assert.NotNull(axis);
-            Assert.Raises<AxisChangedViewModelEventArgs>(a => axis.OnAxisValueChanged += a,
-                a => axis.OnAxisValueChanged -= a,
+            Assert.Raises<AxisChangedViewModelEventArgs>(a => axis.AxisValueChanged += a,
+                a => axis.AxisValueChanged -= a,
                 () => hotasDevice.AxisChanged += Raise.EventWith(hotasDevice,
                     new AxisChangedEventArgs()
                         {AxisId = axis.ButtonId, Value = 1000, Device = hotasDevice as HOTASDevice}));

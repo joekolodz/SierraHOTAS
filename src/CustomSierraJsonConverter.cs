@@ -2,6 +2,7 @@
 using SierraJSON;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace SierraHOTAS
 {
@@ -154,7 +155,9 @@ namespace SierraHOTAS
                 if (prop.Name == nameof(axis.SoundFileName) && string.IsNullOrEmpty((string)prop.GetValue(axis))) continue;
                 if (prop.Name == nameof(axis.SoundVolume) && Math.Abs((float)prop.GetValue(axis) - 1.0d) < 0.01) continue;
 
-                Serializer.WriteKeyValue(prop.Name, value);
+                var isNoHide = prop.GetCustomAttribute(typeof(SierraJsonNoHide));
+
+                Serializer.WriteKeyValue(prop.Name, value, isNoHide != null);
             }
             Serializer.WriteObjectEnd();
         }

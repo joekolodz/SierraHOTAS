@@ -21,7 +21,7 @@ namespace SierraHOTAS.Models
 
         public void Close()
         {
-            _audioFile.Close();
+            _audioFile?.Close();
         }
 
         public void Open(string sourceFilePath)

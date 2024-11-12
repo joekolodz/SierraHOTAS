@@ -1,7 +1,8 @@
-﻿using System;
+﻿using SierraHOTAS.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
-using SierraHOTAS.ViewModels;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -11,6 +12,8 @@ namespace SierraHOTAS.Controls
 {
     public partial class RadialAxisMap : UserControl
     {
+        private static int instances = 0;
+        private Guid id;
         private AxisMapViewModel _axisVm;
         private Line _arc;
         private Ellipse _circle;
@@ -18,16 +21,57 @@ namespace SierraHOTAS.Controls
         private double _gaugeDiameter = 40;
         private readonly Color _directionalColor;
 
+        public static DependencyProperty AxisHandProperty = DependencyProperty.Register(nameof(AxisHand), typeof(int), typeof(RadialAxisMap), new FrameworkPropertyMetadata(0, OnPropertyChangedChanged));
+        public static DependencyProperty IsMultiActionProperty = DependencyProperty.Register(nameof(IsMultiAction), typeof(int), typeof(RadialAxisMap), new FrameworkPropertyMetadata(0, OnPropertyChangedChanged));
+        public static DependencyProperty SegmentCountProperty = DependencyProperty.Register(nameof(SegmentCount), typeof(int), typeof(RadialAxisMap), new FrameworkPropertyMetadata(0, OnPropertyChangedChanged));
+        public static DependencyProperty SegmentBoundaryProperty = DependencyProperty.Register(nameof(SegmentBoundary), typeof(int), typeof(RadialAxisMap), new FrameworkPropertyMetadata(0, OnPropertyChangedChanged));
+        
+        private static void OnPropertyChangedChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (!(sender is RadialAxisMap prop)) return;
+            if(e.Property.Name == nameof(AxisHand)) prop.DrawCircle((int)e.NewValue);
+            if(e.Property.Name == nameof(IsMultiAction) || e.Property.Name == nameof(SegmentCount)) prop.OnSegmentsChanged();
+            if(e.Property.Name == nameof(SegmentBoundary)) prop.ChangeSegmentBoundary();
+        }
+
+        public int AxisHand
+        {
+            get => (int)GetValue(AxisHandProperty);
+            set => SetValue(AxisHandProperty, value);
+        }
+
+        public int IsMultiAction
+        {
+            get => (int)GetValue(IsMultiActionProperty);
+            set => SetValue(IsMultiActionProperty, value);
+        }
+
+        public int SegmentCount
+        {
+            get => (int)GetValue(SegmentCountProperty);
+            set => SetValue(SegmentCountProperty, value);
+        }
+
+        public int SegmentBoundary
+        {
+            get => (int)GetValue(SegmentBoundaryProperty);
+            set => SetValue(SegmentBoundaryProperty, value);
+        }
 
         public RadialAxisMap()
         {
             InitializeComponent();
+            instances++;
 
             _segmentLines = new List<Line>();
             _directionalColor = (Color)ColorConverter.ConvertFromString("#80e5ff");
 
             DataContextChanged += AxisMap_DataContextChanged;
+
             CreateDial();
+
+            id = Guid.NewGuid();
+            Debug.WriteLine($"RadialAxisMap Constructor - instances:{instances} - {id}");
         }
 
         private bool SegmentFilter(object segment)
@@ -35,33 +79,17 @@ namespace SierraHOTAS.Controls
             return _axisVm.SegmentFilter(segment);
         }
 
-        private void _axisVm_OnAxisValueChanged(object sender, AxisChangedViewModelEventArgs e)
-        {
-            DrawCircle(e.Value);
-        }
-
         private void AxisMap_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (_axisVm != null)
-            {
-                _axisVm.OnAxisValueChanged -= _axisVm_OnAxisValueChanged;
-                _axisVm.PropertyChanged -= _axisVm_PropertyChanged;
-                _axisVm.SegmentBoundaryChanged -= _axisVm_SegmentBoundaryChanged;
-            }
-
             _axisVm = DataContext as AxisMapViewModel;
             if (_axisVm == null) return;
 
             SetSegmentBoundaryFilter();
 
-            _axisVm.OnAxisValueChanged += _axisVm_OnAxisValueChanged;
-            _axisVm.PropertyChanged += _axisVm_PropertyChanged;
-            _axisVm.SegmentBoundaryChanged += _axisVm_SegmentBoundaryChanged;
-
             OnSegmentsChanged();
         }
 
-        private void _axisVm_SegmentBoundaryChanged(object sender, EventArgs e)
+        private void ChangeSegmentBoundary()
         {
             Dispatcher.Invoke(() =>
             {
@@ -77,13 +105,6 @@ namespace SierraHOTAS.Controls
             if (view != null)
             {
                 view.Filter = SegmentFilter;
-            }
-        }
-        private void _axisVm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(_axisVm.SegmentCount) || e.PropertyName == nameof(_axisVm.IsMultiAction))
-            {
-                OnSegmentsChanged();
             }
         }
 
