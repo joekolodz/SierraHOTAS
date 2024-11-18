@@ -482,8 +482,6 @@ namespace SierraHOTAS.ViewModels
 
                 _deviceList.ReplaceDevice(newDevice);
                 _deviceList.ListenToDevice(newDevice);
-                _deviceList.Stop();
-
 
                 deviceViewModel.ReplaceDevice(newDevice);
                 deviceViewModel.RebuildMap();
